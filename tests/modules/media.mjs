@@ -107,6 +107,49 @@ const inSync = (s) => s.active.length === 1 && s.active[0] === s.expectedChapter
 const spokenOf = (timeText, word) => timeText.split(' / ').map((x) => { const [m, sec] = x.split(':'); return `${Number(m)} min ${Number(sec)} s`; }).join(` ${word} `);
 const cueData = (page, locale) => page.evaluate((l) => window.BDCNotice.readEmbeddedJSON('data-cues')[l], locale);
 const events = (page) => page.evaluate(() => window.BDCNotice.events.all().map((e) => `${e.type}:${e.id}`));
+// Same formats as App.fmt.time / common.timeLong (whole seconds, floored)
+const clockOf = (sec) => { const x = Math.max(0, Math.floor(sec)); return `${Math.floor(x / 60)}:${String(x % 60).padStart(2, '0')}`; };
+const spokenDur = (sec) => { const x = Math.max(0, Math.floor(sec)); return `${Math.floor(x / 60)} min ${x % 60} s`; };
+// "Clear my activity" (footer): the shell's session reset
+const resetSession = (pg) => pg.evaluate(() => { const sh = window.BDCNotice.shell; (sh.resetActivity || sh.resetDemo)(); });
+
+// Recipient view: the player reads as the real notice. Mirrors RECIPIENT_BANNED
+// in tools/build.mjs, plus production notes a recipient would never see
+// (synthesis vendor, voice, model, pronunciation review).
+const RECIPIENT_BANNED = [
+  /\b(?:demos?|démos?|démonstrations?|demonstrations?|fictional|fictives?|fictifs?|synthetic|synthétiques?|illustrative|illustratifs?|illustrations?|prototypes?|conceptuelle|concept|presenter|présentat(?:eur|rice|ion)|sample)\b/i,
+  /this example|cet exemple|sample notice|avis type|not a BDC offer|non une offre de BDC|not connected to BDC|aucun lien avec les systèmes|no live AI|aucune connexion à une IA|nothing (?:is|was|has been) sent|rien n.a été envoyé|n.est envoyé|\blocally\b|\blocalement\b/i,
+  /ElevenLabs|text-to-speech|synthèse vocale|pronunciation|prononciation|\bvoice\s*:|\bvoix\s*:|\bmodel\s*:|\bmodèle\s*:/i,
+];
+const bannedHits = (label, list) => {
+  const out = [];
+  for (const [k, v] of list) for (const re of RECIPIENT_BANNED) { const m = String(v).match(re); if (m) { out.push(`${label}${k}: "${m[0]}"`); break; } }
+  return out;
+};
+// Every string a recipient can see or hear in the player: visible and hidden
+// text (poster, end card, transcript, chapter list, screen-reader hints) and
+// every accessible-name attribute, plus the media dictionary and the captions.
+const recipientStrings = (page) => page.evaluate(() => {
+  const App = window.BDCNotice;
+  const out = [];
+  const root = document.querySelector('.media-player');
+  if (root) {
+    out.push(['player text', root.textContent]);
+    [root, ...root.querySelectorAll('*')].forEach((el) => {
+      for (const a of ['aria-label', 'title', 'aria-roledescription', 'aria-valuetext', 'placeholder', 'alt']) {
+        const v = el.getAttribute(a);
+        if (v) out.push([`${el.tagName.toLowerCase()}[${a}]`, v]);
+      }
+    });
+  }
+  const walk = (v, k) => { if (typeof v === 'string') out.push([k, v]); else if (v && typeof v === 'object') Object.entries(v).forEach(([kk, vv]) => walk(vv, `${k}.${kk}`)); };
+  for (const l of ['en-CA', 'fr-CA']) {
+    walk(App.i18n._dicts[l].media, `dict ${l}.media`);
+    const cues = App.readEmbeddedJSON('data-cues')[l];
+    if (cues) cues.captions.forEach((c, i) => out.push([`captions ${l}[${i}]`, c.text]));
+  }
+  return out;
+});
 
 // Overflow inside the player (always), and of the document (isolated builds).
 async function mediaOverflow(page, mode) {
@@ -145,18 +188,31 @@ const frCh = Object.fromEntries(frCues.chapters.map((c) => [c.id, c]));
 let s = await state(page);
 const poster = await page.evaluate(() => {
   const p = document.querySelector('.media-player .media-poster');
-  return { visible: !!p && !p.hidden && p.getClientRects().length > 0, text: p ? p.innerText : '', play: !!p.querySelector('[data-fid="media-poster-play"]') };
+  const body = p && p.querySelector('.media-poster-body');
+  return {
+    visible: !!p && !p.hidden && p.getClientRects().length > 0,
+    text: p ? p.innerText : '',
+    play: !!p.querySelector('[data-fid="media-poster-play"]'),
+    first: body && body.firstElementChild ? body.firstElementChild.className : '',
+    items: body ? [...body.children].map((el) => el.className) : [],
+    tag: document.querySelectorAll('.media-player .media-poster-tag').length,
+  };
 });
 ok('poster shown with title and Play button', poster.visible && poster.text.includes('Your personalised explanation') && poster.play, poster);
 ok('poster personalised: "For Camille Roy · Atelier Boréal Inc."', poster.text.includes('For Camille Roy · Atelier Boréal Inc.'));
-ok('poster shows duration from cues (1:00)', poster.text.includes('1:00') && Math.floor(enCues.duration) === 60);
+ok('regenerated narration: en-CA 59.35 s, fr-CA 68.44 s', Math.abs(enCues.duration - 59.35) < 0.05 && Math.abs(frCues.duration - 68.44) < 0.05, [enCues.duration, frCues.duration]);
+ok(`poster shows the duration from the cues (${clockOf(enCues.duration)}), narration language, captions and transcript`,
+  poster.text.includes(clockOf(enCues.duration)) && poster.text.includes('Narrated in English') && poster.text.includes('Captions and transcript'), poster.text);
+ok('recipient poster: no concept/demo tag; the title opens the poster (title, client, details, Play)',
+  poster.tag === 0 && poster.first === 'media-poster-title' && poster.items.join('|') === 'media-poster-title|media-poster-for|media-poster-meta|media-bigplay', poster.items);
+ok('recipient poster: no demo, fictional or production wording', bannedHits('poster ', [['text', poster.text]]).length === 0, bannedHits('poster ', [['text', poster.text]]));
 ok('no autoplay: paused at 0:00', !s.playing && s.time === 0 && !s.engaged, s);
 ok('audio not decoded before first Play (deferred)', s.decoded.length === 0 && !s.audioReady, s.decoded);
 const names = await page.evaluate(() => [...document.querySelectorAll('.media-player button, .media-player input, .media-player select')]
   .filter((el) => el.getClientRects().length)
   .map((el) => ({ fid: el.getAttribute('data-fid'), name: (el.getAttribute('aria-label') || el.textContent || '').trim() })));
 ok('every visible control has an accessible name', names.length >= 10 && names.every((n) => n.name.length > 1), names.filter((n) => n.name.length <= 1));
-ok('seek bar aria-valuetext uses the spoken form "0 min 0 s of 1 min 0 s" (not clock digits)', (await page.getAttribute('.media-player .media-seek', 'aria-valuetext')) === '0 min 0 s of 1 min 0 s');
+ok(`seek bar aria-valuetext uses the spoken form "0 min 0 s of ${spokenDur(enCues.duration)}" (not clock digits)`, (await page.getAttribute('.media-player .media-seek', 'aria-valuetext')) === `0 min 0 s of ${spokenDur(enCues.duration)}`);
 ok('captions on by default', (await page.getAttribute('[data-fid="media-captions"]', 'aria-pressed')) === 'true');
 const hasFs = await page.evaluate(() => !!document.querySelector('[data-fid="media-fullscreen"]') === !!(document.fullscreenEnabled && Element.prototype.requestFullscreen));
 ok('fullscreen button shown only when supported', hasFs);
@@ -188,7 +244,7 @@ const bad = [];
 for (const tm of seekTimes) {
   await setRange(page, '.media-seek', tm.toFixed(1));
   const sn = await snapshot(page);
-  if (!inSync(sn) || sn.valuetext !== spokenOf(sn.timeText, 'of') || !sn.timeText.endsWith('/ 1:00')) { allSync = false; bad.push(sn); }
+  if (!inSync(sn) || sn.valuetext !== spokenOf(sn.timeText, 'of') || !sn.timeText.endsWith(`/ ${clockOf(enCues.duration)}`)) { allSync = false; bad.push(sn); }
 }
 ok('seek bar: each chapter shows its scene and caption; value text is the visible m:ss clock in spoken form', allSync, bad[0]);
 const ticks = await page.locator('.media-player .media-tick').count();
@@ -320,7 +376,12 @@ if (await page.locator('[data-fid="media-fullscreen"]').count()) {
 // S-16: any modal overlay (a dialog, Clair, the query form) makes the page
 // behind it inert, so the narration pauses - and stays paused once it closes.
 for (const how of ['dialog', 'clair-launcher', 'overview-cta-ask']) {
-  const avail = how === 'dialog' || await page.evaluate((f) => { const el = document.querySelector(`[data-fid="${f}"]`); return !!(el && el.getClientRects().length); }, how);
+  // The launcher / CTA open an overlay only when Clair / the query form are in this build
+  const avail = how === 'dialog' || await page.evaluate((f) => {
+    const App = window.BDCNotice;
+    const el = document.querySelector(`[data-fid="${f}"]`);
+    return !!(el && el.getClientRects().length) && !!(f === 'clair-launcher' ? App.clair : App.query);
+  }, how);
   if (!avail) { console.log(`  (${how} not in this build)`); continue; }
   if (!(await state(page)).playing) await clickFid(page, 'media-play');
   await page.waitForFunction(() => window.BDCNotice.media.state().playing, null, { timeout: 4000 }).catch(() => {});
@@ -378,12 +439,13 @@ const fr = await page.evaluate(() => ({
   vt: document.querySelector('.media-player .media-seek').getAttribute('aria-valuetext'),
   tx: document.querySelector('.media-player .media-transcript').innerText,
   speed: [...document.querySelectorAll('[data-fid="media-speed"] option')].map((o) => o.textContent),
-  note: document.querySelector('.media-player .media-note').textContent,
+  notes: document.querySelectorAll('.media-player .media-note').length,
+  after: [...document.querySelector('.media-player').children].map((el) => el.className),
 }));
 ok('fr-CA labels: controls, chapter, spoken seek value', fr.play === 'Lecture' && fr.label === 'Chapitre 3 sur 6 · D’où vient l’écart' && new RegExp(`^\\d+ min \\d+ s sur ${Math.floor(frCues.duration / 60)} min ${Math.floor(frCues.duration % 60)} s$`).test(fr.vt), fr);
 ok('fr-CA transcript (still open) shows the French narration', frCues.captions.every((c) => fr.tx.includes(c.text)) && fr.tx.includes('Transcription'));
 ok('fr-CA speed labels use the French decimal comma (no-break space before ×)', fr.speed.join('|') === '0,75\u00a0×|1\u00a0×|1,25\u00a0×|1,5\u00a0×', fr.speed);
-ok('fr-CA note: offline, never contacts ElevenLabs', fr.note.includes('ne communique jamais avec ElevenLabs'));
+ok('recipient view: no production note under the player (only the frame and the transcript)', fr.notes === 0 && fr.after.join('|') === 'media-fs|media-transcript', fr.after);
 if (shots) await page.locator('.media-player').screenshot({ path: `${shots}/fr-CA-1280-switched.png` });
 await clickFid(page, 'media-play');
 await page.waitForFunction((st) => window.BDCNotice.media.state().time > st + 0.8, frCh.difference.start, { timeout: 6000 }).catch(() => {});
@@ -482,7 +544,7 @@ await wait(page, 250);
 await ensurePlayer(page);
 
 // Session reset returns the player to its poster
-await page.evaluate(() => window.BDCNotice.shell.resetDemo());
+await resetSession(page);
 await wait(page, 300);
 await ensurePlayer(page);
 s = await state(page);
@@ -654,6 +716,12 @@ for (const locale of ['en-CA', 'fr-CA']) {
     ok('fr-CA: final payment never called « échéance d’origine / révisée » in the video', !/échéance d’origine|échéance révisée|Dernière échéance/.test(info.dict), info.scenes.tradeoff);
     ok('fr-CA: media dictionary uses U+00A0 before : and inside « » (never a breaking space) and no space before ; ! ?', info.frSpacing.length === 0, info.frSpacing);
   }
+  // Recipient view: poster, scenes, end card, chapter list, transcript, hints and
+  // accessible names, the media dictionary and the captions in both languages
+  const strs = await recipientStrings(page);
+  const hits = bannedHits(`${locale} `, strs);
+  ok(`${locale}: recipient view - the player, its accessible names, the media dictionary and the captions contain no demo, fictional, sample or production wording`,
+    hits.length === 0 && strs.length > 40 && strs.some(([k]) => k === 'player text'), hits.slice(0, 6));
 }
 await page.evaluate(() => window.BDCNotice.i18n.setLocale('en-CA'));
 await wait(page, 150);
@@ -703,6 +771,17 @@ for (const w of [320, 390]) {
   await n.page.evaluate(() => window.BDCNotice.i18n.setLocale('fr-CA'));
   await wait(n.page, 150);
   const m2 = await ensurePlayer(n.page);
+  const fp = await n.page.evaluate(() => {
+    const p = document.querySelector('.media-player .media-poster');
+    const body = p.querySelector('.media-poster-body');
+    const r = p.getBoundingClientRect();
+    const b = body.getBoundingClientRect();
+    return { text: p.innerText, items: [...body.children].map((el) => el.className), tag: p.querySelectorAll('.media-poster-tag').length, top: b.top - r.top, bottom: r.bottom - b.bottom };
+  });
+  ok(`fr-CA ${w}px poster: title, client, ${clockOf(frCues.duration)}, narration language, captions and transcript; no concept/demo tag`,
+    fp.tag === 0 && fp.items[0] === 'media-poster-title' && ['Votre explication personnalisée', 'Pour Camille Roy · Atelier Boréal Inc.', clockOf(frCues.duration), 'Narration en français', 'Sous-titres et transcription'].every((x) => fp.text.includes(x))
+    && bannedHits('', [['poster', fp.text]]).length === 0, fp);
+  ok(`fr-CA ${w}px poster: content stays vertically balanced without the tag (top and bottom margins within 24px)`, Math.abs(fp.top - fp.bottom) <= 24, fp);
   if (shots) await n.page.locator('.media-player').screenshot({ path: `${shots}/fr-CA-${w}-poster.png` });
   const c = frCues;
   await setRange(n.page, '.media-seek', (c.duration - 0.8).toFixed(1));
@@ -1067,7 +1146,7 @@ for (const [w, hgt] of [[320, 568], [320, 640], [360, 640], [375, 667], [390, 84
       }
     }
     // poster (fresh player state) and end card
-    await ph.page.evaluate(() => window.BDCNotice.shell.resetDemo());
+    await resetSession(ph.page);
     await wait(ph.page, 200);
     await ensurePlayer(ph.page);
     const posterFrame = (await measure()).frame;

@@ -1,8 +1,8 @@
-/* Clair: right-side demo assistant panel (navy header, light body, sticky composer). */
+/* Clair: right-side financing guide panel (navy header, light body, sticky composer). */
 
 .clair-overlay.overlay--panel { overflow: hidden; }
 
-/* Header strip: avatar + two-level title + close, then the demo status row */
+/* Header strip: avatar + two-level title + close, then the status row */
 .clair-overlay .overlay-header {
   background: var(--navy);
   color: var(--white);
@@ -50,8 +50,6 @@
 }
 .clair-status .icon { flex: 0 0 auto; margin-top: 1px; color: #a9bdff; }
 .clair-status-text { min-width: 0; }
-/* The key disclaimer phrase stays on one line */
-.clair-status-key { display: inline-block; max-width: 100%; }
 .clair-overlay .overlay-close {
   color: var(--white);
   background: transparent;
@@ -254,7 +252,7 @@
   .clair-form { padding-top: var(--space-2); }
 }
 /* Very short viewports (400% zoom, landscape phone with its keyboard open): the whole panel
-   scrolls as one column. The header, with the full demo status, scrolls away with the
+   scrolls as one column. The header, with its status line, scrolls away with the
    conversation; the context row and a compact composer stay pinned. On open the header is held
    in view (.clair-pinned, released by 31-clair.js on the first scroll, focus or question), and
    scroll-padding keeps focused controls clear of the pinned rows. */

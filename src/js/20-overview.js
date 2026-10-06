@@ -1,5 +1,5 @@
 /* Overview: a human welcome, then the facts (PRD section 7, AC-05, AC-10).
- * Order: navy hero (greeting, headline, intro, CTAs, workshop illustration)
+ * Order: navy hero (greeting, headline, intro, CTAs, decorative workshop scene)
  * → four summary cards with the honest-cost facts beside them
  * → what you need to do + what stays the same → personalised explanation.
  * Every figure comes from App.record / App.rec and is formatted with App.fmt. */
@@ -78,7 +78,7 @@
         p('M37.1 35.2l.9.8a2.6 2.6 0 0 0 3.6-3.7l-4.5-4'))));
   }
 
-  // Labelled illustration of a manufacturing workshop (no people portrayed).
+  // Decorative drawing of a manufacturing workshop (no people portrayed).
   function workshopIllustration() {
     const uid = App.util.uid('ov-ws');
     const id = (n) => `${uid}-${n}`;
@@ -256,9 +256,9 @@
           intro: App.ui.rich(t(k('intro'), { company: R.client.company })),
         }),
         ctas),
-      h('figure', { class: 'ov-illus' },
-        h('div', { class: 'ov-illus-frame' }, workshopIllustration()),
-        h('figcaption', { class: 'ov-illus-caption' }, t(k('illustration.caption')))));
+      // Purely decorative: hidden from assistive technology, no caption.
+      h('div', { class: 'ov-illus', 'aria-hidden': 'true' },
+        h('div', { class: 'ov-illus-frame' }, workshopIllustration())));
   }
 
   const CARD_ICONS = { 'next-payment': 'calendar', resume: 'clock', relief: 'cash', 'extra-interest': 'trend' };
@@ -366,7 +366,7 @@
         { badge: App.ui.badge('later'), clause: 'maturity', ctx: { kind: 'card', id: 'maturity' } }),
       fact('info', 'owing', t(k('beside.owingTitle')), emphasise(t(k('beside.owingText'), { amount: deferred }), [deferred]),
         { clause: 'postponement', ctx: { kind: 'card', id: 'debt' } }),
-      App.ui.demoNote({ className: 'ov-demo-note' }));
+      App.ui.demoNote({ className: 'ov-cad-note' }));
   }
 
   function summary() {

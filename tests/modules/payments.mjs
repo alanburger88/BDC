@@ -6,6 +6,8 @@
 // switching for out-of-range months, special routes (relief, cost, schedule),
 // separate infographics with record values, balance chart + data views, CSV
 // exports (content, filenames, events), fr-CA, 320px reflow, honest wording.
+// Recipient view: no demo / fictional / illustrative / local-generation wording
+// in the view, its aria-labels, the dictionaries or the CSV files (both locales).
 // QA fixes covered: R-20 (approved range totals vs labelled sums, per-schedule year
 // counts), R-22 (unsigned amount + direction word), R-23/R-38 (one exporter for the full
 // schedules, aligned selection CSV labels), R-33 (fr-CA spacing), R-36 (fr wording),
@@ -32,6 +34,32 @@ const activeFid = (page) => page.evaluate(() => {
 });
 const viewText = (page, sel = '#view') => page.locator(sel).first().innerText().then(N);
 const visibleCards = (page) => page.evaluate(() => [...document.querySelectorAll('.pay-mcard')].filter((b) => !b.closest('[hidden]')).map((b) => b.dataset.month));
+// Same patterns as the build's recipient gate (tools/build.mjs RECIPIENT_BANNED), plus the old demo ids.
+const RECIPIENT_BANNED = [
+  /\b(?:demos?|démos?|démonstrations?|demonstrations?|fictional|fictives?|fictifs?|synthetic|synthétiques?|illustrative|illustratifs?|illustrations?|illustrated|illustrée?s?|prototypes?|conceptuelle|concept|presenter|présentat(?:eur|rice|ion))\b/i,
+  /this example|cet exemple|sample notice|avis type|not a BDC offer|non une offre de BDC|not connected to BDC|aucun lien avec les systèmes|no live AI|aucune connexion à une IA|nothing (?:is|was|has been) sent|rien n.a été envoyé|n.est (?:envoyé|transmis)|\blocally\b|\blocalement\b|in this browser|dans ce navigateur|\bDEMO-/i,
+];
+const bannedHits = (text) => RECIPIENT_BANNED.map((re) => (String(text).match(re) || [])[0]).filter(Boolean);
+// Visible text plus the accessible names a screen reader announces (chart controls, SVG titles).
+const recipientText = (page) => page.evaluate(() => {
+  const root = document.getElementById('view');
+  const attrs = [...root.querySelectorAll('[aria-label], [title], [alt], [aria-description]')]
+    .flatMap((el) => ['aria-label', 'title', 'alt', 'aria-description'].map((a) => el.getAttribute(a)).filter(Boolean));
+  const svgTitles = [...root.querySelectorAll('svg title, svg desc')].map((x) => x.textContent);
+  return `${root.innerText}\n${attrs.join('\n')}\n${svgTitles.join('\n')}`;
+});
+const recordIds = (page) => page.evaluate(() => ({ notice: window.BDCNotice.record.noticeId, loan: window.BDCNotice.record.loan.id, version: window.BDCNotice.record.recordVersion }));
+// Scan the payments routes (data views open) in the active locale; returns "route: hit" strings.
+async function scanRoutes(page) {
+  const out = [];
+  for (const r of ['payments', 'payments/2027-02', 'payments/relief', 'payments/cost', 'payments/schedule', 'payments/2031-12']) {
+    await go(page, `#/${r}`);
+    await page.evaluate(() => document.querySelectorAll('.pay-data-toggle[aria-expanded="false"]').forEach((b) => b.click()));
+    await wait(page, 120);
+    bannedHits(await recipientText(page)).forEach((hit) => out.push(`#/${r}: ${hit}`));
+  }
+  return out;
+}
 const checkedRange = (page) => page.evaluate(() => (document.querySelector('input[name="pay-range"]:checked') || {}).value || null);
 
 // Expected strings computed in the page from the issued record (follow the active locale).
@@ -110,7 +138,8 @@ const browser = await launch();
     return {
       h1: v.querySelectorAll('h1').length,
       h1Text: (v.querySelector('h1') || {}).textContent,
-      demo: !!v.querySelector('.demo-note'),
+      cadNote: (v.querySelector('.pay-cad-note') || {}).textContent || '',
+      cad: window.BDCNotice.i18n.t('common.amountsInCAD'),
       summary: (v.querySelector('.pay-summary') || {}).textContent || '',
       terms: [...new Set([...v.querySelectorAll('.term[data-term]')].map((b) => b.dataset.term))],
       infos: [...v.querySelectorAll('.pay-info')].map((x) => x.id),
@@ -118,7 +147,11 @@ const browser = await launch();
     };
   });
   check('en: exactly one h1 (section header)', s.h1 === 1 && /month by month/i.test(s.h1Text), s);
-  check('en: illustrative demo note shown', s.demo);
+  check('en: currency note shown ("Amounts in Canadian dollars.")', N(s.cadNote) === N(s.cad) && s.cad === 'Amounts in Canadian dollars.', s.cadNote);
+  const ids = await recordIds(page);
+  check('record identifiers are the issued ones (no DEMO- prefix)', ids.notice && ids.loan && !/^DEMO-/i.test(ids.notice) && !/^DEMO-/i.test(ids.loan), ids);
+  const dl0 = N(await page.locator('.pay-downloads').innerText());
+  check('en: downloads intro describes the files plainly', dl0.includes('Download the months shown or a full schedule. In the CSV files, amounts are plain numbers in Canadian dollars, ready for a spreadsheet.'), dl0);
   check('en: key-effect summary uses record values', [e.relief, e.extra, e.revMaturity, e.resume].every((x) => N(s.summary).includes(N(x))), N(s.summary));
   check('en: glossary triggers (principal, interest, outstanding, amortisation, cashFlow)', ['principal', 'interest', 'outstanding', 'amortisation', 'cashFlow'].every((x) => s.terms.includes(x)), s.terms);
   check('en: two separate infographic cards (relief, cost)', JSON.stringify(s.infos) === JSON.stringify(['pay-relief', 'pay-cost']), s.infos);
@@ -352,14 +385,22 @@ const browser = await launch();
   });
   const rv = csvs['revised-full'];
   const ov = csvs['original-full'];
-  check('en: revised CSV filename matches the notice tab (notice id + locale)', rv.filename === 'DEMO-BDC-CHANGE-2026-001_revised-schedule_en-CA.csv' && ov.filename === 'DEMO-BDC-CHANGE-2026-001_original-schedule_en-CA.csv', [rv.filename, ov.filename]);
+  check('en: revised CSV filename matches the notice tab (notice id + locale)', rv.filename === `${ids.notice}_revised-schedule_en-CA.csv` && ov.filename === `${ids.notice}_original-schedule_en-CA.csv`, [rv.filename, ov.filename]);
   if (viaNotice) {
     check('en: full revised/original CSVs are exactly the notice exporter\'s files (R-23)', rv.content === viaNotice.notice.revised.content && rv.filename === viaNotice.notice.revised.filename && ov.content === viaNotice.notice.original.content && ov.filename === viaNotice.notice.original.filename);
     check('en: local fallback builder reproduces the notice exporter byte for byte', viaNotice.fallback.revised.content === viaNotice.notice.revised.content && viaNotice.fallback.revised.filename === viaNotice.notice.revised.filename && viaNotice.fallback.original.content === viaNotice.notice.original.content, [viaNotice.fallback.revised.content.slice(0, 300), viaNotice.notice.revised.content.slice(0, 300)]);
   } else {
     console.log('  (notice module not in this build: checking the local fallback only)');
   }
-  check('en: CSV starts with UTF-8 BOM and the notice metadata labels/status', rv.content.startsWith('﻿Notice,DEMO-BDC-CHANGE-2026-001\r\nRecord version,1.0\r\nStatus,Fictional demonstration — not a BDC offer or actual agreement\r\nLoan,DEMO-4821\r\n') && lines(rv).includes('Source,Generated locally in this browser from the demonstration record') && lines(rv).includes('"Illustrative financing schedule, not a BDC offer."'), rv.content.slice(0, 300));
+  check('en: CSV starts with UTF-8 BOM and the notice metadata labels/status', rv.content.startsWith(`﻿Notice,${ids.notice}\r\nRecord version,${ids.version}\r\nStatus,Approved and completed\r\nLoan,${ids.loan}\r\n`) && lines(rv).includes(`Source,"BDC notice ${ids.notice}, record version ${ids.version}"`), rv.content.slice(0, 300));
+  const metaLabels = (c) => lines(c).slice(0, lines(c).indexOf('')).map((row) => row.split(',')[0]);
+  check('en: CSV metadata block is the 11 shared labels, no disclaimer line', JSON.stringify(metaLabels(rv)) === JSON.stringify(['Notice', 'Record version', 'Status', 'Loan', 'Company', 'Schedule', 'Issue date', 'Effective date', 'Currency', 'Number of payments', 'Source']), metaLabels(rv));
+  const csvHits = Object.entries(csvs).flatMap(([kd, c]) => bannedHits(c.content).concat(bannedHits(c.filename)).map((hit) => `${kd}: ${hit}`));
+  check('en: no demo/fictional/illustrative/local wording in any CSV (5 kinds)', csvHits.length === 0, csvHits);
+  if (viaNotice) {
+    const fbHits = [...bannedHits(viaNotice.fallback.revised.content), ...bannedHits(viaNotice.fallback.original.content)];
+    check('en: fallback CSV builder has no demo/fictional/illustrative/local wording', fbHits.length === 0, fbHits);
+  }
   check('en: CSV uses CRLF line endings only', !/[^\r]\n/.test(rv.content) && !/[^\r]\n/.test(csvs['selection-6'].content));
   check('en: CSV has a blank row then localized header', /\r\n\r\nPayment date,Payment number,Opening principal,Principal,Interest,Total payment,Closing principal\r\n/.test(rv.content));
   check('en: revised CSV has 63 dated rows, machine decimals', dated(rv).length === 63 && dated(rv)[0] === '2026-11-30,1,240000.00,0.00,1600.00,1600.00,240000.00' && !rv.content.includes('560000'), dated(rv)[0]);
@@ -376,17 +417,17 @@ const browser = await launch();
   const s6 = csvs['selection-6'];
   check('en: selection-6 totals row is labelled as a sum of the rows above (R-20)', last(s6) === 'Sum of the rows above,,24000.00,9200.00,33200.00,,,12000.00,9520.00,21520.00,,-11680.00', last(s6));
   const sa = csvs['selection-all'];
-  check('en: selection-all 63 rows, original blank after Oct 2031, approved totals +4,800', dated(sa).length === 63 && dated(sa)[62].startsWith('2032-01-31,,,,,,4000.00,') && last(sa) === 'Totals,,240000.00,48800.00,288800.00,,,240000.00,53600.00,293600.00,,4800.00' && sa.filename === 'DEMO-BDC-CHANGE-2026-001_selection-full-term_en-CA.csv', [dated(sa)[62], last(sa), sa.filename]);
-  check('en: selection-6 filename', s6.filename === 'DEMO-BDC-CHANGE-2026-001_selection-first-6-months_en-CA.csv', s6.filename);
+  check('en: selection-all 63 rows, original blank after Oct 2031, approved totals +4,800', dated(sa).length === 63 && dated(sa)[62].startsWith('2032-01-31,,,,,,4000.00,') && last(sa) === 'Totals,,240000.00,48800.00,288800.00,,,240000.00,53600.00,293600.00,,4800.00' && sa.filename === `${ids.notice}_selection-full-term_en-CA.csv`, [dated(sa)[62], last(sa), sa.filename]);
+  check('en: selection-6 filename', s6.filename === `${ids.notice}_selection-first-6-months_en-CA.csv`, s6.filename);
 
   // Downloads through the UI + events
   const [dl] = await Promise.all([page.waitForEvent('download'), page.locator('[data-fid="pay-dl-revised"]').click()]);
   const dlText = readFileSync(await dl.path(), 'utf8');
-  check('en: "Download full revised schedule (CSV)" downloads the same file as the notice tab', dl.suggestedFilename() === 'DEMO-BDC-CHANGE-2026-001_revised-schedule_en-CA.csv' && dlText.split(/\r?\n/).filter((r) => /^\d{4}-\d{2}-\d{2}/.test(r)).length === 63 && (!viaNotice || dlText.replace(/^﻿/, '') === viaNotice.notice.revised.content.replace(/^﻿/, '')), dl.suggestedFilename());
+  check('en: "Download full revised schedule (CSV)" downloads the same file as the notice tab', dl.suggestedFilename() === `${ids.notice}_revised-schedule_en-CA.csv` && dlText.split(/\r?\n/).filter((r) => /^\d{4}-\d{2}-\d{2}/.test(r)).length === 63 && (!viaNotice || dlText.replace(/^﻿/, '') === viaNotice.notice.revised.content.replace(/^﻿/, '')), dl.suggestedFilename());
   const [dl2] = await Promise.all([page.waitForEvent('download'), page.locator('[data-fid="pay-dl-selection"]').click()]);
-  check('en: "Download displayed selection" follows the current range', dl2.suggestedFilename() === 'DEMO-BDC-CHANGE-2026-001_selection-full-term_en-CA.csv', dl2.suggestedFilename());
+  check('en: "Download displayed selection" follows the current range', dl2.suggestedFilename() === `${ids.notice}_selection-full-term_en-CA.csv`, dl2.suggestedFilename());
   const [dl3] = await Promise.all([page.waitForEvent('download'), page.locator('[data-fid="pay-dl-original"]').click()]);
-  check('en: "Download full original schedule" works', dl3.suggestedFilename() === 'DEMO-BDC-CHANGE-2026-001_original-schedule_en-CA.csv', dl3.suggestedFilename());
+  check('en: "Download full original schedule" works', dl3.suggestedFilename() === `${ids.notice}_original-schedule_en-CA.csv`, dl3.suggestedFilename());
   const ev = await page.evaluate(() => window.BDCNotice.events.all().filter((x) => x.type === 'schedule_exported').map((x) => x.id));
   check('en: schedule_exported events logged with identifiers only', JSON.stringify(ev) === JSON.stringify(['revised-full', 'selection-all', 'original-full']), ev);
   check('en: download buttons have accessible names matching /revised schedule.*CSV/', await page.locator('#view').getByRole('button', { name: /revised schedule.*CSV/i }).count() >= 1);
@@ -430,10 +471,12 @@ const browser = await launch();
     return { s3: A.payments.csv('selection-3'), s6: A.payments.csv('selection-6'), rv: A.payments.csv('revised-full'), notice: A.notice && A.notice.csv ? A.notice.csv('revised') : null };
   });
   const frLines = (c) => c.content.replace(/^﻿/, '').split('\r\n');
-  check('fr: selection CSV uses the notice labels and status (Avis, Version du dossier, État, Prêt, Source) (R-38)', ['Avis,DEMO-BDC-CHANGE-2026-001', 'Version du dossier,1.0', 'État,Démonstration fictive — ni une offre de BDC ni une entente réelle', 'Prêt,DEMO-4821', 'Source,Généré localement dans ce navigateur à partir du dossier de démonstration', '"Calendrier de financement illustratif, et non une offre de BDC."'].every((row) => frLines(frCsv.s6).includes(row)) && !/Statut|Création|Numéro de l’avis/.test(frCsv.s6.content), frCsv.s6.content.slice(0, 500));
+  check('fr: selection CSV uses the notice labels and status (Avis, Version du dossier, État, Prêt, Source) (R-38)', [`Avis,${ids.notice}`, `Version du dossier,${ids.version}`, 'État,Approuvée et effectuée', `Prêt,${ids.loan}`, `Source,"Avis de BDC ${ids.notice}, version du dossier ${ids.version}"`].every((row) => frLines(frCsv.s6).includes(row)) && !/Statut|Création|Numéro de l’avis/.test(frCsv.s6.content), frCsv.s6.content.slice(0, 500));
+  const frCsvHits = Object.entries(frCsv).filter(([, c]) => c).flatMap(([kd, c]) => bannedHits(c.content).map((hit) => `${kd}: ${hit}`));
+  check('fr: no demo/fictional/illustrative/local wording in the French CSV files', frCsvHits.length === 0, frCsvHits);
   check('fr: CSV header and machine numbers', frCsv.s6.content.includes('Date du versement,Initial – Capital au début') && frCsv.s6.content.includes('2026-11-30,240000.00,4000.00,1600.00,5600.00') && frCsv.s6.filename.endsWith('_fr-CA.csv'), frCsv.s6.filename);
   check('fr: totals rows « Totaux » (approved) and « Somme des lignes ci-dessus » (six months)', frLines(frCsv.s3).filter(Boolean).pop().startsWith('Totaux,') && frLines(frCsv.s6).filter(Boolean).pop().startsWith('Somme des lignes ci-dessus,'), [frLines(frCsv.s3).filter(Boolean).pop(), frLines(frCsv.s6).filter(Boolean).pop()]);
-  check('fr: full revised CSV is the notice tab\'s French file', frCsv.rv.filename === 'DEMO-BDC-CHANGE-2026-001_revised-schedule_fr-CA.csv' && (!frCsv.notice || frCsv.rv.content === frCsv.notice.content) && frLines(frCsv.rv).filter(Boolean).pop().startsWith('Totaux,'), frCsv.rv.filename);
+  check('fr: full revised CSV is the notice tab\'s French file', frCsv.rv.filename === `${ids.notice}_revised-schedule_fr-CA.csv` && (!frCsv.notice || frCsv.rv.content === frCsv.notice.content) && frLines(frCsv.rv).filter(Boolean).pop().startsWith('Totaux,'), frCsv.rv.filename);
   // R-36: a schedule is not repaid; the loan is
   await go(page, '#/payments/2031-12');
   const frAdded = N((await detailValues(page)).why);
@@ -457,6 +500,28 @@ const browser = await launch();
   await page.locator('[data-fid="pay-chart-2026-11"]').click();
   await wait(page, 350);
   check('fr: chart selection works in French, focus kept', (await hash(page)) === '#/payments/2026-11' && (await activeFid(page)) === 'pay-chart-2026-11');
+  check('fr: downloads intro describes the files plainly', N(await page.locator('.pay-downloads').innerText()).includes('Téléchargez les mois affichés ou un calendrier complet. Dans les fichiers CSV, les montants sont des nombres simples en dollars canadiens, prêts pour un tableur.'));
+
+  // Recipient view: no demo / fictional / illustrative / local wording on any payments route,
+  // in visible text, aria-labels or chart titles, nor in either dictionary.
+  const frScan = await scanRoutes(page);
+  check('fr: recipient view — no demo/fictional/illustrative/local wording on payments routes (text + aria)', frScan.length === 0, frScan);
+  await page.evaluate(() => window.BDCNotice.i18n.setLocale('en-CA'));
+  await wait(page, 300);
+  const enScan = await scanRoutes(page);
+  check('en: recipient view — no demo/fictional/illustrative/local wording on payments routes (text + aria)', enScan.length === 0, enScan);
+  const dictBad = await page.evaluate(() => {
+    const out = [];
+    for (const l of ['en-CA', 'fr-CA']) {
+      (function walk(v, path) {
+        if (typeof v === 'string') out.push([path, v]);
+        else if (v && typeof v === 'object') Object.keys(v).forEach((key) => walk(v[key], `${path}.${key}`));
+      }(window.BDCNotice.i18n._dicts[l].payments, `${l}.payments`));
+    }
+    return out;
+  });
+  const dictHits = dictBad.filter(([, v]) => bannedHits(v).length).map(([path, v]) => `${path}: ${bannedHits(v)[0]}`);
+  check('payments dictionaries (en-CA + fr-CA) have no demo/fictional/illustrative/local wording', dictHits.length === 0, dictHits);
 
   check('desktop: no console errors', consoleMsgs.length === 0, consoleMsgs.slice(0, 5));
   check('desktop: no unexpected network requests', requests.filter((u) => !u.startsWith('https://accessibilityserver.org/')).length === 0, requests);

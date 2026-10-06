@@ -23,7 +23,7 @@
 .pay-view > * + * { margin-top: var(--space-5); }
 .pay-view > .pay-section, .pay-view > .pay-card { margin-top: var(--space-7); }
 .pay-view .section-header { margin-bottom: var(--space-4); }
-.pay-demo-note { margin: 0; }
+.pay-cad-note { margin: 0; }
 
 /* Key-effect summary */
 .pay-summary {

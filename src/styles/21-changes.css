@@ -3,7 +3,7 @@
    labels and amounts wrap instead of widening the page. */
 .chg-view { min-width: 0; }
 .chg-view .section-header { margin-bottom: var(--space-3); }
-.chg-demo-note { margin: 0 0 var(--space-5); }
+.chg-cad-note { margin: 0 0 var(--space-5); }
 
 /* At a glance (navy band) */
 .chg-glance {

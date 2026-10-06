@@ -7,14 +7,11 @@ App.i18n.register('overview', {
     greeting: 'Hello, {name}. Let’s walk through your financing update.',
     overline: 'Notice of amendment · effective {date}',
     title: 'Your principal payments are postponed for three months.',
-    intro: 'In this fictional example, the temporary [[postponement|principal postponement]] requested for {company} has been approved and the amendment is complete. Here is what it means for your payments, and what stays the same.',
+    intro: 'The temporary [[postponement|principal postponement]] requested for {company} has been approved and the amendment is complete. Here is what it means for your payments, and what stays the same.',
     cta: {
       changes: 'See what changes',
       watch: 'Watch your personalised explanation',
       ask: 'Ask a question',
-    },
-    illustration: {
-      caption: 'Illustration of a manufacturing workshop. Not a photograph of the recipient or BDC staff.',
     },
     summary: {
       title: 'Your update at a glance',
@@ -63,9 +60,9 @@ App.i18n.register('overview', {
       step2Text: 'Plan for interest-only payments of {interest} a month from {from} to {to}, then a payment of {resumed} on {resumeDate}, when principal payments resume.',
       noAcceptance: 'No acceptance is required through this notice. The amendment is already approved and complete.',
       markReviewed: 'Mark as reviewed',
-      markHint: 'Optional. Keeps a note in this browser tab only.',
-      reviewedTitle: 'Marked as reviewed in this demo.',
-      reviewedNote: 'This is a local note only — not acceptance, consent or proof of understanding.',
+      markHint: 'Optional. A personal reminder for this visit only.',
+      reviewedTitle: 'Marked as reviewed.',
+      reviewedNote: 'This is a personal reminder only — not an acceptance of this notice, consent or proof of understanding.',
     },
     same: {
       title: 'What stays the same',
@@ -83,21 +80,18 @@ App.i18n.register('overview', {
       meta: 'About one minute · Captions and transcript included · No autoplay',
       text: 'A short animated walkthrough of this notice, narrated for you in English or French.',
       unavailableTitle: 'Explanation player unavailable',
-      unavailableText: 'The explanation player is not included in this build. The same information is on this page and in “{section}”.',
+      unavailableText: 'The explanation player is not available right now. The same information is on this page and in “{section}”.',
     },
   },
   'fr-CA': {
     greeting: 'Bonjour {name}. Faisons le point sur la modification de votre financement.',
     overline: 'Avis de modification · en vigueur le {date}',
     title: 'Vos remboursements de capital sont reportés de trois mois.',
-    intro: 'Dans cet exemple fictif, le [[postponement|report temporaire]] des remboursements de capital demandé pour {company} a été approuvé, et la modification est finalisée. Voici ce que cela change pour vos versements, et ce qui demeure inchangé.',
+    intro: 'Le [[postponement|report temporaire]] des remboursements de capital demandé pour {company} a été approuvé, et la modification est finalisée. Voici ce que cela change pour vos versements, et ce qui demeure inchangé.',
     cta: {
       changes: 'Voir ce qui change',
       watch: 'Voir votre explication personnalisée',
       ask: 'Poser une question',
-    },
-    illustration: {
-      caption: 'Illustration d’un atelier de fabrication. Il ne s’agit pas d’une photo de la personne destinataire ni du personnel de BDC.',
     },
     summary: {
       title: 'Votre modification en un coup d’œil',
@@ -146,9 +140,9 @@ App.i18n.register('overview', {
       step2Text: 'Prévoyez des versements d’intérêts seulement de {interest} par mois de {from} à {to}, puis un versement de {resumed} le {resumeDate}, à la reprise des remboursements de capital.',
       noAcceptance: 'Aucune acceptation de votre part n’est requise dans le cadre de cet avis. La modification est déjà approuvée et finalisée.',
       markReviewed: 'Marquer comme consulté',
-      markHint: 'Facultatif. Conserve une note dans cet onglet seulement.',
-      reviewedTitle: 'Marqué comme consulté dans cette démo.',
-      reviewedNote: 'Il s’agit uniquement d’une note locale, et non d’une acceptation, d’un consentement ni d’une preuve de compréhension.',
+      markHint: 'Facultatif. Un aide-mémoire personnel pour cette visite seulement.',
+      reviewedTitle: 'Marqué comme consulté.',
+      reviewedNote: 'Il s’agit uniquement d’un aide-mémoire personnel, et non d’une acceptation de cet avis, d’un consentement ni d’une preuve de compréhension.',
     },
     same: {
       title: 'Ce qui ne change pas',
@@ -164,9 +158,9 @@ App.i18n.register('overview', {
     media: {
       title: 'Votre explication personnalisée',
       meta: 'Environ une minute · Sous-titres et transcription inclus · Aucune lecture automatique',
-      text: 'Une courte présentation animée de cet avis, narrée pour vous en français ou en anglais.',
+      text: 'Un court parcours animé de cet avis, narré pour vous en français ou en anglais.',
       unavailableTitle: 'Lecteur d’explication non disponible',
-      unavailableText: 'Le lecteur d’explication n’est pas inclus dans cette version. La même information se trouve sur cette page et dans la section «\u00a0{section}\u00a0».',
+      unavailableText: 'Le lecteur d’explication n’est pas disponible pour le moment. La même information se trouve sur cette page et dans la section «\u00a0{section}\u00a0».',
     },
   },
 });

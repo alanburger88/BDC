@@ -1,4 +1,4 @@
-/* Your notice (namespace "notice"): formal synthetic notice wording, record
+/* Your notice (namespace "notice"): formal notice wording, record
  * metadata labels, export and print copy. Amounts, dates and identifiers are
  * always passed in as {params} formatted with App.fmt from the issued record.
  * [[termId|text]] markers become glossary triggers on screen and plain text
@@ -8,11 +8,7 @@ App.i18n.register('notice', {
   'en-CA': {
     overline: 'Formal reference',
     title: 'Your notice',
-    intro: 'This is the formal synthetic notice behind the plain-language explanations in this demonstration. It records the amendment, its effect on your payments and the revised repayment schedule.',
-    status: {
-      label: 'Record status',
-      fictional: 'Fictional demonstration — not a BDC offer or actual agreement',
-    },
+    intro: 'This is the formal text of your notice. It records the amendment, its effect on your payments and the revised repayment schedule. The other sections explain the same information in plain language.',
     meta: {
       title: 'Record details',
       noticeId: 'Notice identifier',
@@ -23,17 +19,17 @@ App.i18n.register('notice', {
       client: 'Client',
       company: 'Company',
       amendmentStatus: 'Amendment status',
-      amendmentStatusValue: 'Approved and completed (fictional scenario)',
+      amendmentStatusValue: 'Approved and completed',
       acceptance: 'Customer acceptance required',
       yes: 'Yes',
       no: 'No',
       fee: 'Change fee',
       processing: 'Payment processing',
-      processingValue: 'None in this demo',
+      processingValue: 'Not available through this notice',
     },
     actions: {
       title: 'Download and print',
-      intro: 'Files are generated in this browser from the demonstration record. Nothing is sent anywhere.',
+      intro: 'Print a clean copy of this notice, or download the schedules as CSV files for a spreadsheet.',
       print: 'Print / Save as PDF',
       printSub: 'Clean notice layout with the full schedule',
       revisedCsv: 'Download revised schedule (CSV)',
@@ -42,7 +38,7 @@ App.i18n.register('notice', {
       recordJson: 'Download notice record (JSON)',
       recordJsonSub: 'Record data and both schedules',
       pdfNote: 'Browser-generated PDF is a convenience copy, not a certified archival record.',
-      downloaded: '{file} was generated in this browser.',
+      downloaded: 'Download started: {file}',
       printOpening: 'Print layout prepared. Your browser’s print dialog is opening.',
     },
     toc: {
@@ -51,14 +47,13 @@ App.i18n.register('notice', {
     letter: {
       aria: 'Formal notice text',
       lhTitle: 'Important financing notice',
-      lhSub: 'Synthetic notice for a concept demonstration',
       date: 'Date',
       notice: 'Notice',
       loan: 'Loan',
       to: 'To',
       re: 'Re: Loan {loan} — Notice of amendment: principal postponement',
       closingTitle: 'About this document',
-      closing: 'This synthetic notice was prepared for a concept demonstration. It was not issued by BDC and does not create, change or confirm any actual financing terms.',
+      closing: 'This notice is the formal reference for the amendment to loan {loan}. Please keep a copy with your business records.',
     },
     links: {
       plain: 'Read the plain-language explanation',
@@ -70,12 +65,12 @@ App.i18n.register('notice', {
     },
     text: {
       purpose: {
-        p1: 'This notice confirms an amendment to the repayment terms of loan {loan} for {company} and describes its effect on your payments, interest and final payment date. It is the formal reference for the plain-language explanations in this demonstration.',
-        p2: 'This is a synthetic notice prepared for a concept demonstration. The client, the loan and all amounts are fictional. It is not an actual BDC notice, offer or agreement.',
+        p1: 'This notice confirms an amendment to the repayment terms of loan {loan} for {company} and describes its effect on your payments, interest and final payment date.',
+        p2: 'It is the formal reference for the plain-language explanations and charts provided with it. Those explanations help you understand this notice; they do not change its terms.',
       },
       amendment: {
-        p1Seasonal: 'At the request of the client, {company}, and to support a planned seasonal inventory build, a temporary [[postponement|principal postponement]] on loan {loan} has been approved and completed in this fictional scenario. The amendment takes effect on {effective}.',
-        p1: 'At the request of the client, {company}, a temporary [[postponement|principal postponement]] on loan {loan} has been approved and completed in this fictional scenario. The amendment takes effect on {effective}.',
+        p1Seasonal: 'At the request of the client, {company}, and to support a planned seasonal inventory build, a temporary [[postponement|principal postponement]] on loan {loan} has been approved and completed. The amendment takes effect on {effective}.',
+        p1: 'At the request of the client, {company}, a temporary [[postponement|principal postponement]] on loan {loan} has been approved and completed. The amendment takes effect on {effective}.',
         p2: 'The amendment changes when principal is repaid. It does not change the interest rate or reduce the principal owing.',
         summaryLabel: 'Amendment summary',
         type: 'Type of amendment',
@@ -108,7 +103,7 @@ App.i18n.register('notice', {
         totalPayments: 'Total remaining payments increase from {origTotal} to {revTotal}.',
         nearTerm: 'Payments due from {from} to {to} total {revNear} instead of {origNear}, a reduction of {relief}. This equals the {deferred} of postponed principal less {extra3} of additional interest payable during those months.',
         partOf: 'The {extra3} of additional interest payable during those months forms part of the {extra} increase in total interest. It is not charged in addition to it.',
-        sameAmount: 'In this example, the payments due from {from} to {to} ({revNear}) and the increase in total interest ({extra}) happen to be the same amount. They measure different things.',
+        sameAmount: 'The payments due from {from} to {to} ({revNear}) and the increase in total interest ({extra}) happen to be the same amount. They measure different things.',
         p2: 'The postponed principal of {deferred} remains owing. This amendment does not cancel or reduce any amount owing.',
       },
       unchanged: {
@@ -127,11 +122,11 @@ App.i18n.register('notice', {
         p1: 'The revised schedule below lists all {count} remaining monthly payments, from {firstDate} to {lastDate}. It replaces the original schedule from the effective date, {effective}.',
       },
       assumptions: {
-        p1: 'The schedules in this notice are an illustration based on the following simulation assumptions. They are not actual BDC servicing conventions.',
+        p1: 'The amounts and dates in the schedules of this notice are calculated as follows:',
       },
       contact: {
-        p1: 'For questions about this notice, use Help & questions in this demonstration to read answers to common questions, look up terms in the glossary or prepare a question about a specific clause. You can also ask Clair, the demo assistant, to explain any clause.',
-        p2: 'In this concept demonstration, nothing is sent to BDC and no BDC contact details are provided. In an actual notice, this section would explain how to reach your BDC account manager.',
+        p1: 'If you have questions about this notice or your loan, contact your BDC account manager.',
+        p2: 'You can also use Help & questions to read answers to common questions, look up terms in the glossary or prepare a question about a specific clause. Clair, your financing guide, can explain any clause in plain language.',
       },
     },
     schedule: {
@@ -169,12 +164,12 @@ App.i18n.register('notice', {
     assumptions: {
       items: [
         'Monthly interest is calculated at the fixed annual rate of {rate} divided by 12, applied to the opening principal for the month and rounded half-up to the nearest cent.',
-        'Payments fall on the last calendar day of each month, with no business-day adjustment.',
+        'Payments are due on the last calendar day of each month, with no business-day adjustment.',
         'No interest is capitalised (added to the principal).',
-        'No new advances and no additional or early repayments are assumed.',
-        'The illustrated schedule starts on {start}; loan history and interest before that date are not reconstructed.',
+        'The schedules include no new advances and no additional or early repayments.',
+        'The schedules are shown from {start}; payments and interest before that date are not included.',
       ],
-      fallbackNote: 'Shown as written in the demonstration record (English).',
+      fallbackNote: 'Shown as written in the notice record (English).',
     },
     csv: {
       noticeId: 'Notice',
@@ -190,13 +185,12 @@ App.i18n.register('notice', {
       currency: 'Currency',
       payments: 'Number of payments',
       source: 'Source',
-      sourceValue: 'Generated locally in this browser from the demonstration record',
-      note: 'Illustrative financing schedule, not a BDC offer.',
+      sourceValue: 'BDC notice {notice}, record version {version}',
       headers: ['Payment date', 'Payment number', 'Opening principal', 'Principal', 'Interest', 'Total payment', 'Closing principal'],
       totals: 'Totals',
     },
     json: {
-      note: 'Fictional demonstration record generated locally in this browser. It is not a BDC record, offer or agreement.',
+      note: 'Notice {notice}, record version {version}: record data with the original and revised repayment schedules. Amounts are in cents; dates are ISO dates.',
     },
     print: {
       title: 'Important financing notice',
@@ -211,11 +205,7 @@ App.i18n.register('notice', {
   'fr-CA': {
     overline: 'Référence officielle',
     title: 'Votre avis',
-    intro: 'Voici le texte officiel de l’avis fictif sur lequel reposent les explications en langage clair de cette démonstration. Il consigne la modification, son incidence sur vos versements et le calendrier de remboursement révisé.',
-    status: {
-      label: 'État du dossier',
-      fictional: 'Démonstration fictive — ni une offre de BDC ni une entente réelle',
-    },
+    intro: 'Voici le texte officiel de votre avis. Il consigne la modification, son incidence sur vos versements et le calendrier de remboursement révisé. Les autres sections présentent les mêmes renseignements en langage clair.',
     meta: {
       title: 'Renseignements sur le dossier',
       noticeId: 'Numéro de l’avis',
@@ -226,17 +216,17 @@ App.i18n.register('notice', {
       client: 'Personne cliente',
       company: 'Entreprise',
       amendmentStatus: 'État de la modification',
-      amendmentStatusValue: 'Approuvée et effectuée (scénario fictif)',
+      amendmentStatusValue: 'Approuvée et effectuée',
       acceptance: 'Acceptation requise de votre part',
       yes: 'Oui',
       no: 'Non',
       fee: 'Frais de modification',
       processing: 'Traitement des paiements',
-      processingValue: 'Aucun dans cette démonstration',
+      processingValue: 'Non offert dans le cadre du présent avis',
     },
     actions: {
       title: 'Télécharger et imprimer',
-      intro: 'Les fichiers sont générés dans ce navigateur à partir du dossier de démonstration. Rien n’est transmis.',
+      intro: 'Imprimez une copie soignée du présent avis ou téléchargez les calendriers en fichiers CSV pour un tableur.',
       print: 'Imprimer / Enregistrer en PDF',
       printSub: 'Mise en page soignée de l’avis, avec le calendrier complet',
       revisedCsv: 'Télécharger le calendrier révisé (CSV)',
@@ -245,7 +235,7 @@ App.i18n.register('notice', {
       recordJson: 'Télécharger le dossier de l’avis (JSON)',
       recordJsonSub: 'Données du dossier et les deux calendriers',
       pdfNote: 'Le PDF généré par le navigateur est une copie pour consultation, et non un document d’archivage certifié.',
-      downloaded: 'Le fichier {file} a été généré dans ce navigateur.',
+      downloaded: 'Téléchargement lancé : {file}',
       printOpening: 'La mise en page d’impression est prête. La fenêtre d’impression de votre navigateur s’ouvre.',
     },
     toc: {
@@ -254,14 +244,13 @@ App.i18n.register('notice', {
     letter: {
       aria: 'Texte officiel de l’avis',
       lhTitle: 'Avis important concernant votre financement',
-      lhSub: 'Avis fictif préparé pour une démonstration conceptuelle',
       date: 'Date',
       notice: 'Avis',
       loan: 'Prêt',
       to: 'Destinataire',
       re: 'Objet : Prêt {loan} — Avis de modification : report des remboursements de capital',
       closingTitle: 'À propos de ce document',
-      closing: 'Cet avis fictif a été préparé pour une démonstration conceptuelle. Il n’a pas été émis par BDC et ne crée, ne modifie ni ne confirme aucune modalité de financement réelle.',
+      closing: 'Le présent avis constitue la référence officielle de la modification apportée au prêt {loan}. Veuillez en conserver une copie avec les dossiers de votre entreprise.',
     },
     links: {
       plain: 'Lire l’explication en langage clair',
@@ -273,12 +262,12 @@ App.i18n.register('notice', {
     },
     text: {
       purpose: {
-        p1: 'Le présent avis confirme une modification des modalités de remboursement du prêt {loan} consenti à {company} et décrit son incidence sur vos versements, vos intérêts et la date de votre dernier versement. Il constitue la référence officielle des explications en langage clair de cette démonstration.',
-        p2: 'Il s’agit d’un avis fictif préparé pour une démonstration conceptuelle. La personne cliente, le prêt et tous les montants sont fictifs. Ce document n’est ni un avis, ni une offre, ni une entente réels de BDC.',
+        p1: 'Le présent avis confirme une modification des modalités de remboursement du prêt {loan} consenti à {company} et décrit son incidence sur vos versements, vos intérêts et la date de votre dernier versement.',
+        p2: 'Il constitue la référence officielle des explications en langage clair et des graphiques qui l’accompagnent. Ces explications vous aident à comprendre le présent avis; elles n’en modifient pas les modalités.',
       },
       amendment: {
-        p1Seasonal: 'À la demande de l’entreprise cliente, {company}, et afin de soutenir la constitution prévue de stocks saisonniers, un [[postponement|report]] temporaire des remboursements de capital a été approuvé et effectué pour le prêt {loan} dans ce scénario fictif. La modification entre en vigueur le {effective}.',
-        p1: 'À la demande de l’entreprise cliente, {company}, un [[postponement|report]] temporaire des remboursements de capital a été approuvé et effectué pour le prêt {loan} dans ce scénario fictif. La modification entre en vigueur le {effective}.',
+        p1Seasonal: 'À la demande de l’entreprise cliente, {company}, et afin de soutenir la constitution prévue de stocks saisonniers, un [[postponement|report]] temporaire des remboursements de capital a été approuvé et effectué pour le prêt {loan}. La modification entre en vigueur le {effective}.',
+        p1: 'À la demande de l’entreprise cliente, {company}, un [[postponement|report]] temporaire des remboursements de capital a été approuvé et effectué pour le prêt {loan}. La modification entre en vigueur le {effective}.',
         p2: 'La modification porte sur le moment où le capital est remboursé. Elle ne change pas le taux d’intérêt et ne réduit pas le capital dû.',
         summaryLabel: 'Résumé de la modification',
         type: 'Type de modification',
@@ -311,7 +300,7 @@ App.i18n.register('notice', {
         totalPayments: 'Le total des versements restants passe de {origTotal} à {revTotal}.',
         nearTerm: 'Les versements exigibles de {from} à {to} totalisent {revNear} au lieu de {origNear}, soit {relief} de moins. Ce montant correspond aux {deferred} de capital reporté, moins {extra3} d’intérêts additionnels payables pendant ces mois.',
         partOf: 'Les {extra3} d’intérêts additionnels payables pendant ces mois font partie de la hausse de {extra} du total des intérêts. Ils ne s’y ajoutent pas.',
-        sameAmount: 'Dans cet exemple, les versements exigibles de {from} à {to} ({revNear}) et la hausse du total des intérêts ({extra}) correspondent par hasard au même montant. Ils mesurent des choses différentes.',
+        sameAmount: 'Les versements exigibles de {from} à {to} ({revNear}) et la hausse du total des intérêts ({extra}) correspondent par hasard au même montant. Ils mesurent des choses différentes.',
         p2: 'Le capital reporté de {deferred} reste dû. Cette modification n’annule ni ne réduit aucun montant dû.',
       },
       unchanged: {
@@ -330,11 +319,11 @@ App.i18n.register('notice', {
         p1: 'Le calendrier révisé ci-dessous présente les {count} versements mensuels restants, du {firstDate} au {lastDate}. Il remplace le calendrier initial à compter de la date d’entrée en vigueur, le {effective}.',
       },
       assumptions: {
-        p1: 'Les calendriers du présent avis sont une illustration fondée sur les hypothèses de simulation suivantes. Il ne s’agit pas de pratiques réelles de gestion des prêts de BDC.',
+        p1: 'Les montants et les dates des calendriers du présent avis sont établis comme suit :',
       },
       contact: {
-        p1: 'Pour toute question sur le présent avis, consultez la section Aide et questions de cette démonstration : vous y trouverez des réponses aux questions fréquentes, le glossaire et un formulaire pour préparer une question sur une clause précise. Vous pouvez aussi demander à Clair, l’assistant de démonstration, d’expliquer n’importe quelle clause.',
-        p2: 'Dans cette démonstration conceptuelle, rien n’est transmis à BDC et aucune coordonnée de BDC n’est fournie. Dans un avis réel, cette section indiquerait comment joindre votre directrice ou directeur de comptes chez BDC.',
+        p1: 'Pour toute question sur le présent avis ou sur votre prêt, communiquez avec votre directrice ou directeur de comptes chez BDC.',
+        p2: 'Vous pouvez aussi consulter la section Aide et questions pour lire les réponses aux questions fréquentes, chercher un terme dans le glossaire ou préparer une question sur une clause précise. Clair, votre guide du financement, peut vous expliquer n’importe quelle clause en langage clair.',
       },
     },
     schedule: {
@@ -372,12 +361,12 @@ App.i18n.register('notice', {
     assumptions: {
       items: [
         'Les intérêts mensuels sont calculés au taux annuel fixe de {rate} divisé par 12, appliqué au capital au début du mois; ils sont arrondis au cent le plus proche (la demie étant arrondie au cent supérieur).',
-        'Les versements tombent le dernier jour civil de chaque mois, sans rajustement en fonction des jours ouvrables.',
+        'Les versements sont exigibles le dernier jour civil de chaque mois, sans rajustement en fonction des jours ouvrables.',
         'Aucun intérêt n’est capitalisé (ajouté au capital).',
-        'On suppose qu’il n’y a ni nouvelle avance de fonds ni remboursement supplémentaire ou anticipé.',
-        'Le calendrier illustré commence le {start}; l’historique du prêt et les intérêts antérieurs à cette date ne sont pas reconstitués.',
+        'Les calendriers ne comprennent aucune nouvelle avance de fonds ni aucun remboursement supplémentaire ou anticipé.',
+        'Les calendriers sont présentés à compter du {start}; les versements et les intérêts antérieurs à cette date n’y figurent pas.',
       ],
-      fallbackNote: 'Affiché tel qu’il figure dans le dossier de démonstration (en anglais).',
+      fallbackNote: 'Affiché tel qu’il figure dans le dossier de l’avis (en anglais).',
     },
     csv: {
       noticeId: 'Avis',
@@ -393,13 +382,12 @@ App.i18n.register('notice', {
       currency: 'Devise',
       payments: 'Nombre de versements',
       source: 'Source',
-      sourceValue: 'Généré localement dans ce navigateur à partir du dossier de démonstration',
-      note: 'Calendrier de financement illustratif, et non une offre de BDC.',
+      sourceValue: 'Avis de BDC {notice}, version du dossier {version}',
       headers: ['Date du versement', 'Numéro du versement', 'Capital au début', 'Capital', 'Intérêts', 'Versement total', 'Capital à la fin'],
       totals: 'Totaux',
     },
     json: {
-      note: 'Dossier de démonstration fictif généré localement dans ce navigateur. Il ne s’agit pas d’un dossier, d’une offre ni d’une entente de BDC.',
+      note: 'Avis {notice}, version du dossier {version} : données du dossier, avec les calendriers de remboursement initial et révisé. Les montants sont exprimés en cents; les dates sont au format ISO.',
     },
     print: {
       title: 'Avis important concernant votre financement',

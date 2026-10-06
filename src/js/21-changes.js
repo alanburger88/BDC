@@ -323,7 +323,8 @@
         cell('after', t('common.after'), value(p.revNear), sub(k('schedule.revised'))),
         { labelledby: capId }),
       h('div', { class: 'callout callout--neutral chg-recon-note' }, App.ui.icon('info'), h('p', null, k('recon.note', { extra3: p.extra3, extra: p.extra }))),
-      h('p', { class: 'chg-fine' }, k('recon.sameAmount', { ...range, revised: p.revNear, extra: p.extra })),
+      // Only when the two figures coincide in the issued record (display selection, no new arithmetic).
+      f.d.revisedNearTermPaymentsCents === f.d.additionalLifetimeInterestCents ? h('p', { class: 'chg-fine' }, k('recon.sameAmount', { ...range, revised: p.revNear, extra: p.extra })) : null,
       h('div', { class: 'chg-card-foot' },
         h('div', { class: 'chg-actions' },
           App.ui.explainButton(ctx, { fid: `chg-explain-relief${sfx}` }),
@@ -391,7 +392,7 @@
     el.appendChild(h('div', { class: 'chg-view' },
       listBackControl(),
       App.ui.sectionHeader({ overline: k('overline'), title: k('title'), intro: App.ui.rich(k('intro', { months: p.months })) }),
-      App.ui.demoNote({ className: 'chg-demo-note' }),
+      App.ui.demoNote({ className: 'chg-cad-note' }),
       glance(p),
       group('changed', null, h('div', { class: 'chg-grid' }, card('principal'), card('next-payment'), card('interest'), card('maturity'))),
       group('owing', { period: p.period }, h('div', { class: 'chg-grid chg-grid--owing' }, card('debt'), reconciliation(p, f))),
@@ -705,7 +706,7 @@
 
     el.appendChild(h('div', { class: ['chg-view', 'chg-detail', `chg-detail--${id}`], dataset: { detail: id } },
       h('div', { class: 'chg-detail-top' }, backNav(id), header),
-      App.ui.demoNote({ className: 'chg-demo-note' }),
+      App.ui.demoNote({ className: 'chg-cad-note' }),
       h('div', { class: 'chg-detail-layout' },
         h('div', { class: 'chg-detail-main' },
           h('section', { class: 'chg-detail-section chg-breakdown', 'aria-labelledby': 'chg-breakdown-title' },

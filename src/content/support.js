@@ -26,7 +26,7 @@ App.i18n.register('support', {
     whyTitle: 'Why this may be relevant',
     learnMore: 'Learn more on bdc.ca',
     externalAria: '{action}: {title} (opens an external BDC website in a new tab)',
-    inquiryAria: '{action}: {title}. Prepares a local demo question; nothing is sent to BDC.',
+    inquiryAria: '{action}: {title}. Opens a form to prepare a question about this resource.',
     cards: {
       'financial-management': {
         title: 'Financial management consulting',
@@ -64,10 +64,10 @@ App.i18n.register('support', {
         title: 'Talk to us about your situation',
         summary: 'If making your payments or planning cash flow is difficult right now, start with a conversation. You can prepare a question, or find answers in Help & questions.',
         whyTitle: 'Why this comes first',
-        why: 'In this demonstration, when a hardship or arrears flag is set, help comes before any suggestion of new borrowing.',
-        note: 'In this demonstration, a question you prepare stays in your browser. Nothing is sent to BDC.',
+        why: 'When payments may be difficult, help with your current financing comes before any suggestion of new borrowing.',
+        note: 'To talk about your situation, you can also contact your BDC account manager.',
         ask: 'Ask a question',
-        askAria: 'Ask a question about your situation. Prepares a local demo question; nothing is sent to BDC.',
+        askAria: 'Ask a question about your situation. Opens a form to prepare your question.',
         helpLink: 'Go to Help & questions',
       },
     },
@@ -81,13 +81,12 @@ App.i18n.register('support', {
       text: 'You chose to hide every suggestion for this session. Your notice and its information are not affected.',
     },
     rule: {
-      title: 'Borrowing suggestions are hidden',
-      text: 'A hardship or arrears flag is set for this demonstration, so a responsible demo rule hides additional-borrowing suggestions and puts help first. This is a rule of this demonstration, not a BDC policy.',
+      title: 'Support comes first',
+      text: 'Suggestions for additional borrowing are not shown on this page. If making payments or planning cash flow is a concern, start with the support below.',
     },
     footer: {
       links: 'Links open BDC’s public website in a new tab, only when you select them.',
-      data: 'This demonstration does not share any data with BDC, and questions you prepare here stay in this browser.',
-      source: 'Descriptions summarize BDC’s public information for this concept demonstration. They are not offers.',
+      source: 'Descriptions summarize BDC’s public information. They are not offers.',
     },
   },
   'fr-CA': {
@@ -110,7 +109,7 @@ App.i18n.register('support', {
     whyTitle: 'Pourquoi cela pourrait être pertinent',
     learnMore: 'En savoir plus sur bdc.ca',
     externalAria: '{action} : {title} (ouvre un site Web externe de BDC dans un nouvel onglet)',
-    inquiryAria: '{action} : {title}. Prépare une question de démonstration locale; rien n’est transmis à BDC.',
+    inquiryAria: '{action} : {title}. Ouvre un formulaire pour préparer une question sur cette ressource.',
     cards: {
       'financial-management': {
         title: 'Consultation en gestion financière',
@@ -148,10 +147,10 @@ App.i18n.register('support', {
         title: 'Parlez-nous de votre situation',
         summary: 'S’il vous est difficile en ce moment d’effectuer vos versements ou de planifier votre trésorerie, commencez par en parler. Vous pouvez préparer une question ou trouver des réponses dans Aide et questions.',
         whyTitle: 'Pourquoi l’aide passe en premier',
-        why: 'Dans cette démonstration, lorsqu’un indicateur de difficulté financière ou d’arriérés est activé, l’aide passe avant toute suggestion de nouvel emprunt.',
-        note: 'Dans cette démonstration, une question que vous préparez reste dans votre navigateur. Rien n’est transmis à BDC.',
+        why: 'Lorsque les versements peuvent être difficiles, l’aide relative à votre financement actuel vient avant toute suggestion de nouvel emprunt.',
+        note: 'Pour parler de votre situation, vous pouvez aussi communiquer avec votre directrice ou directeur de comptes chez BDC.',
         ask: 'Poser une question',
-        askAria: 'Poser une question au sujet de votre situation. Prépare une question de démonstration locale; rien n’est transmis à BDC.',
+        askAria: 'Poser une question au sujet de votre situation. Ouvre un formulaire pour préparer votre question.',
         helpLink: 'Aller à Aide et questions',
       },
     },
@@ -165,13 +164,12 @@ App.i18n.register('support', {
       text: 'Vous avez choisi de masquer toutes les suggestions pour cette session. Votre avis et ses renseignements ne sont pas touchés.',
     },
     rule: {
-      title: 'Les suggestions d’emprunt sont masquées',
-      text: 'Un indicateur de difficulté financière ou d’arriérés est activé pour cette démonstration; une règle de démonstration responsable masque donc les suggestions d’emprunt supplémentaire et met l’aide en priorité. Il s’agit d’une règle de cette démonstration, et non d’une politique de BDC.',
+      title: 'Le soutien d’abord',
+      text: 'Les suggestions d’emprunt supplémentaire ne sont pas affichées sur cette page. Si vos versements ou votre planification de trésorerie vous préoccupent, commencez par le soutien présenté ci-dessous.',
     },
     footer: {
       links: 'Les liens ouvrent le site Web public de BDC dans un nouvel onglet, seulement si vous les sélectionnez.',
-      data: 'Cette démonstration ne transmet aucune donnée à BDC, et les questions que vous préparez ici restent dans ce navigateur.',
-      source: 'Les descriptions résument l’information publique de BDC pour cette démonstration conceptuelle. Elles ne constituent pas des offres.',
+      source: 'Les descriptions résument l’information publique de BDC. Elles ne constituent pas des offres.',
     },
   },
 });

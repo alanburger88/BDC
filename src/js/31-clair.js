@@ -1,5 +1,5 @@
-/* Clair: a document-scoped demo assistant.
- * Local, deterministic and bilingual: typed questions are matched to approved
+/* Clair: a document-scoped financing guide.
+ * Deterministic and bilingual: typed questions are matched to approved
  * intents with weighted keyword patterns (English and French, accent-free,
  * with light typo tolerance). Every answer is built from approved dictionary
  * copy plus values selected from App.record and formatted with App.fmt - no
@@ -161,7 +161,6 @@
     balanceAfter: { fact: 'startPrincipal', src: C('schedule'), topic: 'payment' },
     accountant: { fact: 'exports', src: C('contact'), topic: 'other' },
     aboutClair: { ask: false },
-    aboutDemo: { ask: false },
     greeting: { ask: false },
     thanks: { ask: false },
     scheduleClause: { fact: 'scheduleTotals', src: C('schedule'), topic: 'understanding' },
@@ -187,7 +186,7 @@
   const CHAPTER_MAP = { welcome: 'whatChanged', relief: 'postponementPeriod', difference: 'whyRelief', tradeoff: 'totalCost', resume: 'resume', 'next-step': 'acceptance' };
   // Help FAQ ids (help module): explicit mapping, with detection as a fallback for unknown ids
   const FAQ_MAP = { 'why-notice': 'purpose', accept: 'acceptance', 'debt-reduced': 'debtReduced', rate: 'rate', capitalised: 'capitalisedInterest', 'next-payment': 'nextPayment', 'still-interest': 'continuingInterest', relief: 'whyRelief', restart: 'resume', 'final-payment': 'maturity', fee: 'fees', ask: 'queryPrep', accountant: 'accountant', 'print-export': 'printExport' };
-  const SECTION_MAP = { overview: 'whatChanged', changes: 'whatChanged', payments: 'relief', documents: 'purpose', support: 'support', help: 'queryPrep', insights: 'aboutDemo' };
+  const SECTION_MAP = { overview: 'whatChanged', changes: 'whatChanged', payments: 'relief', documents: 'purpose', support: 'support', help: 'queryPrep' };
   const TERM_FACT = { principal: 'principalOwing', interest: 'interestTotals', postponement: 'nearTerm', instalment: 'counts', maturity: 'counts', outstanding: 'principalOwing', fixedRate: 'rate', cashFlow: 'nearTerm', amortisation: 'counts', capitalisedInterest: 'capitalised' };
   const TERM_TOPIC = { interest: 'interest', fixedRate: 'interest', capitalisedInterest: 'interest', maturity: 'maturity', instalment: 'payment', cashFlow: 'payment' };
   const RESOURCE_TEXT = { 'financial-management': 'resourceFinancialManagement', 'working-capital': 'resourceWorkingCapital', learning: 'resourceLearning' };
@@ -482,8 +481,8 @@
       ['frais', 4], ['penalit*', 3], ['coute+quelque chose', 3.5], ['coute+rien', 3], ['cout+modification', 3], ['coute+modification', 3], ['payer+modification', 2]],
     unchanged: [['stay the same', 4], ['stays the same', 4], ['unchanged', 4], ['does not change', 4], ['doesn t change', 4], ['don t change', 4], ['what stays', 4], ['remain*+same', 3], ['still the same', 3], ['same', 1.5], ['what remains', 2.5],
       ['reste pareil', 4], ['restent pareils', 4], ['ne change pas', 4], ['inchange*', 4], ['reste le meme', 4], ['restent les memes', 4], ['demeure', 2], ['qu est ce qui reste', 3], ['meme', 1]],
-    assumptions: [['assumption*', 4], ['assume*', 2.5], ['simulation', 2],
-      ['hypothese*', 4], ['supposition*', 3.5]],
+    assumptions: [['assumption*', 4], ['assume*', 2.5], ['simulation', 2], ['calculation basis', 4], ['basis+calculat*', 4],
+      ['hypothese*', 4], ['supposition*', 3.5], ['base de calcul', 4]],
     acceptance: [['accept*', 3], ['sign', 2.5], ['signature', 2.5], ['agree*', 2.5], ['consent', 3], ['do i need to do', 4], ['what do i need to do', 4], ['need to do anything', 4], ['action required', 4], ['required', 1.5], ['next step*', 3], ['what should i do', 3.5], ['have to do', 3], ['respond', 2], ['reply', 2], ['confirm*', 2],
       ['accepter', 3], ['signer', 2.5], ['consentement', 3], ['que dois je faire', 4], ['dois je faire', 3], ['je dois faire', 3.5], ['faire+quelque chose', 3], ['quoi faire', 3], ['prochaine etape', 3], ['confirmer', 2], ['repondre', 2], ['obligatoire', 2], ['requis*', 2]],
     printExport: [['print*', 4], ['pdf', 4], ['download*', 3.5], ['export*', 4], ['csv', 4], ['excel', 3], ['spreadsheet', 3], ['save+copy', 3], ['save', 1.5], ['copy', 1.5],
@@ -500,8 +499,8 @@
       ['pourquoi+avis', 3], ['pourquoi+recu', 3], ['pourquoi+report', 2.5], ['objet+avis', 3], ['raison+avis', 3], ['but+avis', 2]],
     whatChanged: [['what+change*', 3], ['what s new', 3], ['summar*', 3], ['overview', 2], ['tl dr', 3], ['tldr', 3], ['in short', 2], ['key points', 3], ['main change*', 3], ['explain+notice', 3], ['what+notice+mean*', 2], ['what+happen*', 2], ['approved', 2], ['status', 2], ['what+different', 2], ['difference+original+revised', 3], ['why+payment+change*', 3], ['changes', 1], ['will+change*', 2], ['going to change', 2],
       ['qu est ce qui change', 4], ['ce qui change', 4], ['quoi+change*', 3], ['qu est ce qui a change', 4], ['changement*', 2], ['en bref', 3], ['en resume', 4], ['resumer', 3], ['resume de', 4], ['resume+avis', 4], ['resume moi', 4], ['sommaire', 3], ['apercu', 2], ['explique*+avis', 3], ['signifie+avis', 3], ['quoi de neuf', 3], ['pourquoi+versement+change*', 3], ['approuvee', 2], ['approuve', 1], ['va+changer', 2], ['changera', 2]],
-    aboutClair: [['who are you', 4], ['what are you', 4], ['are you+ai', 4], ['is this+ai', 4], ['live ai', 4], ['artificial intelligence', 4], ['chatgpt', 4], ['gpt', 3], ['bot', 3], ['robot', 3], ['chatbot', 4], ['what is clair', 4], ['who is clair', 4], ['are you+real', 4], ['is this live', 3], ['language model', 4], ['llm', 4], ['acorn', 3], ['automated', 2], ['am i talking', 4], ['are you+human', 4], ['are you+person', 4],
-      ['qui es tu', 4], ['qui etes vous', 4], ['ia', 3], ['intelligence artificielle', 4], ['qui est clair', 4], ['c est quoi clair', 4], ['es tu+reel*', 4], ['vraie personne', 4], ['es tu+personne', 4], ['etes vous+personne', 4], ['es tu+robot', 4], ['etes vous+robot', 4], ['en direct', 2], ['parle+robot', 2], ['es tu+humain', 4], ['etes vous+humain', 4]],
+    aboutClair: [['who are you', 4], ['what are you', 4], ['are you+ai', 4], ['is this+ai', 4], ['live ai', 4], ['artificial intelligence', 4], ['chatgpt', 4], ['gpt', 3], ['bot', 3], ['robot', 3], ['chatbot', 4], ['what is clair', 4], ['who is clair', 4], ['what can clair', 4], ['are you+real', 4], ['is this live', 3], ['language model', 4], ['llm', 4], ['acorn', 3], ['automated', 2], ['am i talking', 4], ['are you+human', 4], ['are you+person', 4],
+      ['qui es tu', 4], ['qui etes vous', 4], ['ia', 3], ['intelligence artificielle', 4], ['qui est clair', 4], ['c est quoi clair', 4], ['qu est ce que clair', 4], ['que peut faire clair', 4], ['es tu+reel*', 4], ['vraie personne', 4], ['es tu+personne', 4], ['etes vous+personne', 4], ['es tu+robot', 4], ['etes vous+robot', 4], ['en direct', 2], ['parle+robot', 2], ['es tu+humain', 4], ['etes vous+humain', 4]],
     thanks: [['thank*', 3], ['thx', 3], ['merci', 3], ['appreciate', 2], ['great', 1], ['perfect', 1], ['parfait', 1], ['super', 1]],
     greeting: [[/^(hi|hello|hey|hiya|bonjour|salut|allo|bonsoir|good (morning|afternoon|evening))\b/, 2.5]],
   };
@@ -1068,17 +1067,15 @@
     }
   }
 
-  function statusSegments(el) {
-    const parts = T('status').split(' • ');
-    // The last phrase ("No live AI connection.") never breaks across lines
-    App.util.clear(el).append(...parts.map((part, i) => (i < parts.length - 1 ? `${part} • ` : h('span', { class: 'clair-status-key' }, part))));
+  function statusText(el) {
+    App.util.clear(el).append(T('status'));
     return el;
   }
 
   function renderChrome() {
     if (!refs) return;
     renderTitle();
-    statusSegments(refs.statusText);
+    statusText(refs.statusText);
     const closeBtn = refs.api.el.querySelector('.overlay-close');
     if (closeBtn) {
       closeBtn.setAttribute('aria-label', t('common.close'));
@@ -1103,7 +1100,7 @@
   }
 
   /* Very short viewports (CSS: max-height 420px, e.g. 400% zoom): the whole panel scrolls as one
-   * column, so the header and its demo status scroll away with the conversation while the context
+   * column, so the header and its status line scroll away with the conversation while the context
    * row and the composer stay pinned. On open the header is held in view (.clair-pinned) so the
    * status is read first; scrolling, typing or asking releases it. */
   const panelScrolls = () => !!refs && getComputedStyle(refs.api.el).overflowY !== 'hidden';
@@ -1244,7 +1241,7 @@
     }, 120);
   }
 
-  /** "Ask a person": prepare a local demo question with the item and topic. */
+  /** "Ask a person": open the question form with the item and topic. */
   function askPerson(m, btn) {
     const st = state();
     const base = m.ctx || (st.activeCtx && st.activeCtx.kind !== 'general' ? st.activeCtx : null) || st.openedCtx || GENERAL;
@@ -1262,7 +1259,7 @@
     refs = { api, body, status: statusEl, statusText: statusEl.querySelector('.clair-status-text') };
     const heading = api.el.querySelector('.overlay-heading');
     if (heading) heading.insertBefore(h('span', { class: 'clair-avatar', 'aria-hidden': 'true' }, App.ui.icon('sparkle', { size: 22 })), heading.firstChild);
-    // The demo status runs full width under the title row and describes the dialog
+    // The status line runs full width under the title row and describes the dialog
     const header = api.el.querySelector('.overlay-header');
     if (header) header.appendChild(statusEl);
     api.el.setAttribute('aria-describedby', 'clair-status');
@@ -1361,7 +1358,7 @@
     if (refs && App.overlay.isOpen('clair')) {
       renderAll();
     } else {
-      const statusEl = h('p', { class: 'clair-status', id: 'clair-status' }, App.ui.icon('info', { size: 16 }), statusSegments(h('span', { class: 'clair-status-text' })));
+      const statusEl = h('p', { class: 'clair-status', id: 'clair-status' }, App.ui.icon('info', { size: 16 }), statusText(h('span', { class: 'clair-status-text' })));
       App.overlay.open({
         id: 'clair',
         variant: 'panel',

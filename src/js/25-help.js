@@ -1,7 +1,7 @@
 /* Help & questions (view "help", namespace "help", class prefix hlp-).
  * Searchable FAQ (three groups, accessible accordion, #/help/faq/<id>),
  * glossary (#/help/glossary/<id>, where inline "See in glossary" lands),
- * the local "Ask a question" card (#/help/ask) and the three-face snap
+ * the "Ask a question" card (#/help/ask) and the three-face snap
  * survey (App.survey, #/help/survey).
  * Every amount and date comes from App.record formatted with App.fmt and is
  * passed into approved copy as a parameter. Search text and survey comments
@@ -523,7 +523,7 @@
           h('h2', { class: 'hlp-section-title', id: 'hlp-faq-title', fid: 'hlp-faq-title', tabindex: '-1' }, k('faq.title')),
           expandBtn),
         h('p', { class: 'hlp-section-intro' }, k('faq.intro')),
-        App.ui.demoNote({ className: 'hlp-demo-note' }),
+        App.ui.demoNote({ className: 'hlp-cad-note' }),
         meta),
       empty,
       groups);
@@ -581,8 +581,8 @@
       h('p', { class: 'hlp-ask-body' }, k('ask.body')),
       h('div', { class: ['button-row', 'hlp-ask-actions'] }, askBtn, clairBtn),
       msg,
-      h('p', { class: 'hlp-ask-local' }, App.ui.icon('info', { size: 16 }), h('span', null, k('ask.local'))),
-      clairBtn ? h('p', { class: 'hlp-ask-local' }, App.ui.icon('info', { size: 16 }), h('span', null, k('ask.clairNote'))) : null);
+      h('p', { class: 'hlp-ask-note' }, App.ui.icon('info', { size: 16 }), h('span', null, k('ask.note'))),
+      clairBtn ? h('p', { class: 'hlp-ask-note' }, App.ui.icon('sparkle', { size: 16 }), h('span', null, k('ask.clairNote'))) : null);
   }
 
   /* ---------- page ---------- */

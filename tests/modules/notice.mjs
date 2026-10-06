@@ -1,11 +1,13 @@
 #!/usr/bin/env node
-// "Your notice" module QA: formal reference header and demo status, record
-// metadata, the twelve clauses with exact fixture values (both languages),
-// explain/ask/plain-language links with return paths, assumptions 1:1 with
-// the record, locally generated CSV/JSON exports (AC-22), the dedicated print
+// "Your notice" module QA: formal reference header (recipient copy, no status
+// chip), record metadata, the twelve clauses with exact fixture values (both
+// languages), explain/ask/plain-language links with return paths, calculation
+// basis 1:1 with the record, CSV/JSON exports (AC-22), the dedicated print
 // layout (App.print.prepare + print media + PDF), clause deep links (focus,
 // highlight, reduced motion, unknown items), year disclosures, wide table vs
 // stacked rows, keyboard operation and 320/390 px reflow (AC-08).
+// Recipient view: no demo / fictional / illustrative / local-generation wording
+// anywhere in the view, its aria-labels, the print layout or the exports.
 // Only depends on core + the notice module; cross-module calls are guarded.
 // Usage: node tests/modules/notice.mjs [path/to/index.html]
 import { readFileSync, mkdtempSync } from 'node:fs';
@@ -31,6 +33,22 @@ const activeInfo = (page) => page.evaluate(() => {
   const f = a && a.closest('[data-fid]');
   return { id: a ? a.id : null, fid: f ? f.getAttribute('data-fid') : null, tag: a ? a.tagName : null };
 });
+// Same patterns as the build's recipient gate (tools/build.mjs RECIPIENT_BANNED), plus the
+// old demo identifiers and the simulation/assumption framing of clause 11.
+const RECIPIENT_BANNED = [
+  /\b(?:demos?|démos?|démonstrations?|demonstrations?|fictional|fictives?|fictifs?|synthetic|synthétiques?|illustrative|illustratifs?|illustrations?|illustrated|illustrée?s?|prototypes?|conceptuelle|concept|presenter|présentat(?:eur|rice|ion))\b/i,
+  /this example|cet exemple|sample notice|avis type|not a BDC offer|non une offre de BDC|not connected to BDC|aucun lien avec les systèmes|no live AI|aucune connexion à une IA|nothing (?:is|was|has been) sent|rien n.a été envoyé|n.est (?:envoyé|transmis)|\blocally\b|\blocalement\b|generated in this browser|généré dans ce navigateur|\bDEMO-/i,
+  /simulation|\bassum|hypoth|scenario|scénario/i,
+];
+const bannedHits = (text) => RECIPIENT_BANNED.map((re) => (String(text).match(re) || [])[0]).filter(Boolean);
+// Visible text plus the accessible names/descriptions a screen reader announces.
+const recipientText = (page, sel) => page.evaluate((s) => {
+  const root = document.querySelector(s);
+  if (!root) return '';
+  const attrs = [...root.querySelectorAll('[aria-label], [title], [alt], [aria-description]')]
+    .flatMap((el) => ['aria-label', 'title', 'alt', 'aria-description'].map((a) => el.getAttribute(a)).filter(Boolean));
+  return `${root.innerText || root.textContent}\n${attrs.join('\n')}`;
+}, sel);
 const expandYears = (page) => page.evaluate(() => document.querySelectorAll('.ntc-years > .disclosure > .disclosure-toggle[aria-expanded="false"]').forEach((b) => b.click()));
 
 const CLAUSES = ['purpose', 'amendment', 'postponement', 'interest', 'resumption', 'maturity', 'cost', 'unchanged', 'action', 'schedule', 'assumptions', 'contact'];
@@ -41,25 +59,33 @@ const PLAIN = {
 };
 const TEXT = {
   'en-CA': {
-    title: 'Your notice', overline: 'Formal reference', status: 'Fictional demonstration — not a BDC offer or actual agreement',
-    amendStatus: 'Approved and completed (fictional scenario)', no: 'No', processing: 'None in this demo',
+    title: 'Your notice', overline: 'Formal reference', intro: 'This is the formal text of your notice.',
+    amendStatus: 'Approved and completed', no: 'No', processing: 'Not available through this notice',
     seasonal: 'seasonal inventory build', noAccept: 'No acceptance, signature or reply is required', notCancelled: 'not cancelled or reduced',
     banned: /forgiv|interest-free|interest free|holiday|saving/i, assumptionWord: 'capitalised', csvHeader: 'Payment date,Payment number,Opening principal,Principal,Interest,Total payment,Closing principal',
     printTitle: 'Important financing notice', collapse: 'Collapse all years', expand: 'Expand all years', back: 'Back to',
-    toolsLabel: 'Help with this clause: Revised maturity date', sameAmount: 'happen to be the same amount', fictional: /synthetic notice/,
-    rounding: 'rounded half-up to the nearest cent', clair: 'Clair, the demo assistant',
-    csvMeta: ['Notice,DEMO-BDC-CHANGE-2026-001', 'Record version,1.0', 'Status,Fictional demonstration — not a BDC offer or actual agreement', 'Loan,DEMO-4821', 'Source,Generated locally in this browser from the demonstration record'],
+    toolsLabel: 'Help with this clause: Revised maturity date', sameAmount: 'happen to be the same amount',
+    rounding: 'rounded half-up to the nearest cent', clair: 'Clair, your financing guide', manager: 'contact your BDC account manager',
+    purpose: 'formal reference for the plain-language explanations and charts provided with it',
+    basis: ['last calendar day of each month, with no business-day adjustment', 'no new advances and no additional or early repayments', 'shown from November'],
+    csvMeta: (id) => [`Notice,${id.notice}`, `Record version,${id.version}`, 'Status,Approved and completed', `Loan,${id.loan}`, `Source,"BDC notice ${id.notice}, record version ${id.version}"`],
+    csvLabels: ['Notice', 'Record version', 'Status', 'Loan', 'Company', 'Schedule', 'Issue date', 'Effective date', 'Currency', 'Number of payments', 'Source'],
+    closing: (id) => `This notice is the formal reference for the amendment to loan ${id.loan}. Please keep a copy with your business records.`,
     csvTotals: 'Totals',
   },
   'fr-CA': {
-    title: 'Votre avis', overline: 'Référence officielle', status: 'Démonstration fictive — ni une offre de BDC ni une entente réelle',
-    amendStatus: 'Approuvée et effectuée (scénario fictif)', no: 'Non', processing: 'Aucun dans cette démonstration',
+    title: 'Votre avis', overline: 'Référence officielle', intro: 'Voici le texte officiel de votre avis.',
+    amendStatus: 'Approuvée et effectuée', no: 'Non', processing: 'Non offert dans le cadre du présent avis',
     seasonal: 'stocks saisonniers', noAccept: 'Aucune acceptation, signature ni réponse n’est requise', notCancelled: 'ni annulé ni réduit',
     banned: /remise de dette|sans intérêt|congé|économi|épargn|annulation de la dette/i, assumptionWord: 'capitalisé', csvHeader: 'Date du versement,Numéro du versement,Capital au début,Capital,Intérêts,Versement total,Capital à la fin',
     printTitle: 'Avis important concernant votre financement', collapse: 'Masquer toutes les années', expand: 'Afficher toutes les années', back: 'Retour à',
-    toolsLabel: 'Aide sur cette clause\u00a0: Date d’échéance révisée', sameAmount: 'correspondent par hasard au même montant', fictional: /avis fictif/,
-    rounding: 'ils sont arrondis au cent le plus proche', clair: 'Clair, l’assistant de démonstration',
-    csvMeta: ['Avis,DEMO-BDC-CHANGE-2026-001', 'Version du dossier,1.0', 'État,Démonstration fictive — ni une offre de BDC ni une entente réelle', 'Prêt,DEMO-4821', 'Source,Généré localement dans ce navigateur à partir du dossier de démonstration'],
+    toolsLabel: 'Aide sur cette clause\u00a0: Date d’échéance révisée', sameAmount: 'correspondent par hasard au même montant',
+    rounding: 'ils sont arrondis au cent le plus proche', clair: 'Clair, votre guide du financement', manager: 'communiquez avec votre directrice ou directeur de comptes chez BDC',
+    purpose: 'référence officielle des explications en langage clair et des graphiques qui l’accompagnent',
+    basis: ['dernier jour civil de chaque mois, sans rajustement en fonction des jours ouvrables', 'aucune nouvelle avance de fonds ni aucun remboursement supplémentaire ou anticipé', 'présentés à compter du 1er novembre'],
+    csvMeta: (id) => [`Avis,${id.notice}`, `Version du dossier,${id.version}`, 'État,Approuvée et effectuée', `Prêt,${id.loan}`, `Source,Avis de BDC ${id.notice}, version du dossier ${id.version}`.replace(/^Source,(.*)$/, 'Source,"$1"')],
+    csvLabels: ['Avis', 'Version du dossier', 'État', 'Prêt', 'Entreprise', 'Calendrier', 'Date d’émission', 'Date d’entrée en vigueur', 'Devise', 'Nombre de versements', 'Source'],
+    closing: (id) => `Le présent avis constitue la référence officielle de la modification apportée au prêt ${id.loan}. Veuillez en conserver une copie avec les dossiers de votre entreprise.`,
     csvTotals: 'Totaux',
   },
 };
@@ -102,7 +128,7 @@ const expected = (page) => page.evaluate(() => {
     assumptionsCount: R.assumptions.length,
     revisedCount: r.length,
     originalCount: o.length,
-    banner: A.i18n.t('shell.banner'),
+    cad: A.i18n.t('common.amountsInCAD'),
     clauseNames: A.CLAUSES.map((id) => A.i18n.t(`clauses.${id}`).replace(/^\d+\.\s*/, '')),
     hasClair: !!A.clair,
   };
@@ -111,6 +137,9 @@ const expected = (page) => page.evaluate(() => {
 const browser = await launch();
 const { page, consoleMsgs, requests } = await newPage(browser, { width: 1280, height: 900 });
 await gotoApp(page, '#/documents', file);
+// Identifiers are read from the issued record, never hard-coded.
+const ID = await page.evaluate(() => ({ notice: window.BDCNotice.record.noticeId, loan: window.BDCNotice.record.loan.id, version: window.BDCNotice.record.recordVersion }));
+check('record identifiers are the issued ones (no DEMO- prefix)', ID.notice && ID.loan && !/^DEMO-/i.test(ID.notice) && !/^DEMO-/i.test(ID.loan), ID);
 
 /* ---------- 0. API surface ---------- */
 const api = await page.evaluate(() => ({
@@ -131,7 +160,10 @@ for (const locale of ['en-CA', 'fr-CA']) {
     return {
       h1: [...view.querySelectorAll('h1')].map((e) => e.textContent),
       overline: view.querySelector('.section-header .overline')?.textContent || '',
-      status: view.querySelector('.ntc-status')?.textContent || '',
+      statusChip: !!view.querySelector('.ntc-status, .section-header .ntc-status'),
+      lhSub: !!view.querySelector('.ntc-lh-sub'),
+      lhText: view.querySelector('.ntc-lh-text')?.textContent || '',
+      closing: view.querySelector('.ntc-doc-foot')?.textContent || '',
       meta: Object.fromEntries([...view.querySelectorAll('.ntc-meta-row')].map((r) => [r.dataset.meta, r.querySelector('dd').textContent])),
       sections: sections.map((s) => {
         const lbl = document.getElementById(s.getAttribute('aria-labelledby'));
@@ -153,13 +185,15 @@ for (const locale of ['en-CA', 'fr-CA']) {
       })(),
       re: view.querySelector('.ntc-re')?.textContent || '',
       addressee: view.querySelector('.ntc-addressee')?.textContent || '',
-      demoNote: !!view.querySelector('#clause-schedule .demo-note'),
+      cadNote: view.querySelector('#clause-schedule .ntc-cad-note')?.textContent || '',
       viewText: view.innerText,
     };
   });
   check(`${locale}: exactly one h1 "${T.title}"`, info.h1.length === 1 && N(info.h1[0]) === T.title, info.h1);
   check(`${locale}: overline "${T.overline}"`, N(info.overline) === T.overline, info.overline);
-  check(`${locale}: demo status line shows the localized record status`, N(info.status).includes(T.status), info.status);
+  check(`${locale}: no record-status chip under the intro`, !info.statusChip);
+  check(`${locale}: letterhead shows only the notice title (no subtitle)`, !info.lhSub && N(info.lhText) === N(T.printTitle), info.lhText);
+  check(`${locale}: closing note is the plain records reminder`, N(info.closing).includes(N(T.closing(ID))), info.closing);
   const metaExp = { ...E.meta, amendmentStatus: T.amendStatus, acceptance: T.no, processing: T.processing };
   const metaBad = Object.entries(metaExp).filter(([key, v]) => N(info.meta[key]) !== N(v));
   check(`${locale}: record metadata panel (11 items) matches the record`, metaBad.length === 0 && Object.keys(info.meta).length === 11, { metaBad, got: info.meta });
@@ -175,7 +209,10 @@ for (const locale of ['en-CA', 'fr-CA']) {
   check(`${locale}: amendment cites the seasonal inventory build`, N(sec.amendment.text).includes(T.seasonal));
   check(`${locale}: action clause says no acceptance is required and nothing is processed`, N(sec.action.text).includes(N(T.noAccept)));
   check(`${locale}: postponed principal stated as still owing (not cancelled)`, N(sec.postponement.text).includes(T.notCancelled));
-  check(`${locale}: contact clause gives no phone numbers or e-mail addresses`, !/\d{3}[\s.-]\d{3}[\s.-]\d{4}|[\w.-]+@[\w-]+\.[a-z]/i.test(sec.contact.text));
+  check(`${locale}: contact clause gives no phone numbers, e-mail addresses or web addresses`, !/\d{3}[\s.-]\d{3}[\s.-]\d{4}|[\w.-]+@[\w-]+\.[a-z]|https?:|www\./i.test(sec.contact.text));
+  check(`${locale}: contact clause refers to the BDC account manager ("${T.manager}")`, N(sec.contact.text).includes(N(T.manager)), sec.contact.text);
+  check(`${locale}: contact clause makes no claim that anything is sent to or answered by BDC`, !/sent to|received by|transmise? à|envoyée? à|reçue? par|will (?:answer|reply|respond)|répondra|vous répondr/i.test(sec.contact.text), sec.contact.text);
+  check(`${locale}: purpose clause states the purpose plainly`, N(sec.purpose.text).includes(N(T.purpose)) && sec.purpose.text.split(/\n+/).filter((x) => x.trim()).length === 2, sec.purpose.text);
   for (const id of TOOLED) {
     const s = sec[id];
     check(`${locale}: clause ${id} has Explain with AI and Ask about this`, s.explain && s.ask);
@@ -183,16 +220,17 @@ for (const locale of ['en-CA', 'fr-CA']) {
   }
   check(`${locale}: cost clause also links to the lower-payments breakdown`, sec.cost.links.includes('#/payments/relief'), sec.cost.links);
   check(`${locale}: contact clause points to Help & questions`, sec.contact.links.includes('#/help'), sec.contact.links);
-  check(`${locale}: assumptions are the approved wording, 1:1 with record.assumptions`, info.assumptions.length === E.assumptionsCount && info.assumptionSource === 'approved' && info.assumptions.some((a) => a.includes(T.assumptionWord)), info.assumptions);
+  check(`${locale}: calculation basis states each convention of this notice as a fact`, T.basis.every((b) => info.assumptions.some((a) => N(a).toLowerCase().includes(N(b).toLowerCase()))) && bannedHits(sec.assumptions.text).length === 0, { got: info.assumptions, hits: bannedHits(sec.assumptions.text) });
+  check(`${locale}: calculation basis items are the approved wording, 1:1 with record.assumptions`, info.assumptions.length === E.assumptionsCount && info.assumptionSource === 'approved' && info.assumptions.some((a) => a.includes(T.assumptionWord)), info.assumptions);
   // R-31: the monthly interest (plural in fr-CA) is what gets rounded, not the rate.
   check(`${locale}: rounding assumption says the interest is rounded ("${T.rounding}")`, N(info.assumptions[0]).includes(N(T.rounding)), info.assumptions[0]);
   // R-24 / R-33: Canadian French convention, no space before ; ? ! in the rendered assumptions.
   check(`${locale}: assumptions have no space before ; ? !`, !info.assumptions.some((a) => /[\s\u00a0\u202f][;?!]/.test(a)), info.assumptions.filter((a) => /[\s\u00a0\u202f][;?!]/.test(a)));
-  // R-37: Clair is the demo assistant everywhere.
+  // R-37 (recipient copy): Clair is introduced as your financing guide.
   check(`${locale}: contact clause names "${T.clair}"`, N(sec.contact.text).includes(N(T.clair)), sec.contact.text);
   check(`${locale}: letterhead uses the embedded logo (alt BDC, aspect ratio preserved)`, info.logo && info.logo.alt === 'BDC' && info.logo.natural > 0 && Math.abs(info.logo.ratio - 1280 / 680) < 0.04 && info.logo.src.startsWith('data:image/webp'), info.logo);
-  check(`${locale}: re line names loan DEMO-4821; addressee Camille Roy, Atelier Boréal Inc.`, info.re.includes('DEMO-4821') && info.addressee.includes('Camille Roy') && info.addressee.includes('Atelier Boréal Inc.'));
-  check(`${locale}: illustrative schedule note beside the numbers`, info.demoNote);
+  check(`${locale}: re line names loan ${ID.loan}; addressee Camille Roy, Atelier Boréal Inc.`, info.re.includes(ID.loan) && info.addressee.includes('Camille Roy') && info.addressee.includes('Atelier Boréal Inc.'));
+  check(`${locale}: currency note beside the numbers ("${E.cad}")`, N(info.cadNote) === N(E.cad), info.cadNote);
   check(`${locale}: no forgiveness / savings / interest-free / holiday framing`, !T.banned.test(info.viewText), (info.viewText.match(T.banned) || [])[0]);
   const extra = await page.evaluate(() => {
     const v = document.querySelector('#view');
@@ -207,12 +245,24 @@ for (const locale of ['en-CA', 'fr-CA']) {
       intro: v.querySelector('.section-header .lead')?.textContent || '',
     };
   });
-  check(`${locale}: loan identifier kept whole (never broken at its hyphen) in clause text and the Re: line`, extra.nobrPurpose.includes('DEMO-4821') && extra.nobrRe.includes('DEMO-4821'), extra);
+  check(`${locale}: loan identifier kept whole (never broken at its hyphen) in clause text and the Re: line`, extra.nobrPurpose.includes(ID.loan) && extra.nobrRe.includes(ID.loan), extra);
   check(`${locale}: "(" stays attached to the maturity-date glossary trigger`, extra.glue && extra.glue.hasTerm && extra.glue.starts === '(', extra.glue);
   check(`${locale}: clause tool group label comes from the dictionary`, extra.toolsLabel === T.toolsLabel, extra.toolsLabel);
   check(`${locale}: cost clause says the two equal amounts measure different things`, N(extra.cost).includes(T.sameAmount));
   check(`${locale}: expand/collapse-all toggle does not pair aria-pressed with a changing label`, extra.pressed === false);
-  check(`${locale}: intro frames the notice as fictional`, T.fictional.test(extra.intro), extra.intro);
+  check(`${locale}: intro presents the formal text of the notice`, N(extra.intro).startsWith(N(T.intro)), extra.intro);
+  const recip = await recipientText(page, '#view');
+  check(`${locale}: recipient view — no demo/fictional/illustrative/local wording in text or aria-labels`, bannedHits(recip).length === 0, bannedHits(recip));
+  const dictHits = await page.evaluate((l) => {
+    const out = [];
+    (function walk(v, path) {
+      if (typeof v === 'string') out.push([path, v]);
+      else if (v && typeof v === 'object') Object.keys(v).forEach((key) => walk(v[key], `${path}.${key}`));
+    }(window.BDCNotice.i18n._dicts[l].notice, 'notice'));
+    return out;
+  }, locale);
+  const badDict = dictHits.filter(([, v]) => bannedHits(v).length).map(([path, v]) => `${path}: ${bannedHits(v)[0]}`);
+  check(`${locale}: notice dictionary has no demo/fictional/illustrative/local wording`, badDict.length === 0, badDict);
   const f4 = await page.evaluate(() => [...document.querySelectorAll('#clause-schedule .ntc-first4-table tbody tr')].map((tr) => [...tr.querySelectorAll('td')].map((td) => td.textContent)));
   check(`${locale}: first four payments comparison matches the fixture`, f4.length === 4 && f4.every((row, i) => row.every((v, j) => N(v) === N(E.first4[i][j]))), f4);
   const mk = await missingKeys(page);
@@ -240,15 +290,18 @@ const csvRows = (csv) => csv.split(/\r?\n/).filter((r) => /^\d{4}-\d{2}-\d{2}/.t
 const ac22 = await page.locator('#view').getByRole('button', { name: /revised schedule.*CSV/i }).count();
 check('AC-22 locator: a button named "…revised schedule…CSV" exists', ac22 >= 1, ac22);
 let f = await download('ntc-dl-revised');
-check('revised CSV filename carries notice id and locale', f.name === 'DEMO-BDC-CHANGE-2026-001_revised-schedule_en-CA.csv', f.name);
+check('revised CSV filename carries notice id and locale', f.name === `${ID.notice}_revised-schedule_en-CA.csv`, f.name);
 check('revised CSV starts with a UTF-8 BOM and uses CRLF', f.body.charCodeAt(0) === 0xfeff && f.body.includes('\r\n'));
-check('revised CSV preamble: Notice, Record version, Status, Loan, Source labels', TEXT['en-CA'].csvMeta.every((l) => f.body.replace(/^\ufeff/, '').split('\r\n').includes(l)), f.body.slice(0, 500));
+const metaBlock = (body) => { const ls = body.replace(/^\ufeff/, '').split('\r\n'); return ls.slice(0, ls.indexOf('')); };
+check('revised CSV preamble: Notice, Record version, Status (Approved and completed), Loan, Source (notice + record version)', TEXT['en-CA'].csvMeta(ID).every((l) => f.body.replace(/^\ufeff/, '').split('\r\n').includes(l)), f.body.slice(0, 500));
+check('revised CSV metadata block is exactly the 11 shared labels (no disclaimer line)', JSON.stringify(metaBlock(f.body).map((l) => l.split(',')[0])) === JSON.stringify(TEXT['en-CA'].csvLabels), metaBlock(f.body));
+check('revised CSV has no demo/fictional/illustrative/local wording', bannedHits(f.body).length === 0, bannedHits(f.body));
 check('revised CSV has the localized header row', f.body.split(/\r\n/).includes(TEXT['en-CA'].csvHeader));
 let rows = csvRows(f.body);
 check('revised CSV has 63 ISO-dated rows with decimal amounts', rows.length === 63 && rows[0] === '2026-11-30,1,240000.00,0.00,1600.00,1600.00,240000.00' && rows[3] === '2027-02-28,4,240000.00,4000.00,1600.00,5600.00,236000.00' && rows[62] === '2032-01-31,63,4000.00,4000.00,26.67,4026.67,0.00', [rows.length, rows[0], rows[3], rows[62]]);
 check('revised CSV totals row: 240000.00 / 53600.00 / 293600.00', f.body.includes('Totals,,,240000.00,53600.00,293600.00,'));
 const status1 = await page.locator('.ntc-dl-status').textContent();
-check('download shows a visible local-generation status', status1.includes(f.name), status1);
+check('download shows a visible "Download started" status with the file name', status1.includes(f.name) && /^Download started/.test(status1) && bannedHits(status1).length === 0, status1);
 // R-23: App.notice.csv(kind) is the exact file the download buttons produce, for Payments to reuse.
 const shared = await page.evaluate(() => {
   const n = window.BDCNotice.notice;
@@ -263,19 +316,32 @@ check('App.notice.csv("revised") returns { filename, content, mime } identical t
 check('App.notice.csv accepts the "-full" kind alias and rejects unknown kinds', shared && shared.aliasSame && shared.threw, shared && { alias: shared.aliasSame, threw: shared.threw });
 f = await download('ntc-dl-original');
 rows = csvRows(f.body);
+check('original CSV has no demo/fictional/illustrative/local wording', bannedHits(f.body).length === 0, bannedHits(f.body));
 check('original CSV: 60 rows ending 2031-10-31 at zero, totals 48800.00 / 288800.00', f.name.includes('original-schedule') && rows.length === 60 && rows[59].startsWith('2031-10-31,60,') && rows[59].endsWith(',0.00') && f.body.includes('Totals,,,240000.00,48800.00,288800.00,'), [rows.length, rows[59]]);
 check('App.notice.csv("original") is identical to the original download', shared && shared.o.filename === f.name && shared.o.content === f.body, shared && shared.o.filename);
 f = await download('ntc-dl-json');
 let json = null;
 try { json = JSON.parse(f.body); } catch (e) { json = null; }
-check('JSON record: parses, carries notice id, version, status note and both schedules', json && json.record.noticeId === 'DEMO-BDC-CHANGE-2026-001' && json.record.recordVersion === '1.0' && json.record.revisedSchedule.length === 63 && json.record.originalSchedule.length === 60 && json.note && json.generatedLocally === true, json && Object.keys(json));
+check('JSON record: parses, carries notice id, version, amendment status, note and both schedules', json && f.name === `${ID.notice}_record.json` && json.record.noticeId === ID.notice && json.record.recordVersion === ID.version && json.record.status === 'issued' && json.amendmentStatus === 'Approved and completed' && json.record.revisedSchedule.length === 63 && json.record.originalSchedule.length === 60 && json.note.includes(ID.notice) && !('generatedLocally' in json), json && Object.keys(json));
+const basisEn = await page.evaluate(() => [...document.querySelectorAll('#clause-assumptions .ntc-assumptions li')].map((li) => li.textContent));
+check('JSON record: calculation basis written out with the clause 11 wording (1:1 with the record)', json && Array.isArray(json.record.calculationBasis) && JSON.stringify(json.record.calculationBasis) === JSON.stringify(basisEn) && !('assumptions' in json.record), json && json.record.calculationBasis);
+check('JSON record has no demo/fictional/illustrative/local wording', bannedHits(f.body).length === 0, bannedHits(f.body));
 const ev = await page.evaluate(() => window.BDCNotice.events.all().filter((e) => e.type === 'schedule_exported').map((e) => e.id));
 check('exports log schedule_exported with identifier ids only', JSON.stringify(ev) === JSON.stringify(['revised-full', 'original-full', 'record-json']), ev);
 await setLocale(page, 'fr-CA');
 f = await download('ntc-dl-revised');
 rows = csvRows(f.body);
-check('fr-CA CSV: French header and preamble, ISO dates and decimal amounts unchanged', f.name.endsWith('_fr-CA.csv') && f.body.split(/\r\n/).includes(TEXT['fr-CA'].csvHeader) && f.body.includes('Avis,DEMO-BDC-CHANGE-2026-001') && rows.length === 63 && rows[0] === '2026-11-30,1,240000.00,0.00,1600.00,1600.00,240000.00', [f.name, rows[0]]);
-check('fr-CA CSV preamble: « Avis », « Version du dossier », « État », « Prêt », « Source »; totals « Totaux »', TEXT['fr-CA'].csvMeta.every((l) => f.body.replace(/^\ufeff/, '').split('\r\n').includes(l)) && f.body.includes('Totaux,,,240000.00,53600.00,293600.00,'), f.body.slice(0, 500));
+check('fr-CA CSV: French header and preamble, ISO dates and decimal amounts unchanged', f.name.endsWith('_fr-CA.csv') && f.body.split(/\r\n/).includes(TEXT['fr-CA'].csvHeader) && f.body.includes(`Avis,${ID.notice}`) && rows.length === 63 && rows[0] === '2026-11-30,1,240000.00,0.00,1600.00,1600.00,240000.00', [f.name, rows[0]]);
+check('fr-CA CSV preamble: « Avis », « Version du dossier », « État », « Prêt », « Source »; totals « Totaux »', TEXT['fr-CA'].csvMeta(ID).every((l) => f.body.replace(/^\ufeff/, '').split('\r\n').includes(l)) && f.body.includes('Totaux,,,240000.00,53600.00,293600.00,'), f.body.slice(0, 500));
+check('fr-CA CSV metadata block is exactly the 11 shared labels (no disclaimer line)', JSON.stringify(metaBlock(f.body).map((l) => l.split(',')[0])) === JSON.stringify(TEXT['fr-CA'].csvLabels), metaBlock(f.body));
+check('fr-CA CSV has no demo/fictional/illustrative/local wording', bannedHits(f.body).length === 0, bannedHits(f.body));
+{
+  const [dlj] = await Promise.all([page.waitForEvent('download'), page.click('[data-fid="ntc-dl-json"]')]);
+  const body = readFileSync(await dlj.path(), 'utf8');
+  let jf = null;
+  try { jf = JSON.parse(body); } catch (e) { jf = null; }
+  check('fr-CA JSON record: French note, amendment status and calculation basis, no banned wording', jf && jf.exportLocale === 'fr-CA' && jf.amendmentStatus === 'Approuvée et effectuée' && /^Avis /.test(jf.note) && jf.record.calculationBasis.length === 5 && bannedHits(body).length === 0, jf && [jf.note, bannedHits(body)]);
+}
 const sharedFr = await page.evaluate(() => window.BDCNotice.notice && window.BDCNotice.notice.csv('revised'));
 check('fr-CA App.notice.csv("revised") is identical to the French download', sharedFr && sharedFr.filename === f.name && sharedFr.content === f.body, sharedFr && sharedFr.filename);
 f = await download('ntc-dl-inline');
@@ -303,13 +369,16 @@ let pr = await page.evaluate(() => {
     interactive: root.querySelectorAll('button, a[href], input, textarea, select, .term, [data-fid]').length,
     ids: root.querySelectorAll('[id]').length,
     logo: !!root.querySelector('img[alt="BDC"]'),
+    banner: !!root.querySelector('.ntc-p-banner'),
   };
 });
-check('print layout: logo, title, demo banner and notice identity', pr.logo && pr.text.includes('Important financing notice') && N(pr.text).includes(N(E.banner)) && pr.text.includes('DEMO-BDC-CHANGE-2026-001') && pr.text.includes('DEMO-4821'), pr.text.slice(0, 300));
-check('print layout: record metadata including status and record version', N(pr.text).includes(TEXT['en-CA'].status) && pr.text.includes('Record version'));
+check('print layout: logo, title and notice identity (no banner)', pr.logo && pr.text.includes('Important financing notice') && !pr.banner && pr.text.includes(ID.notice) && pr.text.includes(ID.loan), pr.text.slice(0, 300));
+check('print layout: record metadata including amendment status and record version', N(pr.text).includes(TEXT['en-CA'].amendStatus) && pr.text.includes('Record version'));
+check('print layout: no demo/fictional/illustrative/local wording', bannedHits(pr.text).length === 0, bannedHits(pr.text));
+check('print layout: closing records reminder and currency note', N(pr.text).includes(N(TEXT['en-CA'].closing(ID))) && N(pr.text).includes(N(E.cad)));
 check('print layout: all 12 clauses with formal wording', pr.clauses === 12 && E.clauseNames.every((nm) => pr.clauseTitles.some((tt) => N(tt).includes(N(nm)))), pr.clauseTitles);
 check('print layout: first four payments, FULL 63-row revised schedule and totals table', pr.first4Rows === 4 && pr.schedRows === 63 && pr.totalsRows === 5, pr);
-check('print layout: assumptions and browser-PDF convenience note', pr.assumptions === E.assumptionsCount && pr.text.includes('Browser-generated PDF is a convenience copy'));
+check('print layout: calculation basis and browser-PDF convenience note', pr.assumptions === E.assumptionsCount && pr.text.includes('Browser-generated PDF is a convenience copy'));
 check('print layout: no assistant, survey, menus, CTAs or controls', pr.interactive === 0 && !/Clair —|How clear was this notice|Explain with AI|Ask about this/.test(pr.text), pr.interactive);
 check('print layout: no duplicate element ids with the screen view', pr.ids === 0, pr.ids);
 await page.emulateMedia({ media: 'print' });
@@ -332,7 +401,8 @@ const prFr = await page.evaluate(() => {
   window.BDCNotice.print.prepare(root);
   return { lang: root.getAttribute('lang'), text: root.textContent, rows: root.querySelectorAll('.ntc-p-sched tbody tr:not(.ntc-p-yearrow)').length };
 });
-check('fr-CA print layout re-renders in French', prFr.lang === 'fr-CA' && prFr.text.includes(TEXT['fr-CA'].printTitle) && prFr.text.includes('Démonstration conceptuelle') && prFr.rows === 63, prFr.lang);
+check('fr-CA print layout re-renders in French', prFr.lang === 'fr-CA' && prFr.text.includes(TEXT['fr-CA'].printTitle) && N(prFr.text).includes(TEXT['fr-CA'].amendStatus) && prFr.rows === 63, prFr.lang);
+check('fr-CA print layout: no demo/fictional/illustrative/local wording', bannedHits(prFr.text).length === 0, bannedHits(prFr.text));
 await page.emulateMedia({ media: 'print' });
 const pdfFr = await page.pdf({ path: join(outDir, 'notice-print-fr-CA.pdf'), format: 'Letter', printBackground: true });
 check('fr-CA print renders to a compact PDF (≤ 6 Letter pages)', pdfPages(pdfFr) > 0 && pdfPages(pdfFr) <= 6, pdfPages(pdfFr));

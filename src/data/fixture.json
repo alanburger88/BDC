@@ -28,11 +28,11 @@
     "feeCents": 0
   },
   "assumptions": [
-    "Illustrative monthly interest at fixed 8% / 12, rounded half-up to cents",
-    "Month-end dates with no business-day adjustment",
+    "Monthly interest at the fixed 8% annual rate / 12, rounded half-up to cents",
+    "Month-end payment dates with no business-day adjustment",
     "No capitalised interest",
     "No new draws or extra repayments",
-    "Future schedule begins 1 November 2026; no prior history reconstructed"
+    "Schedule shown from 1 November 2026"
   ],
   "derived": {
     "originalTotalInterestCents": 4880000,

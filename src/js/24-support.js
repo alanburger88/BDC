@@ -4,10 +4,10 @@
  * may be relevant" rationale drawn ONLY from the explicit fixture field
  * record.client.seasonalInventoryBuild (never survey mood, name, language or
  * browsing), a deliberate external link and, for the service and financing
- * cards, a local demo inquiry with the topic prefilled.
+ * cards, an "Ask a question" form (query module) with the topic prefilled.
  *
  * - Cards can be hidden for the session (App.session slice "support").
- * - Responsible demo rule: when App.config.rules.suppressBorrowingPromotion()
+ * - Help-first rule: when App.config.rules.suppressBorrowingPromotion()
  *   is true the Working Capital Loan card is replaced by a help-first card.
  * - Survey state is deliberately never read here: an unhappy clarity
  *   response must not change what this section shows.
@@ -52,7 +52,7 @@
   const date = (iso) => App.fmt.date(iso, 'long').replace(' ', ' ');
   const params = () => ({ resume: date(App.record.change.resumePrincipalDate) });
 
-  /* ---------- generic inline illustrations (not BDC marks) ---------- */
+  /* ---------- generic inline pictograms (not BDC marks) ---------- */
   const S = (tag, attrs) => svg(tag, attrs);
   const ICONS = {
     // Consulting: a planning sheet with a rising cash-flow line
@@ -87,13 +87,13 @@
       S('path', { d: 'M37 18h2a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4h-1v5l-6-5h-6', class: 'sup-i-line sup-i-accent' }),
     ],
   };
-  function illustration(name) {
+  function pictogram(name) {
     return h('span', { class: 'sup-icon', 'aria-hidden': 'true' },
       svg('svg', { viewBox: '0 0 48 48', width: 48, height: 48, focusable: 'false', class: 'sup-icon-svg' }, ICONS[name]()));
   }
 
   /* ---------- actions ---------- */
-  // Local demo inquiry (query module) with the selected context; guarded for isolated builds.
+  // "Ask a question" form (query module) with the selected context; guarded for isolated builds.
   function openInquiry(ctx, fid, trigger) {
     const full = { section: NS, period: null, ...ctx, fid };
     if (App.query && typeof App.query.open === 'function') App.query.open(full, trigger);
@@ -206,7 +206,7 @@
         'data-card': id,
         'aria-labelledby': titleId,
       },
-      illustration(icon),
+      pictogram(icon),
       h('div', { class: 'sup-body' },
         h('p', { class: 'sup-kicker' }, k(`categories.${category}`)),
         h('h2', { class: 'sup-card-title', id: titleId, fid: titleId }, k(`cards.${id}.title`)),
@@ -304,7 +304,7 @@
     return h('div', { class: 'sup-footer' },
       App.ui.icon('external', { size: 16 }),
       h('div', { class: 'sup-footer-body' },
-        h('p', null, k('footer.links'), ' ', k('footer.data')),
+        h('p', null, k('footer.links')),
         h('p', null, k('footer.source'))));
   }
 
@@ -341,7 +341,7 @@
 
   App.router.registerView(NS, { render });
 
-  // The presenter's hardship toggle changes which cards apply: refresh if this view is showing.
+  // The session-insights hardship toggle changes which cards apply: refresh if this view is showing.
   App.session.onChange((name) => {
     if (name === 'presenter' && App.router.current().section === NS) App.router.rerender();
   });

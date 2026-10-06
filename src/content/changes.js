@@ -59,8 +59,8 @@ App.i18n.register('changes', {
         title: 'No fee for this change',
         before: 'No change fee',
         beforeSub: 'before this notice',
-        sub: 'fee for this change, in this fictional scenario',
-        explain: 'No fee applies in this example. The change still has a cost: the additional interest shown on the Interest card.',
+        sub: 'fee for this change',
+        explain: 'No fee applies to this change. It still has a cost: the additional interest shown on the Interest card.',
       },
       rate: {
         kicker: 'Interest rate',
@@ -101,7 +101,7 @@ App.i18n.register('changes', {
       equals: 'equals',
       payments: 'Total payments, {from} to {to}',
       note: 'The {extra3} is already part of the {extra} of additional interest over the remaining schedule. It is not an extra cost on top of it.',
-      sameAmount: 'In this example, the revised payments from {from} to {to} ({revised}) and the additional interest over the remaining schedule ({extra}) happen to be the same amount. They measure different things.',
+      sameAmount: 'The revised payments from {from} to {to} ({revised}) and the additional interest over the remaining schedule ({extra}) happen to be the same amount. They measure different things.',
       reliefLink: 'See the month-by-month difference',
     },
     unchanged: {
@@ -141,7 +141,7 @@ App.i18n.register('changes', {
         interest: 'During the postponement you pay {interest} of interest each month. Because principal is repaid later, total interest over the remaining schedule rises from {original} to {revised}.',
         'next-payment': 'Under the original schedule, this payment would have been {original}. It is lower because it covers interest only.',
         maturity: 'The original schedule ended on {original}. The revised schedule ends {period} later, with {count} payments instead of {originalCount}.',
-        fees: 'The change fee in this fictional scenario is {fee}. The change still affects your total cost through additional interest.',
+        fees: 'The fee for this change is {fee}. The change still affects your total cost through additional interest.',
         rate: 'The same fixed rate applies to both schedules. What changes is the principal it applies to, month by month.',
         debt: 'Postponing principal moves {deferred} of repayments later in the schedule. That amount stays owing until it is repaid.',
       },
@@ -159,7 +159,7 @@ App.i18n.register('changes', {
         interest: '[[interest|Interest]] is the cost of borrowing. Each month it is calculated on the [[outstanding|outstanding principal]] at the [[fixedRate|fixed rate]], so it stays higher while principal is not being repaid.',
         'next-payment': 'An [[instalment|instalment]] is a scheduled payment. During the [[postponement|postponement]], each instalment covers [[interest|interest]] only; once principal payments resume, it covers [[principal|principal]] and interest.',
         maturity: 'The [[maturity|maturity date]] is when the remaining loan balance is scheduled to be fully repaid. Repaying [[principal|principal]] later moves this date later.',
-        fees: 'This change has no fee in this example, but it does change the total [[interest|interest]] you pay, because the [[outstanding|outstanding principal]] is repaid more slowly.',
+        fees: 'This change has no fee, but it does change the total [[interest|interest]] you pay, because the [[outstanding|outstanding principal]] is repaid more slowly.',
         rate: 'A [[fixedRate|fixed rate]] does not change during the fixed-rate period. Your monthly [[interest|interest]] still depends on the [[outstanding|outstanding principal]] it applies to.',
         debt: '[[outstanding|Outstanding principal]] is the principal still owing at a given date. A [[postponement|principal postponement]] changes when you repay it, not how much [[principal|principal]] you repay.',
       },
@@ -196,7 +196,7 @@ App.i18n.register('changes', {
         fees: {
           title: 'No fee does not mean no cost',
           body: [
-            'No fee is charged for this change in this fictional scenario.',
+            'No fee is charged for this change.',
             'The postponement still increases total interest over the remaining schedule by {extra}, and total remaining payments go from {originalTotal} to {revisedTotal}.',
           ],
         },
@@ -257,7 +257,7 @@ App.i18n.register('changes', {
       rate: {
         formula: 'Monthly interest = principal owing at the start of the month × {rate} ÷ 12',
         example: '{opening} × {rate} ÷ 12 = {interest}',
-        rounding: 'Rounded half-up to the nearest cent, as set out in the assumptions of this illustration.',
+        rounding: 'Rounded half-up to the nearest cent, as set out in the calculation basis of your notice.',
         why: 'Same rate, higher principal: in {month}, interest is {revised} instead of {original} because no principal was repaid in {prev}.',
       },
       balance: {
@@ -329,8 +329,8 @@ App.i18n.register('changes', {
         title: 'Aucuns frais pour cette modification',
         before: 'Aucuns frais de modification',
         beforeSub: 'avant cet avis',
-        sub: 'frais liés à cette modification, dans ce scénario fictif',
-        explain: 'Aucuns frais ne s’appliquent dans cet exemple. La modification a tout de même un coût : les intérêts additionnels présentés dans la carte Intérêts.',
+        sub: 'frais liés à cette modification',
+        explain: 'Aucuns frais ne s’appliquent à cette modification. Elle a tout de même un coût : les intérêts additionnels présentés dans la carte Intérêts.',
       },
       rate: {
         kicker: 'Taux d’intérêt',
@@ -372,7 +372,7 @@ App.i18n.register('changes', {
       equals: 'égale',
       payments: 'Total des versements, de {from} à {to}',
       note: 'Les {extra3} font déjà partie des {extra} d’intérêts additionnels sur la durée restante. Ils ne s’ajoutent pas à ce montant.',
-      sameAmount: 'Dans cet exemple, les versements révisés de {from} à {to} ({revised}) et les intérêts additionnels sur la durée restante ({extra}) correspondent par hasard au même montant. Ils mesurent des choses différentes.',
+      sameAmount: 'Les versements révisés de {from} à {to} ({revised}) et les intérêts additionnels sur la durée restante ({extra}) correspondent par hasard au même montant. Ils mesurent des choses différentes.',
       reliefLink: 'Voir l’écart mois par mois',
     },
     unchanged: {
@@ -412,7 +412,7 @@ App.i18n.register('changes', {
         interest: 'Pendant le report, vous payez {interest} d’intérêts chaque mois. Comme le capital est remboursé plus tard, le total des intérêts sur la durée restante passe de {original} à {revised}.',
         'next-payment': 'Selon le calendrier initial, ce versement aurait été de {original}. Il est moins élevé parce qu’il couvre uniquement les intérêts.',
         maturity: 'Le calendrier initial se terminait le {original}. Le calendrier révisé se termine {period} plus tard et compte {count} versements au lieu de {originalCount}.',
-        fees: 'Les frais de modification dans ce scénario fictif sont de {fee}. La modification a tout de même une incidence sur votre coût total en raison des intérêts additionnels.',
+        fees: 'Les frais liés à cette modification sont de {fee}. La modification a tout de même une incidence sur votre coût total en raison des intérêts additionnels.',
         rate: 'Le même taux fixe s’applique aux deux calendriers. Ce qui change, c’est le capital auquel il s’applique, mois après mois.',
         debt: 'Le report déplace {deferred} de remboursements de capital plus tard dans le calendrier. Ce montant reste dû jusqu’à son remboursement.',
       },
@@ -430,7 +430,7 @@ App.i18n.register('changes', {
         interest: 'Les [[interest|intérêts]] représentent le coût de l’emprunt. Chaque mois, ils sont calculés sur le [[outstanding|capital restant à rembourser]] au [[fixedRate|taux fixe]]; ils restent donc plus élevés tant que le capital n’est pas remboursé.',
         'next-payment': 'Un [[instalment|versement]] est un paiement prévu au calendrier. Pendant le [[postponement|report]], chaque versement couvre uniquement les [[interest|intérêts]]; à la reprise, il couvre le [[principal|capital]] et les intérêts.',
         maturity: 'La [[maturity|date d’échéance]] est la date à laquelle le solde restant du prêt doit être entièrement remboursé. Rembourser le [[principal|capital]] plus tard repousse cette date.',
-        fees: 'Cette modification n’entraîne aucuns frais dans cet exemple, mais elle change le total des [[interest|intérêts]] payés, car le [[outstanding|capital restant à rembourser]] diminue plus lentement.',
+        fees: 'Cette modification n’entraîne aucuns frais, mais elle change le total des [[interest|intérêts]] payés, car le [[outstanding|capital restant à rembourser]] diminue plus lentement.',
         rate: 'Un [[fixedRate|taux fixe]] ne change pas pendant la période à taux fixe. Vos [[interest|intérêts]] mensuels dépendent toutefois du [[outstanding|capital restant à rembourser]] auquel il s’applique.',
         debt: 'Le [[outstanding|capital restant à rembourser]] est le capital toujours dû à une date donnée. Un [[postponement|report]] des remboursements de capital change le moment où vous le remboursez, et non le montant de [[principal|capital]] à rembourser.',
       },
@@ -467,7 +467,7 @@ App.i18n.register('changes', {
         fees: {
           title: 'Aucuns frais ne veut pas dire aucun coût',
           body: [
-            'Aucuns frais ne sont exigés pour cette modification dans ce scénario fictif.',
+            'Aucuns frais ne sont exigés pour cette modification.',
             'Le report augmente tout de même le total des intérêts sur la durée restante de {extra}, et le total des versements restants passe de {originalTotal} à {revisedTotal}.',
           ],
         },
@@ -528,7 +528,7 @@ App.i18n.register('changes', {
       rate: {
         formula: 'Intérêts mensuels = capital dû au début du mois × {rate} ÷ 12',
         example: '{opening} × {rate} ÷ 12 = {interest}',
-        rounding: 'Intérêts arrondis au cent le plus proche (la demie étant arrondie au cent supérieur), selon les hypothèses de cette illustration.',
+        rounding: 'Intérêts arrondis au cent le plus proche (la demie étant arrondie au cent supérieur), selon la base de calcul de votre avis.',
         why: 'Même taux, capital plus élevé : en {month}, les intérêts sont de {revised} au lieu de {original}, car aucun capital n’a été remboursé en {prev}.',
       },
       balance: {

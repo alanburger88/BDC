@@ -2,7 +2,8 @@
 // Overview module QA: greeting (AC-10), headline, four summary cards with
 // return navigation (AC-06), honest-cost facts beside the summary (AC-05),
 // CTAs, "Mark as reviewed", unchanged terms, media section, both languages,
-// reduced motion, keyboard focus and 320px reflow (AC-08).
+// reduced motion, keyboard focus and 320px reflow (AC-08). Recipient view: no
+// demo/fictional/sample/illustrative/local-only wording anywhere in the view.
 // Usage: node tests/modules/overview.mjs [path/to/index.html]
 import { launch, newPage, gotoApp, overflowReport, missingKeys, DEFAULT_FILE } from '../lib/browser.mjs';
 
@@ -23,6 +24,23 @@ const activeFid = (page) => page.evaluate(() => {
 });
 const backToOverview = async (page) => { await page.evaluate(() => { location.hash = '#/overview'; }); await wait(page, 250); };
 
+// Recipient view (product-owner decision 2026-10-06): the build's RECIPIENT_BANNED list,
+// plus the old identifier prefix and the local-note wording this module used to carry.
+const RECIPIENT_BANNED = [
+  /\b(?:demos?|démos?|démonstrations?|demonstrations?|fictional|fictives?|fictifs?|synthetic|synthétiques?|illustrative|illustratifs?|illustrations?|prototypes?|conceptuelle|presenter|présentat(?:eur|rice|ion))\b/i,
+  /this example|cet exemple|sample notice|avis type|not a BDC offer|non une offre de BDC|not connected to BDC|aucun lien avec les systèmes|no live AI|aucune connexion à une IA|nothing (?:is|was|has been) sent|rien n.a été envoyé|n.est envoyé|\blocally\b|\blocalement\b/i,
+  /\bDEMO-|local note|note locale|browser tab|cet onglet|this build|cette version|not a photograph|pas d.une photo/i,
+];
+const recipientHit = (str) => { for (const re of RECIPIENT_BANNED) { const m = String(str || '').match(re); if (m) return m[0]; } return null; };
+// Visible text plus every accessible-name source (aria-label, title, alt, placeholder) under a root.
+const recipientText = (page, sel) => page.evaluate((s) => {
+  const root = document.querySelector(s);
+  if (!root) return '';
+  const attrs = [...root.querySelectorAll('[aria-label], [title], [alt], [placeholder], [aria-description]')]
+    .flatMap((el) => ['aria-label', 'title', 'alt', 'placeholder', 'aria-description'].map((a) => el.getAttribute(a)).filter(Boolean));
+  return [root.innerText, ...attrs].join('\n');
+}, sel);
+
 // Expected values computed in the page from the issued record, so they follow the active locale.
 const expected = (page) => page.evaluate(() => {
   const A = window.BDCNotice;
@@ -33,6 +51,7 @@ const expected = (page) => page.evaluate(() => {
   return {
     locale: A.i18n.locale,
     name: R.client.givenName,
+    company: R.client.company,
     noticeId: R.noticeId,
     cards: A.SUMMARY_CARDS.slice(),
     next: [m(R.revisedSchedule[0].totalCents), d(R.revisedSchedule[0].date)],
@@ -54,7 +73,11 @@ const TEXT = {
     title: 'Your principal payments are postponed for three months.',
     effective: 'November 1, 2026',
     owing: 'remains owing',
-    reviewed: 'Marked as reviewed in this demo. This is a local note only — not acceptance, consent or proof of understanding.',
+    intro: (c) => `The temporary principal postponement requested for ${c} has been approved and the amendment is complete. Here is what it means for your payments, and what stays the same.`,
+    markHint: 'Optional. A personal reminder for this visit only.',
+    reviewed: 'Marked as reviewed. This is a personal reminder only — not an acceptance of this notice, consent or proof of understanding.',
+    cad: 'Amounts in Canadian dollars.',
+    mediaText: 'A short animated walkthrough of this notice, narrated for you in English or French.',
     banned: /forgiv|interest-free|interest free|holiday|saving/i,
   },
   'fr-CA': {
@@ -63,7 +86,11 @@ const TEXT = {
     effective: '1er novembre 2026',
     // R-35: « capital » is singular, so « reporté » (as on Ce qui change).
     owing: 'de capital reporté restent dus',
-    reviewed: 'Marqué comme consulté dans cette démo. Il s’agit uniquement d’une note locale, et non d’une acceptation, d’un consentement ni d’une preuve de compréhension.',
+    intro: (c) => `Le report temporaire des remboursements de capital demandé pour ${c} a été approuvé, et la modification est finalisée. Voici ce que cela change pour vos versements, et ce qui demeure inchangé.`,
+    markHint: 'Facultatif. Un aide-mémoire personnel pour cette visite seulement.',
+    reviewed: 'Marqué comme consulté. Il s’agit uniquement d’un aide-mémoire personnel, et non d’une acceptation de cet avis, d’un consentement ni d’une preuve de compréhension.',
+    cad: 'Montants en dollars canadiens.',
+    mediaText: 'Un court parcours animé de cet avis, narré pour vous en français ou en anglais.',
     banned: /remise de dette|annulation|sans intérêt|congé|économie/i,
   },
 };
@@ -127,11 +154,14 @@ async function staticChecks(page, label) {
       cards,
       beside: beside ? beside.textContent.replace(/\s+/g, ' ') : '',
       besideVisible: !!(beside && beside.offsetParent && !beside.closest('[hidden], .disclosure-content')),
-      besideHasDemoNote: !!(beside && beside.querySelector('.demo-note')),
+      besideCadNote: beside && beside.querySelector('.ov-cad-note') ? beside.querySelector('.ov-cad-note').textContent.replace(/\s+/g, ' ').trim() : null,
       besideBeside: besideBox ? besideBox.top < cardsBox.bottom && besideBox.left >= cardsBox.right - 1 : false,
       besideBelow: besideBox ? besideBox.top >= cardsBox.bottom - 1 : false,
-      caption: txt('.ov-illus-caption'),
-      illusSvgHidden: (view.querySelector('.ov-illus-svg') || {}).getAttribute?.('aria-hidden') === 'true',
+      intro: txt('.section-header .lead'),
+      markHint: txt('#ov-mark-hint'),
+      mediaText: txt('#ov-media .ov-block-intro'),
+      illusCaption: !!view.querySelector('.ov-illus figcaption, .ov-illus-caption, figure.ov-illus'),
+      illusHidden: (view.querySelector('.ov-illus') || {}).getAttribute?.('aria-hidden') === 'true' && (view.querySelector('.ov-illus-svg') || {}).getAttribute?.('aria-hidden') === 'true',
       illusShown: getComputedStyle(view.querySelector('.ov-illus')).display !== 'none',
       terms: [...new Set([...view.querySelectorAll('.term[data-term]')].map((b) => b.dataset.term))],
       same: txt('.ov-same'),
@@ -169,16 +199,21 @@ async function staticChecks(page, label) {
   check(`${label}: honest-cost facts are a labelled section, not a complementary aside`, s.besideTag === 'section', s.besideTag);
   check(`${label}: later final payment visible beside the summary (AC-05)`, s.besideVisible && e.maturity.every((v) => s.beside.includes(N(v))), s.beside);
   check(`${label}: postponed principal still owing visible (AC-05)`, s.besideVisible && s.beside.includes(N(e.deferred)) && s.beside.includes(T.owing), s.beside);
-  check(`${label}: demo note near the numbers`, s.besideHasDemoNote);
+  check(`${label}: currency note near the numbers reads “${T.cad}”`, s.besideCadNote === T.cad, s.besideCadNote);
   if (s.width >= 1000) check(`${label}: facts sit beside the cards at desktop width`, s.besideBeside);
   else check(`${label}: facts follow the cards directly at this width`, s.besideBelow);
   check(`${label}: "What stays the same" lists rate, instalment, fee and loan id`, [e.rate, e.instalment, e.fee, e.loanId].every((v) => s.same && s.same.includes(N(v))), s.same);
   check(`${label}: no-acceptance statement shown`, s.noAccept);
   check(`${label}: glossary triggers for principal, interest, postponement, maturity, fixedRate`, ['principal', 'interest', 'postponement', 'maturity', 'fixedRate'].every((x) => s.terms.includes(x)), s.terms);
   check(`${label}: media section present with the ${s.hasMediaModule ? 'player mounted' : 'unavailable placeholder'}`, s.media && s.mediaMounted && s.mediaKind === (s.hasMediaModule ? 'player' : 'placeholder'), s.mediaKind);
-  check(`${label}: illustration caption is text; SVG hidden from AT`, !!s.caption && s.illusSvgHidden, s.caption);
-  if (s.width >= 900) check(`${label}: illustration shown at desktop`, s.illusShown);
-  if (s.width < 900) check(`${label}: illustration omitted below 900px`, !s.illusShown);
+  check(`${label}: decorative workshop scene has no caption and is hidden from AT`, !s.illusCaption && s.illusHidden, { caption: s.illusCaption, hidden: s.illusHidden });
+  if (s.width >= 900) check(`${label}: workshop scene shown at desktop`, s.illusShown);
+  if (s.width < 900) check(`${label}: workshop scene omitted below 900px`, !s.illusShown);
+  check(`${label}: intro reads as the recipient's notice (no example framing)`, s.intro === N(T.intro(e.company)), s.intro);
+  if (s.markHint !== null) check(`${label}: "Mark as reviewed" hint is a personal reminder`, s.markHint === N(T.markHint), s.markHint);
+  check(`${label}: media section intro`, s.mediaText === N(T.mediaText), s.mediaText);
+  const rt = await recipientText(page, '#view');
+  check(`${label}: no demo / fictional / sample / illustrative / local-only wording in the view (text + accessible names)`, !recipientHit(rt), recipientHit(rt));
   check(`${label}: no forbidden framing (forgiveness / interest-free / holiday / savings)`, !T.banned.test(s.viewText), (s.viewText.match(T.banned) || [])[0]);
   const mk = await missingKeys(page);
   check(`${label}: no missing dictionary keys`, mk.length === 0, mk);
@@ -246,7 +281,7 @@ try {
   await wait(page, 350);
   if (hasQuery) {
     const open = await page.evaluate(() => !!document.querySelector('#overlay-root .overlay'));
-    check('"Ask a question" opens the local query form', open);
+    check('"Ask a question" opens the question form', open);
     await page.keyboard.press('Escape');
     await wait(page, 300);
   } else {
@@ -284,7 +319,8 @@ try {
       button: !!document.querySelector('[data-fid="overview-mark-reviewed"]'),
     };
   });
-  check('"Mark as reviewed" shows the local-note status', rv.status === N(TEXT['en-CA'].reviewed) && !rv.button, rv.status);
+  check('"Mark as reviewed" shows the personal-reminder status (not acceptance)', rv.status === N(TEXT['en-CA'].reviewed) && !rv.button, rv.status);
+  check('reviewed status and announcement carry no demo / local wording', !recipientHit(rv.status) && !recipientHit(rv.live), recipientHit(rv.status) || recipientHit(rv.live));
   check('status is focused and announced via aria-live', rv.focused && rv.live === TEXT['en-CA'].reviewed, rv);
   check('records only marked_reviewed {id: noticeId} and review.reviewed = true', rv.slice === true && rv.events.length === 1 && rv.events[0] === e.noticeId, rv);
 
@@ -300,11 +336,11 @@ try {
   check('fr-CA: handshake stays static after language switch', !frState.play);
   await staticChecks(page, 'fr-CA 1280');
 
-  // Reset clears the local review note
+  // "Clear my activity" clears the review reminder
   await page.evaluate(() => window.BDCNotice.shell.resetDemo());
   await wait(page, 300);
   const afterReset = await page.evaluate(() => ({ btn: !!document.querySelector('[data-fid="overview-mark-reviewed"]'), status: !!document.querySelector('.ov-reviewed') }));
-  check('reset demo clears "Mark as reviewed"', afterReset.btn && !afterReset.status, afterReset);
+  check('"Clear my activity" clears "Mark as reviewed"', afterReset.btn && !afterReset.status, afterReset);
 
   // Keyboard: Tab reaches the primary CTA with a visible focus indicator; Enter activates
   await page.evaluate(() => { window.scrollTo(0, 0); document.activeElement && document.activeElement.blur(); });
@@ -340,6 +376,22 @@ try {
       return out;
     });
     check('fr-CA overview dictionary: no-break space before « : » and inside « », no space before ; ? !, « capital reporté »', bad.length === 0, bad);
+  }
+  // Recipient view across the whole overview namespace, both locales (identical shape).
+  {
+    const dict = await page.evaluate(() => {
+      const out = [];
+      const walk = (o, p) => {
+        if (typeof o === 'string') out.push([p, o]);
+        else if (o && typeof o === 'object') Object.keys(o).forEach((key) => walk(o[key], `${p}.${key}`));
+      };
+      ['en-CA', 'fr-CA'].forEach((l) => walk(window.BDCNotice.i18n._dicts[l].overview, `${l}.overview`));
+      return out;
+    });
+    const hits = dict.filter(([, v]) => recipientHit(v)).map(([p, v]) => `${p}: "${recipientHit(v)}"`);
+    check('overview dictionary (en-CA + fr-CA): no demo / fictional / sample / illustrative / local-only wording', dict.length > 0 && hits.length === 0, hits.slice(0, 6));
+    const keys = (l) => dict.filter(([p]) => p.startsWith(`${l}.`)).map(([p]) => p.slice(l.length + 1)).sort().join('|');
+    check('overview dictionary: en-CA and fr-CA have the identical shape', keys('en-CA') === keys('fr-CA'));
   }
   check('no console errors', consoleMsgs.length === 0, consoleMsgs.slice(0, 5));
   check('no external network requests', requests.filter((u) => !u.startsWith('https://accessibilityserver.org/')).length === 0, requests);

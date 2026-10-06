@@ -4,7 +4,8 @@
 // reconciliation (AC-05), unchanged terms, detail views (stacked month cards,
 // glossary terms, actions, Back with focus return), unknown-item fallback,
 // language switching on a detail, keyboard activation and 320/390 px reflow
-// (AC-08) in en-CA and fr-CA. Only depends on core + the changes module.
+// (AC-08) in en-CA and fr-CA, and recipient wording (no demo / fictional /
+// illustrative framing) on every route. Only depends on core + the changes module.
 // Usage: node tests/modules/changes.mjs [path/to/index.html]
 import { existsSync, readFileSync } from 'node:fs';
 import { launch, newPage, gotoApp, overflowReport, missingKeys, DEFAULT_FILE } from '../lib/browser.mjs';
@@ -27,6 +28,22 @@ const activeFid = (page) => page.evaluate(() => {
   return el ? el.getAttribute('data-fid') : null;
 });
 const viewText = (page, sel = '#view') => page.evaluate((s) => document.querySelector(s)?.innerText || '', sel);
+// Recipient view (product-owner decision 2026-10-06): the build's RECIPIENT_BANNED list plus
+// the scenario / example framing this module used to carry and the old identifier prefix.
+const RECIPIENT_BANNED = [
+  /\b(?:demos?|démos?|démonstrations?|demonstrations?|fictional|fictives?|fictifs?|synthetic|synthétiques?|illustrative|illustratifs?|illustrations?|prototypes?|conceptuelle|presenter|présentat(?:eur|rice|ion))\b/i,
+  /this example|cet exemple|sample notice|avis type|not a BDC offer|non une offre de BDC|not connected to BDC|aucun lien avec les systèmes|no live AI|aucune connexion à une IA|nothing (?:is|was|has been) sent|rien n.a été envoyé|n.est envoyé|\blocally\b|\blocalement\b/i,
+  /\bDEMO-|scenario|scénario|in this example|dans cet exemple|assumptions of this|hypothèses de cette/i,
+];
+const recipientHit = (str) => { for (const re of RECIPIENT_BANNED) { const m = String(str || '').match(re); if (m) return m[0]; } return null; };
+// Visible text plus every accessible-name source (aria-label, title, alt, placeholder) in #view.
+const recipientText = (page) => page.evaluate(() => {
+  const root = document.querySelector('#view');
+  if (!root) return '';
+  const attrs = [...root.querySelectorAll('[aria-label], [title], [alt], [placeholder], [aria-description]')]
+    .flatMap((el) => ['aria-label', 'title', 'alt', 'placeholder', 'aria-description'].map((a) => el.getAttribute(a)).filter(Boolean));
+  return [root.innerText, ...attrs].join('\n');
+});
 const txtOf = (info) => [info.recon, info.unchanged, info.glance, ...info.cards.map((c) => c.text)].join('\n');
 // Structural a11y: duplicate ids / focus ids, dangling aria-labelledby, unnamed groups, heading skips.
 const structure = (page) => page.evaluate(() => {
@@ -69,6 +86,11 @@ const TEXT = {
     octLink: 'See the October 2031 payment',
     banned: /forgiv|interest-free|interest free|holiday|saving/i,
     debtDetailTitle: 'Lower payments do not reduce what you owe',
+    cad: 'Amounts in Canadian dollars.',
+    feeSub: 'fee for this change',
+    sameAmount: /^The revised payments from November to January \(\$4,800\.00\) and the additional interest over the remaining schedule \(\$4,800\) happen to be the same amount\. They measure different things\.$/,
+    rounding: 'Rounded half-up to the nearest cent, as set out in the calculation basis of your notice.',
+    feeDefinition: 'This change has no fee, but it does change the total interest you pay, because the outstanding principal is repaid more slowly.',
   },
   'fr-CA': {
     title: 'Ce qui change dans vos remboursements',
@@ -79,6 +101,11 @@ const TEXT = {
     octLink: 'Voir le versement d’octobre 2031',
     banned: /remise de dette|sans intérêt|congé|économi|annulation de la dette/i,
     debtDetailTitle: 'Des versements moins élevés ne réduisent pas votre dette',
+    cad: 'Montants en dollars canadiens.',
+    feeSub: 'frais liés à cette modification',
+    sameAmount: /^Les versements révisés de novembre à janvier \(4 800,00 \$\) et les intérêts additionnels sur la durée restante \(4 800 \$\) correspondent par hasard au même montant\. Ils mesurent des choses différentes\.$/,
+    rounding: 'Intérêts arrondis au cent le plus proche (la demie étant arrondie au cent supérieur), selon la base de calcul de votre avis.',
+    feeDefinition: 'Cette modification n’entraîne aucuns frais, mais elle change le total des intérêts payés, car le capital restant à rembourser diminue plus lentement.',
   },
 };
 
@@ -141,7 +168,10 @@ for (const locale of ['en-CA', 'fr-CA']) {
       recon: view.querySelector('.chg-recon')?.innerText || '',
       unchanged: view.querySelector('.chg-unchanged')?.innerText || '',
       glance: view.querySelector('.chg-glance')?.innerText || '',
-      demoNote: !!view.querySelector('.demo-note'),
+      cadNote: view.querySelector('.chg-cad-note')?.textContent.replace(/\s+/g, ' ').trim() || null,
+      feeSub: view.querySelector('article[data-card="fees"] .compare-cell--after .compare-sub, article[data-card="fees"] .chg-compare > :last-child .chg-sub')?.textContent.replace(/\s+/g, ' ').trim() || null,
+      feeText: view.querySelector('article[data-card="fees"]')?.innerText || '',
+      sameAmount: [...view.querySelectorAll('.chg-recon .chg-fine')].map((x) => x.textContent.replace(/\s+/g, ' ').trim()),
       tables: view.querySelectorAll('table').length,
       unnamedGroups: [...view.querySelectorAll('[role="group"]')].filter((g) => !g.getAttribute('aria-labelledby') && !g.getAttribute('aria-label')).length,
       flowWhen: [...view.querySelectorAll('.chg-flow-when')].map((e) => e.textContent),
@@ -149,7 +179,11 @@ for (const locale of ['en-CA', 'fr-CA']) {
   });
   check(`${locale}: exactly one h1 with the module title`, info.h1.length === 1 && N(info.h1[0]) === T.title, info.h1);
   check(`${locale}: all seven change cards render`, CARDS.every((id) => info.cards.some((c) => c.id === id)) && info.cards.length === 7, info.cards.map((c) => c.id));
-  check(`${locale}: illustrative demo note present`, info.demoNote);
+  check(`${locale}: currency note reads “${T.cad}”`, info.cadNote === T.cad, info.cadNote);
+  check(`${locale}: change-fee card states “${T.feeSub}” with no scenario framing`, N(info.feeText).includes(T.feeSub) && !recipientHit(info.feeText), { sub: info.feeSub, hit: recipientHit(info.feeText) });
+  check(`${locale}: same-amount note has no example framing`, info.sameAmount.length === 1 && T.sameAmount.test(N(info.sameAmount[0])), info.sameAmount);
+  const rtList = await recipientText(page);
+  check(`${locale}: list has no demo / fictional / illustrative wording (text + accessible names)`, !recipientHit(rtList), recipientHit(rtList));
   for (const c of info.cards) {
     const missingVals = exp[c.id].filter((v) => !N(c.text).includes(N(v)));
     check(`${locale}: ${c.id} card shows fixture values`, missingVals.length === 0, { missing: missingVals });
@@ -363,6 +397,22 @@ for (const locale of ['en-CA', 'fr-CA']) {
 }
 await setLocale(page, 'en-CA');
 
+// Rate and fee details: rounding refers to the notice's calculation basis; no scenario framing
+for (const locale of ['en-CA', 'fr-CA']) {
+  await setLocale(page, locale);
+  await go(page, '#/changes/rate');
+  const fine = await page.evaluate(() => [...document.querySelectorAll('#view .chg-fine')].map((x) => x.textContent.replace(/\s+/g, ' ').trim()));
+  check(`${locale}: rate detail rounding line cites the calculation basis of the notice`, fine.includes(N(TEXT[locale].rounding)), fine);
+  await go(page, '#/changes/fees');
+  const fd = await page.evaluate(() => ({
+    def: document.querySelector('#view .chg-definition p')?.textContent.replace(/\s+/g, ' ').trim() || '',
+    text: document.querySelector('#view')?.innerText || '',
+  }));
+  check(`${locale}: fees detail definition has no example framing`, fd.def === N(TEXT[locale].feeDefinition), fd.def);
+  check(`${locale}: fees detail has no scenario / example wording`, !recipientHit(fd.text), recipientHit(fd.text));
+}
+await setLocale(page, 'en-CA');
+
 // Unknown item falls back to the list
 await go(page, '#/changes/not-a-card');
 check('unknown item renders the list', await page.evaluate(() => document.querySelectorAll('#view article[data-card]').length === 7));
@@ -408,13 +458,15 @@ for (const locale of ['en-CA', 'fr-CA']) {
       if (of.overflow || of.offenders.length) problems.push(`${r} overflow ${JSON.stringify(of.offenders.slice(0, 3))}`);
       if (mk.length) problems.push(`${r} missing ${mk.slice(0, 3).join(',')}`);
       if (TEXT[locale].banned.test(txt)) problems.push(`${r} banned wording`);
+      const rh = recipientHit(await recipientText(page));
+      if (rh) problems.push(`${r} recipient wording “${rh}”`);
       if (locale === 'fr-CA' && MISSING_ELISION.test(txt)) problems.push(`${r} missing elision: ${txt.match(MISSING_ELISION)[0]}`);
       if (h1s !== 1) problems.push(`${r} has ${h1s} h1`);
       // #view is a named region in compact mode: no region inside it may share its name (axe landmark-unique, R-49)
       const dupLandmarks = await landmarkNameClashes(page);
       if (dupLandmarks.length) problems.push(`${r} landmark name clash ${JSON.stringify(dupLandmarks)}`);
     }
-    check(`${locale} ${w}px: all changes routes reflow with one h1, no missing keys${w === 390 ? ', unique ids/focus ids, named groups, no heading skips' : ''}`, problems.length === 0, problems);
+    check(`${locale} ${w}px: all changes routes reflow with one h1, no missing keys, no demo/fictional wording${w === 390 ? ', unique ids/focus ids, named groups, no heading skips' : ''}`, problems.length === 0, problems);
   }
 }
 
@@ -449,6 +501,23 @@ const frSpacing = await page.evaluate(() => {
   return bad;
 });
 check('fr-CA changes dictionary uses no-break spaces before “:” and inside « », none before ; ? !', frSpacing.length === 0, frSpacing);
+
+// Recipient view across the whole changes namespace, both locales (identical shape).
+{
+  const dict = await page.evaluate(() => {
+    const out = [];
+    const walk = (o, path) => {
+      if (typeof o === 'string') out.push([path, o]);
+      else if (o && typeof o === 'object') Object.entries(o).forEach(([k2, v]) => walk(v, `${path}.${k2}`));
+    };
+    ['en-CA', 'fr-CA'].forEach((l) => walk(window.BDCNotice.i18n._dicts[l].changes, `${l}.changes`));
+    return out;
+  });
+  const hits = dict.filter(([, v]) => recipientHit(v)).map(([path, v]) => `${path}: “${recipientHit(v)}”`);
+  check('changes dictionary (en-CA + fr-CA): no demo / fictional / scenario / illustration wording', dict.length > 0 && hits.length === 0, hits.slice(0, 6));
+  const keys = (l) => dict.filter(([path]) => path.startsWith(`${l}.`)).map(([path]) => path.slice(l.length + 1)).sort().join('|');
+  check('changes dictionary: en-CA and fr-CA have the identical shape', keys('en-CA') === keys('fr-CA'));
+}
 
 check('no console errors', consoleMsgs.length === 0, [...new Set(consoleMsgs)].slice(0, 5));
 check('no unexpected network requests', requests.filter((u) => !u.startsWith('https://accessibilityserver.org/')).length === 0, requests);

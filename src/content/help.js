@@ -1,5 +1,5 @@
-/* Help & questions (namespace "help"): FAQ, glossary page copy, local
- * inquiry card and the three-face snap survey.
+/* Help & questions (namespace "help"): FAQ, glossary page copy, the
+ * "Ask a question" card and the three-face snap survey.
  * Every amount and date is a {param} filled from App.record via App.fmt.
  * Answers never describe the postponement as a reduction of debt, and the
  * extra interest within the postponement is always presented as part of the
@@ -11,7 +11,7 @@ App.i18n.register('help', {
   'en-CA': {
     overline: 'Questions about your notice',
     title: 'Help & questions',
-    intro: 'Find a quick answer, look up a term, prepare a question or tell us how clear this notice was. Everything here refers to the same fictional notice.',
+    intro: 'Find a quick answer, look up a term, prepare a question or tell us how clear this notice was.',
     backToNotice: 'Back to your notice',
     onThisPage: 'On this page',
     seeInNotice: 'See in this notice',
@@ -27,7 +27,7 @@ App.i18n.register('help', {
       count: { one: '{n} result for “{q}”', other: '{n} results for “{q}”' },
       countDetail: '{faq} in the questions, {terms} in the glossary',
       noneTitle: 'No results for “{q}”',
-      noneBody: 'Try a shorter or different word, such as “interest” or “payment”. You can also ask Clair, the demo assistant, or prepare a question.',
+      noneBody: 'Try a shorter or different word, such as “interest” or “payment”. You can also ask Clair, your financing guide, or prepare a question.',
       noneBodyNoClair: 'Try a shorter or different word, such as “interest” or “payment”. You can also prepare a question about this notice.',
       foundInAnswer: 'Found in the answer',
       // Shown after a language switch: the search text stays as the reader wrote it.
@@ -57,16 +57,16 @@ App.i18n.register('help', {
         'why-notice': {
           q: 'Why was this notice issued?',
           a: [
-            'You asked for a temporary [[postponement|principal postponement]] to help manage a planned seasonal inventory build. In this fictional scenario, the change is approved and complete. This notice explains how your repayment schedule changes as a result, starting {effectiveDate}.',
+            'You asked for a temporary [[postponement|principal postponement]] to help manage a planned seasonal inventory build. The change is approved and complete. This notice explains how your repayment schedule changes as a result, starting {effectiveDate}.',
             'It shows what changes, what stays the same and what, if anything, you need to do. It is not a new offer, and you do not need to sign anything.',
           ],
         },
         accept: {
           q: 'Must I accept anything?',
           a: [
-            'No. In this scenario, the change is already approved and complete, and no acceptance is required through this notice.',
+            'No. The change is already approved and complete, and no acceptance is required through this notice.',
             'We suggest you review the revised schedule and update your [[cashFlow|cash-flow]] planning, especially for the return to a {first} payment on {resume}.',
-            '“Mark as reviewed” on the overview is an optional local note in this demo. It is not acceptance, consent or proof of understanding.',
+            '“Mark as reviewed” on the overview is an optional note for your own reference. It is not acceptance, consent or proof of understanding.',
           ],
         },
         'debt-reduced': {
@@ -80,14 +80,14 @@ App.i18n.register('help', {
         rate: {
           q: 'Does the rate change?',
           a: [
-            'No. The demonstration [[fixedRate|fixed rate]] stays at {rate} a year. Only the timing of principal payments changes.',
+            'No. Your [[fixedRate|fixed rate]] stays at {rate} a year. Only the timing of principal payments changes.',
             'Total interest increases only because principal is repaid later, so the balance stays higher for longer. The rate itself does not change.',
           ],
         },
         capitalised: {
           q: 'Is unpaid interest added to my balance?',
           a: [
-            'No. Interest is paid every month during the postponement, so nothing is added to what you owe. There is no [[capitalisedInterest|capitalised interest]] in this scenario.',
+            'No. Interest is paid every month during the postponement, so nothing is added to what you owe. There is no [[capitalisedInterest|capitalised interest]] with this change.',
             'Your [[outstanding|outstanding principal]] stays at {principal} from {from} to {to}, then goes down by {monthly} with each payment from {resume}.',
           ],
         },
@@ -96,7 +96,7 @@ App.i18n.register('help', {
           a: [
             'Your next payment is {next}, due on {nextDate}. It is interest only, because no [[principal|principal]] is due from {from} to {to}.',
             'Under the original schedule, that payment would have been {nextOriginal}. The same {interest} interest-only payment applies at the end of each month from {fromY} to {toY}.',
-            'Payments are not processed in this demonstration.',
+            'Payments cannot be made from this notice.',
           ],
         },
         'still-interest': {
@@ -131,7 +131,7 @@ App.i18n.register('help', {
         fee: {
           q: 'Is there a fee?',
           a: [
-            'No change fee applies in this scenario: the fee is {fee}.',
+            'No fee applies to this change: the change fee is {fee}.',
             'The cost of the postponement is the additional interest: {extra} over the remaining schedule, already included in the revised schedule.',
           ],
         },
@@ -139,19 +139,15 @@ App.i18n.register('help', {
           q: 'How do I ask a question?',
           a: [
             'Use “{askLabel}” on this page, or “{askAbout}” beside a card, payment or notice paragraph. The form keeps the item you selected, so you don’t have to explain the context again.',
-            'In this demonstration, the form creates a local demo request only. Nothing is sent to BDC.',
-            'For a quick explanation, you can also ask Clair, the demo assistant. Clair answers from this sample notice only, using local rules, with no live AI connection.',
+            'When you create your question, you receive a reference. Keep it for your records. To discuss your question, contact your BDC account manager.',
+            'For a quick explanation, you can also ask Clair, your financing guide. Clair answers from this notice only and cannot change your terms or approve requests.',
           ],
         },
         accountant: {
           q: 'Can my accountant review it?',
           a: [
-            'Yes, you can share what you see here. For example, print the notice or export the revised schedule as a CSV file so your accountant can check it against your records.',
-            'This demonstration cannot give anyone access to an account. There is no sign-in, no user management and no connection to BDC systems.',
-            'BDC’s published Client Space describes controlled shared access for people you authorise. In a production version, the intended journey would be:',
-            '- You would authorise your accountant through BDC’s own secure process for shared access.',
-            '- Your accountant would sign in with their own credentials, never yours.',
-            '- They would see the notice and schedules you chose to share, and could prepare questions about them.',
+            'Yes. You can share this notice, its downloads or a printed copy with your accountant. For example, download the revised schedule as a CSV file so your accountant can check it against your records.',
+            'BDC’s Client Space also lets you give authorised users controlled access to your account information.',
             'Never share your own sign-in details, even with your accountant.',
           ],
         },
@@ -160,7 +156,7 @@ App.i18n.register('help', {
           a: [
             'Yes. In “{noticeTab}”, use “{printLabel}” for a print layout with the notice, its record details and the revised schedule.',
             'In “{paymentsTab}”, you can download the displayed months or the full revised schedule as a CSV file.',
-            'A browser-generated PDF is a convenience copy of this demonstration, not a certified record.',
+            'A PDF saved from your browser is a convenience copy of this notice, not a certified record.',
           ],
         },
       },
@@ -173,11 +169,11 @@ App.i18n.register('help', {
       overline: 'Still have a question?',
       title: 'Ask a question',
       body: 'Prepare a question about this notice. The form attaches the notice details, and the item you’re asking about when you start from one, so you don’t have to repeat yourself.',
-      local: 'Demo only: the form creates a local request in this browser. Nothing is sent to BDC.',
+      note: 'When your question is created, you receive a reference to keep for your records.',
       button: 'Ask a question',
       clair: 'Ask Clair',
-      clairNote: 'Clair is the demo assistant. It answers from this sample notice only, with no live AI connection.',
-      unavailable: 'The question form is not included in this build of the demonstration.',
+      clairNote: 'Clair is your financing guide. It answers from this notice and cannot change your terms or approve requests.',
+      unavailable: 'The question form is not available.',
     },
     survey: {
       overline: 'Snap survey',
@@ -191,16 +187,16 @@ App.i18n.register('help', {
       },
       thanks: 'Thank you for your feedback.',
       yourAnswer: 'Your answer: {answer}.',
-      recorded: 'Thank you. Answer recorded in this demo: {answer}.',
+      recorded: 'Thank you. Answer recorded: {answer}.',
       updated: 'Answer changed to: {answer}.',
       commentLabel: 'What was unclear? (optional)',
       commentLang: 'Written in {language}',
-      commentHint: 'Kept only in this tab’s memory until you reset the demo or close the tab. It is never sent or added to the demo log.',
+      commentHint: 'Kept only in this tab until you clear your activity or close the tab.',
       offerTitle: 'Would you like help with what was unclear?',
       offerClair: 'Ask Clair',
       offerQuestion: 'Ask a question',
       offerFaq: 'Browse the questions',
-      note: 'Local demo response only. Not a Net Promoter Score and not a record of your understanding or consent.',
+      note: 'Your feedback helps us make our notices clearer. It is not a record of acceptance or consent.',
       hide: 'Hide survey',
       hiddenText: 'The survey is hidden for this session.',
       show: 'Show survey',
@@ -211,7 +207,7 @@ App.i18n.register('help', {
   'fr-CA': {
     overline: 'Questions sur votre avis',
     title: 'Aide et questions',
-    intro: 'Trouvez une réponse rapide, consultez la définition d’un terme, préparez une question ou dites-nous si cet avis était clair. Tout ce qui figure ici porte sur le même avis fictif.',
+    intro: 'Trouvez une réponse rapide, consultez la définition d’un terme, préparez une question ou dites-nous si cet avis était clair.',
     backToNotice: 'Retour à votre avis',
     onThisPage: 'Sur cette page',
     seeInNotice: 'Voir dans cet avis',
@@ -227,7 +223,7 @@ App.i18n.register('help', {
       count: { one: '{n} résultat pour « {q} »', other: '{n} résultats pour « {q} »' },
       countDetail: '{faq} dans les questions, {terms} dans le glossaire',
       noneTitle: 'Aucun résultat pour « {q} »',
-      noneBody: 'Essayez un mot plus court ou différent, comme « intérêts » ou « versement ». Vous pouvez aussi vous adresser à Clair, l’assistant de démonstration, ou préparer une question.',
+      noneBody: 'Essayez un mot plus court ou différent, comme « intérêts » ou « versement ». Vous pouvez aussi vous adresser à Clair, votre guide du financement, ou préparer une question.',
       noneBodyNoClair: 'Essayez un mot plus court ou différent, comme « intérêts » ou « versement ». Vous pouvez aussi préparer une question sur cet avis.',
       foundInAnswer: 'Trouvé dans la réponse',
       otherLanguage: 'Recherche rédigée en {language}. Les résultats tiennent compte des deux langues.',
@@ -256,16 +252,16 @@ App.i18n.register('help', {
         'why-notice': {
           q: 'Pourquoi cet avis a-t-il été émis?',
           a: [
-            'Vous avez demandé un [[postponement|report temporaire des remboursements de capital]] afin de gérer une constitution de stocks saisonnière prévue. Dans ce scénario fictif, la modification est approuvée et terminée. Le présent avis explique comment votre calendrier de remboursement change en conséquence, à compter du {effectiveDate}.',
+            'Vous avez demandé un [[postponement|report temporaire des remboursements de capital]] afin de gérer une constitution de stocks saisonnière prévue. La modification est approuvée et terminée. Le présent avis explique comment votre calendrier de remboursement change en conséquence, à compter du {effectiveDate}.',
             'Il présente ce qui change, ce qui reste pareil et ce que vous devez faire, s’il y a lieu. Il ne s’agit pas d’une nouvelle offre, et vous n’avez rien à signer.',
           ],
         },
         accept: {
           q: 'Dois-je accepter quelque chose?',
           a: [
-            'Non. Dans ce scénario, la modification est déjà approuvée et terminée, et aucune acceptation n’est requise au moyen de cet avis.',
+            'Non. La modification est déjà approuvée et terminée, et aucune acceptation n’est requise au moyen de cet avis.',
             'Nous vous suggérons de consulter le calendrier révisé et de mettre à jour vos prévisions de [[cashFlow|trésorerie]], surtout en vue du retour à un versement de {first} le {resume}.',
-            'La mention « Marquer comme consulté » de l’aperçu est une note locale facultative dans cette démo. Il ne s’agit pas d’une acceptation, d’un consentement ni d’une preuve de compréhension.',
+            'La mention « Marquer comme consulté » de l’aperçu est une note facultative pour votre propre usage. Il ne s’agit pas d’une acceptation, d’un consentement ni d’une preuve de compréhension.',
           ],
         },
         'debt-reduced': {
@@ -279,14 +275,14 @@ App.i18n.register('help', {
         rate: {
           q: 'Le taux change-t-il?',
           a: [
-            'Non. Le [[fixedRate|taux fixe]] de la démonstration reste de {rate} par année. Seul le moment des remboursements de capital change.',
+            'Non. Votre [[fixedRate|taux fixe]] reste de {rate} par année. Seul le moment des remboursements de capital change.',
             'Le total des intérêts augmente uniquement parce que le capital est remboursé plus tard, ce qui maintient le solde plus élevé plus longtemps. Le taux, lui, ne change pas.',
           ],
         },
         capitalised: {
           q: 'Des intérêts impayés sont-ils ajoutés à mon solde?',
           a: [
-            'Non. Les intérêts sont payés chaque mois pendant le report; rien n’est donc ajouté à ce que vous devez. Il n’y a pas d’[[capitalisedInterest|intérêts capitalisés]] dans ce scénario.',
+            'Non. Les intérêts sont payés chaque mois pendant le report; rien n’est donc ajouté à ce que vous devez. Cette modification n’entraîne aucun [[capitalisedInterest|intérêt capitalisé]].',
             'Votre [[outstanding|capital restant à rembourser]] demeure à {principal} de {from} à {to}, puis diminue de {monthly} à chaque versement à compter du {resume}.',
           ],
         },
@@ -295,7 +291,7 @@ App.i18n.register('help', {
           a: [
             'Votre prochain versement est de {next}, à payer le {nextDate}. Il ne comprend que des intérêts, car aucun remboursement de [[principal|capital]] n’est exigé de {from} à {to}.',
             'Selon le calendrier initial, ce versement aurait été de {nextOriginal}. Le même versement de {interest}, composé uniquement d’intérêts, s’applique à la fin de chaque mois, de {fromY} à {toY}.',
-            'Aucun paiement n’est traité dans cette démonstration.',
+            'Il n’est pas possible d’effectuer un paiement à partir de cet avis.',
           ],
         },
         'still-interest': {
@@ -330,7 +326,7 @@ App.i18n.register('help', {
         fee: {
           q: 'Y a-t-il des frais?',
           a: [
-            'Aucuns frais de modification ne s’appliquent dans ce scénario : les frais sont de {fee}.',
+            'Aucuns frais ne s’appliquent à cette modification : les frais de modification sont de {fee}.',
             'Le coût du report correspond aux intérêts additionnels : {extra} sur la durée restante, déjà inclus dans le calendrier révisé.',
           ],
         },
@@ -338,19 +334,15 @@ App.i18n.register('help', {
           q: 'Comment poser une question?',
           a: [
             'Utilisez « {askLabel} » sur cette page, ou « {askAbout} » à côté d’une carte, d’un versement ou d’un paragraphe de l’avis. Le formulaire conserve l’élément choisi pour que vous n’ayez pas à réexpliquer le contexte.',
-            'Dans cette démonstration, le formulaire crée uniquement une demande de démonstration locale. Rien n’est envoyé à BDC.',
-            'Pour une explication rapide, vous pouvez aussi vous adresser à Clair, l’assistant de démonstration. Clair répond uniquement à partir de cet avis type, selon des règles locales, sans connexion à une IA en direct.',
+            'Lorsque vous créez votre question, vous obtenez une référence. Conservez-la pour vos dossiers. Pour discuter de votre question, communiquez avec votre directrice ou directeur de comptes chez BDC.',
+            'Pour une explication rapide, vous pouvez aussi vous adresser à Clair, votre guide du financement. Clair répond uniquement à partir de cet avis et ne peut ni modifier vos conditions ni approuver une demande.',
           ],
         },
         accountant: {
           q: 'Puis-je faire examiner l’avis par mon ou ma comptable?',
           a: [
-            'Oui, vous pouvez transmettre ce que vous voyez ici. Par exemple, imprimez l’avis ou exportez le calendrier révisé en fichier CSV pour que votre comptable le compare à vos dossiers.',
-            'Cette démonstration ne peut donner à personne l’accès à un compte. Il n’y a ni connexion, ni gestion des utilisateurs, ni lien avec les systèmes de BDC.',
-            'L’Espace client de BDC, tel qu’il est présenté publiquement, prévoit un accès partagé contrôlé pour les personnes que vous autorisez. Dans une version de production, le parcours prévu serait le suivant :',
-            '- Vous autoriseriez votre comptable au moyen du processus sécurisé de BDC pour l’accès partagé.',
-            '- Votre comptable se connecterait avec ses propres identifiants, jamais les vôtres.',
-            '- Cette personne verrait l’avis et les calendriers que vous choisiriez de partager, et pourrait préparer des questions à leur sujet.',
+            'Oui. Vous pouvez transmettre cet avis, ses téléchargements ou une copie imprimée à votre comptable. Par exemple, téléchargez le calendrier révisé en fichier CSV pour que votre comptable le compare à vos dossiers.',
+            'L’Espace client de BDC vous permet aussi de donner à des utilisateurs autorisés un accès contrôlé aux renseignements de votre compte.',
             'Ne communiquez jamais vos propres identifiants de connexion, même à votre comptable.',
           ],
         },
@@ -359,7 +351,7 @@ App.i18n.register('help', {
           a: [
             'Oui. Dans « {noticeTab} », utilisez « {printLabel} » pour obtenir une mise en page imprimable comprenant l’avis, les renseignements du dossier et le calendrier révisé.',
             'Dans « {paymentsTab} », vous pouvez télécharger les mois affichés ou le calendrier révisé complet en fichier CSV.',
-            'Un PDF produit par le navigateur est une copie pratique de cette démonstration, et non un document certifié.',
+            'Un PDF enregistré à partir de votre navigateur est une copie pratique de cet avis, et non un document certifié.',
           ],
         },
       },
@@ -372,11 +364,11 @@ App.i18n.register('help', {
       overline: 'Vous avez encore une question?',
       title: 'Poser une question',
       body: 'Préparez une question sur cet avis. Le formulaire joint les renseignements de l’avis et, s’il y a lieu, l’élément visé, pour que vous n’ayez pas à vous répéter.',
-      local: 'Démo seulement : le formulaire crée une demande locale dans ce navigateur. Rien n’est envoyé à BDC.',
+      note: 'Lorsque votre question est créée, vous obtenez une référence à conserver pour vos dossiers.',
       button: 'Poser une question',
       clair: 'Demander à Clair',
-      clairNote: 'Clair est l’assistant de démonstration. Ses réponses proviennent uniquement de cet avis type, sans connexion à une IA en direct.',
-      unavailable: 'Le formulaire de question n’est pas inclus dans cette version de la démonstration.',
+      clairNote: 'Clair est votre guide du financement. Ses réponses proviennent de cet avis, et Clair ne peut ni modifier vos conditions ni approuver une demande.',
+      unavailable: 'Le formulaire de question n’est pas disponible.',
     },
     survey: {
       overline: 'Sondage éclair',
@@ -390,16 +382,16 @@ App.i18n.register('help', {
       },
       thanks: 'Merci de votre rétroaction.',
       yourAnswer: 'Votre réponse : {answer}.',
-      recorded: 'Merci. Réponse enregistrée dans cette démo : {answer}.',
+      recorded: 'Merci. Réponse enregistrée : {answer}.',
       updated: 'Réponse modifiée : {answer}.',
       commentLabel: 'Qu’est-ce qui n’était pas clair? (facultatif)',
       commentLang: 'Rédigé en {language}',
-      commentHint: 'Conservé uniquement dans la mémoire de cet onglet jusqu’à ce que vous réinitialisiez la démo ou fermiez l’onglet. Ce texte n’est jamais envoyé ni ajouté au journal de la démo.',
+      commentHint: 'Conservé uniquement dans cet onglet jusqu’à ce que vous effaciez votre activité ou fermiez l’onglet.',
       offerTitle: 'Souhaitez-vous de l’aide pour y voir plus clair?',
       offerClair: 'Demander à Clair',
       offerQuestion: 'Poser une question',
       offerFaq: 'Parcourir les questions',
-      note: 'Réponse de démonstration locale seulement. Il ne s’agit pas d’un indice de recommandation net (Net Promoter Score) ni d’une preuve de votre compréhension ou de votre consentement.',
+      note: 'Votre rétroaction nous aide à rendre nos avis plus clairs. Elle ne constitue ni une acceptation ni un consentement.',
       hide: 'Masquer le sondage',
       hiddenText: 'Le sondage est masqué pour cette session.',
       show: 'Afficher le sondage',

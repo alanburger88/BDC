@@ -4,7 +4,7 @@
  * Level 2: a paired payment chart (Nov-Apr), a month comparison list for the
  * selected range and a selected-month detail panel; a principal-balance chart
  * across the remaining term. Level 3: Explain with AI, Ask about this, the
- * formal notice clause and locally generated CSV downloads.
+ * formal notice clause and CSV downloads.
  * Routes: #/payments, #/payments/<yyyy-mm>, #/payments/relief|cost|schedule.
  * Every value is read from App.record / App.rec and formatted with App.fmt;
  * the only arithmetic is display aggregation of the record's own rows. */
@@ -654,10 +654,10 @@
     if (st.range === 'all') st.openYears[id.slice(0, 4)] = true;
   }
 
-  /* ---------- CSV export (generated locally) ---------- */
+  /* ---------- CSV export (built in the page from App.record) ---------- */
   // The full revised/original schedules come from the notice module's exporter
   // (App.notice.csv) whenever it is in the build, so the Payments and Your notice tabs
-  // download the same file. The local builders below use the same quoting, BOM, CRLF line
+  // download the same file. The builders below use the same quoting, BOM, CRLF line
   // endings, metadata labels and status wording; fullScheduleCsv is only a fallback for a
   // build without the notice module.
   function csvCell(v) {
@@ -668,10 +668,9 @@
   const CSV_MIME = 'text/csv;charset=utf-8';
   const CSV_COLS = ['opening', 'principal', 'interest', 'total', 'closing'];
 
-  function csvStatus() {
-    const raw = String(App.record.status || '');
-    return /^fictional demonstration/i.test(raw) ? k('csv.statusValue') : raw;
-  }
+  // The record's status is an identifier ("issued"); the file shows the approved amendment
+  // status, worded exactly as in the notice exporter.
+  const csvStatus = () => k('csv.statusValue');
 
   function csvMeta(scheduleLabel, countKey, count) {
     const R = App.record;
@@ -686,8 +685,7 @@
       [k('csv.effectiveDate'), R.effectiveDate],
       [k('csv.currency'), R.loan.currency],
       [k(`csv.${countKey}`), count],
-      [k('csv.source'), k('csv.sourceValue')],
-      [k('csv.note')],
+      [k('csv.source'), k('csv.sourceValue', { notice: R.noticeId, version: R.recordVersion })],
       [],
     ];
   }
@@ -754,7 +752,7 @@
       try {
         const file = App.notice.csv(which);
         if (file && file.filename && file.content) return { mime: CSV_MIME, ...file };
-      } catch (e) { /* fall back to the local builder below */ }
+      } catch (e) { /* fall back to the builder below */ }
     }
     return fullScheduleCsv(which);
   }
@@ -819,7 +817,7 @@
     const root = h('div', { class: 'pay-view' },
       App.ui.backControl(),
       App.ui.sectionHeader({ overline: k('overline'), title: k('title'), intro: k('intro') }),
-      App.ui.demoNote({ className: 'pay-demo-note' }),
+      App.ui.demoNote({ className: 'pay-cad-note' }),
       h('div', { class: 'pay-summary' },
         h('span', { class: 'pay-summary-icon', 'aria-hidden': 'true' }, App.ui.icon('calendar', { size: 22 })),
         h('p', null, App.ui.rich(k('summary', { months: p.months, interest: p.interest, relief: p.relief, resume: p.resume, revMaturity: p.revMaturity, extra: p.extra })))),

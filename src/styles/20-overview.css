@@ -88,11 +88,10 @@
   background: #213a51;
 }
 .ov-illus-svg { display: block; width: 100%; height: auto; }
-.ov-illus-caption { margin-top: var(--space-2); font-size: var(--fs-small); line-height: 1.4; color: #c9d4de; }
 
-/* The illustration sits beside the text when there is room; below 900px it is
-   omitted so the headline keeps a comfortable measure and the summary cards stay
-   close to the top (it is decorative). */
+/* The decorative workshop scene sits beside the text when there is room; below
+   900px it is omitted so the headline keeps a comfortable measure and the summary
+   cards stay close to the top. */
 @media (max-width: 899.98px) {
   .ov-illus { display: none; }
 }
@@ -201,11 +200,11 @@
 .ov-fact-title .badge { margin-left: 6px; vertical-align: 1px; }
 .ov-fact-text { margin: 0; color: var(--text-2); }
 .ov-fact .btn-notice-link { padding-left: 0; margin-top: 2px; font-size: 0.9375rem; }
-/* The note follows the facts directly (no stretched blank band above it) */
-.ov-demo-note { margin: var(--space-1) 0 0; padding-top: var(--space-3); border-top: 1px dashed var(--line); }
+/* The currency note follows the facts directly (no stretched blank band above it) */
+.ov-cad-note { margin: var(--space-1) 0 0; padding-top: var(--space-3); border-top: 1px dashed var(--line); }
 @media (min-width: 640px) and (max-width: 999.98px) {
   .ov-beside { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4) var(--space-5); }
-  .ov-beside-title, .ov-demo-note { grid-column: 1 / -1; }
+  .ov-beside-title, .ov-cad-note { grid-column: 1 / -1; }
   .ov-fact + .ov-fact { border-top: 0; padding-top: 0; }
 }
 

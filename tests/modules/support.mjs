@@ -9,6 +9,9 @@
 // the hardship rule (help-first card, no borrowing promotion), survey
 // independence, #/support/<id> item routing with Back, responsive columns and
 // 320/390 px reflow in en-CA and fr-CA. Depends only on core + support.
+// Recipient view: no demo / fictional / concept / "nothing is sent" framing in
+// either locale (text, aria-labels, hardship and empty states), while keeping
+// "Subject to assessment and approval" and the no-eligibility wording.
 // Usage: node tests/modules/support.mjs [path/to/index.html]
 import { launch, newPage, gotoApp, overflowReport, missingKeys, DEFAULT_FILE } from '../lib/browser.mjs';
 
@@ -40,6 +43,19 @@ const setHardship = async (page, on) => {
 };
 
 const RES = ['financial-management', 'working-capital', 'learning'];
+// Mirrors RECIPIENT_BANNED in tools/build.mjs, plus the old support phrasings.
+const RECIPIENT = [
+  /\b(?:demos?|démos?|démonstrations?|demonstrations?|fictional|fictives?|fictifs?|synthetic|synthétiques?|illustrative|illustratifs?|illustrations?|prototypes?|conceptuelle|presenter|présentat(?:eur|rice|ion))\b/i,
+  /this example|cet exemple|sample notice|avis type|not a BDC offer|non une offre de BDC|not connected to BDC|aucun lien avec les systèmes|no live AI|aucune connexion à une IA|nothing (?:is|was|has been) sent|rien n.a été envoyé|n.est envoyé|\blocally\b|\blocalement\b/i,
+  /\bsample\b|\bconcept\b|rien n.est transmis|ne transmet aucune donnée|does not share any data with BDC|stays? in (?:this|your) browser|reste(?:nt)? dans (?:ce|votre) navigateur|local (?:demo )?question|question de démonstration/i,
+];
+const recipientHit = (txt) => { for (const re of RECIPIENT) { const m = String(txt || '').match(re); if (m) return m[0]; } return null; };
+// Text plus every accessible-name attribute in the view.
+const viewCorpus = (page) => page.evaluate(() => {
+  const root = document.querySelector('#view');
+  const attrs = [...root.querySelectorAll('*')].flatMap((e) => ['aria-label', 'title', 'aria-description', 'alt'].map((a) => e.getAttribute(a) || ''));
+  return `${root.textContent} ${attrs.join(' ')}`;
+});
 const TEXT = {
   'en-CA': {
     title: 'Support for you',
@@ -60,8 +76,10 @@ const TEXT = {
     hide: 'Hide this suggestion',
     showHidden: (n) => `Show hidden suggestions (${n})`,
     help: 'Talk to us about your situation',
-    rule: /flag is set for this demonstration.*responsible demo rule.*not a BDC policy/i,
-    footer: /does not share any data with BDC/i,
+    rule: /^Support comes first Suggestions for additional borrowing are not shown on this page\. If making payments or planning cash flow is a concern, start with the support below\.$/,
+    helpNote: 'To talk about your situation, you can also contact your BDC account manager.',
+    footer: /^Links open BDC’s public website in a new tab, only when you select them\. Descriptions summarize BDC’s public information\. They are not offers\.$/,
+    inquiryAria: (action, title) => `${action}: ${title}. Opens a form to prepare a question about this resource.`,
     notLending: /not a lending product/i,
     banned: /forgiv|interest-free|interest free|holiday|saving|pre-approved for|you qualify|you are eligible|instant approval|guaranteed approval/i,
   },
@@ -84,8 +102,10 @@ const TEXT = {
     hide: 'Masquer cette suggestion',
     showHidden: (n) => `Afficher les suggestions masquées (${n})`,
     help: 'Parlez-nous de votre situation',
-    rule: /indicateur .*activé pour cette démonstration.*règle de démonstration responsable.*non d’une politique de BDC/i,
-    footer: /ne transmet aucune donnée à BDC/i,
+    rule: /^Le soutien d’abord Les suggestions d’emprunt supplémentaire ne sont pas affichées sur cette page\. Si vos versements ou votre planification de trésorerie vous préoccupent, commencez par le soutien présenté ci-dessous\.$/,
+    helpNote: 'Pour parler de votre situation, vous pouvez aussi communiquer avec votre directrice ou directeur de comptes chez BDC.',
+    footer: /^Les liens ouvrent le site Web public de BDC dans un nouvel onglet, seulement si vous les sélectionnez\. Les descriptions résument l’information publique de BDC\. Elles ne constituent pas des offres\.$/,
+    inquiryAria: (action, title) => `${action}\u00a0: ${title}. Ouvre un formulaire pour préparer une question sur cette ressource.`,
     notLending: /non un produit de prêt/i,
     banned: /remise de dette|sans intérêt|congé|économi|préapprouvé|vous êtes admissible|approbation instantanée|approbation garantie/i,
   },
@@ -124,7 +144,7 @@ for (const locale of ['en-CA', 'fr-CA']) {
         why: c.querySelector('.sup-why')?.innerText || '',
         whyBasis: c.querySelector('.sup-why')?.dataset.basis || null,
         statement: c.querySelector('.sup-statement')?.textContent || '',
-        inquiry: [...c.querySelectorAll('button[data-action="inquiry"]')].map((b) => ({ label: b.querySelector('.btn-label')?.textContent, secondary: b.classList.contains('btn-secondary') })),
+        inquiry: [...c.querySelectorAll('button[data-action="inquiry"]')].map((b) => ({ label: b.querySelector('.btn-label')?.textContent, secondary: b.classList.contains('btn-secondary'), aria: b.getAttribute('aria-label') || '' })),
         links: [...c.querySelectorAll('a[data-action="external"]')].map((a) => ({
           href: a.getAttribute('href'),
           target: a.getAttribute('target'),
@@ -154,8 +174,10 @@ for (const locale of ['en-CA', 'fr-CA']) {
   const amounts = /\$|\d+(?:[.,]\d+)?\s?%|\bmaximum\b|\bmax\b|\brate\b|\btaux\b/i;
   check(`${locale}: loan card shows no rate, amount or maximum`, wc && !amounts.test(wc.text), wc && (wc.text.match(amounts) || [])[0]);
   check(`${locale}: learning card is educational, not a lending product`, lr && T.notLending.test(N(lr.text)));
-  check(`${locale}: service and financing cards offer a secondary local-inquiry button with the approved label`,
+  check(`${locale}: service and financing cards offer a secondary question-form button with the approved label`,
     [fm, wc].every((c) => c.inquiry.length === 1 && c.inquiry[0].secondary && N(c.inquiry[0].label) === T.inquiry[c.id]), [fm.inquiry, wc.inquiry]);
+  check(`${locale}: question-form buttons are named for what they do (no demo / "nothing is sent" wording)`,
+    [fm, wc].every((c) => c.inquiry[0].aria === T.inquiryAria(T.inquiry[c.id], N(c.title))), [fm.inquiry[0].aria, wc.inquiry[0].aria]);
   check(`${locale}: learning card has no inquiry button and "${T.learningAction}" as its external action`, lr.inquiry.length === 0 && lr.links.length === 1 && N(lr.links[0].label) === T.learningAction, lr);
   for (const c of info.cards) {
     const l = c.links[0];
@@ -164,7 +186,9 @@ for (const locale of ['en-CA', 'fr-CA']) {
     check(`${locale}: ${c.id} link is a text link with a visible external icon and SR text`, l && l.isLink && l.icon && l.aria.includes(T.external) && l.aria.includes(c.title.trim()), l);
     check(`${locale}: ${c.id} card has "${T.hide}"`, N(c.hide) === T.hide, c.hide);
   }
-  check(`${locale}: footer says links open BDC's public site and no data is shared`, T.footer.test(N(info.footer)), info.footer);
+  check(`${locale}: footer says links open BDC's public site and descriptions are not offers`, T.footer.test(N(info.footer)), info.footer);
+  const corpus = await viewCorpus(page);
+  check(`${locale}: recipient view — no demo / fictional / concept / "nothing is sent" wording (text and attributes)`, !recipientHit(corpus), recipientHit(corpus));
   const txt = await viewText(page);
   check(`${locale}: no forgiveness / savings / eligibility / instant-approval wording`, !T.banned.test(txt), (txt.match(T.banned) || [])[0]);
   check(`${locale}: no hard-coded dollar amounts anywhere in the view`, !/\$/.test(txt));
@@ -275,6 +299,10 @@ check('restore control disappears when nothing is hidden', !(await page.$('[data
 for (const id of RES) { await page.click(`button[data-fid="sup-hide-${id}"]`); await wait(page, 250); }
 const allHidden = await page.evaluate(() => ({ cards: document.querySelectorAll('#view article[data-card]').length, empty: !!document.querySelector('#view .sup-empty'), chip: document.querySelector('[data-fid="sup-show-hidden"]')?.textContent || '', h1: document.querySelectorAll('#view h1').length }));
 check('hiding all three shows a calm empty state with "(3)" restore control', allHidden.cards === 0 && allHidden.empty && N(allHidden.chip) === TEXT['en-CA'].showHidden(3) && allHidden.h1 === 1, allHidden);
+{
+  const c1 = await viewCorpus(page);
+  check('all-hidden state: no demo wording', !recipientHit(c1), recipientHit(c1));
+}
 check('focus moves to the restore control after hiding the last card', (await activeFid(page)) === 'sup-show-hidden', await activeFid(page));
 
 // Deliberate navigation to a hidden card shows it again and focuses it
@@ -287,7 +315,7 @@ check('navigating to #/support/learning re-shows that hidden card, focused and h
 await page.evaluate(() => window.BDCNotice.session.reset());
 await wait(page);
 await go(page, '#/support');
-check('demo reset restores all hidden suggestions', JSON.stringify(await cardIds(page)) === JSON.stringify(RES), await cardIds(page));
+check('clearing your activity restores all hidden suggestions', JSON.stringify(await cardIds(page)) === JSON.stringify(RES), await cardIds(page));
 
 /* ---------- 3b. Focus stays on screen after hiding (phone width) ---------- */
 await page.setViewportSize({ width: 390, height: 700 });
@@ -342,13 +370,18 @@ for (const locale of ['en-CA', 'fr-CA']) {
       helpLink: help?.querySelector('a[data-fid="sup-help-link"]')?.getAttribute('href') || null,
       helpAsk: !!help?.querySelector('button[data-fid="sup-ask-help"]'),
       helpHide: !!help?.querySelector('[data-action="hide"]'),
+      helpNote: help?.querySelector('.sup-help-note')?.textContent || '',
+      helpAskAria: help?.querySelector('button[data-fid="sup-ask-help"]')?.getAttribute('aria-label') || '',
       text: view.innerText,
     };
   });
   check(`${locale}: hardship rule removes the Working Capital Loan card and shows help first (3 cards)`, JSON.stringify(hs.ids) === JSON.stringify(['help', 'financial-management', 'learning']), hs.ids);
   check(`${locale}: help-first card "${T.help}" points to Ask a question and Help & questions`, N(hs.helpTitle) === T.help && hs.helpAsk && hs.helpLink === '#/help' && !hs.helpHide, hs);
-  check(`${locale}: note explains a responsible demo rule, not a BDC policy`, T.rule.test(N(hs.rule)), hs.rule);
-  check(`${locale}: hardship copy frames a demo flag, never an asserted situation or BDC process`, !/situation applies|s’applique|conversation with a person comes before|passe avant tout nouvel emprunt/i.test(hs.text));
+  check(`${locale}: rule note puts support first, with no demo framing and no claimed BDC policy`, T.rule.test(N(hs.rule)) && !/policy|politique|flag|indicateur/i.test(hs.rule), hs.rule);
+  check(`${locale}: hardship copy never asserts the reader's situation or a BDC process`, !/situation applies|s’applique|conversation with a person comes before|passe avant tout nouvel emprunt/i.test(hs.text));
+  check(`${locale}: help-first card points to the BDC account manager and names its question button plainly`, N(hs.helpNote) === T.helpNote && !recipientHit(hs.helpAskAria) && hs.helpAskAria.length > 10, { note: hs.helpNote, aria: hs.helpAskAria });
+  const hc = await viewCorpus(page);
+  check(`${locale}: hardship state — no demo / "nothing is sent" wording (text and attributes)`, !recipientHit(hc), recipientHit(hc));
   check(`${locale}: no borrowing promotion text under the rule`, !hs.text.includes(T.titles[1]) && !hs.text.includes(T.inquiry['working-capital']) && !hs.text.includes(T.statement), (hs.text.match(new RegExp(`${T.titles[1]}|${T.inquiry['working-capital']}`)) || [])[0]);
   const mk = await missingKeys(page);
   check(`${locale}: no missing keys under the rule`, mk.length === 0, mk);
@@ -464,6 +497,19 @@ for (const locale of ['en-CA', 'fr-CA']) {
 }
 
 /* ---------- 8. Hygiene ---------- */
+{
+  // Recipient view: every support string in both dictionaries (incl. the hardship and empty states).
+  const hits = await page.evaluate(([res]) => {
+    const out = [];
+    const RE = res.map(([src, fl]) => new RegExp(src, fl));
+    const walk = (o, p) => {
+      if (typeof o === 'string') { for (const re of RE) { const m = o.match(re); if (m) { out.push(`${p}: ${m[0]}`); break; } } } else if (o && typeof o === 'object') Object.keys(o).forEach((key) => walk(o[key], `${p}.${key}`));
+    };
+    ['en-CA', 'fr-CA'].forEach((l) => walk(window.BDCNotice.i18n._dicts[l].support, `${l}.support`));
+    return out;
+  }, [RECIPIENT.map((re) => [re.source, re.flags])]);
+  check('support dictionaries (en-CA + fr-CA): no demo / fictional / concept / "nothing is sent" wording in any string', hits.length === 0, hits);
+}
 const badEvents = await page.evaluate(() => window.BDCNotice.events.all().filter((e) => e.id && !/^[a-z0-9][a-z0-9:_.-]{0,63}$/i.test(e.id)));
 check('event log holds identifiers only', badEvents.length === 0, badEvents);
 check('no console errors or warnings', consoleMsgs.length === 0, consoleMsgs);

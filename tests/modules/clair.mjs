@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-// Clair (demo assistant) module test: panel behaviour, contextual answers,
+// Clair (financing guide) module test: panel behaviour, contextual answers,
 // bilingual intent engine, limits, source links, mobile layout, language
-// switching, reset and network isolation.
+// switching, reset, recipient wording (no demo/fictional framing) and network isolation.
 // Usage: node tests/modules/clair.mjs [path/to/index.html] [--shots dir]
 import { mkdirSync } from 'node:fs';
 import { launch, newPage, gotoApp, overflowReport, missingKeys, DEFAULT_FILE } from '../lib/browser.mjs';
@@ -11,9 +11,18 @@ const file = args[0] && !args[0].startsWith('--') ? args[0] : DEFAULT_FILE;
 const shots = args.includes('--shots') ? args[args.indexOf('--shots') + 1] : null;
 if (shots) mkdirSync(shots, { recursive: true });
 
-const STATUS_EN = 'Demo assistant • Answers from this sample notice • No live AI connection.';
-const STATUS_FR = 'Assistant de démonstration • Réponses tirées de cet avis type • Aucune connexion à une IA en direct.';
+const STATUS_EN = 'Answers are based on this notice.';
+const STATUS_FR = 'Réponses fondées sur le contenu de cet avis.';
+const GREETING_EN = 'Hello! I’m Clair, your financing guide for this notice. Ask what changed, what you pay and when, or pick a suggested question below.';
+const GREETING_FR = 'Bonjour! Je suis Clair, votre guide du financement pour cet avis. Demandez-moi ce qui change, combien vous payez et quand, ou choisissez une question suggérée ci-dessous.';
 const FORBIDDEN = /forgiv|interest[- ]free|holiday|saving|remise de dette|sans int[ée]r[êe]t|cong[ée]|[ée]conomi|[ée]pargn|⟦/i;
+// Recipient view: the build's RECIPIENT_BANNED list plus framing words this module used to carry
+const BANNED = [
+  /\b(?:demos?|démos?|démonstrations?|demonstrations?|fictional|fictives?|fictifs?|synthetic|synthétiques?|illustrative|illustratifs?|illustrations?|prototypes?|conceptuelle|presenter|présentat(?:eur|rice|ion))\b/i,
+  /this example|cet exemple|sample notice|avis type|not a BDC offer|non une offre de BDC|not connected to BDC|aucun lien avec les systèmes|no live AI|aucune connexion à une IA|nothing (?:is|was|has been) sent|rien n.a été envoyé|n.est envoyé|\blocally\b|\blocalement\b/i,
+  /\bsample\b|illustrat|sc[ée]nario|simulation|live AI|IA en direct|local rules|règles locales|this browser|ce navigateur|\bconcept\b|statistiques de la/i,
+];
+const bannedHit = (txt) => { for (const re of BANNED) { const m = String(txt).match(re); if (m) return m[0]; } return null; };
 
 let failures = 0;
 function check(name, ok, detail) {
@@ -71,7 +80,8 @@ const general = await page.evaluate(() => ({
 }));
 check('title is "Clair — Your financing guide"', general.title === 'Clair — Your financing guide', general.title);
 check('status line text is exact (EN)', general.status === STATUS_EN, general.status);
-check('key disclaimer phrase is kept on one line', await page.$eval('.clair-status-key', (el) => el.textContent === 'No live AI connection.' && getComputedStyle(el).display === 'inline-block'));
+check('status line is one plain sentence (no demo pill or disclaimer segments)', await page.$eval('.clair-status-text', (el) => el.textContent === 'Answers are based on this notice.' && el.children.length === 0));
+check('greeting text is exact (EN)', await page.$eval('.clair-msg--greeting .clair-msg-text', (el, g) => el.textContent === g, GREETING_EN));
 check('general context chip, no remove control', general.chip === 'This notice (general question)' && !general.removable, general.chip);
 check('greeting shown and 3–5 suggestions', general.greeting && general.suggestions >= 3 && general.suggestions <= 5, general.suggestions);
 check('conversation uses role="log"; dialog is modal', general.log === 'log' && general.modal === 'true');
@@ -160,9 +170,9 @@ check('eligibility → cannot assess eligibility', a.intent === 'limitEligibilit
 a = await typeAsk('pay now');
 check('pay now → cannot process payments', a.intent === 'limitPay' && /can’t process payments/.test(a.text), a);
 a = await typeAsk("what's the weather in Montreal?");
-check('unrelated → "I can only help with this sample notice." + suggestions', a.intent === 'unrelated' && /^I can only help with this sample notice\./.test(a.text) && a.inline >= 3, a);
+check('unrelated → "I can only help with this notice." + suggestions', a.intent === 'unrelated' && /^I can only help with this notice\./.test(a.text) && a.inline >= 3, a);
 a = await typeAsk('zzqx blorp');
-check('unsupported → honest fallback with suggestions and Ask a person', a.intent === 'fallback' && /only answer questions about this sample notice/.test(a.text) && a.inline >= 3 && a.ask, a);
+check('unsupported → honest fallback with suggestions and Ask a person', a.intent === 'fallback' && /only answer questions about this notice/.test(a.text) && a.inline >= 3 && a.ask, a);
 await page.fill('#clair-input', '   ');
 await page.press('#clair-input', 'Enter');
 await page.waitForTimeout(80);
@@ -218,7 +228,7 @@ const engine = await page.evaluate(() => {
     ['Is my debt reduced?', 'debtReduced'], ['Est-ce que je dois toujours le capital?', 'debtReduced'],
     ['Is interest capitalised?', 'capitalisedInterest'], ['Des intérêts sont-ils capitalisés?', 'capitalisedInterest'],
     ['What is my balance after the postponement?', 'balanceAfter'], ['Solde après le report?', 'balanceAfter'],
-    ['Is this a live AI?', 'aboutClair'], ['Es-tu une IA?', 'aboutClair'],
+    ['Is this a live AI?', 'aboutClair'], ['Es-tu une IA?', 'aboutClair'], ['What is Clair?', 'aboutClair'], ['Qu’est-ce que Clair?', 'aboutClair'],
     ['decembre 2026', 'month'], ['What is my February payment?', 'month'],
     ['hello', 'greeting'], ['merci', 'thanks'],
     ['Change my payment', 'limitChange'], ['Modifier mon versement', 'limitChange'],
@@ -298,7 +308,7 @@ check('R-19: loan amount → $240,000.00 starting principal, no invented balance
 check('R-19: "$4,880 extra?" is corrected: the $80 is already inside the $4,800 (never added again)', qa.misconception.every((r) => r.intent === 'totalCost' && !/4[,\s]?880/.test(r.text) && (/already included/.test(r.text) || /déjà compris/.test(r.text))), qa.misconception.map((r) => `${r.q} → ${r.intent}`));
 check('R-19: a calendar year → Payments year view with that year\'s payment counts (no computed sum); outside years say so', qa.year.every((r) => r.intent === 'year' && r.src === '#/payments' && /2027/.test(r.text)) && qa.yearOutside.intent === 'year' && /2035/.test(qa.yearOutside.text) && /no payment/.test(qa.yearOutside.text), [...qa.year, qa.yearOutside].map((r) => `${r.q} → ${r.intent} ${r.src}`));
 const noFallback = [...qa.resume, ...qa.totals, ...qa.counts, ...qa.issued, ...qa.loan, ...qa.misconception, ...qa.year].filter((r) => ['fallback', 'unrelated'].includes(r.intent));
-check('R-19: none of these in-scope questions gets the "only this sample notice" fallback', noFallback.length === 0, noFallback.map((r) => r.q));
+check('R-19: none of these in-scope questions gets the "only this notice" fallback', noFallback.length === 0, noFallback.map((r) => r.q));
 check('R-25: French "hypothèses" questions → assumptions answer (also in the clause context), like English', [...qa.assumptionsFr, ...qa.assumptionsEn].every((r) => r.intent === 'assumptions' && r.src === '#/documents/assumptions'), [...qa.assumptionsFr, ...qa.assumptionsEn].map((r) => `${r.q} → ${r.intent}`));
 
 // R-33: French spacing in the clair namespace - U+00A0 before ":" and "»" and after "«", no space before ; ? !
@@ -312,8 +322,29 @@ const frSpacing = await page.evaluate(() => {
   return bad;
 });
 check('R-33: clair fr-CA strings use U+00A0 before ":" / "»" and after "«", and no space before ; ? !', frSpacing.length === 0, frSpacing.slice(0, 5));
-const demoFr = await page.evaluate(() => { const A = window.BDCNotice; A.i18n.setLocale('fr-CA'); const t = A.clair.answer(null, { kind: 'section', id: 'insights' }).text; A.i18n.setLocale('en-CA'); return t; });
-check('French Clair calls the Demo insights page « Statistiques de la démo »', demoFr.includes('« Statistiques de la démo »') && !/Aperçu/i.test(demoFr), demoFr);
+// Recipient wording: no demo/fictional/sample framing anywhere in the clair namespace (both locales)
+const dictHits = await page.evaluate((src) => {
+  const res = src.map((x) => new RegExp(x, 'i'));
+  const bad = [];
+  for (const loc of ['en-CA', 'fr-CA']) {
+    (function walk(v, path) {
+      if (typeof v === 'string') { for (const re of res) { const m = v.match(re); if (m) { bad.push(`${path}: "${m[0]}"`); break; } } } else if (v && typeof v === 'object') Object.keys(v).forEach((k) => walk(v[k], `${path}.${k}`));
+    }(window.BDCNotice.i18n._dicts[loc].clair, `${loc}.clair`));
+  }
+  return bad;
+}, BANNED.map((re) => re.source));
+check('recipient wording: no demo/fictional/sample/illustrative/local-only framing in any clair string (en-CA + fr-CA)', dictHits.length === 0, dictHits.slice(0, 6));
+// The presenter page is not part of the recipient view: a section context for it gets the ordinary summary
+const insightsCtx = await page.evaluate(() => { const A = window.BDCNotice; const out = []; for (const l of ['en-CA', 'fr-CA']) { A.i18n.setLocale(l); const a = A.clair.answer(null, { kind: 'section', id: 'insights' }); out.push({ l, intent: a.intent, text: a.text }); } A.i18n.setLocale('en-CA'); return out; });
+check('a section context for the session-insights page answers with the notice summary (no presenter/demo answer)', insightsCtx.every((r) => r.intent === 'whatChanged' && !bannedHit(r.text)), insightsCtx);
+// "What is Clair?": true, plain and scoped to this notice (both locales)
+const about = await page.evaluate(() => { const A = window.BDCNotice; const out = {}; for (const l of ['en-CA', 'fr-CA']) { A.i18n.setLocale(l); const a = A.clair.answer({ intent: 'aboutClair' }, { kind: 'general' }); out[l] = { text: a.text, ask: a.askPerson, label: A.i18n.t('clair.suggestions.aboutClair') }; } A.i18n.setLocale('en-CA'); return out; });
+check('"What is Clair?" (EN): answers come from this notice; not a person; can’t see other accounts or make changes', about['en-CA'].label === 'What is Clair?' && /not a person/.test(about['en-CA'].text) && /information in this notice/.test(about['en-CA'].text) && /can’t see your other accounts or make changes/.test(about['en-CA'].text) && !bannedHit(about['en-CA'].text) && !about['en-CA'].ask, about['en-CA']);
+check('« Qu’est-ce que Clair? » (FR): same facts in French', about['fr-CA'].label === 'Qu’est-ce que Clair?' && /non une personne/.test(about['fr-CA'].text) && /contenue dans cet avis/.test(about['fr-CA'].text) && /autres comptes/.test(about['fr-CA'].text) && !bannedHit(about['fr-CA'].text), about['fr-CA']);
+// Honesty: a question is never said to be sent to, received by or answered by BDC
+const honest = await page.evaluate(() => { const A = window.BDCNotice; const out = []; for (const l of ['en-CA', 'fr-CA']) { A.i18n.setLocale(l); ['queryPrep', 'limitApprove', 'limitChange', 'hardship', 'accountant'].forEach((i) => out.push({ l, i, text: A.clair.answer({ intent: i }, { kind: 'general' }).text })); } A.i18n.setLocale('en-CA'); return out; });
+check('honesty: Clair never says a question is sent to, received by or answered by BDC', honest.every((r) => !/(?:sent|send|forward\w*|submitted|received|will (?:reply|respond|contact|answer))\b[^.]*\bBDC\b|BDC (?:will|has received)|envoy\w*[^.]*BDC|transmis\w*[^.]*BDC|BDC (?:vous )?répondra|BDC communiquera/i.test(r.text)), honest.map((r) => `${r.l} ${r.i}: ${r.text.slice(0, 80)}`));
+check('queryPrep explains the reference for the reader’s records (EN) without claiming BDC receives it', /reference is shown so you can keep it for your records/.test(honest.find((r) => r.l === 'en-CA' && r.i === 'queryPrep').text));
 
 // Words that must not be read as off-topic: French "stocks" (inventory) and "new" (not "news")
 const notUnrelated = await page.evaluate(() => ['pourquoi le report pour mes stocks saisonniers', 'what is the new maturity date', 'quelles sont les nouvelles dates', 'does the schedule match the notice']
@@ -345,9 +376,11 @@ const faqExp = { relief: 'whyRelief', 'debt-reduced': 'debtReduced', 'still-inte
 check('FAQ contexts answer their own question (e.g. relief FAQ → why $11,920)', faq.every(([id, i]) => faqExp[id] === i), faq);
 
 // Every answer and every context answer, both locales: values, wording, no missing keys
-const audit = await page.evaluate((forbiddenSrc) => {
+const audit = await page.evaluate(([forbiddenSrc, bannedSrc]) => {
   const A = window.BDCNotice;
   const re = new RegExp(forbiddenSrc, 'i');
+  const bannedRes = bannedSrc.map((x) => new RegExp(x, 'i'));
+  const bannedHitIn = (txt) => { for (const b of bannedRes) { const m = txt.match(b); if (m) return m[0]; } return null; };
   const problems = [];
   const intents = ['whatChanged', 'purpose', 'effectiveDate', 'nextPayment', 'postponementPeriod', 'principalMeaning', 'continuingInterest', 'whyRelief', 'relief', 'totalCost', 'maturity', 'resume', 'rate', 'fees', 'unchanged', 'acceptance', 'printExport', 'queryPrep', 'support', 'debtReduced', 'capitalisedInterest', 'balanceAfter', 'accountant', 'aboutClair', 'greeting', 'thanks', 'limitChange', 'limitApprove', 'limitEligibility', 'limitPay', 'unrelated', 'fallback',
     'lastPostponement', 'totalPayments', 'paymentCount', 'issueDate', 'loanAmount', 'hardship', 'assumptions'];
@@ -374,14 +407,16 @@ const audit = await page.evaluate((forbiddenSrc) => {
       if (!ans.text || ans.lang !== loc) problems.push(`${loc} ${ans.intent}: empty or wrong lang`);
       if (re.test(txt)) problems.push(`${loc} ${ans.intent} ${ans.context || ''}: forbidden/missing → ${txt.slice(0, 120)}`);
       if (ans.source && !/^#\/(documents|payments|changes|help|support)(\/|$)/.test(ans.source.target)) problems.push(`${loc} ${ans.intent}: bad source ${ans.source.target}`);
-      if (ans.context && !ans.fact && ans.intent !== 'aboutDemo') problems.push(`${loc} ${ans.context}: no supporting fact`);
+      if (ans.context && !ans.fact) problems.push(`${loc} ${ans.context}: no supporting fact`);
+      const hit = bannedHitIn(txt);
+      if (hit) problems.push(`${loc} ${ans.intent} ${ans.context || ''}: recipient wording "${hit}" → ${txt.slice(0, 100)}`);
     }
   }
   const fr = A.clair.answer(null, { kind: 'summary', id: 'relief' });
   A.i18n.setLocale('en-CA');
   return { n, problems, fr: fr.text };
-}, FORBIDDEN.source);
-check(`all ${audit.n} answers/context answers well-formed in both locales (no forbidden framing, valid sources, facts present)`, audit.problems.length === 0, audit.problems.slice(0, 6));
+}, [FORBIDDEN.source, BANNED.map((re) => re.source)]);
+check(`all ${audit.n} answers/context answers well-formed in both locales (no forbidden framing, no demo/sample wording, valid sources, facts present)`, audit.problems.length === 0, audit.problems.slice(0, 6));
 check('French relief answer uses fixture values formatted for fr-CA', /12\s000\s\$/.test(audit.fr) && /11\s920\s\$/.test(audit.fr) && /80\s\$/.test(audit.fr), audit.fr);
 
 // 8. Source link: close, open the clause, keep a return path to the originating control
@@ -443,7 +478,7 @@ const hasQuery = await page.evaluate(() => !!window.BDCNotice.query);
 await page.click('.clair-log .clair-msg--clair[data-msg]:last-of-type .clair-ask');
 await page.waitForTimeout(300);
 if (hasQuery) {
-  check('"Ask a person" switches to the local query form', await page.evaluate(() => window.BDCNotice.overlay.current() === 'query'));
+  check('"Ask a person" switches to the question form', await page.evaluate(() => window.BDCNotice.overlay.current() === 'query'));
   await page.keyboard.press('Escape');
   await page.waitForTimeout(200);
 } else {
@@ -570,7 +605,7 @@ await closedPanel();
 await page.evaluate(() => window.BDCNotice.session.reset());
 await page.evaluate(() => window.BDCNotice.clair.open({ kind: 'general' }, document.querySelector('.clair-launcher')));
 await openPanel();
-check('demo reset clears the conversation', await page.evaluate(() => document.querySelectorAll('.clair-log .clair-msg[data-msg]').length === 0 && !!document.querySelector('.clair-msg--greeting')));
+check('“Clear my activity” (session reset) clears the conversation', await page.evaluate(() => document.querySelectorAll('.clair-log .clair-msg[data-msg]').length === 0 && !!document.querySelector('.clair-msg--greeting')));
 await page.keyboard.press('Escape');
 await closedPanel();
 await page.evaluate(() => window.BDCNotice.i18n.setLocale('en-CA'));
@@ -758,6 +793,51 @@ for (const [w, hh] of [[1280, 900], [390, 844]]) {
   check(`S-12 ${w}px: Back returns to #/payments/2026-12 with focus on the term and the reader's scroll position`, ret.hash === '#/payments/2026-12' && ret.fid === termFid && Math.abs(ret.y - y0) < 120 && ret.y > 300, { ...ret, y0 });
   check(`S-12 ${w}px: no console errors`, gp.consoleMsgs.length === 0, gp.consoleMsgs.slice(0, 3));
   await gp.context.close();
+}
+
+// 12f. Recipient view, as rendered: the open panel (text, aria-labels, placeholders, titles) carries no
+// demo/fictional/sample framing in either locale, including answers about Clair, questions, sharing and limits.
+for (const loc of ['en-CA', 'fr-CA']) {
+  for (const w of [1280, 320]) {
+    const rv = await newPage(browser, { width: w, height: w === 320 ? 640 : 900, reducedMotion: 'reduce' });
+    await gotoApp(rv.page, '#/overview', file);
+    await rv.page.evaluate((l) => window.BDCNotice.i18n.setLocale(l), loc);
+    await rv.page.waitForTimeout(150);
+    await rv.page.click('.clair-launcher');
+    await rv.page.waitForSelector('[data-overlay="clair"].is-open');
+    await rv.page.waitForTimeout(200);
+    const first = await rv.page.evaluate(() => ({ status: document.querySelector('.clair-status').textContent, greeting: (document.querySelector('.clair-msg--greeting .clair-msg-text') || {}).textContent }));
+    check(`recipient ${loc} ${w}px: exact status line and greeting`, first.status === (loc === 'en-CA' ? STATUS_EN : STATUS_FR) && first.greeting === (loc === 'en-CA' ? GREETING_EN : GREETING_FR), first);
+    if (shots) await rv.page.screenshot({ path: `${shots}/clair-recipient-${loc}-${w}-open.png` });
+    await rv.page.evaluate(() => {
+      const C = window.BDCNotice.clair;
+      ['aboutClair', 'queryPrep', 'accountant', 'balanceAfter', 'loanAmount', 'assumptions', 'purpose', 'fees', 'acceptance', 'limitApprove', 'limitPay', 'limitChange', 'hardship', 'unrelated', 'fallback']
+        .forEach((intent) => C.ask(window.BDCNotice.i18n.t(window.BDCNotice.i18n.has(`clair.suggestions.${intent}`) ? `clair.suggestions.${intent}` : 'clair.placeholder'), { intent }));
+      C.ask('zzqx blorp');
+    });
+    await rv.page.waitForTimeout(250);
+    const hits = await rv.page.evaluate((src) => {
+      const res = src.map((x) => new RegExp(x, 'i'));
+      const panel = document.querySelector('[data-overlay="clair"]');
+      const texts = [panel.innerText];
+      panel.querySelectorAll('[aria-label],[placeholder],[title],[aria-description]').forEach((el) => ['aria-label', 'placeholder', 'title', 'aria-description'].forEach((a) => { if (el.hasAttribute(a)) texts.push(el.getAttribute(a)); }));
+      const launcher = document.querySelector('.clair-launcher');
+      if (launcher) texts.push(launcher.textContent, launcher.getAttribute('aria-label') || '');
+      const out = [];
+      texts.forEach((txt) => { for (const re of res) { const m = String(txt).match(re); if (m) { out.push(`"${m[0]}" in ${String(txt).slice(Math.max(0, String(txt).search(re) - 40), String(txt).search(re) + 40)}`); break; } } });
+      return out;
+    }, BANNED.map((re) => re.source));
+    check(`recipient ${loc} ${w}px: rendered panel (text + aria-labels + placeholders) has no demo/fictional/sample wording`, hits.length === 0, hits.slice(0, 4));
+    if (shots) {
+      await rv.page.evaluate(() => { const els = document.querySelectorAll('.clair-log .clair-msg--clair[data-intent="aboutClair"]'); if (els[0]) els[0].scrollIntoView({ block: 'start' }); });
+      await rv.page.waitForTimeout(100);
+      await rv.page.screenshot({ path: `${shots}/clair-recipient-${loc}-${w}-about.png` });
+    }
+    const of = await overflowReport(rv.page);
+    check(`recipient ${loc} ${w}px: no horizontal overflow`, !of.overflow && of.offenders.length === 0, of.offenders.slice(0, 3));
+    check(`recipient ${loc} ${w}px: no console errors`, rv.consoleMsgs.length === 0, rv.consoleMsgs.slice(0, 3));
+    await rv.context.close();
+  }
 }
 
 // 13. Isolation

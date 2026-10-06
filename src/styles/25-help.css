@@ -1,4 +1,4 @@
-/* Help & questions (hlp-): search, FAQ accordion, glossary, local inquiry
+/* Help & questions (hlp-): search, FAQ accordion, glossary, question
    card and the three-face snap survey. Grid and flex children get
    min-width: 0 so long French questions and amounts wrap instead of widening
    the page. */
@@ -109,7 +109,7 @@
 .hlp-section-title { margin: 0 0 var(--space-2); scroll-margin-top: var(--space-4); }
 .hlp-section-headline .hlp-section-title { margin: 0; min-width: 0; }
 .hlp-section-intro { margin: 0; color: var(--text-2); }
-.hlp-demo-note { margin: var(--space-2) 0 0; }
+.hlp-cad-note { margin: var(--space-2) 0 0; }
 .hlp-section-meta { margin: var(--space-2) 0 0; font-size: var(--fs-small); font-weight: 600; color: var(--blue-text); }
 .hlp-empty { margin: 0 0 var(--space-3); padding: var(--space-4); border: 1px dashed var(--line-strong); border-radius: 12px; background: var(--white); }
 .hlp-expand { flex: 0 0 auto; }
@@ -214,8 +214,8 @@
   margin: 0 0 var(--space-3); padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm);
   background: rgba(255, 255, 255, 0.1); color: var(--white); font-size: var(--fs-small);
 }
-.hlp-ask-local { display: flex; gap: var(--space-2); align-items: flex-start; margin: var(--space-2) 0 0; font-size: var(--fs-small); line-height: 1.45; color: #d3dbe2; }
-.hlp-ask-local .icon { flex: 0 0 auto; margin-top: 2px; }
+.hlp-ask-note { display: flex; gap: var(--space-2); align-items: flex-start; margin: var(--space-2) 0 0; font-size: var(--fs-small); line-height: 1.45; color: #d3dbe2; }
+.hlp-ask-note .icon { flex: 0 0 auto; margin-top: 2px; }
 @media (max-width: 599.98px) { .hlp-ask::before { left: var(--space-4); } }
 
 /* ---------- Snap survey ---------- */
@@ -303,7 +303,8 @@
 }
 @media (max-width: 379.98px) {
   .hlp-sv-faces { gap: 6px; }
-  .hlp-sv-face { min-height: 104px; padding: var(--space-3) 4px; font-size: 0.875rem; }
+  /* 13px keeps the longest single word ("Somewhat") whole in a 320px face instead of splitting it. */
+  .hlp-sv-face { min-height: 104px; padding: var(--space-3) 4px; font-size: 0.8125rem; }
   .hlp-sv-face-icon .icon { width: 40px; height: 40px; }
   .hlp-sv-check { top: 5px; right: 5px; width: 20px; height: 20px; }
 }

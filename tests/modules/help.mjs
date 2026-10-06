@@ -11,6 +11,10 @@
 // search, external survey mounts (ids, locale, reset) and tablet/320px layout.
 // Round 2: search text kept across a language switch with an other-language note
 // and one-click clear (S-21); "Ask Clair" opens the general conversation (S-14).
+// Recipient view: the copy reads as the customer's own notice — no demo,
+// fictional, sample or presenter framing in either locale (text, collapsed
+// answers, attributes, announcements), with honest wording kept (no claim that a
+// question reaches BDC; Clair answers from this notice and keeps its limits).
 // Usage: node tests/modules/help.mjs [path/to/index.html] [--shots dir]
 import { mkdirSync } from 'node:fs';
 import { launch, newPage, gotoApp, overflowReport, missingKeys, DEFAULT_FILE } from '../lib/browser.mjs';
@@ -57,6 +61,22 @@ const BANNED = {
   'en-CA': /forgiv|interest-free|interest free|holiday|saving/i,
   'fr-CA': /remise de dette|annulation|sans intérêt|congé|économie|pardon/i,
 };
+// Recipient view (mirrors RECIPIENT_BANNED in tools/build.mjs, plus a few phrasings of the old framing).
+const RECIPIENT = [
+  /\b(?:demos?|démos?|démonstrations?|demonstrations?|fictional|fictives?|fictifs?|synthetic|synthétiques?|illustrative|illustratifs?|illustrations?|prototypes?|conceptuelle|presenter|présentat(?:eur|rice|ion))\b/i,
+  /this example|cet exemple|sample notice|avis type|not a BDC offer|non une offre de BDC|not connected to BDC|aucun lien avec les systèmes|no live AI|aucune connexion à une IA|nothing (?:is|was|has been) sent|rien n.a été envoyé|n.est envoyé|\blocally\b|\blocalement\b/i,
+  /\bsample\b|\bconcept\b|rien n.est transmis|production version|version de production|in this scenario|dans ce scénario|local request|demande locale/i,
+];
+const recipientHit = (txt) => { for (const re of RECIPIENT) { const m = String(txt || '').match(re); if (m) return m[0]; } return null; };
+// Everything a reader (or a screen reader) can meet in the help view: text, collapsed answers and attributes.
+const viewCorpus = (page, sel = '#view') => page.evaluate((s) => {
+  const root = document.querySelector(s);
+  if (!root) return '';
+  const attrs = [...root.querySelectorAll('*')].flatMap((e) => ['aria-label', 'title', 'placeholder', 'aria-description', 'alt'].map((a) => e.getAttribute(a) || ''));
+  return `${root.textContent} ${attrs.join(' ')}`;
+}, sel);
+// Speech announcements (live regions are filled after a short delay).
+const liveText = (page) => page.evaluate(() => [...document.querySelectorAll('[aria-live], [role="status"], [role="alert"]')].map((e) => e.textContent).join(' '));
 const TEXT = {
   'en-CA': {
     title: 'Help & questions',
@@ -64,7 +84,10 @@ const TEXT = {
     back: 'Back to your notice',
     question: 'How clear was this notice?',
     labels: ['Not clear', 'Somewhat clear', 'Very clear'],
-    note: 'Local demo response only. Not a Net Promoter Score and not a record of your understanding or consent.',
+    note: 'Your feedback helps us make our notices clearer. It is not a record of acceptance or consent.',
+    intro: 'Find a quick answer, look up a term, prepare a question or tell us how clear this notice was.',
+    askNote: 'When your question is created, you receive a reference to keep for your records.',
+    clairNote: 'Clair is your financing guide. It answers from this notice and cannot change your terms or approve requests.',
     search: 'maturity',
   },
   'fr-CA': {
@@ -73,7 +96,10 @@ const TEXT = {
     back: 'Retour à votre avis',
     question: 'Cet avis était-il clair?',
     labels: ['Pas clair', 'Assez clair', 'Très clair'],
-    note: 'Réponse de démonstration locale seulement.',
+    note: 'Votre rétroaction nous aide à rendre nos avis plus clairs. Elle ne constitue ni une acceptation ni un consentement.',
+    intro: 'Trouvez une réponse rapide, consultez la définition d’un terme, préparez une question ou dites-nous si cet avis était clair.',
+    askNote: 'Lorsque votre question est créée, vous obtenez une référence à conserver pour vos dossiers.',
+    clairNote: 'Clair est votre guide du financement. Ses réponses proviennent de cet avis, et Clair ne peut ni modifier vos conditions ni approuver une demande.',
     search: 'echeance',
   },
 };
@@ -108,6 +134,8 @@ for (const locale of ['en-CA', 'fr-CA']) {
       faces: [...v.querySelectorAll('.hlp-sv-face')].map((b) => ({ label: N(b.textContent), pressed: b.getAttribute('aria-pressed'), tag: b.tagName, name: b.getAttribute('aria-label') })),
       group: (() => { const g = v.querySelector('.hlp-sv-faces'); const lab = g && document.getElementById(g.getAttribute('aria-labelledby')); return g ? { role: g.getAttribute('role'), label: lab ? N(lab.textContent) : null } : null; })(),
       note: N((v.querySelector('.hlp-sv-note') || {}).textContent),
+      lead: N((v.querySelector('.section-header .lead') || {}).textContent),
+      askNotes: [...v.querySelectorAll('#help-ask .hlp-ask-note')].map((e) => N(e.textContent)),
       text: v.innerText,
     };
     function N(x) { return String(x || '').replace(/\s+/g, ' ').trim(); }
@@ -124,7 +152,16 @@ for (const locale of ['en-CA', 'fr-CA']) {
   check(`${locale}: survey question`, s.surveyQ === T.question, s.surveyQ);
   check(`${locale}: three labelled face buttons, none preselected`, s.faces.length === 3 && s.faces.every((f, i) => f.tag === 'BUTTON' && f.label === T.labels[i] && f.pressed === 'false' && !f.name), s.faces);
   check(`${locale}: faces grouped and labelled by the question`, s.group && s.group.role === 'group' && s.group.label === T.question, s.group);
-  check(`${locale}: survey is not NPS / not consent note`, s.note.startsWith(T.note), s.note);
+  check(`${locale}: survey note is the neutral feedback line (not consent)`, s.note === T.note, s.note);
+  check(`${locale}: intro speaks to the recipient about this notice only`, s.lead === T.intro, s.lead);
+  const hasClairMod = await page.evaluate(() => !!(window.BDCNotice.clair && window.BDCNotice.clair.open));
+  check(`${locale}: ask card notes: reference to keep${hasClairMod ? ' + Clair is your financing guide with its limits' : ''}`, s.askNotes[0] === T.askNote && (hasClairMod ? s.askNotes[1] === T.clairNote : s.askNotes.length === 1), s.askNotes);
+  // Expand every answer so the check covers what a reader sees once opened, plus collapsed text and attributes.
+  await page.click('[data-fid="hlp-expand-all"]');
+  await wait(page, 120);
+  const corpus = await viewCorpus(page);
+  check(`${locale}: recipient view — no demo / fictional / sample / presenter wording anywhere in Help (text, answers, attributes)`, !recipientHit(corpus), recipientHit(corpus));
+  check(`${locale}: Help never claims a question reaches or is answered by BDC`, !/(sent|transmitted|forwarded) to BDC|BDC (will|has) (receive|reply|respond|answer|contact)|envoyée? à BDC|transmise? à BDC|BDC (vous )?(répondra|communiquera)/i.test(corpus), corpus.match(/(sent|transmitted|forwarded) to BDC|envoyée? à BDC|transmise? à BDC/i));
   check(`${locale}: no forbidden framing in help copy (incl. collapsed answers)`, !BANNED[locale].test(s.text) && !BANNED[locale].test(await page.evaluate(() => document.getElementById('view').textContent)));
   check(`${locale}: no missing dictionary keys`, (await missingKeys(page)).length === 0, await missingKeys(page));
 }
@@ -175,8 +212,16 @@ await freshHelp(page);
   check('#/help/faq/<id> opens and focuses that item', rt.exp === 'true' && rt.act === 'faq-final-payment', rt);
   check('final-payment answer shows the revised maturity from the record', N(rt.a).includes(N(exp.revMaturity)), rt.a.slice(0, 120));
   await go(page, '#/help/faq/accountant', 'item');
-  const acc = await page.evaluate(() => document.getElementById('faq-accountant-panel').textContent);
-  check('accountant answer: demo cannot grant access, authorised-user journey', /cannot give anyone access/.test(acc) && /Client Space/.test(acc) && /authorise/.test(acc), acc.slice(0, 160));
+  const acc = N(await page.evaluate(() => document.getElementById('faq-accountant-panel').textContent));
+  check('accountant answer: share the notice, downloads or a printed copy; Client Space controlled access for authorised users', /You can share this notice, its downloads or a printed copy with your accountant/.test(acc) && /BDC’s Client Space also lets you give authorised users controlled access to your account information/.test(acc) && /Never share your own sign-in details/.test(acc), acc.slice(0, 240));
+  check('accountant answer: no demo caveat or hypothetical production journey', !/cannot give anyone access|production|would be|intended journey/i.test(acc) && !recipientHit(acc), acc.slice(0, 240));
+  await go(page, '#/help/faq/ask', 'item');
+  const askA = N(await page.evaluate(() => document.getElementById('faq-ask-panel').textContent));
+  check('"How do I ask a question?": prepare with Ask a question, keep the reference, contact your BDC account manager; Clair answers from this notice', /Ask a question/.test(askA) && /Keep it for your records/.test(askA) && /contact your BDC account manager/.test(askA) && /Clair, your financing guide/.test(askA) && /answers from this notice only and cannot change your terms or approve requests/.test(askA), askA);
+  check('"How do I ask a question?" never says the question is sent to BDC', !/sent to BDC|nothing is sent|local/i.test(askA), askA);
+  await go(page, '#/help/faq/rate', 'item');
+  const rateA = N(await page.evaluate(() => document.getElementById('faq-rate-panel').textContent));
+  check('rate answer speaks of "your fixed rate" (no demonstration rate)', /^No\. Your fixed rate stays at /.test(rateA), rateA.slice(0, 80));
 }
 
 /* ------------------------------------------------------------------ */
@@ -408,13 +453,17 @@ const hasQuery = await page.evaluate(() => !!(window.BDCNotice.query && window.B
 await page.click('[data-fid="hlp-ask-question"]');
 await wait(page, 300);
 if (hasQuery) {
-  check('Ask a question opens the local query form', await page.evaluate(() => window.BDCNotice.overlay.isOpen()));
+  check('Ask a question opens the question form', await page.evaluate(() => window.BDCNotice.overlay.isOpen()));
   await page.keyboard.press('Escape');
   await wait(page, 200);
 } else {
-  check('Ask a question without the query module shows an honest note', await page.evaluate(() => { const m = document.querySelector('.hlp-ask-msg'); return m && !m.hidden && m.textContent.length > 10; }));
+  const msg = await page.evaluate(() => { const m = document.querySelector('.hlp-ask-msg'); return m && !m.hidden ? m.textContent : ''; });
+  check('Ask a question without the query module shows an honest note (no demo wording)', msg === 'The question form is not available.' && !recipientHit(msg), msg);
 }
-check('ask card states nothing is sent to BDC', /Nothing is sent to BDC/.test(await page.evaluate(() => document.getElementById('help-ask').textContent)));
+{
+  const askText = N(await page.evaluate(() => document.getElementById('help-ask').textContent));
+  check('ask card: reference to keep for your records; no demo or "nothing is sent" wording', askText.includes(TEXT['en-CA'].askNote) && !recipientHit(askText) && !/nothing is sent|sent to BDC|local/i.test(askText), askText);
+}
 
 /* ------------------------------------------------------------------ */
 /* Snap survey (AC-16)                                                 */
@@ -438,6 +487,15 @@ await page.keyboard.press('Enter');
 await wait(page, 150);
 sv = await survey();
 check('survey: Enter selects "unhappy", shows thanks and the optional comment', sv.pressed.join() === 'true,false,false' && sv.thanks && sv.follow && sv.events.join() === 'unhappy' && sv.focus === 'hlp-sv-unhappy', sv);
+{
+  await wait(page, 200);
+  const live = N(await liveText(page));
+  const hint = N(await page.evaluate(() => (document.querySelector('#help-survey .field-hint') || {}).textContent));
+  check('survey: answer announced as "Thank you. Answer recorded: …" (no demo wording)', live.includes('Thank you. Answer recorded: Not clear.') && !recipientHit(live), live);
+  check('survey: comment hint is honest and recipient-facing (kept in this tab until you clear your activity)', hint === 'Kept only in this tab until you clear your activity or close the tab.' && !recipientHit(hint), hint);
+  const follow = await viewCorpus(page, '#help-survey');
+  check('survey (answered, follow-up open): no demo wording in text or attributes', !recipientHit(follow), recipientHit(follow));
+}
 check('survey: help offer shown (ask a question / FAQ)', await page.evaluate(() => !!document.querySelector('[data-fid="hlp-sv-ask"]') && !!document.querySelector('[data-fid="hlp-sv-faq"]')));
 const COMMENT = 'The resume date confused me QXJ';
 await page.fill('.hlp-sv-comment', COMMENT);
@@ -496,6 +554,11 @@ await page.click('[data-fid="hlp-sv-hide"]');
 await wait(page, 150);
 const hid = await page.evaluate(() => ({ faces: document.querySelectorAll('.hlp-sv-face').length, show: !!document.querySelector('[data-fid="hlp-sv-show"]'), focus: document.activeElement.getAttribute('data-fid'), st: window.BDCNotice.survey.state() }));
 check('survey: "Hide survey" dismisses it and focuses "Show survey"', hid.faces === 0 && hid.show && hid.focus === 'hlp-sv-show' && hid.st.dismissed, hid);
+for (const loc of ['fr-CA', 'en-CA']) {
+  await setLocale(page, loc);
+  const hiddenCorpus = await viewCorpus(page, '#help-survey');
+  check(`${loc}: hidden survey state has no demo wording`, hiddenCorpus.trim().length > 10 && !recipientHit(hiddenCorpus), recipientHit(hiddenCorpus));
+}
 await go(page, '#/overview', 'heading');
 await go(page, '#/help', 'heading');
 check('survey: stays hidden for the session', await page.evaluate(() => document.querySelectorAll('.hlp-sv-face').length === 0 && !!document.querySelector('[data-fid="hlp-sv-show"]')));
@@ -691,11 +754,27 @@ for (const locale of ['fr-CA', 'en-CA']) {
   await freshHelp(page);
   const head = await page.evaluate(() => { const o = document.querySelector('.hlp-sv-overline').getBoundingClientRect(); const b = document.querySelector('.hlp-sv-hide').getBoundingClientRect(); return { oTop: Math.round(o.top), oBottom: Math.round(o.bottom), bTop: Math.round(b.top), bBottom: Math.round(b.bottom) }; });
   check(`${locale}: 320px "Hide survey" shares the overline row`, head.bTop < head.oBottom && head.oTop < head.bBottom, head);
+  // Face labels wrap between words only ("Somewhat / clear"), never inside a word ("Somewha / t clear").
+  const split = await page.evaluate(() => [...document.querySelectorAll('#help-survey .hlp-sv-face-label')].flatMap((lab) => {
+    const node = lab.firstChild;
+    const out = [];
+    const re = /\S+/g;
+    let m;
+    while ((m = re.exec(node.textContent))) {
+      const r = document.createRange();
+      r.setStart(node, m.index);
+      r.setEnd(node, m.index + m[0].length);
+      const tops = new Set([...r.getClientRects()].filter((x) => x.width > 0.5).map((x) => Math.round(x.top)));
+      if (tops.size > 1) out.push(m[0]);
+    }
+    return out;
+  }));
+  check(`${locale}: 320px survey face labels never break inside a word`, split.length === 0, split);
   if (locale === 'fr-CA') { await page.evaluate(() => document.getElementById('help-survey').scrollIntoView()); await shot(page, 'fr-CA-320-survey'); }
 }
 await page.setViewportSize({ width: 1280, height: 900 });
 
-// R-37 / R-33: Clair is « l’assistant de démonstration »; Canadian French typography in the help namespace.
+// R-37 / R-33: Clair is « votre guide du financement » (as in Clair’s own title); Canadian French typography in the help namespace.
 {
   const dict = await page.evaluate(() => window.BDCNotice.i18n._dicts['fr-CA'].help);
   const all = [];
@@ -705,7 +784,18 @@ await page.setViewportSize({ width: 1280, height: 900 });
   };
   walk(dict, 'help');
   const clairStrings = all.filter(([, v]) => /Clair,|Clair est/.test(v));
-  check('fr-CA help: Clair is always « l’assistant de démonstration », never « guide »', clairStrings.length >= 3 && clairStrings.every(([, v]) => v.includes('l’assistant de démonstration')) && !all.some(([, v]) => /guide de démonstration/.test(v)), clairStrings);
+  check('fr-CA help: Clair is always « votre guide du financement », never a demo assistant', clairStrings.length >= 3 && clairStrings.every(([, v]) => v.includes('votre guide du financement')) && !all.some(([, v]) => /démonstration|assistant de démo/.test(v)), clairStrings);
+  // Recipient view: both dictionaries, every string (collapsed answers, announcements, hidden states).
+  const hits = await page.evaluate(([res]) => {
+    const out = [];
+    const RE = res.map(([src, fl]) => new RegExp(src, fl));
+    const walk = (o, p) => {
+      if (typeof o === 'string') { for (const re of RE) { const m = o.match(re); if (m) { out.push(`${p}: ${m[0]}`); break; } } } else if (o && typeof o === 'object') Object.keys(o).forEach((key) => walk(o[key], `${p}.${key}`));
+    };
+    ['en-CA', 'fr-CA'].forEach((l) => walk(window.BDCNotice.i18n._dicts[l].help, `${l}.help`));
+    return out;
+  }, [RECIPIENT.map((re) => [re.source, re.flags])]);
+  check('help dictionaries (en-CA + fr-CA): no demo / fictional / sample / presenter wording in any string', hits.length === 0, hits);
   const bad = all.filter(([, v]) => /[\s\u00a0\u202f][;?!]/.test(v) || / :/.test(v) || /« | »/.test(v));
   check('fr-CA help dictionary: no-break space before « : » and inside « », no space before ; ? !', bad.length === 0, bad);
 }

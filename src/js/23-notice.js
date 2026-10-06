@@ -1,7 +1,7 @@
 /* Your notice (view "documents", namespace "notice", class prefix ntc-).
- * Level 3 "verify": the formal synthetic notice as a readable letter with
- * twelve numbered clauses (App.CLAUSES), the record metadata, local exports
- * (CSV schedules and the JSON record, generated in this browser) and a
+ * Level 3 "verify": the formal notice as a readable letter with twelve
+ * numbered clauses (App.CLAUSES), the record metadata, downloads (CSV
+ * schedules and the JSON record, built in the page from App.record) and a
  * dedicated print layout (App.print.prepare). Every clause that has a
  * plain-language counterpart links to it with a return path, and every value
  * is read from App.record and formatted with App.fmt - nothing here computes
@@ -62,11 +62,9 @@
     return m ? { n: m[1], name: m[2], full } : { n: '', name: full, full };
   }
 
-  // The fixture status is an English identifier phrase; show the approved localized wording.
-  function statusPhrase() {
-    const raw = String(App.record.status || '');
-    return /^fictional demonstration/i.test(raw) ? k('status.fictional') : raw;
-  }
+  // The record's status is an identifier ("issued"); exports show the approved, localized
+  // amendment status, the same wording as the record details panel.
+  const statusPhrase = () => k('meta.amendmentStatusValue');
 
   /* ---------- values from the issued record (re-read each render for locale) ---------- */
   function params() {
@@ -116,7 +114,7 @@
   }
 
   /* ---------- small builders ---------- */
-  // Record identifiers (DEMO-4821, DEMO-BDC-CHANGE-2026-001) never break at their hyphens.
+  // Record identifiers (loan and notice ids, read from App.record) never break at their hyphens.
   function keepIds(str) {
     const ids = [App.record.noticeId, App.record.loan && App.record.loan.id].filter(Boolean).sort((a, b) => b.length - a.length);
     if (!ids.length) return [str];
@@ -209,13 +207,22 @@
     contact: (p, m) => [para('text.contact.p1', p, m), para('text.contact.p2', p, m)],
   };
 
-  /* ---------- clause 11: assumptions, 1:1 with record.assumptions ---------- */
-  function assumptionList(p) {
+  /* ---------- clause 11: calculation basis, 1:1 with record.assumptions ---------- */
+  // Approved localized wording for each recorded calculation convention, or null when the
+  // dictionary and the record disagree (then the record's own text is shown instead).
+  function basisItems(p) {
     const recorded = App.record.assumptions || [];
     const approved = tv(`${NS}.assumptions.items`);
-    if (Array.isArray(approved) && approved.length === recorded.length) {
+    if (!Array.isArray(approved) || approved.length !== recorded.length) return null;
+    return approved.map((s, i) => k(`assumptions.items.${i}`, { rate: p.rate, start: p.start }));
+  }
+
+  function assumptionList(p) {
+    const recorded = App.record.assumptions || [];
+    const items = basisItems(p);
+    if (items) {
       return h('ol', { class: 'ntc-list ntc-assumptions', dataset: { source: 'approved' } },
-        approved.map((s, i) => h('li', { dataset: { index: String(i) } }, k(`assumptions.items.${i}`, { rate: p.rate, start: p.start }))));
+        items.map((s, i) => h('li', { dataset: { index: String(i) } }, s)));
     }
     // Approved wording does not match the record: show the record's own text rather than guess.
     console.warn('[notice] approved assumptions do not match record.assumptions; showing record text');
@@ -417,13 +424,14 @@
   function scheduleBody(p, mode) {
     const out = [para('text.schedule.p1', p, mode)];
     if (mode === 'print') {
-      out.push(h('p', { class: 'ntc-p-small' }, t('common.illustrativeNote'), ' ', t('common.amountsInCAD')));
+      out.push(h('p', { class: 'ntc-p-small' }, t('common.amountsInCAD')));
       out.push(h('h4', null, k('schedule.first4Title')), first4Table('print'));
       out.push(h('h4', null, k('print.scheduleTitle', { count: p.count })), fullScheduleTable());
       out.push(h('h4', null, k('schedule.totalsTitle')), totalsTable('print'));
       return out;
     }
-    out.push(App.ui.demoNote({ className: 'ntc-demo-note' }));
+    // Currency note beside the numbers (core component: "Amounts in Canadian dollars.").
+    out.push(App.ui.demoNote({ className: 'ntc-cad-note' }));
     out.push(h('h4', { class: 'ntc-sub' }, k('schedule.first4Title')));
     out.push(dual(first4Table('screen'), first4Cards(), 'ntc-first4'));
     out.push(...yearBlocks());
@@ -497,8 +505,7 @@
       h('header', { class: 'ntc-lh' },
         logoEl('ntc-logo'),
         h('div', { class: 'ntc-lh-text' },
-          h('p', { class: 'ntc-lh-title' }, k('letter.lhTitle')),
-          h('p', { class: 'ntc-lh-sub' }, k('letter.lhSub')))),
+          h('p', { class: 'ntc-lh-title' }, k('letter.lhTitle')))),
       h('dl', { class: 'ntc-letter-meta' },
         pair(k('letter.date'), date(R.issueDate)),
         pair(k('letter.notice'), R.noticeId, 'ntc-id'),
@@ -511,7 +518,7 @@
       h('div', { class: 'ntc-clauses' }, App.CLAUSES.map((id) => clauseSection(id, p, 'screen'))),
       h('footer', { class: 'ntc-doc-foot' },
         h('p', { class: 'ntc-doc-foot-title' }, k('letter.closingTitle')),
-        h('p', null, k('letter.closing'))));
+        h('p', null, keepIds(k('letter.closing', { loan: R.loan.id })))));
   }
 
   /* ---------- rail: metadata, actions, contents ---------- */
@@ -609,15 +616,7 @@
       listEl);
   }
 
-  function statusLine() {
-    return h('p', { class: 'ntc-status' },
-      App.ui.icon('info', { size: 16 }),
-      h('span', { class: 'ntc-status-text' },
-        h('span', { class: 'ntc-status-label' }, k('status.label')), ' ',
-        h('span', { class: 'ntc-status-value' }, statusPhrase())));
-  }
-
-  /* ---------- exports (generated locally) ---------- */
+  /* ---------- exports (built in the page from App.record) ---------- */
   function csvCell(v) {
     const s = v === null || v === undefined ? '' : String(v);
     return /[",;\r\n]/.test(s) || /^\s|\s$/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
@@ -639,8 +638,7 @@
       [k('csv.effectiveDate'), R.effectiveDate],
       [k('csv.currency'), R.loan.currency],
       [k('csv.payments'), rows.length],
-      [k('csv.source'), k('csv.sourceValue')],
-      [k('csv.note')],
+      [k('csv.source'), k('csv.sourceValue', { notice: R.noticeId, version: R.recordVersion })],
       [],
       Array.isArray(headers) ? headers : [],
       ...rows.map((r, i) => [r.date, i + 1, dec(r.openingPrincipalCents), dec(r.principalCents), dec(r.interestCents), dec(r.totalCents), dec(r.closingPrincipalCents)]),
@@ -653,12 +651,18 @@
     return `﻿${lines.map((l) => l.map(csvCell).join(',')).join('\r\n')}\r\n`;
   }
 
+  // The record's calculation conventions are written out in the export's language with the
+  // approved clause 11 wording (1:1 with record.assumptions), as "calculationBasis".
   function recordJson() {
     const R = App.record;
     const keys = ['schemaVersion', 'status', 'noticeId', 'recordVersion', 'issueDate', 'effectiveDate', 'locale', 'client', 'loan', 'change', 'assumptions', 'derived', 'originalSchedule', 'revisedSchedule'];
     const record = {};
-    keys.forEach((key) => { if (R[key] !== undefined) record[key] = R[key]; });
-    return JSON.stringify({ note: k('json.note'), statusText: statusPhrase(), exportLocale: loc(), generatedLocally: true, record }, null, 2);
+    keys.forEach((key) => {
+      if (R[key] === undefined) return;
+      if (key === 'assumptions') record.calculationBasis = basisItems(params()) || R.assumptions;
+      else record[key] = R[key];
+    });
+    return JSON.stringify({ note: k('json.note', { notice: R.noticeId, version: R.recordVersion }), amendmentStatus: statusPhrase(), exportLocale: loc(), record }, null, 2);
   }
 
   /** Full-schedule CSV for kind "revised" | "original" (the "-full" suffix is accepted too),
@@ -693,7 +697,6 @@
   function metaTable() {
     return h('table', { class: 'ntc-p-table ntc-p-kv' },
       h('tbody', null,
-        h('tr', null, h('th', { scope: 'row' }, k('status.label')), h('td', null, statusPhrase())),
         metaRows().map(([key, value]) => h('tr', null, h('th', { scope: 'row' }, k(`meta.${key}`)), h('td', null, value)))));
   }
 
@@ -713,7 +716,6 @@
         h('div', { class: 'ntc-p-headtext' },
           h('h1', { class: 'ntc-p-title' }, k('print.title')),
           h('p', { class: 'ntc-p-subtitle' }, k('print.subtitle')))),
-      h('p', { class: 'ntc-p-banner' }, t('shell.banner')),
       h('section', { class: 'ntc-p-meta print-clause' }, h('h2', null, k('meta.title')), metaTable()),
       h('section', { class: 'ntc-p-letter' },
         h('div', { class: 'ntc-p-address' },
@@ -722,7 +724,7 @@
         h('h2', { class: 'ntc-p-re' }, k('letter.re', { loan: R.loan.id })),
         App.CLAUSES.map((id) => clauseSection(id, p, 'print'))),
       h('section', { class: 'ntc-p-end print-clause' },
-        h('p', null, k('letter.closing')),
+        h('p', null, k('letter.closing', { loan: R.loan.id })),
         h('p', { class: 'ntc-p-note' }, k('actions.pdfNote'))),
       h('footer', { class: 'ntc-p-foot' }, k('print.footer', { notice: R.noticeId, version: R.recordVersion, language: k('print.language') }))));
     return root;
@@ -760,7 +762,7 @@
     const doc = letter(p);
     el.appendChild(h('div', { class: 'ntc-view', dataset: { clause: current || null } },
       App.ui.backControl(),
-      App.ui.sectionHeader({ overline: k('overline'), title: k('title'), intro: k('intro'), extra: statusLine() }),
+      App.ui.sectionHeader({ overline: k('overline'), title: k('title'), intro: k('intro') }),
       h('div', { class: 'ntc-layout' },
         // Actions first so "Print / Save as PDF" is visible on arrival; the record details follow.
         h('div', { class: 'ntc-rail' }, actionsCard(), metaCard(), tocCard(current)),

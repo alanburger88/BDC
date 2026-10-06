@@ -188,7 +188,8 @@ App.shell = (() => {
     return h('div', { class: 'container footer-inner' },
       h('div', { class: 'footer-brand' },
         h('p', { class: 'footer-title' }, t('shell.descriptor')),
-        h('p', { class: 'footer-small' }, t('shell.footerMeta', { notice: App.record.noticeId, record: App.record.recordVersion, loan: App.record.loan.id })),
+        // Identifiers never break at their hyphens (non-breaking hyphen U+2011 for display)
+        h('p', { class: 'footer-small' }, t('shell.footerMeta', { notice: App.record.noticeId.replace(/-/g, '\u2011'), record: App.record.recordVersion, loan: App.record.loan.id.replace(/-/g, '\u2011') })),
         h('p', { class: 'footer-small' }, t('shell.footerPrivacy'))),
       h('div', { class: 'footer-actions' },
         App.ui.button({ label: t('nav.help'), kind: 'ghost-light', iconName: 'question', fid: 'footer-help', href: App.router.href('help'), onClick: (e) => { e.preventDefault(); App.router.go(App.router.href('help'), { focus: 'heading' }); } }),
