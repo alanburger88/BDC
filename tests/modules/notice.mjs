@@ -378,7 +378,7 @@ check('print layout: no demo/fictional/illustrative/local wording', bannedHits(p
 check('print layout: closing records reminder and currency note', N(pr.text).includes(N(TEXT['en-CA'].closing(ID))) && N(pr.text).includes(N(E.cad)));
 check('print layout: all 12 clauses with formal wording', pr.clauses === 12 && E.clauseNames.every((nm) => pr.clauseTitles.some((tt) => N(tt).includes(N(nm)))), pr.clauseTitles);
 check('print layout: first four payments, FULL 63-row revised schedule and totals table', pr.first4Rows === 4 && pr.schedRows === 63 && pr.totalsRows === 5, pr);
-check('print layout: calculation basis and browser-PDF convenience note', pr.assumptions === E.assumptionsCount && pr.text.includes('Browser-generated PDF is a convenience copy'));
+check('print layout: calculation basis, no browser-PDF note', pr.assumptions === E.assumptionsCount && !pr.text.includes('Browser-generated PDF') && !pr.text.includes('convenience copy'));
 check('print layout: no assistant, survey, menus, CTAs or controls', pr.interactive === 0 && !/Clair —|How clear was this notice|Explain with AI|Ask about this/.test(pr.text), pr.interactive);
 check('print layout: no duplicate element ids with the screen view', pr.ids === 0, pr.ids);
 await page.emulateMedia({ media: 'print' });

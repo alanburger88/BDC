@@ -75,8 +75,6 @@
 .ntc-dl-sub { font-size: 0.8125rem; color: var(--muted); line-height: 1.35; }
 .ntc-dl-status { margin: var(--space-3) 0 0; font-size: 0.8125rem; font-weight: 600; color: var(--green-ok); overflow-wrap: anywhere; }
 .ntc-dl-status:empty { display: none; }
-.ntc-pdf-note { display: flex; gap: var(--space-2); align-items: flex-start; margin: var(--space-4) 0 0; font-size: 0.8125rem; color: var(--muted); line-height: 1.4; }
-.ntc-pdf-note .icon { flex: 0 0 auto; margin-top: 1px; }
 
 /* Contents */
 .ntc-toc { padding-top: var(--space-3); padding-bottom: var(--space-3); }

@@ -573,8 +573,7 @@
         dlButton('revised', k('actions.revisedCsv'), k('actions.paymentsSub', { count: num(R.revisedSchedule.length) }), 'ntc-dl-revised'),
         dlButton('original', k('actions.originalCsv'), k('actions.paymentsSub', { count: num(R.originalSchedule.length) }), 'ntc-dl-original'),
         dlButton('json', k('actions.recordJson'), k('actions.recordJsonSub'), 'ntc-dl-json')),
-      statusEl,
-      h('p', { class: 'ntc-pdf-note' }, App.ui.icon('info', { size: 16 }), h('span', null, k('actions.pdfNote'))));
+      statusEl);
   }
 
   // Matches the CSS breakpoint where the rail sits beside the notice.
@@ -724,8 +723,7 @@
         h('h2', { class: 'ntc-p-re' }, k('letter.re', { loan: R.loan.id })),
         App.CLAUSES.map((id) => clauseSection(id, p, 'print'))),
       h('section', { class: 'ntc-p-end print-clause' },
-        h('p', null, k('letter.closing', { loan: R.loan.id })),
-        h('p', { class: 'ntc-p-note' }, k('actions.pdfNote'))),
+        h('p', null, k('letter.closing', { loan: R.loan.id }))),
       h('footer', { class: 'ntc-p-foot' }, k('print.footer', { notice: R.noticeId, version: R.recordVersion, language: k('print.language') }))));
     return root;
   }
