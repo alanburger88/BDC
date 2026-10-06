@@ -52,7 +52,8 @@
     "months": {
       "one": "{n} mois",
       "other": "{n} mois"
-    }
+    },
+    "labelWithItem": "{label} : {item}"
   },
   "shell": {
     "banner": "Démonstration conceptuelle • Clientèle et modalités fictives • Aucun lien avec les systèmes de BDC.",
@@ -93,7 +94,7 @@
   },
   "items": {
     "general": "Cet avis (question générale)",
-    "month": "Versement de {month}",
+    "month": "Versement {month}",
     "clause": "Clause de l’avis : {title}",
     "term": "Terme du glossaire : {term}",
     "chapter": "Chapitre vidéo : {title}",
@@ -108,7 +109,7 @@
       "debt": "Capital toujours dû"
     },
     "summary": {
-      "next-payment": "Prochain versement : 30 novembre 2026",
+      "next-payment": "Prochain versement : {date}",
       "resume": "Reprise des remboursements de capital",
       "relief": "Versements réduits, de novembre à janvier",
       "extra-interest": "Intérêts additionnels sur la durée restante"
@@ -192,11 +193,1178 @@
       "definition": "Des intérêts ajoutés au montant dû. Cela ne se produit pas dans cette démonstration."
     }
   },
+  "changes": {
+    "overline": "Ce qui change",
+    "title": "Ce qui change dans vos remboursements",
+    "intro": "Vos remboursements de [[principal|capital]] de {months} sont reportés. Comparez chaque modalité avant et après la modification, voyez ce qui reste inchangé et comprenez pourquoi des versements moins élevés pendant quelques mois ne réduisent pas votre dette.",
+    "glance": {
+      "title": "En bref",
+      "temporary": {
+        "label": "Temporaire",
+        "text": "Aucun remboursement de capital en {months}. Vous continuez de payer {interest} d’intérêts chaque mois."
+      },
+      "tradeoff": {
+        "label": "Contrepartie",
+        "text": "{extra} d’intérêts de plus sur la durée restante du calendrier. Votre dernier versement est reporté au {date}."
+      },
+      "owing": {
+        "label": "Toujours dû",
+        "text": "Les {deferred} de capital reporté restent dus. Ils seront remboursés plus tard dans le calendrier."
+      }
+    },
+    "groups": {
+      "changed": {
+        "title": "Ce qui change",
+        "intro": "Chaque carte compare une modalité avant et après la modification."
+      },
+      "owing": {
+        "title": "Ce que cela signifie pour votre dette",
+        "intro": "Des versements moins élevés pendant {period} constituent un allègement temporaire de trésorerie. Ils ne réduisent pas votre dette."
+      },
+      "same": {
+        "title": "Ce qui ne change pas",
+        "intro": "Ces modalités ne sont pas touchées par le report."
+      }
+    },
+    "schedule": {
+      "original": "Calendrier initial",
+      "revised": "Calendrier révisé"
+    },
+    "badges": {
+      "noFee": "Aucuns frais",
+      "notReduced": "Dette non réduite"
+    },
+    "cards": {
+      "principal": {
+        "kicker": "Remboursements de capital",
+        "title": "Reportés pendant {period}, puis repris",
+        "before": "{amount} par mois",
+        "beforeSub": "plus les intérêts",
+        "after": "{zero} en {months}",
+        "afterSub": "puis {amount} par mois à compter du {date}",
+        "explain": "Le capital reporté n’est pas annulé. Il reste dû et sera remboursé plus tard dans le calendrier."
+      },
+      "interest": {
+        "kicker": "Intérêts",
+        "title": "Toujours payés chaque mois, et plus élevés au total",
+        "monthly": "Intérêts mensuels, de {from} à {to}",
+        "afterNote": "Même montant chaque mois, toujours payé mensuellement",
+        "total": "Total des intérêts sur la durée restante",
+        "explain": "Le capital ne diminue pas pendant le report : les intérêts restent donc à {interest} par mois et le calendrier restant coûte {extra} de plus en intérêts.",
+        "costLink": "Comparer le coût total"
+      },
+      "next-payment": {
+        "kicker": "Prochain versement",
+        "title": "{amount} le {date}",
+        "on": "le {date}",
+        "explain": "Ce versement couvre uniquement les intérêts. Les remboursements de capital reprennent le {date}; le versement sera alors de {amount}."
+      },
+      "maturity": {
+        "kicker": "Date du dernier versement",
+        "title": "Reportée de {period}",
+        "payments": "{count} versements mensuels",
+        "shift": "{period} plus tard",
+        "explain": "Le remboursement du capital reprend plus tard; le calendrier se termine donc plus tard et compte maintenant {count} versements au lieu de {original}.",
+        "scheduleLink": "Voir le calendrier complet"
+      },
+      "fees": {
+        "kicker": "Frais de modification",
+        "title": "Aucuns frais pour cette modification",
+        "before": "Aucuns frais de modification",
+        "beforeSub": "avant cet avis",
+        "sub": "frais liés à cette modification, dans ce scénario fictif",
+        "explain": "Aucuns frais ne s’appliquent dans cet exemple. La modification a tout de même un coût : les intérêts additionnels présentés dans la carte Intérêts."
+      },
+      "rate": {
+        "kicker": "Taux d’intérêt",
+        "title": "Reste fixe à {rate}",
+        "value": "Fixe à {rate}",
+        "explain": "Votre taux ne change pas. Le total des intérêts est plus élevé uniquement parce que le capital est remboursé plus tard."
+      },
+      "debt": {
+        "kicker": "Capital toujours dû",
+        "title": "Des versements moins élevés ne réduisent pas votre dette",
+        "caption": "Capital dû avant le versement du {date}",
+        "explain": "Les {deferred} de capital reporté sont toujours dus. Ils seront remboursés plus tard, et le calendrier se termine maintenant le {date}.",
+        "stepsTitle": "Comment le capital reporté est remboursé",
+        "steps": [
+          {
+            "when": "De {from} à {to}",
+            "text": "Intérêts seulement. Le capital reste à {opening}."
+          },
+          {
+            "when": "À compter du {resume}",
+            "text": "Reprise des remboursements de capital de {monthly} par mois."
+          },
+          {
+            "when": "Jusqu’au {date}",
+            "text": "Le calendrier se prolonge de {period} pour que les {deferred} soient entièrement remboursés."
+          }
+        ]
+      }
+    },
+    "actions": {
+      "seeDetailAria": "Voir le détail : {item}",
+      "seeMonth": "Voir le versement de {month}",
+      "allChanges": "Voir tous les changements",
+      "otherTitle": "Explorer les autres éléments"
+    },
+    "recon": {
+      "kicker": "Rapprochement",
+      "title": "Pourquoi {relief} et non {deferred}?",
+      "intro": "Vos versements de {from} à {to} diminuent de {relief}, et non de {deferred}. Voici comment concilier ces deux montants.",
+      "deferred": "Capital reporté",
+      "deferredSub": "Toujours dû; remboursé plus tard",
+      "extra": "Intérêts de plus pendant ces mêmes mois",
+      "extraSub": "Le capital ne diminue pas; les intérêts restent donc plus élevés",
+      "relief": "Versements réduits, de {from} à {to}",
+      "reliefSub": "Allègement temporaire de trésorerie",
+      "minus": "moins",
+      "equals": "égale",
+      "payments": "Total des versements, de {from} à {to}",
+      "note": "Les {extra3} font déjà partie des {extra} d’intérêts additionnels sur la durée restante. Ils ne s’ajoutent pas à ce montant.",
+      "sameAmount": "Dans cet exemple, les versements révisés de {from} à {to} ({revised}) et les intérêts additionnels sur la durée restante ({extra}) correspondent par hasard au même montant. Ils mesurent des choses différentes.",
+      "reliefLink": "Voir l’écart mois par mois"
+    },
+    "unchanged": {
+      "title": "Modalités inchangées",
+      "intro": "Tous les éléments ci-dessous demeurent les mêmes après le report.",
+      "rate": {
+        "label": "Taux d’intérêt",
+        "value": "{rate}"
+      },
+      "basis": {
+        "label": "Type de taux",
+        "value": "Taux fixe, non touché par le report"
+      },
+      "instalment": {
+        "label": "Versement de capital à la reprise",
+        "value": "{amount} par mois"
+      },
+      "interestPaid": {
+        "label": "Paiement des intérêts",
+        "value": "Chaque mois, y compris pendant le report"
+      },
+      "currency": {
+        "label": "Devise",
+        "value": "Dollars canadiens ({code})"
+      },
+      "loanId": {
+        "label": "Numéro du prêt",
+        "value": "{id}"
+      },
+      "acceptance": {
+        "label": "Votre acceptation",
+        "value": "Non requise dans le cadre de cet avis",
+        "required": "Requise : consultez votre avis"
+      }
+    },
+    "next": {
+      "title": "Prochaine étape",
+      "text": "Aucune acceptation n’est requise dans le cadre de cet avis. Consultez le calendrier révisé et mettez à jour votre planification de [[cashFlow|trésorerie]].",
+      "textRequired": "Consultez le calendrier révisé et suivez les instructions de votre avis.",
+      "schedule": "Consulter le calendrier révisé",
+      "notice": "Lire « Ce que vous devez faire » dans votre avis"
+    },
+    "detail": {
+      "definitionTitle": "En termes simples",
+      "actionsTitle": "Explorer, vérifier ou poser une question",
+      "actionsIntro": "Obtenez une explication contextuelle, lisez le libellé officiel ou préparez une question pour votre personne-ressource.",
+      "monthsIntro": "Chaque carte compare le versement initial et le versement révisé du mois.",
+      "titles": {
+        "principal": "Vos remboursements de capital sont reportés de {period}",
+        "interest": "Les intérêts restent payables chaque mois et coûtent plus cher au total",
+        "next-payment": "Votre prochain versement est de {amount} le {date}",
+        "maturity": "Votre dernier versement est reporté au {date}",
+        "fees": "Aucuns frais ne s’appliquent à cette modification",
+        "rate": "Votre taux d’intérêt reste fixe à {rate}",
+        "debt": "Des versements moins élevés ne réduisent pas votre dette"
+      },
+      "intros": {
+        "principal": "De {from} à {to}, vous payez uniquement les intérêts. Les remboursements de capital de {amount} par mois reprennent le {date}.",
+        "interest": "Pendant le report, vous payez {interest} d’intérêts chaque mois. Comme le capital est remboursé plus tard, le total des intérêts sur la durée restante passe de {original} à {revised}.",
+        "next-payment": "Selon le calendrier initial, ce versement aurait été de {original}. Il est moins élevé parce qu’il couvre uniquement les intérêts.",
+        "maturity": "Le calendrier initial se terminait le {original}. Le calendrier révisé se termine {period} plus tard et compte {count} versements au lieu de {originalCount}.",
+        "fees": "Les frais de modification dans ce scénario fictif sont de {fee}. La modification a tout de même une incidence sur votre coût total en raison des intérêts additionnels.",
+        "rate": "Le même taux fixe s’applique aux deux calendriers. Ce qui change, c’est le capital auquel il s’applique, mois après mois.",
+        "debt": "Le report déplace {deferred} de remboursements de capital plus tard dans le calendrier. Ce montant reste dû jusqu’à son remboursement."
+      },
+      "breakdown": {
+        "principal": "Les mois reportés et le premier versement de reprise",
+        "interest": "Comparaison de vos premiers versements",
+        "next-payment": "Composition de ce versement",
+        "maturity": "Comparaison des derniers versements",
+        "fees": "Ce que coûte cette modification",
+        "rate": "Comment les intérêts mensuels sont calculés",
+        "debt": "Capital dû à des dates clés"
+      },
+      "definitions": {
+        "principal": "Le [[principal|capital]] est le montant emprunté qui reste à rembourser, sans les [[interest|intérêts]]. Un [[postponement|report]] des remboursements de capital décale ces remboursements pendant une période déterminée; les intérêts restent payables.",
+        "interest": "Les [[interest|intérêts]] représentent le coût de l’emprunt. Chaque mois, ils sont calculés sur le [[outstanding|capital restant à rembourser]] au [[fixedRate|taux fixe]]; ils restent donc plus élevés tant que le capital n’est pas remboursé.",
+        "next-payment": "Un [[instalment|versement]] est un paiement prévu au calendrier. Pendant le [[postponement|report]], chaque versement couvre uniquement les [[interest|intérêts]]; à la reprise, il couvre le [[principal|capital]] et les intérêts.",
+        "maturity": "La [[maturity|date d’échéance]] est la date à laquelle le solde restant du prêt doit être entièrement remboursé. Rembourser le [[principal|capital]] plus tard repousse cette date.",
+        "fees": "Cette modification n’entraîne aucuns frais dans cet exemple, mais elle change le total des [[interest|intérêts]] payés, car le [[outstanding|capital restant à rembourser]] diminue plus lentement.",
+        "rate": "Un [[fixedRate|taux fixe]] ne change pas pendant la période à taux fixe. Vos [[interest|intérêts]] mensuels dépendent toutefois du [[outstanding|capital restant à rembourser]] auquel il s’applique.",
+        "debt": "Le [[outstanding|capital restant à rembourser]] est le capital toujours dû à une date donnée. Un [[postponement|report]] des remboursements de capital change le moment où vous le remboursez, et non le montant de [[principal|capital]] à rembourser."
+      },
+      "related": {
+        "principal": {
+          "title": "Des versements moins élevés, la même dette",
+          "body": [
+            "Le report de {count} remboursements de capital de {monthly} déplace {deferred} de capital plus tard dans le calendrier. Ce montant reste dû.",
+            "Vos versements de {from} à {to} diminuent de {relief}, et non de {deferred}, parce que les intérêts restent à {interest} par mois au lieu de diminuer."
+          ]
+        },
+        "interest": {
+          "title": "Pourquoi les intérêts sont plus élevés",
+          "body": [
+            "Selon le calendrier initial, le capital diminue de {monthly} chaque mois; les intérêts baissent donc un peu chaque mois.",
+            "Selon le calendrier révisé, le capital reste à {opening} jusqu’au {resume}; les intérêts restent donc à {interest} par mois. L’écart de {from} à {to} est de {extra3}.",
+            "Comme tout le calendrier est décalé, les intérêts additionnels se poursuivent jusqu’à la fin : {extra} au total, ce qui comprend déjà les {extra3}."
+          ]
+        },
+        "next-payment": {
+          "title": "La suite",
+          "body": [
+            "Vos versements du {d2} et du {d3} sont aussi de {interest}. Le {resume}, les remboursements de capital reprennent et votre versement passe à {first}.",
+            "Ces versements moins élevés constituent un allègement temporaire de trésorerie. Le capital reporté reste dû."
+          ]
+        },
+        "maturity": {
+          "title": "Pourquoi le dernier versement est reporté",
+          "body": [
+            "Les remboursements de capital de {monthly} reprennent le {resume} au lieu de se poursuivre dès le {firstDate}. Chaque remboursement de capital suivant est décalé de {period}.",
+            "Le calendrier compte donc {n} versements mensuels de plus et se termine le {date}. Des intérêts continuent de s’appliquer au capital toujours dû pendant ces mois."
+          ]
+        },
+        "fees": {
+          "title": "Aucuns frais ne veut pas dire aucun coût",
+          "body": [
+            "Aucuns frais ne sont exigés pour cette modification dans ce scénario fictif.",
+            "Le report augmente tout de même le total des intérêts sur la durée restante de {extra}, et le total des versements restants passe de {originalTotal} à {revisedTotal}."
+          ]
+        },
+        "rate": {
+          "title": "Même taux, intérêts différents",
+          "body": [
+            "Votre taux demeure à {rate} dans les deux calendriers. Cette modification ne le réinitialise pas, ne l’augmente pas et ne le réduit pas.",
+            "Les intérêts mensuels diffèrent uniquement parce que le capital auquel le taux s’applique est différent : il ne diminue pas pendant le report."
+          ]
+        },
+        "debt": {
+          "title": "Pourquoi une réduction temporaire des versements ne réduit pas votre dette",
+          "body": [
+            "Pendant le report, vous payez uniquement les intérêts. Votre capital reste à {opening} au lieu de diminuer de {monthly} chaque mois.",
+            "Après le versement du {lastPostponed}, vous devez encore {deferred} de capital de plus que selon le calendrier initial : {revisedOwing} au lieu de {originalOwing}.",
+            "Ce capital est remboursé plus tard. Les remboursements de capital de {monthly} reprennent le {resume} et se poursuivent jusqu’au {date}, soit {period} plus tard que prévu initialement.",
+            "Comme un capital plus élevé reste dû plus longtemps, le total des intérêts sur la durée restante augmente de {extra}.",
+            "Aucun montant n’est annulé ni radié : le capital que vous remboursez sur la durée restante est de {principal} dans les deux calendriers."
+          ]
+        }
+      },
+      "month": {
+        "paymentOn": "Versement du {date}",
+        "postponed": "Capital reporté",
+        "resumes": "Reprise du capital",
+        "added": "Versement ajouté",
+        "finalOriginal": "Dernier versement initial",
+        "finalRevised": "Dernier versement révisé",
+        "totalChange": "Variation du versement total",
+        "interestChange": "Variation des intérêts",
+        "none": "Aucun versement",
+        "noneNote": "Déjà remboursé selon le calendrier initial."
+      },
+      "interestTotals": {
+        "title": "Total des intérêts sur toute la durée restante de chaque calendrier",
+        "additional": "Intérêts additionnels",
+        "sum": "De {from} à {to}, les écarts d’intérêts mensuels totalisent {extra3}.",
+        "within": "Ces {extra3} sont inclus dans les {extra} d’intérêts additionnels. Ils ne s’y ajoutent pas."
+      },
+      "upcoming": {
+        "title": "Vos prochains versements",
+        "interestOnly": "Intérêts seulement",
+        "principalAndInterest": "Capital et intérêts",
+        "originalWas": "Calendrier initial : {amount}"
+      },
+      "timeline": {
+        "title": "Durée du calendrier",
+        "original": "Initial : {count} versements, de {from} à {to}",
+        "revised": "Révisé : {count} versements, de {from} à {to}",
+        "added": "{period} de plus"
+      },
+      "fees": {
+        "fee": "Frais de modification",
+        "extra": "Intérêts additionnels sur la durée restante",
+        "totalOriginal": "Total des versements restants, calendrier initial",
+        "totalRevised": "Total des versements restants, calendrier révisé"
+      },
+      "rate": {
+        "formula": "Intérêts mensuels = capital dû au début du mois × {rate} ÷ 12",
+        "example": "{opening} × {rate} ÷ 12 = {interest}",
+        "rounding": "Arrondi au cent près (la moitié étant arrondie à la hausse), selon les hypothèses de cette illustration.",
+        "why": "Même taux, capital plus élevé : en {month}, les intérêts sont de {revised} au lieu de {original}, car aucun capital n’a été remboursé en {prev}."
+      },
+      "balance": {
+        "start": "Début du calendrier, avant le versement du {date}",
+        "resume": "Avant le versement du {date}, à la reprise des remboursements de capital",
+        "originalEnd": "Après le versement du {date}, dernier versement du calendrier initial",
+        "revisedEnd": "Après le versement du {date}, dernier versement du calendrier révisé",
+        "startNote": "Même capital de départ dans les deux calendriers.",
+        "resumeNote": "Il reste {amount} de capital reporté à rembourser.",
+        "originalEndNote": "Entièrement remboursé selon le calendrier initial; il reste {amount} à rembourser selon le calendrier révisé.",
+        "revisedEndNote": "Entièrement remboursé selon le calendrier révisé.",
+        "repaidOn": "Remboursé le {date}",
+        "scale": "Les barres sont proportionnelles au capital de {amount} au début du calendrier."
+      }
+    }
+  },
+  "clair": {
+    "title": "Clair — Votre guide du financement",
+    "status": "Assistant de démonstration • Réponses tirées de cet avis type • Aucune connexion à une IA en direct.",
+    "contextLabel": "Sujet",
+    "contextRemove": "Retirer le sujet : {item}",
+    "contextRemoved": "Sujet retiré. Clair répondra au sujet de l’avis en entier.",
+    "logLabel": "Conversation avec Clair",
+    "suggestedTitle": "Questions suggérées",
+    "inputLabel": "Votre question pour Clair",
+    "placeholder": "Posez votre question…",
+    "hint": "Les réponses proviennent uniquement de cet avis type. N’entrez aucun renseignement personnel ou bancaire.",
+    "send": "Envoyer",
+    "emptyError": "Saisissez d’abord une question.",
+    "counter": "{n} caractères sur {max}",
+    "youSaid": "Votre question :",
+    "clairSaid": "Réponse de Clair :",
+    "explainPrefix": "Expliquer : {item}",
+    "explainQuoted": "Expliquer « {item} »",
+    "supportingFact": "Fait à l’appui",
+    "seeInNotice": "Voir dans votre avis : {title}",
+    "seeIn": "Voir dans « {section} » : {item}",
+    "seeInSection": "Aller à « {section} »",
+    "askPerson": "Demander à une personne",
+    "inLanguage": "En {language}",
+    "announce": "Clair : {text}",
+    "and": "et",
+    "greeting": "Bonjour! Je suis Clair, un guide de démonstration pour cet avis de financement type. Demandez-moi ce qui change, combien vous payez et quand, ou choisissez une question suggérée ci-dessous.",
+    "suggestions": {
+      "whyRelief": "Pourquoi l’allègement n’est-il pas de {deferred}?",
+      "nextPayment": "Quand aura lieu mon prochain versement?",
+      "totalCost": "Quel est le coût supplémentaire total?",
+      "acceptance": "Dois-je accepter quelque chose?",
+      "whatChanged": "Qu’est-ce qui change?",
+      "resume": "Quand les remboursements de capital reprennent-ils?",
+      "maturity": "Quelle est maintenant la date de mon dernier versement?",
+      "debtReduced": "Ma dette est-elle réduite?",
+      "continuingInterest": "Est-ce que je paie encore des intérêts?",
+      "rate": "Mon taux d’intérêt change-t-il?",
+      "fees": "Y a-t-il des frais?",
+      "unchanged": "Qu’est-ce qui ne change pas?",
+      "postponementPeriod": "Quels mois sont visés par le report?",
+      "balanceAfter": "Combien me restera-t-il à rembourser après le report?",
+      "capitalisedInterest": "Des intérêts sont-ils capitalisés?",
+      "principalMeaning": "Que veut dire « capital »?",
+      "printExport": "Comment imprimer ou exporter cet avis?",
+      "queryPrep": "Comment poser une question à une personne?",
+      "support": "Quel soutien est offert?",
+      "aboutClair": "Est-ce une IA en direct?",
+      "purpose": "Pourquoi ai-je reçu cet avis?",
+      "accountant": "Mon comptable peut-il l’examiner?"
+    },
+    "answers": {
+      "whatChanged": "Vos remboursements de capital de {months} sont reportés. Pendant ces mois, vous payez seulement les intérêts, soit {postInterest} par mois. Les remboursements de capital reprennent le {resumeDate}, votre dernier versement est reporté au {revMat}, et le capital reporté reste dû.",
+      "purpose": "Cet avis explique une modification approuvée de votre prêt : vous avez demandé de reporter vos remboursements de capital et, dans ce scénario fictif, la modification est approuvée et finalisée. Il présente ce qui change, ce qui reste pareil et les prochaines étapes.",
+      "purposeSeasonal": "Cet avis explique une modification approuvée de votre prêt. Dans ce scénario fictif, vous avez demandé de reporter vos remboursements de capital pour gérer une constitution de stocks saisonnière prévue. Il présente ce qui change, ce qui reste pareil et les prochaines étapes.",
+      "effectiveDate": "La modification entre en vigueur le {effective}. Le premier versement selon le calendrier révisé est dû le {nextDate}.",
+      "nextPayment": "Votre prochain versement est de {revNext}, le {nextDate}. Il ne comprend que les intérêts, puisque le remboursement du capital est reporté ce mois-là.",
+      "postponementPeriod": "Vos remboursements de capital de {months} sont reportés. Vous payez quand même {postInterest} d’intérêts chacun de ces mois, et les remboursements de capital de {monthlyPrincipal} reprennent le {resumeDate}.",
+      "principalMeaning": "Le capital est le montant emprunté qui reste à rembourser, sans les intérêts. Ici, {deferred} de capital seront remboursés plus tard dans le calendrier; ce montant reste dû.",
+      "continuingInterest": "Les intérêts continuent de courir pendant le report, au même taux fixe de {rate}. Comme aucun capital n’est remboursé pendant ces mois, vous payez {postInterest} d’intérêts chaque mois; seul le capital est reporté.",
+      "whyRelief": "Le remboursement de {deferred} de capital est retardé. Comme ce capital ne diminue pas, vous payez {extra3} d’intérêts de plus pendant ces mois que selon le calendrier initial. Vos versements diminuent donc de {reduction}, et non de {deferred}, et les {deferred} de capital restent dus.",
+      "relief": "De {from} à {to}, vos versements totalisent {revNear} au lieu de {origNear}, soit {reduction} de moins. Il s’agit d’un allègement temporaire de trésorerie, et non d’une réduction de ce que vous devez. Le capital reporté reste dû et, sur toute la durée restante, vous payez {extraLife} d’intérêts de plus.",
+      "totalCost": "Le calendrier révisé ajoute {extraLife} d’intérêts sur la durée restante. Les {extra3} d’intérêts supplémentaires de {from} à {to} sont déjà compris dans ce montant; ils ne s’y ajoutent pas. Il n’y a pas de frais de modification.",
+      "maturity": "Votre dernier versement passe du {origMat} au {revMat}, puisque le capital reporté est remboursé à la fin du calendrier.",
+      "resume": "Les remboursements de capital reprennent le {resumeDate}. Ce versement est de {firstResumed}, soit {monthlyPrincipal} de capital et {firstResumedInterest} d’intérêts.",
+      "rate": "Votre taux fixe demeure à {rate}; il ne change pas. Le total des intérêts augmente seulement parce que le capital est remboursé plus tard.",
+      "fees": "Il n’y a pas de frais pour cette modification dans ce scénario fictif. Le coût du report correspond aux intérêts additionnels de {extraLife} sur la durée restante.",
+      "unchanged": "Votre taux fixe de {rate}, le versement mensuel de capital de {monthlyPrincipal} une fois les remboursements repris et toutes les autres modalités du prêt {loanId} restent les mêmes. Il n’y a pas de frais de modification.",
+      "acceptance": "Vous n’avez rien à accepter ni à signer, et aucune réponse n’est requise dans le cadre de cet avis; la modification est déjà approuvée et finalisée dans ce scénario fictif. Il est conseillé de consulter le calendrier révisé et de mettre à jour votre planification de trésorerie.",
+      "printExport": "Dans « {notice} », choisissez « {print} » pour obtenir une copie imprimable, ou téléchargez le calendrier initial ou révisé en format CSV. Dans « {payments} », vous pouvez aussi télécharger la sélection affichée.",
+      "queryPrep": "Choisissez « {askItem} » à côté d’un élément, ou « {askGeneral} » dans « {help} ». Vous rédigez votre question, la vérifiez, puis créez une demande de démonstration locale. Rien n’est envoyé à BDC dans cette démo.",
+      "support": "La section « {supportSection} » présente des ressources facultatives de BDC, comme la consultation en gestion financière pour planifier votre trésorerie. Elles sont distinctes de cet avis et n’impliquent aucune admissibilité ni approbation.",
+      "supportSuppressed": "La section « {supportSection} » met l’accent sur l’aide et les ressources d’apprentissage, comme la planification de la trésorerie. Elles sont distinctes de cet avis et n’impliquent aucune admissibilité ni approbation.",
+      "debtReduced": "Le report retarde le remboursement de {deferred} de capital; il ne réduit pas votre dette et ne l’annule pas. Vous devez toujours le même capital, qui sera remboursé plus tard dans le calendrier.",
+      "capitalisedInterest": "Aucun intérêt n’est capitalisé. Les intérêts sont payés chaque mois pendant le report; ils ne s’ajoutent donc pas au montant dû.",
+      "balanceAfter": "À la fin du report ({postEnd}), le calendrier révisé indique {revPostClose} de capital restant dû, contre {origPostClose} selon le calendrier initial. Cette démo n’affiche aucun solde de compte réel.",
+      "accountant": "Vous pouvez remettre une copie imprimée ou le calendrier CSV à votre comptable. Dans un service réel, un utilisateur autorisé pourrait obtenir un accès contrôlé; cette démo ne peut accorder d’accès à personne.",
+      "aboutClair": "Je suis Clair, un assistant de démonstration. Je réponds à partir de cet avis type selon des règles locales : il n’y a aucune connexion à une IA en direct, et ce que vous saisissez reste dans ce navigateur. Je n’ai accès à aucun dossier réel de BDC.",
+      "aboutDemo": "L’aperçu de la démo présente seulement les interactions locales de cet onglet. Ce ne sont pas des résultats mesurés par BDC, et rien n’est transmis.",
+      "greeting": "Bonjour! Posez-moi une question sur cet avis type, par exemple sur ce qui change ou sur la date de votre prochain versement.",
+      "thanks": "Avec plaisir. Y a-t-il autre chose dans cet avis que je peux vous expliquer?",
+      "scheduleClause": "Ce calendrier présente les {revCount} versements révisés, du {nextDate} au {revMat}. Les premiers versements ne comprennent que les intérêts; les suivants comprennent {monthlyPrincipal} de capital chaque mois.",
+      "assumptions": "L’illustration suppose des versements en fin de mois, un taux fixe de {rate}, aucune nouvelle avance ni aucun remboursement supplémentaire, et aucun intérêt capitalisé. Ce sont des hypothèses de simulation, et non des règles de gestion des prêts de BDC.",
+      "chartPayments": "Le graphique compare les versements mensuels de {from} à {sixth}. Selon le calendrier révisé, les versements de {from} à {to} ne comprennent que les intérêts ({postInterest}); à partir de {resumeMonth}, ils comprennent de nouveau {monthlyPrincipal} de capital.",
+      "chartBalance": "Selon le calendrier révisé, le capital reste à {principalStart} jusqu’à la fin de {postEnd}, puis diminue de {monthlyPrincipal} par mois jusqu’au {revMat}. Selon le calendrier initial, il atteint zéro le {origMat}.",
+      "resourceFinancialManagement": "La consultation en gestion financière peut aider à prévoir la trésorerie et à planifier le fonds de roulement. Il s’agit d’un soutien facultatif, distinct de cet avis, qui n’implique aucune admissibilité.",
+      "resourceFinancialManagementSeasonal": "La consultation en gestion financière peut aider à prévoir la trésorerie et à planifier le fonds de roulement, ce qui est utile pour une constitution de stocks saisonnière prévue. Il s’agit d’un soutien facultatif, distinct de cet avis, qui n’implique aucune admissibilité.",
+      "resourceWorkingCapital": "Le Prêt de fonds de roulement est un produit de financement distinct de BDC, présenté à titre informatif dans « {supportSection} ». Il ne fait pas partie de cet avis, tout financement est assujetti à une évaluation et à une approbation, et je ne peux pas évaluer votre admissibilité.",
+      "resourceWorkingCapitalSuppressed": "L’emprunt supplémentaire n’est pas mis de l’avant dans cette situation. Si vous éprouvez des difficultés, vous pouvez préparer une question pour une personne afin de discuter de l’aide possible.",
+      "resourceLearning": "Les ressources d’apprentissage de BDC sur la trésorerie sont éducatives. Elles peuvent vous aider à planifier en fonction de versements réduits de {from} à {to}, sans aucun engagement de crédit.",
+      "limitChange": "Je ne peux pas modifier vos versements ni les modalités de votre prêt; je peux seulement expliquer cet avis type. Si vous souhaitez discuter d’une modification, vous pouvez préparer une question pour une personne.",
+      "limitApprove": "Je ne peux pas approuver un autre report ni aucune autre demande. Vous pouvez plutôt préparer une question pour une personne; dans cette démo, rien n’est envoyé à BDC.",
+      "limitEligibility": "Je ne peux pas évaluer votre admissibilité ni offrir du financement. La section « {supportSection} » décrit des ressources facultatives de BDC, et tout financement est assujetti à une évaluation et à une approbation. Vous pouvez aussi préparer une question pour une personne.",
+      "limitEligibilitySuppressed": "Je ne peux pas évaluer votre admissibilité ni offrir du financement. Si vous éprouvez des difficultés, vous pouvez préparer une question pour une personne afin de discuter de l’aide adaptée à votre situation.",
+      "limitPay": "Je ne peux pas traiter de paiements, et cette démo n’offre aucune fonction de paiement. Selon le calendrier révisé, votre prochain versement est de {revNext}, le {nextDate}.",
+      "unrelated": "Je peux seulement vous aider avec cet avis type. Voici des questions auxquelles je peux répondre :",
+      "fallback": "Je peux seulement répondre aux questions sur cet avis type — voici des sujets sur lesquels je peux vous aider :"
+    },
+    "terms": {
+      "principal": "Dans cet avis, {deferred} de capital seront remboursés plus tard dans le calendrier; ce montant reste dû.",
+      "interest": "Les intérêts continuent de courir pendant le report, au même taux de {rate}.",
+      "postponement": "Ici, vos remboursements de capital de {months} sont reportés.",
+      "instalment": "Votre versement mensuel est de {postInterest} pendant le report, puis de {firstResumed} le {resumeDate}.",
+      "maturity": "Votre date d’échéance passe du {origMat} au {revMat}.",
+      "outstanding": "Le report maintient un capital restant plus élevé plus longtemps, ce qui explique la hausse du total des intérêts.",
+      "fixedRate": "Votre taux fixe demeure à {rate}.",
+      "cashFlow": "Le report réduit vos versements de {from} à {to}, ce qui allège votre trésorerie pendant ces mois.",
+      "cashFlowSeasonal": "Le report réduit vos versements de {from} à {to}, ce qui peut faciliter une constitution de stocks saisonnière.",
+      "amortisation": "Le calendrier révisé rembourse le même capital en {revCount} versements au lieu de {origCount}.",
+      "capitalisedInterest": "Les intérêts du report sont plutôt payés chaque mois."
+    },
+    "facts": {
+      "counts": "Calendrier initial : {origCount} versements, le dernier le {origMat}. Calendrier révisé : {revCount} versements, le dernier le {revMat}.",
+      "nextPayment": "Calendrier initial : {origNextFull} ({origNextP} de capital + {origNextI} d’intérêts). Calendrier révisé : {revNextFull} ({revNextP} de capital + {revNextI} d’intérêts).",
+      "firstDue": "Versement dû le {nextDate} : {origNextFull} selon le calendrier initial, {revNextFull} selon le calendrier révisé.",
+      "nearTerm": "Versements de {from} à {to} : {origNearFull} selon le calendrier initial, {revNearFull} selon le calendrier révisé.",
+      "nearTermDiff": "Versements de {from} à {to} : {origNearFull} selon le calendrier initial, {revNearFull} selon le calendrier révisé, soit {reductionFull} de moins.",
+      "principalOwing": "Capital dû à la fin de {postEnd} : {origPostCloseFull} selon le calendrier initial, {revPostCloseFull} selon le calendrier révisé.",
+      "interestMonth": "Intérêts de {secondMonth} : {origSecondIFull} selon le calendrier initial, {revSecondIFull} selon le calendrier révisé.",
+      "totals": "Total des intérêts : {origIntFull} (initial), {revIntFull} (révisé). Total des versements : {origTotalFull} (initial), {revTotalFull} (révisé).",
+      "interestTotals": "Total des intérêts : {origIntFull} selon le calendrier initial, {revIntFull} selon le calendrier révisé.",
+      "resume": "Versement de {resumeMonth} : {origResFull} selon le calendrier initial, {revResFull} selon le calendrier révisé.",
+      "rate": "Taux fixe : {rate} dans le calendrier initial comme dans le calendrier révisé.",
+      "fees": "Frais de modification : {feeFull}. Total des versements : {origTotalFull} (initial), {revTotalFull} (révisé).",
+      "unchanged": "Versement mensuel de capital : {monthlyPrincipalFull} dans les deux calendriers; le calendrier révisé compte {revCount} versements au lieu de {origCount}.",
+      "issued": "Émis le {issue}, en vigueur le {effective}. Dernier versement : le {origMat} selon le calendrier initial, le {revMat} selon le calendrier révisé.",
+      "exports": "L’impression et le fichier CSV reprennent les mêmes calendriers approuvés : {origCount} versements initiaux et {revCount} versements révisés.",
+      "ids": "Votre question peut mentionner l’avis {noticeId} et le prêt {loanId}.",
+      "capitalised": "Capital à la fin de {postEnd} : {revPostCloseFull} selon le calendrier révisé (inchangé depuis le {effective}), {origPostCloseFull} selon le calendrier initial.",
+      "startPrincipal": "Capital au début des deux calendriers illustrés ({effective}) : {principalStartFull}.",
+      "scheduleTotals": "Calendrier initial : {origCount} versements totalisant {origTotalFull}. Calendrier révisé : {revCount} versements totalisant {revTotalFull}.",
+      "assumptions": "Les deux calendriers commencent avec {principalStartFull} de capital le {effective}; le calendrier initial se termine le {origMat}, le révisé le {revMat}.",
+      "firstMonthPayment": "Versement de {firstMonth} : {origNextFull} selon le calendrier initial, {revNextFull} selon le calendrier révisé."
+    },
+    "month": {
+      "post": "Le mois de {month} fait partie de la période de report : votre versement révisé est donc de {rTotal}, intérêts seulement, au lieu de {oTotal}. Les {oPrincipal} de capital ne sont pas annulés; ils seront remboursés plus tard. Les intérêts sont de {rInterest} plutôt que de {oInterest}, car le capital n’a pas diminué.",
+      "postSame": "Le mois de {month} fait partie de la période de report : votre versement révisé est donc de {rTotal}, intérêts seulement, au lieu de {oTotal}. Les {oPrincipal} de capital ne sont pas annulés; ils seront remboursés plus tard. Les intérêts sont identiques dans les deux calendriers ce mois-ci.",
+      "resume": "Les remboursements de capital reprennent en {month}. Votre versement révisé est de {rTotal} ({rPrincipal} de capital et {rInterest} d’intérêts), contre {oTotal} selon le calendrier initial. Les intérêts sont plus élevés, car le capital restant est de {rOpen} au lieu de {oOpen}.",
+      "resumed": "En {month}, les deux calendriers comprennent {rPrincipal} de capital. Le versement révisé est de {rTotal} au lieu de {oTotal}, car les intérêts sont calculés sur un capital restant plus élevé : {rOpen} au lieu de {oOpen}.",
+      "extension": "Le mois de {month} vient après le dernier versement initial du {origMat}. Selon le calendrier révisé, vous payez encore {rTotal} ce mois-ci pour rembourser le capital reporté.",
+      "final": "Le versement de {month} est votre dernier versement selon le calendrier révisé : {rTotal} ({rPrincipal} de capital et {rInterest} d’intérêts). Le calendrier initial se terminait le {origMat}.",
+      "outside": "Aucun versement n’est prévu en {month} dans l’un ou l’autre calendrier. Les versements illustrés vont du {nextDate} au {revMat}.",
+      "fact": "Initial : {oPrincipal} de capital + {oInterest} d’intérêts = {oTotal}. Révisé : {rPrincipal} de capital + {rInterest} d’intérêts = {rTotal}.",
+      "factExtension": "Initial : aucun versement (prêt remboursé au {origMat}). Révisé : {rPrincipal} de capital + {rInterest} d’intérêts = {rTotal}.",
+      "factOutside": "Initial : {origCount} versements jusqu’au {origMat}. Révisé : {revCount} versements jusqu’au {revMat}."
+    }
+  },
+  "help": {
+    "overline": "Questions sur votre avis",
+    "title": "Aide et questions",
+    "intro": "Trouvez une réponse rapide, consultez la définition d’un terme, préparez une question ou dites-nous si cet avis était clair. Tout ce qui figure ici porte sur le même avis fictif.",
+    "backToNotice": "Retour à votre avis",
+    "onThisPage": "Sur cette page",
+    "seeInNotice": "Voir dans cet avis",
+    "backToQuestion": "Retour à la question",
+    "search": {
+      "label": "Rechercher dans les questions et le glossaire",
+      "hint": "La recherche porte sur les questions, les réponses et les termes du glossaire en français.",
+      "placeholder": "Saisissez un mot",
+      "clear": "Effacer la recherche",
+      "cleared": "Recherche effacée. Toutes les questions et tous les termes sont affichés.",
+      "suggestionsLabel": "Essayez :",
+      "suggestions": [
+        "intérêts",
+        "échéance",
+        "frais",
+        "comptable"
+      ],
+      "count": {
+        "one": "{n} résultat pour « {q} »",
+        "other": "{n} résultats pour « {q} »"
+      },
+      "countDetail": "{faq} dans les questions, {terms} dans le glossaire",
+      "noneTitle": "Aucun résultat pour « {q} »",
+      "noneBody": "Essayez un mot plus court ou différent, comme « intérêts » ou « versement ». Vous pouvez aussi vous adresser à Clair, le guide de démonstration, ou préparer une question.",
+      "noneBodyNoClair": "Essayez un mot plus court ou différent, comme « intérêts » ou « versement ». Vous pouvez aussi préparer une question sur cet avis.",
+      "foundInAnswer": "Trouvé dans la réponse",
+      "showingFaq": "Questions affichées : {n} sur {total}",
+      "showingTerms": "Termes affichés : {n} sur {total}"
+    },
+    "faq": {
+      "title": "Questions fréquentes",
+      "intro": "Des réponses en langage clair qui reprennent les montants de votre avis. Les mots soulignés ouvrent une courte définition.",
+      "expandAll": "Tout ouvrir",
+      "collapseAll": "Tout fermer",
+      "noMatches": "Aucune question ne correspond à votre recherche.",
+      "groups": {
+        "understanding": "Comprendre la modification",
+        "payments": "Versements et coûts",
+        "help": "Obtenir de l’aide"
+      },
+      "links": {
+        "cost": "Comparer le total des intérêts et des versements",
+        "relief": "Voir l’écart mois par mois",
+        "schedule": "Voir le calendrier révisé complet",
+        "month": "Voir le versement de {month}",
+        "documents": "Aller à votre avis"
+      },
+      "items": {
+        "why-notice": {
+          "q": "Pourquoi cet avis a-t-il été émis?",
+          "a": [
+            "Vous avez demandé un [[postponement|report temporaire des remboursements de capital]] afin de gérer une constitution de stocks saisonnière prévue. Dans ce scénario fictif, la modification est approuvée et terminée. Le présent avis explique comment votre calendrier de remboursement change en conséquence, à compter du {effectiveDate}.",
+            "Il présente ce qui change, ce qui reste pareil et ce que vous devez faire, s’il y a lieu. Il ne s’agit pas d’une nouvelle offre, et vous n’avez rien à signer."
+          ]
+        },
+        "accept": {
+          "q": "Dois-je accepter quelque chose?",
+          "a": [
+            "Non. Dans ce scénario, la modification est déjà approuvée et terminée, et aucune acceptation n’est requise au moyen de cet avis.",
+            "Nous vous suggérons de consulter le calendrier révisé et de mettre à jour vos prévisions de [[cashFlow|trésorerie]], surtout en vue du retour à un versement de {first} le {resume}.",
+            "La mention « Marquer comme consulté » de l’aperçu est une note locale facultative dans cette démo. Il ne s’agit pas d’une acceptation, d’un consentement ni d’une preuve de compréhension."
+          ]
+        },
+        "debt-reduced": {
+          "q": "Ma dette est-elle réduite?",
+          "a": [
+            "Non. Les {deferred} de capital que vous auriez remboursés de {from} à {to} sont reportés. Ils restent dus et seront remboursés plus tard dans le calendrier.",
+            "Après vos versements de {from} à {to}, votre [[outstanding|capital restant à rembourser]] est toujours de {balanceAfter}. Le calendrier révisé compte {revCount} versements au lieu de {origCount} et se termine le {revMaturity}.",
+            "Sur la durée restante, le total des [[interest|intérêts]] augmente de {extra}. Les versements réduits de {from} à {to} constituent un allègement temporaire de [[cashFlow|trésorerie]], et non une réduction de ce que vous devez."
+          ]
+        },
+        "rate": {
+          "q": "Le taux change-t-il?",
+          "a": [
+            "Non. Le [[fixedRate|taux fixe]] de la démonstration reste de {rate} par année. Seul le moment des remboursements de capital change.",
+            "Le total des intérêts augmente uniquement parce que le capital est remboursé plus tard, ce qui maintient le solde plus élevé plus longtemps. Le taux, lui, ne change pas."
+          ]
+        },
+        "capitalised": {
+          "q": "Des intérêts impayés sont-ils ajoutés à mon solde?",
+          "a": [
+            "Non. Les intérêts sont payés chaque mois pendant le report; rien n’est donc ajouté à ce que vous devez. Il n’y a pas d’[[capitalisedInterest|intérêts capitalisés]] dans ce scénario.",
+            "Votre [[outstanding|capital restant à rembourser]] demeure à {principal} de {from} à {to}, puis diminue de {monthly} à chaque versement à compter du {resume}."
+          ]
+        },
+        "next-payment": {
+          "q": "Quel est mon prochain versement?",
+          "a": [
+            "Votre prochain versement est de {next}, à payer le {nextDate}. Il ne comprend que des intérêts, car aucun remboursement de [[principal|capital]] n’est exigé de {from} à {to}.",
+            "Selon le calendrier initial, ce versement aurait été de {nextOriginal}. Le même versement de {interest}, composé uniquement d’intérêts, s’applique à la fin de chaque mois, de {fromY} à {toY}.",
+            "Aucun paiement n’est traité dans cette démonstration."
+          ]
+        },
+        "still-interest": {
+          "q": "Dois-je quand même payer des intérêts?",
+          "a": [
+            "Oui. Seuls les remboursements de [[principal|capital]] sont reportés. Les [[interest|intérêts]] continuent d’être calculés et payés chaque mois : {interest} à chaque versement, de {fromY} à {toY}.",
+            "Comme le [[outstanding|capital restant à rembourser]] demeure à {principal} pendant ces mois, les intérêts ne diminuent pas comme ils l’auraient fait selon le calendrier initial."
+          ]
+        },
+        "relief": {
+          "q": "Pourquoi l’allègement est-il de {relief} plutôt que de {deferred}?",
+          "a": [
+            "Vous reportez {deferred} de remboursements de [[principal|capital]] de {from} à {to} ({period} à {monthly}). Comme le capital ne diminue pas pendant ces mois, les [[interest|intérêts]] restent à {interest} par mois au lieu de diminuer graduellement. Cela ajoute {extra3} d’intérêts sur ces {period}.",
+            "Vos versements de cette période totalisent donc {revNear} au lieu de {origNear} : {deferred} moins {extra3}, soit {relief} de moins.",
+            "Les {extra3} font déjà partie de la hausse de {extra} du total des intérêts sur la durée restante. Ils ne s’y ajoutent pas."
+          ]
+        },
+        "restart": {
+          "q": "Quand les remboursements de capital reprennent-ils?",
+          "a": [
+            "Les remboursements de capital reprennent le {resume}. Ce versement est de {first} : {monthly} de [[principal|capital]] plus {firstInterest} d’[[interest|intérêts]].",
+            "Par la suite, vous remboursez {monthly} de capital chaque mois, plus les intérêts sur le [[outstanding|capital restant à rembourser]], jusqu’au dernier versement, le {revMaturity}."
+          ]
+        },
+        "final-payment": {
+          "q": "Quand aura lieu mon dernier versement?",
+          "a": [
+            "Votre dernier versement passe du {origMaturity} au {revMaturity}, soit {period} plus tard. La [[maturity|date d’échéance]] change parce que le capital reporté est remboursé à la fin du calendrier.",
+            "Le calendrier révisé compte {revCount} versements mensuels au lieu de {origCount}. Le dernier est de {finalPayment}."
+          ]
+        },
+        "fee": {
+          "q": "Y a-t-il des frais?",
+          "a": [
+            "Aucuns frais de modification ne s’appliquent dans ce scénario : les frais sont de {fee}.",
+            "Le coût du report correspond aux intérêts additionnels : {extra} sur la durée restante, déjà inclus dans le calendrier révisé."
+          ]
+        },
+        "ask": {
+          "q": "Comment poser une question?",
+          "a": [
+            "Utilisez « {askLabel} » sur cette page, ou « {askAbout} » à côté d’une carte, d’un versement ou d’un paragraphe de l’avis. Le formulaire conserve l’élément choisi pour que vous n’ayez pas à réexpliquer le contexte.",
+            "Dans cette démonstration, le formulaire crée uniquement une demande de démonstration locale. Rien n’est envoyé à BDC.",
+            "Pour une explication rapide, vous pouvez aussi vous adresser à Clair, le guide de démonstration. Clair répond uniquement à partir de cet avis type, selon des règles locales, sans connexion à une IA en direct."
+          ]
+        },
+        "accountant": {
+          "q": "Puis-je faire examiner l’avis par mon ou ma comptable?",
+          "a": [
+            "Oui, vous pouvez transmettre ce que vous voyez ici. Par exemple, imprimez l’avis ou exportez le calendrier révisé en fichier CSV pour que votre comptable le compare à vos dossiers.",
+            "Cette démonstration ne peut donner à personne l’accès à un compte. Il n’y a ni connexion, ni gestion des utilisateurs, ni lien avec les systèmes de BDC.",
+            "L’Espace client de BDC, tel qu’il est présenté publiquement, prévoit un accès partagé contrôlé pour les personnes que vous autorisez. Dans une version de production, le parcours prévu serait le suivant :",
+            "- Vous autoriseriez votre comptable au moyen du processus sécurisé de BDC pour l’accès partagé.",
+            "- Votre comptable se connecterait avec ses propres identifiants, jamais les vôtres.",
+            "- Cette personne verrait l’avis et les calendriers que vous choisiriez de partager, et pourrait préparer des questions à leur sujet.",
+            "Ne communiquez jamais vos propres identifiants de connexion, même à votre comptable."
+          ]
+        },
+        "print-export": {
+          "q": "Puis-je imprimer ou exporter le calendrier?",
+          "a": [
+            "Oui. Dans « {noticeTab} », utilisez « {printLabel} » pour obtenir une mise en page imprimable comprenant l’avis, les renseignements du dossier et le calendrier révisé.",
+            "Dans « {paymentsTab} », vous pouvez télécharger les mois affichés ou le calendrier révisé complet en fichier CSV.",
+            "Un PDF produit par le navigateur est une copie pratique de cette démonstration, et non un document certifié."
+          ]
+        }
+      }
+    },
+    "glossary": {
+      "intro": "Les termes soulignés dans l’avis ouvrent ces définitions. Survolez un terme, atteignez-le au clavier ou sélectionnez-le pour afficher sa définition, puis appuyez sur Échap pour la fermer.",
+      "noMatches": "Aucun terme du glossaire ne correspond à votre recherche."
+    },
+    "ask": {
+      "overline": "Vous avez encore une question?",
+      "title": "Poser une question",
+      "body": "Préparez une question sur cet avis. Le formulaire joint les renseignements de l’avis et, s’il y a lieu, l’élément visé, pour que vous n’ayez pas à vous répéter.",
+      "local": "Démo seulement : le formulaire crée une demande locale dans ce navigateur. Rien n’est envoyé à BDC.",
+      "button": "Poser une question",
+      "clair": "Demander à Clair",
+      "clairNote": "Clair est le guide de démonstration. Ses réponses proviennent uniquement de cet avis type, sans connexion à une IA en direct.",
+      "unavailable": "Le formulaire de question n’est pas inclus dans cette version de la démonstration."
+    },
+    "survey": {
+      "overline": "Sondage éclair",
+      "title": "Rétroaction rapide",
+      "question": "Cet avis était-il clair?",
+      "intro": "Choisissez une réponse. Vous pouvez la modifier en tout temps.",
+      "options": {
+        "unhappy": "Pas clair",
+        "neutral": "Assez clair",
+        "happy": "Très clair"
+      },
+      "thanks": "Merci de votre rétroaction.",
+      "yourAnswer": "Votre réponse : {answer}.",
+      "recorded": "Merci. Réponse enregistrée dans cette démo : {answer}.",
+      "updated": "Réponse modifiée : {answer}.",
+      "commentLabel": "Qu’est-ce qui n’était pas clair? (facultatif)",
+      "commentHint": "Conservé uniquement dans la mémoire de cet onglet jusqu’à ce que vous réinitialisiez la démo ou fermiez l’onglet. Ce texte n’est jamais envoyé ni ajouté au journal de la démo.",
+      "offerTitle": "Souhaitez-vous de l’aide pour y voir plus clair?",
+      "offerClair": "Demander à Clair",
+      "offerQuestion": "Poser une question",
+      "offerFaq": "Parcourir les questions",
+      "note": "Réponse de démonstration locale seulement. Il ne s’agit pas d’un indice de recommandation net (Net Promoter Score) ni d’une preuve de votre compréhension ou de votre consentement.",
+      "hide": "Masquer le sondage",
+      "hiddenText": "Le sondage est masqué pour cette session.",
+      "show": "Afficher le sondage",
+      "hiddenAnnounce": "Sondage masqué.",
+      "shownAnnounce": "Sondage affiché."
+    }
+  },
+  "insights": {
+    "overline": "Vue de présentation",
+    "title": "Aperçu de la démo",
+    "intro": "Événements d’interaction enregistrés localement dans cet onglet, pour aider la personne qui présente à expliquer le concept. Rien sur cette page n’est transmis.",
+    "actions": {
+      "label": "Actions de présentation",
+      "export": "Exporter les événements (JSON)",
+      "exported": "Exportation lancée : {file}",
+      "reset": "Réinitialiser la démo"
+    },
+    "framing": {
+      "heading": "Comment lire cette vue",
+      "items": [
+        "Il s’agit du nombre d’interactions dans cet onglet seulement. Ce ne sont pas des résultats mesurés par BDC.",
+        "Cette page ne demande aucune connexion et ne confère aucun rôle administratif ou sécurisé.",
+        "Regarder la vidéo jusqu’au bout ne démontre pas qu’elle a été comprise.",
+        "La mention « Marquer comme consulté » n’est ni un consentement, ni une acceptation, ni une signature.",
+        "Seules deux étapes de demande existent ici : sélectionner un bouton de demande et créer une demande de démonstration localement. L’acceptation par un serveur et un service rendu n’existent pas dans cette démo.",
+        "Les événements contiennent uniquement des identifiants, la langue et l’heure, jamais le texte des questions, des noms ou des montants."
+      ]
+    },
+    "counts": {
+      "heading": "Nombre d’interactions",
+      "total": {
+        "one": "{n} événement enregistré dans cet onglet",
+        "other": "{n} événements enregistrés dans cet onglet"
+      },
+      "groups": {
+        "navigation": "Navigation et langue",
+        "understanding": "Aides à la compréhension",
+        "actions": "Actions et rétroaction",
+        "other": "Autres événements"
+      }
+    },
+    "types": {
+      "notice_opened": {
+        "count": "Avis ouvert",
+        "event": "Avis ouvert"
+      },
+      "section_viewed": {
+        "count": "Sections consultées",
+        "event": "Section consultée"
+      },
+      "detail_opened": {
+        "count": "Détails ouverts",
+        "event": "Détail ouvert"
+      },
+      "glossary_opened": {
+        "count": "Définitions ouvertes",
+        "event": "Définition ouverte"
+      },
+      "explain_requested": {
+        "count": "Demandes « Expliquer avec l’IA »",
+        "event": "« Expliquer avec l’IA » demandé"
+      },
+      "video_started": {
+        "count": "Lancements de la vidéo",
+        "event": "Vidéo lancée"
+      },
+      "video_chapter_viewed": {
+        "count": "Chapitres vidéo consultés",
+        "event": "Chapitre vidéo consulté"
+      },
+      "video_completed": {
+        "count": "Vidéos regardées jusqu’au bout",
+        "event": "Vidéo regardée jusqu’au bout"
+      },
+      "query_drafted": {
+        "count": "Questions rédigées",
+        "event": "Question rédigée"
+      },
+      "demo_query_created": {
+        "count": "Demandes de démonstration créées",
+        "event": "Demande de démonstration créée localement"
+      },
+      "survey_submitted": {
+        "count": "Réponses au sondage",
+        "event": "Réponse au sondage"
+      },
+      "resource_opened": {
+        "count": "Ressources ouvertes",
+        "event": "Ressource ouverte"
+      },
+      "schedule_exported": {
+        "count": "Exportations du calendrier",
+        "event": "Calendrier exporté"
+      },
+      "language_changed": {
+        "count": "Changements de langue",
+        "event": "Langue changée"
+      },
+      "marked_reviewed": {
+        "count": "Marqué comme consulté",
+        "event": "Marqué comme consulté"
+      }
+    },
+    "timeline": {
+      "heading": "Chronologie des événements",
+      "intro": "Du plus récent au plus ancien. La liste se met à jour pendant que vous utilisez l’avis.",
+      "showing": "Affichage : {n} sur {total}",
+      "empty": "Aucun événement enregistré pour l’instant.",
+      "more": "Afficher plus d’événements",
+      "id": "Identifiant",
+      "section": "Section",
+      "language": "Langue",
+      "none": "Aucune",
+      "seq": "Événement {n}"
+    },
+    "milestones": {
+      "heading": "Jalons",
+      "reviewed": "Marqué comme consulté",
+      "reviewedNote": "Une note locale seulement. Ni consentement ni acceptation.",
+      "survey": "Sondage sur la clarté",
+      "surveyNone": "Aucune réponse",
+      "surveyNote": "Conservé séparément de « Marquer comme consulté ». Ce n’est pas un indice de satisfaction ou de fidélité.",
+      "ratings": {
+        "unhappy": "Pas clair",
+        "neutral": "Assez clair",
+        "happy": "Très clair"
+      },
+      "requests": "Demandes de démonstration créées",
+      "requestsNote": "Créées localement dans cet onglet. Rien n’a été envoyé à BDC ni accepté par BDC.",
+      "draft": "Brouillon de question en cours",
+      "yes": "Oui",
+      "no": "Non"
+    },
+    "presenter": {
+      "heading": "Commandes de présentation",
+      "hardship": "Simuler un indicateur de difficultés financières ou d’arriérés (règle de démonstration)",
+      "hardshipDesc": "Lorsque l’option est activée, la section « Du soutien pour vous » masque les suggestions d’emprunt additionnel et met l’aide en priorité. Il s’agit d’une règle de démonstration responsable, et non d’une politique attribuée à BDC. Elle ne modifie pas le dossier de l’avis.",
+      "stateOn": "Activée : les suggestions d’emprunt additionnel sont masquées dans la section « Du soutien pour vous ».",
+      "stateOff": "Désactivée : la section « Du soutien pour vous » affiche ses suggestions habituelles.",
+      "openSupport": "Ouvrir la section « Du soutien pour vous »"
+    },
+    "widget": {
+      "heading": "Module d’accessibilité",
+      "body": "Le script du module d’accessibilité fourni est demandé une seule fois au chargement de la page. C’est la seule requête en ligne automatique, et l’avis fonctionne sans lui.",
+      "present": "Élément de script dans cette page",
+      "count": "Éléments de script trouvés",
+      "note": "Présent ne veut pas dire chargé : le module peut être bloqué ou indisponible hors ligne.",
+      "yes": "Oui",
+      "no": "Non"
+    },
+    "tasks": {
+      "heading": "Tâches d’évaluation de l’utilisabilité",
+      "intro": "Demandez à une personne participante d’accomplir chaque tâche sans aide, puis cochez celles qui sont réussies. Les cases cochées restent dans cet onglet seulement.",
+      "showAnswer": "Réponse attendue",
+      "goTo": "Ouvrir la section « {place} »",
+      "done": "Réussie par la personne participante",
+      "progress": {
+        "one": "{n} tâche réussie sur {total}",
+        "other": "{n} tâches réussies sur {total}"
+      },
+      "pilot": "Un projet pilote pourrait comparer la réussite des tâches et les motifs de communication avec les données de référence de BDC. Cette démo n’estime aucun résultat d’affaires.",
+      "items": {
+        "nextPayment": {
+          "task": "Trouver le prochain versement",
+          "answer": "{amount} le {date}. Ce versement couvre uniquement les intérêts."
+        },
+        "resume": {
+          "task": "Repérer la reprise des remboursements de capital",
+          "answer": "Le {date}. Ce versement est de {amount}, capital et intérêts compris."
+        },
+        "owing": {
+          "task": "Expliquer que le capital reste dû",
+          "answer": "Le capital reporté de {deferred} est toujours dû. Il est remboursé plus tard, et le dernier versement est repoussé au {maturity}."
+        },
+        "interest": {
+          "task": "Repérer le total des intérêts additionnels",
+          "answer": "{total} d’intérêts de plus sur la durée restante. Les {first} d’intérêts additionnels pendant le report des remboursements de capital font partie de ces {total}; ils ne s’y ajoutent pas."
+        }
+      }
+    },
+    "languages": {
+      "en-CA": "Anglais",
+      "fr-CA": "Français"
+    }
+  },
+  "media": {
+    "title": "Votre explication personnalisée",
+    "playerLabel": "Lecteur vidéo de l’explication personnalisée",
+    "roleVideo": "vidéo",
+    "forClient": "Pour {name} · {company}",
+    "demoTag": "Démo conceptuelle · Dossier fictif",
+    "narratedIn": "Narration en français",
+    "captionsIncluded": "Sous-titres et transcription",
+    "stageLabel": "{title}. Chapitre {n} sur {total} : {chapter}.",
+    "stageHint": "Appuyez sur la barre d’espacement pour lancer ou interrompre la lecture. Utilisez les flèches gauche et droite pour reculer ou avancer de {n} secondes.",
+    "play": "Lecture",
+    "pause": "Pause",
+    "playExplanation": "Lecture de votre explication personnalisée ({duration})",
+    "replay": "Recommencer depuis le début",
+    "seek": "Position de lecture",
+    "seekValue": "{current} sur {total}",
+    "elapsed": "{current} / {total}",
+    "chapterLabel": "Chapitre {n} sur {total} · {title}",
+    "chapters": "Chapitres",
+    "chapterListLabel": "Chapitres de la vidéo",
+    "chapterItem": "Chapitre {n} : {title}, commence à {time}",
+    "current": "En cours",
+    "speed": "Vitesse de lecture",
+    "speedValue": "{rate} ×",
+    "captions": "Sous-titres",
+    "transcript": "Transcription",
+    "mute": "Sourdine",
+    "volume": "Volume",
+    "volumeValue": "{n} %",
+    "fullscreen": "Plein écran",
+    "exitFullscreen": "Quitter le plein écran",
+    "error": "La narration ne peut pas être lue ici. La transcription complète se trouve ci-dessous.",
+    "endedAnnounce": "L’explication est terminée. Les options pour votre prochaine étape s’affichent dans le lecteur.",
+    "missing": "L’explication ne peut pas être affichée dans ce fichier. La même information se trouve dans « Ce qui change » et « Votre avis ».",
+    "transcriptTitle": "Transcription",
+    "transcriptMeta": "Narration en français · {duration}",
+    "transcriptIntro": "La narration complète, regroupée par chapitre. Sélectionnez le titre d’un chapitre pour lancer la lecture à partir de ce point.",
+    "playFromChapter": "Lancer la lecture à partir du chapitre {n} : {title}",
+    "note": "Narration générée avant la distribution au moyen de la synthèse vocale d’ElevenLabs et intégrée à ce fichier. La lecture fonctionne hors ligne et ne communique jamais avec ElevenLabs.",
+    "voice": "Voix : {name}, une voix prédéfinie d’ElevenLabs · Modèle : {model} · Prononciation à faire valider.",
+    "end": {
+      "title": "Votre prochaine étape",
+      "text": "Aucune acceptation n’est requise dans cet avis.",
+      "schedule": "Consulter le calendrier révisé",
+      "clair": "Demander à Clair",
+      "query": "Préparer une question",
+      "replay": "Revoir la vidéo"
+    },
+    "s1": {
+      "overline": "La modification de votre financement",
+      "effective": "En vigueur le {date}"
+    },
+    "s2": {
+      "title": "Remboursements de capital reportés",
+      "period": "De {from} à {to}",
+      "principal": "Capital",
+      "interest": "Intérêts",
+      "postponed": "Reporté",
+      "interestEach": "{amount} d’intérêts chaque mois"
+    },
+    "s3": {
+      "title": "D’où vient l’écart",
+      "deferred": "Capital reporté",
+      "deferredSub": "Remboursé plus tard dans le calendrier. Toujours dû.",
+      "extra": "Intérêts additionnels",
+      "extraSub": "Pendant les {n} mois de report",
+      "relief": "Baisse des versements",
+      "reliefSub": "Sur les {n} mois de report, par rapport au calendrier initial",
+      "minus": "−",
+      "equals": "=",
+      "notForgiveness": "Allègement temporaire de trésorerie — et non une remise de dette"
+    },
+    "s4": {
+      "title": "La contrepartie",
+      "sub": "Les intérêts continuent de courir",
+      "original": "Dernière échéance d’origine",
+      "revised": "Dernière échéance révisée",
+      "shift": "{n} mois plus tard",
+      "extraLabel": "d’intérêts additionnels sur la durée restante",
+      "includes": "Comprend les {amount} d’intérêts additionnels des {n} mois de report."
+    },
+    "s5": {
+      "title": "Reprise des remboursements de capital",
+      "total": "Versement total",
+      "principal": "de capital",
+      "interest": "d’intérêts",
+      "equals": "=",
+      "plus": "+",
+      "first": "Premier versement qui comprend de nouveau du capital"
+    },
+    "s6": {
+      "title": "Votre prochaine étape",
+      "schedule": "Consulter le calendrier révisé",
+      "explain": "Expliquer avec l’IA",
+      "ask": "Poser une question",
+      "noAcceptance": "Aucune acceptation n’est requise dans cet avis."
+    }
+  },
+  "notice": {
+    "overline": "Référence officielle",
+    "title": "Votre avis",
+    "intro": "Voici le texte officiel de l’avis fictif sur lequel reposent les explications en langage clair de cette démonstration. Il consigne la modification, son incidence sur vos versements et le calendrier de remboursement révisé.",
+    "status": {
+      "label": "État du dossier",
+      "fictional": "Démonstration fictive — ni une offre de BDC ni une entente réelle"
+    },
+    "meta": {
+      "title": "Renseignements sur le dossier",
+      "noticeId": "Numéro de l’avis",
+      "recordVersion": "Version du dossier",
+      "issueDate": "Date d’émission",
+      "effectiveDate": "Date d’entrée en vigueur",
+      "loanId": "Numéro du prêt",
+      "client": "Personne cliente",
+      "company": "Entreprise",
+      "amendmentStatus": "État de la modification",
+      "amendmentStatusValue": "Approuvée et effectuée (scénario fictif)",
+      "acceptance": "Acceptation requise de votre part",
+      "yes": "Oui",
+      "no": "Non",
+      "fee": "Frais de modification",
+      "processing": "Traitement des paiements",
+      "processingValue": "Aucun dans cette démonstration"
+    },
+    "actions": {
+      "title": "Télécharger et imprimer",
+      "intro": "Les fichiers sont générés dans ce navigateur à partir du dossier de démonstration. Rien n’est transmis.",
+      "print": "Imprimer / Enregistrer en PDF",
+      "printSub": "Mise en page soignée de l’avis, avec le calendrier complet",
+      "revisedCsv": "Télécharger le calendrier révisé (CSV)",
+      "originalCsv": "Télécharger le calendrier initial (CSV)",
+      "paymentsSub": "{count} versements, dates ISO",
+      "recordJson": "Télécharger le dossier de l’avis (JSON)",
+      "recordJsonSub": "Données du dossier et les deux calendriers",
+      "pdfNote": "Le PDF généré par le navigateur est une copie pour consultation, et non un document d’archivage certifié.",
+      "downloaded": "Le fichier {file} a été généré dans ce navigateur.",
+      "printOpening": "La mise en page d’impression est prête. La fenêtre d’impression de votre navigateur s’ouvre."
+    },
+    "toc": {
+      "title": "Dans cet avis"
+    },
+    "letter": {
+      "aria": "Texte officiel de l’avis",
+      "lhTitle": "Avis important concernant votre financement",
+      "lhSub": "Avis fictif préparé pour une démonstration conceptuelle",
+      "date": "Date",
+      "notice": "Avis",
+      "loan": "Prêt",
+      "to": "Destinataire",
+      "re": "Objet : Prêt {loan} — Avis de modification : report des remboursements de capital",
+      "closingTitle": "À propos de ce document",
+      "closing": "Cet avis fictif a été préparé pour une démonstration conceptuelle. Il n’a pas été émis par BDC et ne crée, ne modifie ni ne confirme aucune modalité de financement réelle."
+    },
+    "links": {
+      "plain": "Lire l’explication en langage clair",
+      "plainAria": "Lire l’explication en langage clair : {topic}",
+      "relief": "Voir le calcul des versements réduits",
+      "reliefAria": "Voir le calcul des versements réduits : {topic}",
+      "help": "Aller à Aide et questions",
+      "toolsLabel": "Aide sur cette clause : {topic}"
+    },
+    "text": {
+      "purpose": {
+        "p1": "Le présent avis confirme une modification des modalités de remboursement du prêt {loan} consenti à {company} et décrit son incidence sur vos versements, vos intérêts et la date de votre dernier versement. Il constitue la référence officielle des explications en langage clair de cette démonstration.",
+        "p2": "Il s’agit d’un avis fictif préparé pour une démonstration conceptuelle. La personne cliente, le prêt et tous les montants sont fictifs. Ce document n’est ni un avis, ni une offre, ni une entente réels de BDC."
+      },
+      "amendment": {
+        "p1Seasonal": "À la demande de l’entreprise cliente, {company}, et afin de soutenir la constitution prévue de stocks saisonniers, un [[postponement|report]] temporaire des remboursements de capital a été approuvé et effectué pour le prêt {loan} dans ce scénario fictif. La modification entre en vigueur le {effective}.",
+        "p1": "À la demande de l’entreprise cliente, {company}, un [[postponement|report]] temporaire des remboursements de capital a été approuvé et effectué pour le prêt {loan} dans ce scénario fictif. La modification entre en vigueur le {effective}.",
+        "p2": "La modification porte sur le moment où le capital est remboursé. Elle ne change pas le taux d’intérêt et ne réduit pas le capital dû.",
+        "summaryLabel": "Résumé de la modification",
+        "type": "Type de modification",
+        "typeValue": "Report des remboursements de capital ({period})",
+        "status": "État",
+        "effective": "Date d’entrée en vigueur",
+        "fee": "Frais de modification",
+        "acceptance": "Acceptation requise de votre part dans le cadre du présent avis"
+      },
+      "postponement": {
+        "p1": "Les remboursements de [[principal|capital]] qui auraient autrement été exigibles en {months} sont reportés. Pour chacun de ces mois, le capital à rembourser est de {zero}.",
+        "p2": "Au total, un capital de {deferred} est reporté. Ce capital n’est ni annulé ni réduit : il reste dû et sera remboursé par des versements ultérieurs, selon le calendrier révisé."
+      },
+      "interest": {
+        "p1": "Les [[interest|intérêts]] continuent de courir sur le capital restant dû de {opening}, au [[fixedRate|taux annuel fixe]] de {rate}, et sont payables chaque mois pendant la période de report.",
+        "p2": "Chaque versement exigible pendant la période de report s’élève à {interest} et se compose uniquement d’intérêts. Comme aucun capital n’est remboursé pendant cette période, les intérêts mensuels ne diminuent pas.",
+        "p3": "Aucun intérêt n’est [[capitalisedInterest|capitalisé]] (ajouté au capital) en raison de cette modification."
+      },
+      "resumption": {
+        "p1": "Les remboursements de capital reprennent avec le versement exigible le {resume}. À compter de cette date, chaque [[instalment|versement]] mensuel comprend un remboursement de capital de {monthly}, plus les intérêts sur le capital restant dû.",
+        "p2": "Le premier versement après la reprise, exigible le {resume}, s’élève à {first}, soit {monthly} de capital et {firstInterest} d’intérêts. La part des intérêts diminue ensuite chaque mois, à mesure que le capital est remboursé."
+      },
+      "maturity": {
+        "p1": "La date du dernier versement ([[maturity|date d’échéance]]) passe du {original} au {revised}.",
+        "p2": "Le calendrier révisé compte {revCount} versements mensuels à compter du {firstDate}, au lieu de {origCount} selon le calendrier initial."
+      },
+      "cost": {
+        "p1": "Comme le capital est remboursé plus tard, les intérêts payables sur la durée restante du calendrier augmentent. Par rapport au calendrier initial :",
+        "totalInterest": "Le total des intérêts sur l’ensemble du calendrier restant passe de {origInt} à {revInt}, soit une hausse de {extra}.",
+        "totalPayments": "Le total des versements restants passe de {origTotal} à {revTotal}.",
+        "nearTerm": "Les versements exigibles de {from} à {to} totalisent {revNear} au lieu de {origNear}, soit {relief} de moins. Ce montant correspond aux {deferred} de capital reporté, moins {extra3} d’intérêts additionnels payables pendant ces mois.",
+        "partOf": "Les {extra3} d’intérêts additionnels payables pendant ces mois font partie de la hausse de {extra} du total des intérêts. Ils ne s’y ajoutent pas.",
+        "sameAmount": "Dans cet exemple, les versements exigibles de {from} à {to} ({revNear}) et la hausse du total des intérêts ({extra}) correspondent par hasard au même montant. Ils mesurent des choses différentes.",
+        "p2": "Le capital reporté de {deferred} reste dû. Cette modification n’annule ni ne réduit aucun montant dû."
+      },
+      "unchanged": {
+        "p1": "Cette modification ne change que le moment du remboursement du capital décrit ci-dessus. Les éléments suivants demeurent inchangés :",
+        "rate": "Le taux d’intérêt annuel fixe de {rate}.",
+        "instalment": "Le versement mensuel de capital de {monthly}, une fois les remboursements de capital repris.",
+        "fee": "Aucuns frais ne s’appliquent à cette modification (frais de modification : {fee}).",
+        "other": "Toutes les autres modalités et conditions du prêt {loan}."
+      },
+      "action": {
+        "p1": "Veuillez prendre connaissance du présent avis et du calendrier de remboursement révisé, puis mettre à jour la planification de trésorerie de votre entreprise en fonction des nouveaux montants et des nouvelles dates de versement.",
+        "p2": "Aucune acceptation, signature ni réponse n’est requise dans le cadre du présent avis. Ce document ne traite aucun paiement et ne permet d’effectuer aucun paiement.",
+        "p3": "Votre prochain versement selon le calendrier révisé est de {next}, le {nextDate}."
+      },
+      "schedule": {
+        "p1": "Le calendrier révisé ci-dessous présente les {count} versements mensuels restants, du {firstDate} au {lastDate}. Il remplace le calendrier initial à compter de la date d’entrée en vigueur, le {effective}."
+      },
+      "assumptions": {
+        "p1": "Les calendriers du présent avis sont une illustration fondée sur les hypothèses de simulation suivantes. Il ne s’agit pas de pratiques réelles de gestion des prêts de BDC."
+      },
+      "contact": {
+        "p1": "Pour toute question sur le présent avis, consultez la section Aide et questions de cette démonstration : vous y trouverez des réponses aux questions fréquentes, le glossaire et un formulaire pour préparer une question sur une clause précise. Vous pouvez aussi demander à Clair, l’assistant de la démonstration, d’expliquer n’importe quelle clause.",
+        "p2": "Dans cette démonstration conceptuelle, rien n’est transmis à BDC et aucune coordonnée de BDC n’est fournie. Dans un avis réel, cette section indiquerait comment joindre votre directrice ou directeur de comptes chez BDC."
+      }
+    },
+    "schedule": {
+      "first4Title": "Quatre premiers versements : initial et révisé",
+      "first4Caption": "Quatre premiers versements selon le calendrier initial et le calendrier révisé",
+      "byYearTitle": "Calendrier révisé par année",
+      "expandAll": "Afficher toutes les années",
+      "collapseAll": "Masquer toutes les années",
+      "yearCount": {
+        "one": "{n} versement",
+        "other": "{n} versements"
+      },
+      "yearRange": "de {from} à {to}",
+      "yearCaption": "Calendrier de remboursement révisé, {year}",
+      "cols": {
+        "no": "N°",
+        "date": "Date du versement",
+        "opening": "Capital au début",
+        "principal": "Capital",
+        "interest": "Intérêts",
+        "total": "Versement total",
+        "totalShort": "Total",
+        "closing": "Capital à la fin"
+      },
+      "paymentN": "Versement {n}",
+      "postponed": "Capital reporté",
+      "totalsTitle": "Totaux des calendriers : initial et révisé",
+      "totals": {
+        "item": "Élément",
+        "payments": "Nombre de versements",
+        "final": "Date du dernier versement",
+        "principal": "Total du capital",
+        "interest": "Total des intérêts",
+        "total": "Total des versements"
+      },
+      "downloadInline": "Télécharger ce calendrier (CSV)"
+    },
+    "assumptions": {
+      "items": [
+        "Les intérêts mensuels sont calculés au taux annuel fixe de {rate} divisé par 12, appliqué au capital du début du mois et arrondi au cent le plus proche (la demie étant arrondie au cent supérieur).",
+        "Les versements tombent le dernier jour civil de chaque mois, sans rajustement en fonction des jours ouvrables.",
+        "Aucun intérêt n’est capitalisé (ajouté au capital).",
+        "On suppose qu’il n’y a ni nouvelle avance de fonds ni remboursement supplémentaire ou anticipé.",
+        "Le calendrier illustré commence le {start} ; l’historique du prêt et les intérêts antérieurs à cette date ne sont pas reconstitués."
+      ],
+      "fallbackNote": "Affiché tel qu’il figure dans le dossier de démonstration (en anglais)."
+    },
+    "csv": {
+      "noticeId": "Numéro de l’avis",
+      "recordVersion": "Version du dossier",
+      "status": "État",
+      "loanId": "Numéro du prêt",
+      "company": "Entreprise",
+      "schedule": "Calendrier",
+      "revised": "Calendrier de remboursement révisé",
+      "original": "Calendrier de remboursement initial",
+      "issueDate": "Date d’émission",
+      "effectiveDate": "Date d’entrée en vigueur",
+      "currency": "Devise",
+      "payments": "Nombre de versements",
+      "source": "Source",
+      "sourceValue": "Généré localement dans ce navigateur à partir du dossier de démonstration",
+      "note": "Calendrier de financement illustratif, et non une offre de BDC.",
+      "headers": [
+        "Date du versement",
+        "Numéro du versement",
+        "Capital au début",
+        "Capital",
+        "Intérêts",
+        "Versement total",
+        "Capital à la fin"
+      ],
+      "totals": "Totaux"
+    },
+    "json": {
+      "note": "Dossier de démonstration fictif généré localement dans ce navigateur. Il ne s’agit pas d’un dossier, d’une offre ni d’une entente de BDC."
+    },
+    "print": {
+      "title": "Avis important concernant votre financement",
+      "subtitle": "Avis de modification : report des remboursements de capital",
+      "scheduleTitle": "Calendrier de remboursement révisé : les {count} versements",
+      "dateLabel": "Date :",
+      "toLabel": "Destinataire :",
+      "footer": "Avis {notice} · Version du dossier {version} · {language}",
+      "language": "Français"
+    }
+  },
   "overview": {
     "greeting": "Bonjour {name}. Faisons le point sur la modification de votre financement.",
     "overline": "Avis de modification · en vigueur le {date}",
     "title": "Vos remboursements de capital sont reportés de trois mois.",
-    "intro": "Dans cet exemple fictif, le [[postponement|report temporaire des remboursements de capital]] demandé pour {company} a été approuvé, et la modification est finalisée. Voici ce que cela change pour vos versements, et ce qui demeure inchangé.",
+    "intro": "Dans cet exemple fictif, le [[postponement|report temporaire]] des remboursements de capital demandé pour {company} a été approuvé, et la modification est finalisée. Voici ce que cela change pour vos versements, et ce qui demeure inchangé.",
     "cta": {
       "changes": "Voir ce qui change",
       "watch": "Voir votre explication personnalisée",
@@ -207,9 +1375,10 @@
     },
     "summary": {
       "title": "Votre modification en un coup d’œil",
-      "intro": "Chaque carte mène au détail mois par mois derrière le montant.",
+      "intro": "Chaque carte donne accès au détail, mois par mois, du montant affiché.",
       "seeDetail": "Voir le détail",
-      "seeDetailAria": "Voir le détail : {item}"
+      "seeDetailAria": "Voir le détail : {item}",
+      "explainAria": "Expliquer avec l’IA : {item}"
     },
     "cards": {
       "next-payment": {
@@ -219,7 +1388,7 @@
       },
       "resume": {
         "label": "Reprise des remboursements de capital",
-        "note": "Premier versement après le report : {total} ({principal} de capital + {interest} d’intérêts)."
+        "note": "Premier versement après le report : {total} ({principal} de capital + {interest} d’intérêts)."
       },
       "relief": {
         "label": "Effet sur la trésorerie",
@@ -231,13 +1400,13 @@
       "extra-interest": {
         "label": "Intérêts additionnels",
         "sub": "sur la durée restante du calendrier",
-        "original": "Total des intérêts initial",
-        "revised": "Total des intérêts révisé"
+        "original": "Total initial des intérêts",
+        "revised": "Total révisé des intérêts"
       }
     },
     "beside": {
       "title": "À retenir",
-      "maturityTitle": "Date du dernier versement ([[maturity|échéance]])",
+      "maturityTitle": "[[maturity|Date d’échéance]]",
       "maturityText": "Votre dernier versement passe du {from} au {to}.",
       "owingTitle": "[[principal|Capital]] toujours dû",
       "owingText": "Les {amount} de capital reportés restent dus. Il s’agit d’un allègement temporaire de trésorerie, et non d’une réduction de ce que vous devez."
@@ -248,11 +1417,12 @@
       "step1Text": "Vérifiez les dates et les montants révisés, à commencer par le versement payable le {date}.",
       "step1Link": "Ouvrir le calendrier révisé",
       "step2Title": "Mettez à jour la planification interne de votre [[cashFlow|trésorerie]]",
-      "step2Text": "Prévoyez des versements d’intérêts seulement de {interest} de {from} à {to}, puis un versement de {resumed} le {resumeDate}, à la reprise des remboursements de capital.",
-      "noAcceptance": "Aucune acceptation n’est requise dans cet avis. La modification est déjà approuvée et finalisée.",
+      "step2Text": "Prévoyez des versements d’intérêts seulement de {interest} par mois de {from} à {to}, puis un versement de {resumed} le {resumeDate}, à la reprise des remboursements de capital.",
+      "noAcceptance": "Aucune acceptation de votre part n’est requise dans le cadre de cet avis. La modification est déjà approuvée et finalisée.",
       "markReviewed": "Marquer comme consulté",
       "markHint": "Facultatif. Conserve une note dans cet onglet seulement.",
-      "reviewedStatus": "Marqué comme consulté dans cette démo. Il s’agit uniquement d’une note locale, et non d’une acceptation, d’un consentement ni d’une preuve de compréhension."
+      "reviewedTitle": "Marqué comme consulté dans cette démo.",
+      "reviewedNote": "Il s’agit uniquement d’une note locale, et non d’une acceptation, d’un consentement ni d’une preuve de compréhension."
     },
     "same": {
       "title": "Ce qui ne change pas",
@@ -267,10 +1437,412 @@
     },
     "media": {
       "title": "Votre explication personnalisée",
-      "meta": "Environ une minute · Sous-titres et transcription inclus · Rien ne joue avant que vous appuyiez sur Lecture",
+      "meta": "Environ une minute · Sous-titres et transcription inclus · Aucune lecture automatique",
       "text": "Une courte présentation animée de cet avis, narrée pour vous en français ou en anglais.",
       "unavailableTitle": "Lecteur d’explication non disponible",
-      "unavailableText": "Le lecteur d’explication n’est pas inclus dans cette version. La même information se trouve sur cette page et dans la section « Ce qui change »."
+      "unavailableText": "Le lecteur d’explication n’est pas inclus dans cette version. La même information se trouve sur cette page et dans la section « {section} »."
+    }
+  },
+  "payments": {
+    "overline": "Versements et incidence",
+    "title": "Vos versements, mois par mois",
+    "intro": "Comparez le calendrier initial et le calendrier révisé, voyez l’effet sur votre trésorerie et sur le coût total, et téléchargez les chiffres.",
+    "summary": "Vos remboursements de [[principal|capital]] de {months} sont reportés. Pendant ces mois, vous payez seulement les [[interest|intérêts]], soit {interest} par mois; vos versements diminuent donc de {relief} au total. Les remboursements de capital reprennent le {resume}. Le calendrier révisé se termine le {revMaturity} et comprend {extra} d’intérêts de plus sur la durée restante.",
+    "ofMonth": "de {month}",
+    "ofMonthVowel": "d’{month}",
+    "diff": {
+      "lower": "{amount} de moins",
+      "higher": "{amount} de plus",
+      "same": "Aucun écart",
+      "lowerWord": "de moins",
+      "higherWord": "de plus"
+    },
+    "effect": {
+      "title": "Trésorerie et coût total",
+      "intro": "Il s’agit de deux mesures différentes; chacune a donc sa propre carte et sa propre échelle."
+    },
+    "relief": {
+      "title": "Versements réduits de {relief}, de {from} à {to}",
+      "equation": "Comment on arrive à {relief}",
+      "deferred": "Capital reporté",
+      "deferredSub": "Reporté, et non annulé : ce capital reste dû",
+      "extra": "Intérêts additionnels au cours des trois premiers mois",
+      "extraSub": "Intérêts sur un capital qui n’a pas encore été réduit",
+      "result": "Baisse des versements",
+      "resultSub": "de {from} à {to}",
+      "minus": "moins",
+      "equals": "égale",
+      "paymentsTitle": "Total des versements, de {from} à {to}",
+      "scale": "La longueur des barres suit l’échelle propre à cette carte, de {zero} à {max}.",
+      "note": "Il s’agit d’un allègement temporaire de [[cashFlow|trésorerie]]. Les {deferred} de capital restent dus et sont remboursés plus tard dans le calendrier."
+    },
+    "cost": {
+      "title": "{extra} d’intérêts de plus sur la durée restante",
+      "interestTitle": "Total des intérêts sur la durée restante",
+      "additional": "Intérêts additionnels",
+      "payments": "Total des versements restants",
+      "final": "Dernier versement (échéance)",
+      "scale": "La longueur des barres suit l’échelle propre à cette carte, de {zero} à {max}.",
+      "note": "Les {extra3} d’intérêts additionnels des trois premiers mois sont déjà compris dans les {extra}. Ils ne s’y ajoutent pas."
+    },
+    "chart": {
+      "title": "Versements, de {from} à {to}",
+      "intro": "Pour chaque mois, le versement initial (gris hachuré) figure à côté du versement révisé (bleu marine plein). La partie foncée de chaque barre correspond au capital; la partie pâle, aux intérêts.",
+      "unit": "Versement mensuel ($ CA)",
+      "legendLabel": "Légende du graphique",
+      "legend": {
+        "origPrincipal": "Initial – capital",
+        "origInterest": "Initial – intérêts",
+        "revPrincipal": "Révisé – capital",
+        "revInterest": "Révisé – intérêts"
+      },
+      "postponed": "Capital reporté",
+      "groupsLabel": "Choisir un mois",
+      "monthAria": "{month} : versement initial {original}, versement révisé {revised}, {difference}. Afficher le détail.",
+      "readoutHint": "Choisissez un mois dans le graphique pour en voir le détail.",
+      "readoutPreview": "Choisissez ce mois pour en voir le détail complet.",
+      "seeBreakdown": "Voir le détail complet",
+      "summaryTitle": "Résumé",
+      "summary1": "De {from} à {to}, le versement révisé est de {revised} par mois, soit uniquement des intérêts, alors que le versement initial varie de {origHigh} à {origLow}.",
+      "summary2": "Les remboursements de capital reprennent le {resume}. Ce mois-là, le versement révisé est de {first}, soit {diff} de plus que le versement initial de {orig}, parce que le [[outstanding|capital restant à rembourser]] n’a pas diminué pendant le report.",
+      "tableCaption": "Versements initiaux et révisés, de {from} à {to}",
+      "month": "Mois"
+    },
+    "balance": {
+      "title": "Capital restant à rembourser sur la durée restante",
+      "intro": "Le capital est [[amortisation|amorti]] au même rythme dans les deux calendriers, soit {monthly} par mois. Le calendrier révisé commence simplement plus tard; le [[outstanding|capital restant à rembourser]] demeure donc plus élevé plus longtemps.",
+      "unit": "Capital restant à rembourser ($ CA)",
+      "legend": {
+        "original": "Calendrier initial",
+        "revised": "Calendrier révisé",
+        "band": "Report des remboursements de capital, de {from} à {to}"
+      },
+      "labelOriginal": "Initial",
+      "labelRevised": "Révisé",
+      "repaid": "remboursé en {date}",
+      "summary": "Les deux calendriers commencent avec un capital de {start}. Selon le calendrier révisé, le capital restant à rembourser demeure à {start} jusqu’à la fin de {lastPostponed}, puis diminue de {monthly} par mois, avec {period} de décalage par rapport au calendrier initial. Le calendrier initial est remboursé le {origMaturity}; le calendrier révisé, le {revMaturity}.",
+      "tableCaption": "Capital restant à rembourser à des dates clés",
+      "date": "Date",
+      "start": "{date} (début du calendrier)",
+      "originalEnd": "{date} (dernier versement initial)",
+      "revisedEnd": "{date} (dernier versement révisé)",
+      "repaidShort": "Remboursé"
+    },
+    "data": {
+      "show": "Afficher les chiffres",
+      "hide": "Masquer les chiffres"
+    },
+    "range": {
+      "3": "Trois premiers mois",
+      "6": "Six premiers mois",
+      "legend": "Mois à comparer",
+      "all": "Durée restante complète"
+    },
+    "list": {
+      "title": "Mois par mois",
+      "intro": "Choisissez un mois pour comparer le capital au début, le capital, les intérêts, le versement total et le capital à la fin selon les deux calendriers.",
+      "totalsTitle": "Totaux des mois affichés : {range}",
+      "totalsOriginal": "Calendrier initial",
+      "totalsRevised": "Calendrier révisé",
+      "totalsDiff": "Écart",
+      "payments": {
+        "one": "{n} versement",
+        "other": "{n} versements"
+      },
+      "original": "Initial",
+      "revised": "Révisé",
+      "difference": "Écart",
+      "paymentOn": "Versement du {date}",
+      "noPayment": "Aucun versement",
+      "selected": "Sélectionné",
+      "showing": "Affichage : {range}, {count}.",
+      "yearOriginal": "Initial {amount}",
+      "yearRevised": "Révisé {amount}",
+      "yearOriginalNone": "Initial : aucun versement",
+      "yearMonths": {
+        "one": "{n} mois",
+        "other": "{n} mois"
+      },
+      "yearsHint": "Ouvrez une année pour en voir les mois.",
+      "outside": "{month} est sélectionné, mais ne fait pas partie des mois affichés.",
+      "seeBreakdown": "Voir le détail",
+      "tags": {
+        "postponed": "Capital reporté",
+        "resumes": "Reprise du capital",
+        "finalOriginal": "Dernier versement initial",
+        "added": "Mois ajouté",
+        "finalRevised": "Dernier versement révisé"
+      }
+    },
+    "detail": {
+      "kicker": "Mois sélectionné",
+      "title": "Versement {month}",
+      "date": "Date du versement : {date}",
+      "emptyTitle": "Aucun mois sélectionné",
+      "emptyText": "Choisissez un mois dans le graphique ou dans la liste pour comparer les deux calendriers pour ce versement.",
+      "close": "Fermer le détail du mois",
+      "announce": "Affichage du versement {month}.",
+      "compareLabel": "Détail du versement {month}",
+      "diff": "Écart du versement total",
+      "whyTitle": "Pourquoi le montant diffère",
+      "why": {
+        "postponed": "Ce mois fait partie du report des remboursements de capital : aucun remboursement de [[principal|capital]] n’est exigible. Vous payez seulement les [[interest|intérêts]], soit {interest}, calculés sur un [[outstanding|capital restant à rembourser]] de {opening}.",
+        "postponedHigher": "Les intérêts sont supérieurs de {diff} à ceux du calendrier initial, parce que le capital n’a pas été réduit.",
+        "resumes": "Les remboursements de capital de {principal} reprennent ce mois-ci.",
+        "higherInterest": "Les intérêts sont supérieurs de {diff} à ceux du calendrier initial, parce que le capital restant à rembourser est de {revOpening} au lieu de {origOpening} : le capital reporté est toujours dû.",
+        "added": "Le calendrier initial était entièrement remboursé le {origMaturity}. Ce versement fait partie des {period} ajoutés à la fin du calendrier révisé pour rembourser le capital reporté.",
+        "finalOriginal": "Il s’agit du dernier versement du calendrier initial. Le calendrier révisé se poursuit jusqu’au {revMaturity}.",
+        "finalRevised": "Il s’agit du dernier versement du calendrier révisé. Après ce versement, il ne reste aucun capital à rembourser."
+      }
+    },
+    "csv": {
+      "noticeId": "Numéro de l’avis",
+      "recordVersion": "Version du dossier",
+      "loanId": "Numéro du prêt",
+      "status": "Statut",
+      "statusValue": "Démonstration fictive – ni une offre ni une entente de BDC",
+      "currency": "Devise",
+      "content": "Contenu",
+      "contentSelection": "Versements initiaux et révisés – {range}",
+      "contentRevised": "Calendrier révisé complet",
+      "contentOriginal": "Calendrier initial complet",
+      "generated": "Création",
+      "generatedValue": "Fichier créé localement dans ce navigateur à partir du dossier de démonstration",
+      "date": "Date du versement",
+      "number": "Numéro du versement",
+      "opening": "Capital au début",
+      "principal": "Capital",
+      "interest": "Intérêts",
+      "total": "Versement total",
+      "closing": "Capital à la fin",
+      "original": "Initial – {column}",
+      "revised": "Révisé – {column}",
+      "difference": "Écart du versement total (révisé moins initial)",
+      "totals": "Total"
+    },
+    "downloads": {
+      "title": "Télécharger le calendrier",
+      "intro": "Les fichiers CSV sont créés dans ce navigateur à partir du dossier de démonstration. Les montants sont des nombres simples en dollars canadiens, prêts pour un tableur.",
+      "selection": "Télécharger la sélection affichée (CSV)",
+      "selectionHint": "Mois affichés : {range}",
+      "revised": "Télécharger le calendrier révisé complet (CSV)",
+      "original": "Télécharger le calendrier initial complet (CSV)",
+      "started": "Téléchargement lancé : {file}"
+    }
+  },
+  "query": {
+    "title": "Poser une question",
+    "subtitle": "Démo locale seulement. Rien n’est envoyé à BDC.",
+    "stepCount": "Étape {n} sur {total}",
+    "stepSep": " : ",
+    "steps": {
+      "draft": "Rédigez votre question",
+      "review": "Vérifiez votre demande",
+      "confirm": "Demande de démonstration créée"
+    },
+    "intro": "Préparez une question au sujet de cet avis. Vous pourrez la vérifier avant qu’une demande de démonstration soit créée dans cet onglet.",
+    "context": {
+      "heading": "Renseignements joints à votre question",
+      "hint": "Le numéro de l’avis est toujours inclus. Vous pouvez retirer l’élément sélectionné.",
+      "notice": "Avis",
+      "always": "Toujours inclus",
+      "item": "Élément sélectionné",
+      "none": "Aucun (question générale sur cet avis)",
+      "remove": "Retirer",
+      "removeLabel": "Retirer l’élément sélectionné : {item}",
+      "restore": "Rétablir",
+      "restoreLabel": "Rétablir l’élément sélectionné : {item}",
+      "removed": "L’élément sélectionné a été retiré de votre demande.",
+      "restored": "L’élément sélectionné a été rétabli dans votre demande.",
+      "language": "Langue préférée",
+      "languageHint": "Votre langue d’affichage actuelle"
+    },
+    "topic": {
+      "label": "Sujet",
+      "placeholder": "Choisissez un sujet",
+      "options": {
+        "payment": "Montant du versement",
+        "interest": "Intérêts",
+        "maturity": "Échéance",
+        "understanding": "Comprendre la modification",
+        "other": "Autre"
+      }
+    },
+    "question": {
+      "label": "Votre question",
+      "hint": "Utilisez vos propres mots. Jusqu’à {max} caractères.",
+      "writtenIn": "Rédigé en {language}",
+      "keptAsWritten": "Votre question reste dans la langue dans laquelle vous l’avez rédigée. Elle n’est jamais traduite."
+    },
+    "counter": {
+      "empty": "Vous pouvez saisir jusqu’à {max} caractères",
+      "remaining": {
+        "one": "Il vous reste {n} caractère",
+        "other": "Il vous reste {n} caractères"
+      },
+      "over": {
+        "one": "Vous avez {n} caractère de trop",
+        "other": "Vous avez {n} caractères de trop"
+      }
+    },
+    "contact": {
+      "legend": "Mode de communication préféré (facultatif)",
+      "hint": "Aucune coordonnée n’est recueillie dans cette démo.",
+      "options": {
+        "none": "Aucune préférence",
+        "phone": "Appel téléphonique",
+        "email": "Courriel",
+        "secure": "Message sécurisé"
+      }
+    },
+    "privacy": {
+      "title": "Protégez vos renseignements",
+      "body": "N’indiquez aucun mot de passe, renseignement bancaire, numéro d’identification gouvernemental ni coordonnée réelle. Cette démo conserve votre question dans cet onglet seulement et n’envoie rien."
+    },
+    "draftKept": "Si vous fermez ce panneau, votre brouillon reste dans cet onglet jusqu’à la réinitialisation de la démo.",
+    "continue": "Vérifier ma demande",
+    "errors": {
+      "title": "Veuillez corriger ce qui suit",
+      "prefix": "Erreur :",
+      "topic": "Choisissez un sujet pour votre question",
+      "questionEmpty": "Saisissez votre question",
+      "questionTooLong": "Votre question doit compter au plus {max} caractères"
+    },
+    "review": {
+      "intro": "Vérifiez les renseignements ci-dessous. Rien n’est créé tant que vous n’avez pas sélectionné « Créer la demande de démonstration ».",
+      "notice": "Avis",
+      "item": "Élément sélectionné",
+      "none": "Aucun",
+      "topic": "Sujet",
+      "language": "Langue préférée",
+      "questionLanguage": "Langue de votre question",
+      "contact": "Mode de communication préféré",
+      "question": "Votre question",
+      "edit": "Modifier",
+      "create": "Créer la demande de démonstration",
+      "note": "La demande de démonstration reste dans cet onglet. Elle n’est pas envoyée à BDC et ne crée aucune demande de service."
+    },
+    "confirm": {
+      "heading": "Conservée dans cet onglet seulement",
+      "text": "Demande de démonstration créée localement. Rien n’a été envoyé à BDC.",
+      "refLabel": "Référence de démonstration",
+      "notCase": "Cette référence existe uniquement dans cette démonstration. Il ne s’agit ni d’un numéro de dossier ni d’un accusé de réception de BDC, et personne ne communiquera avec vous. Un service réel confirmerait la réception séparément.",
+      "summaryHeading": "Résumé en texte brut",
+      "summaryLabel": "Résumé de la demande de démonstration {ref}",
+      "copy": "Copier le résumé",
+      "copied": "Résumé copié dans le presse-papiers.",
+      "copyFailed": "La copie n’est pas possible dans ce navigateur. Sélectionnez le texte du résumé et copiez-le manuellement.",
+      "downloadsHeading": "Téléchargements facultatifs",
+      "downloadJson": "Télécharger en JSON",
+      "downloadTxt": "Télécharger en texte (.txt)",
+      "downloaded": "Téléchargement lancé : {file}",
+      "newQuestion": "Poser une autre question",
+      "close": "Fermer"
+    },
+    "summary": {
+      "title": "Demande de démonstration {ref}",
+      "line": "{label} : {value}",
+      "created": "Date de création",
+      "questionHeading": "Question (conservée dans la langue de rédaction) :",
+      "disclaimer": "Document de démonstration local seulement. Il ne s’agit pas d’un accusé de réception de BDC."
+    },
+    "languages": {
+      "en-CA": "anglais",
+      "fr-CA": "français"
+    },
+    "languageValues": {
+      "en-CA": "Anglais",
+      "fr-CA": "Français"
+    },
+    "announce": {
+      "errors": {
+        "one": "Votre demande comporte {n} problème.",
+        "other": "Votre demande comporte {n} problèmes."
+      }
+    }
+  },
+  "support": {
+    "overline": "Soutien facultatif",
+    "title": "Du soutien pour vous",
+    "intro": "Ressources facultatives de BDC liées au plan de constitution de stocks saisonnière indiqué dans votre dossier. Elles ne font partie ni de votre avis ni de la modification, et leur présence ici n’implique aucune admissibilité, aucune préapprobation ni aucun résultat particulier.",
+    "basis": {
+      "label": "Selon votre dossier :",
+      "seasonal": "constitution de stocks saisonnière prévue",
+      "general": "Aucun plan d’affaires précis n’est indiqué dans votre dossier; il s’agit donc de ressources générales.",
+      "never": "Vos réponses au sondage, votre nom, votre langue et votre navigation ne servent jamais à choisir les suggestions."
+    },
+    "listLabel": "Ressources suggérées",
+    "categories": {
+      "advice": "Service-conseil",
+      "financing": "Financement",
+      "learning": "Apprentissage",
+      "help": "L’aide d’abord"
+    },
+    "whyTitle": "Pourquoi cela pourrait être pertinent",
+    "learnMore": "En savoir plus sur bdc.ca",
+    "externalAria": "{action} : {title} (ouvre un site Web externe de BDC dans un nouvel onglet)",
+    "inquiryAria": "{action} : {title}. Prépare une question de démonstration locale; rien n’est transmis à BDC.",
+    "cards": {
+      "financial-management": {
+        "title": "Consultation en gestion financière",
+        "summary": "L’information publique de BDC décrit un service de consultation en gestion financière qui comprend la gestion de la trésorerie et du fonds de roulement. Il s’agit d’un service-conseil, distinct de votre prêt et du présent avis.",
+        "why": {
+          "seasonal": "Votre dossier indique qu’une constitution de stocks saisonnière est prévue. Comme les remboursements de capital reprennent le {resume}, il pourrait être utile d’établir des prévisions de trésorerie et de planifier votre fonds de roulement en tenant compte de ces stocks.",
+          "general": "Il pourrait être utile d’établir des prévisions de trésorerie et de planifier votre fonds de roulement, puisque les remboursements de capital reprennent le {resume}."
+        },
+        "action": "Discuter de votre planification de trésorerie",
+        "url": "https://www.bdc.ca/fr/consultation/gestion-financiere"
+      },
+      "working-capital": {
+        "title": "Prêt de fonds de roulement",
+        "summary": "L’information publique de BDC décrit un Prêt de fonds de roulement destiné aux besoins d’exploitation, comme les stocks. Il s’agirait d’un produit distinct, et non d’une modification du financement décrit dans cet avis.",
+        "statement": "Voyez si cette solution convient à votre entreprise. Sous réserve d’évaluation et d’approbation.",
+        "why": {
+          "seasonal": "Le financement des stocks et du cycle d’exploitation pourrait mériter une discussion distincte, une fois votre financement actuel examiné.",
+          "general": "Le financement du cycle d’exploitation pourrait mériter une discussion distincte, une fois votre financement actuel examiné."
+        },
+        "action": "Explorer les options de financement",
+        "url": "https://www.bdc.ca/fr/financement/pret-fonds-roulement"
+      },
+      "learning": {
+        "title": "Ressources d’apprentissage de BDC sur la trésorerie",
+        "summary": "Commencez par l’article de BDC « Entreprise saisonnière : comment gérer les flux de trésorerie », qui fait partie des articles et outils publics que BDC propose aux entrepreneurs.",
+        "tag": "Contenu éducatif, et non un produit de prêt",
+        "why": {
+          "seasonal": "En apprendre davantage sur la gestion de la trésorerie d’une entreprise saisonnière peut vous aider à planifier en fonction de vos stocks, sans aucun engagement de crédit.",
+          "general": "En apprendre davantage sur la gestion de la trésorerie peut vous aider à planifier, sans aucun engagement de crédit."
+        },
+        "action": "Explorer les ressources",
+        "url": "https://www.bdc.ca/fr/articles-outils/argent-finance/gerer-finances/entreprise-saisonniere-flux-tresorerie"
+      },
+      "help": {
+        "title": "Parlez-nous de votre situation",
+        "summary": "S’il vous est difficile en ce moment d’effectuer vos versements ou de planifier votre trésorerie, commencez par en parler. Vous pouvez préparer une question ou trouver des réponses dans Aide et questions.",
+        "whyTitle": "Pourquoi l’aide passe en premier",
+        "why": "Dans cette démonstration, lorsqu’un indicateur de difficulté financière ou d’arriérés est activé, l’aide passe avant toute suggestion de nouvel emprunt.",
+        "note": "Dans cette démonstration, une question que vous préparez reste dans votre navigateur. Rien n’est transmis à BDC.",
+        "ask": "Poser une question",
+        "askAria": "Poser une question au sujet de votre situation. Prépare une question de démonstration locale; rien n’est transmis à BDC.",
+        "helpLink": "Aller à Aide et questions"
+      }
+    },
+    "hide": "Masquer cette suggestion",
+    "hideAria": "Masquer cette suggestion : {title}",
+    "hiddenAnnounce": "Suggestion masquée pour cette session.",
+    "showHidden": "Afficher les suggestions masquées ({n})",
+    "restoredAnnounce": "Les suggestions masquées sont de nouveau affichées.",
+    "allHidden": {
+      "title": "Toutes les suggestions sont masquées",
+      "text": "Vous avez choisi de masquer toutes les suggestions pour cette session. Votre avis et ses renseignements ne sont pas touchés."
+    },
+    "rule": {
+      "title": "Les suggestions d’emprunt sont masquées",
+      "text": "Un indicateur de difficulté financière ou d’arriérés est activé pour cette démonstration; une règle de démonstration responsable masque donc les suggestions d’emprunt supplémentaire et met l’aide en priorité. Il s’agit d’une règle de cette démonstration, et non d’une politique de BDC."
+    },
+    "footer": {
+      "links": "Les liens ouvrent le site Web public de BDC dans un nouvel onglet, seulement si vous les sélectionnez.",
+      "data": "Cette démonstration ne transmet aucune donnée à BDC, et les questions que vous préparez ici restent dans ce navigateur.",
+      "source": "Les descriptions résument l’information publique de BDC pour cette démonstration conceptuelle. Elles ne constituent pas des offres."
     }
   }
 }
