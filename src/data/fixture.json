@@ -1,0 +1,1036 @@
+{
+  "schemaVersion": "1.0",
+  "status": "fictional demonstration; not a BDC offer or actual agreement",
+  "noticeId": "DEMO-BDC-CHANGE-2026-001",
+  "recordVersion": "1.0",
+  "issueDate": "2026-10-06",
+  "effectiveDate": "2026-11-01",
+  "client": {
+    "givenName": "Camille",
+    "familyName": "Roy",
+    "company": "Atelier Boréal Inc.",
+    "seasonalInventoryBuild": true
+  },
+  "loan": {
+    "id": "DEMO-4821",
+    "currency": "CAD",
+    "principalAtScheduleStartCents": 24000000,
+    "annualRateBasisPoints": 800,
+    "monthlyPrincipalCents": 400000
+  },
+  "change": {
+    "type": "principal_postponement",
+    "months": 3,
+    "acceptanceRequired": false,
+    "originalMaturity": "2031-10-31",
+    "revisedMaturity": "2032-01-31",
+    "resumePrincipalDate": "2027-02-28",
+    "feeCents": 0
+  },
+  "assumptions": [
+    "Illustrative monthly interest at fixed 8% / 12, rounded half-up to cents",
+    "Month-end dates with no business-day adjustment",
+    "No capitalised interest",
+    "No new draws or extra repayments",
+    "Future schedule begins 1 November 2026; no prior history reconstructed"
+  ],
+  "derived": {
+    "originalTotalInterestCents": 4880000,
+    "revisedTotalInterestCents": 5360000,
+    "principalDeferredCents": 1200000,
+    "nearTermPaymentReductionCents": 1192000,
+    "originalTotalPaymentsCents": 28880000,
+    "revisedTotalPaymentsCents": 29360000,
+    "additionalInterestFirstThreeMonthsCents": 8000,
+    "additionalLifetimeInterestCents": 480000
+  },
+  "originalSchedule": [
+    {
+      "date": "2026-11-30",
+      "openingPrincipalCents": 24000000,
+      "principalCents": 400000,
+      "interestCents": 160000,
+      "totalCents": 560000,
+      "closingPrincipalCents": 23600000
+    },
+    {
+      "date": "2026-12-31",
+      "openingPrincipalCents": 23600000,
+      "principalCents": 400000,
+      "interestCents": 157333,
+      "totalCents": 557333,
+      "closingPrincipalCents": 23200000
+    },
+    {
+      "date": "2027-01-31",
+      "openingPrincipalCents": 23200000,
+      "principalCents": 400000,
+      "interestCents": 154667,
+      "totalCents": 554667,
+      "closingPrincipalCents": 22800000
+    },
+    {
+      "date": "2027-02-28",
+      "openingPrincipalCents": 22800000,
+      "principalCents": 400000,
+      "interestCents": 152000,
+      "totalCents": 552000,
+      "closingPrincipalCents": 22400000
+    },
+    {
+      "date": "2027-03-31",
+      "openingPrincipalCents": 22400000,
+      "principalCents": 400000,
+      "interestCents": 149333,
+      "totalCents": 549333,
+      "closingPrincipalCents": 22000000
+    },
+    {
+      "date": "2027-04-30",
+      "openingPrincipalCents": 22000000,
+      "principalCents": 400000,
+      "interestCents": 146667,
+      "totalCents": 546667,
+      "closingPrincipalCents": 21600000
+    },
+    {
+      "date": "2027-05-31",
+      "openingPrincipalCents": 21600000,
+      "principalCents": 400000,
+      "interestCents": 144000,
+      "totalCents": 544000,
+      "closingPrincipalCents": 21200000
+    },
+    {
+      "date": "2027-06-30",
+      "openingPrincipalCents": 21200000,
+      "principalCents": 400000,
+      "interestCents": 141333,
+      "totalCents": 541333,
+      "closingPrincipalCents": 20800000
+    },
+    {
+      "date": "2027-07-31",
+      "openingPrincipalCents": 20800000,
+      "principalCents": 400000,
+      "interestCents": 138667,
+      "totalCents": 538667,
+      "closingPrincipalCents": 20400000
+    },
+    {
+      "date": "2027-08-31",
+      "openingPrincipalCents": 20400000,
+      "principalCents": 400000,
+      "interestCents": 136000,
+      "totalCents": 536000,
+      "closingPrincipalCents": 20000000
+    },
+    {
+      "date": "2027-09-30",
+      "openingPrincipalCents": 20000000,
+      "principalCents": 400000,
+      "interestCents": 133333,
+      "totalCents": 533333,
+      "closingPrincipalCents": 19600000
+    },
+    {
+      "date": "2027-10-31",
+      "openingPrincipalCents": 19600000,
+      "principalCents": 400000,
+      "interestCents": 130667,
+      "totalCents": 530667,
+      "closingPrincipalCents": 19200000
+    },
+    {
+      "date": "2027-11-30",
+      "openingPrincipalCents": 19200000,
+      "principalCents": 400000,
+      "interestCents": 128000,
+      "totalCents": 528000,
+      "closingPrincipalCents": 18800000
+    },
+    {
+      "date": "2027-12-31",
+      "openingPrincipalCents": 18800000,
+      "principalCents": 400000,
+      "interestCents": 125333,
+      "totalCents": 525333,
+      "closingPrincipalCents": 18400000
+    },
+    {
+      "date": "2028-01-31",
+      "openingPrincipalCents": 18400000,
+      "principalCents": 400000,
+      "interestCents": 122667,
+      "totalCents": 522667,
+      "closingPrincipalCents": 18000000
+    },
+    {
+      "date": "2028-02-29",
+      "openingPrincipalCents": 18000000,
+      "principalCents": 400000,
+      "interestCents": 120000,
+      "totalCents": 520000,
+      "closingPrincipalCents": 17600000
+    },
+    {
+      "date": "2028-03-31",
+      "openingPrincipalCents": 17600000,
+      "principalCents": 400000,
+      "interestCents": 117333,
+      "totalCents": 517333,
+      "closingPrincipalCents": 17200000
+    },
+    {
+      "date": "2028-04-30",
+      "openingPrincipalCents": 17200000,
+      "principalCents": 400000,
+      "interestCents": 114667,
+      "totalCents": 514667,
+      "closingPrincipalCents": 16800000
+    },
+    {
+      "date": "2028-05-31",
+      "openingPrincipalCents": 16800000,
+      "principalCents": 400000,
+      "interestCents": 112000,
+      "totalCents": 512000,
+      "closingPrincipalCents": 16400000
+    },
+    {
+      "date": "2028-06-30",
+      "openingPrincipalCents": 16400000,
+      "principalCents": 400000,
+      "interestCents": 109333,
+      "totalCents": 509333,
+      "closingPrincipalCents": 16000000
+    },
+    {
+      "date": "2028-07-31",
+      "openingPrincipalCents": 16000000,
+      "principalCents": 400000,
+      "interestCents": 106667,
+      "totalCents": 506667,
+      "closingPrincipalCents": 15600000
+    },
+    {
+      "date": "2028-08-31",
+      "openingPrincipalCents": 15600000,
+      "principalCents": 400000,
+      "interestCents": 104000,
+      "totalCents": 504000,
+      "closingPrincipalCents": 15200000
+    },
+    {
+      "date": "2028-09-30",
+      "openingPrincipalCents": 15200000,
+      "principalCents": 400000,
+      "interestCents": 101333,
+      "totalCents": 501333,
+      "closingPrincipalCents": 14800000
+    },
+    {
+      "date": "2028-10-31",
+      "openingPrincipalCents": 14800000,
+      "principalCents": 400000,
+      "interestCents": 98667,
+      "totalCents": 498667,
+      "closingPrincipalCents": 14400000
+    },
+    {
+      "date": "2028-11-30",
+      "openingPrincipalCents": 14400000,
+      "principalCents": 400000,
+      "interestCents": 96000,
+      "totalCents": 496000,
+      "closingPrincipalCents": 14000000
+    },
+    {
+      "date": "2028-12-31",
+      "openingPrincipalCents": 14000000,
+      "principalCents": 400000,
+      "interestCents": 93333,
+      "totalCents": 493333,
+      "closingPrincipalCents": 13600000
+    },
+    {
+      "date": "2029-01-31",
+      "openingPrincipalCents": 13600000,
+      "principalCents": 400000,
+      "interestCents": 90667,
+      "totalCents": 490667,
+      "closingPrincipalCents": 13200000
+    },
+    {
+      "date": "2029-02-28",
+      "openingPrincipalCents": 13200000,
+      "principalCents": 400000,
+      "interestCents": 88000,
+      "totalCents": 488000,
+      "closingPrincipalCents": 12800000
+    },
+    {
+      "date": "2029-03-31",
+      "openingPrincipalCents": 12800000,
+      "principalCents": 400000,
+      "interestCents": 85333,
+      "totalCents": 485333,
+      "closingPrincipalCents": 12400000
+    },
+    {
+      "date": "2029-04-30",
+      "openingPrincipalCents": 12400000,
+      "principalCents": 400000,
+      "interestCents": 82667,
+      "totalCents": 482667,
+      "closingPrincipalCents": 12000000
+    },
+    {
+      "date": "2029-05-31",
+      "openingPrincipalCents": 12000000,
+      "principalCents": 400000,
+      "interestCents": 80000,
+      "totalCents": 480000,
+      "closingPrincipalCents": 11600000
+    },
+    {
+      "date": "2029-06-30",
+      "openingPrincipalCents": 11600000,
+      "principalCents": 400000,
+      "interestCents": 77333,
+      "totalCents": 477333,
+      "closingPrincipalCents": 11200000
+    },
+    {
+      "date": "2029-07-31",
+      "openingPrincipalCents": 11200000,
+      "principalCents": 400000,
+      "interestCents": 74667,
+      "totalCents": 474667,
+      "closingPrincipalCents": 10800000
+    },
+    {
+      "date": "2029-08-31",
+      "openingPrincipalCents": 10800000,
+      "principalCents": 400000,
+      "interestCents": 72000,
+      "totalCents": 472000,
+      "closingPrincipalCents": 10400000
+    },
+    {
+      "date": "2029-09-30",
+      "openingPrincipalCents": 10400000,
+      "principalCents": 400000,
+      "interestCents": 69333,
+      "totalCents": 469333,
+      "closingPrincipalCents": 10000000
+    },
+    {
+      "date": "2029-10-31",
+      "openingPrincipalCents": 10000000,
+      "principalCents": 400000,
+      "interestCents": 66667,
+      "totalCents": 466667,
+      "closingPrincipalCents": 9600000
+    },
+    {
+      "date": "2029-11-30",
+      "openingPrincipalCents": 9600000,
+      "principalCents": 400000,
+      "interestCents": 64000,
+      "totalCents": 464000,
+      "closingPrincipalCents": 9200000
+    },
+    {
+      "date": "2029-12-31",
+      "openingPrincipalCents": 9200000,
+      "principalCents": 400000,
+      "interestCents": 61333,
+      "totalCents": 461333,
+      "closingPrincipalCents": 8800000
+    },
+    {
+      "date": "2030-01-31",
+      "openingPrincipalCents": 8800000,
+      "principalCents": 400000,
+      "interestCents": 58667,
+      "totalCents": 458667,
+      "closingPrincipalCents": 8400000
+    },
+    {
+      "date": "2030-02-28",
+      "openingPrincipalCents": 8400000,
+      "principalCents": 400000,
+      "interestCents": 56000,
+      "totalCents": 456000,
+      "closingPrincipalCents": 8000000
+    },
+    {
+      "date": "2030-03-31",
+      "openingPrincipalCents": 8000000,
+      "principalCents": 400000,
+      "interestCents": 53333,
+      "totalCents": 453333,
+      "closingPrincipalCents": 7600000
+    },
+    {
+      "date": "2030-04-30",
+      "openingPrincipalCents": 7600000,
+      "principalCents": 400000,
+      "interestCents": 50667,
+      "totalCents": 450667,
+      "closingPrincipalCents": 7200000
+    },
+    {
+      "date": "2030-05-31",
+      "openingPrincipalCents": 7200000,
+      "principalCents": 400000,
+      "interestCents": 48000,
+      "totalCents": 448000,
+      "closingPrincipalCents": 6800000
+    },
+    {
+      "date": "2030-06-30",
+      "openingPrincipalCents": 6800000,
+      "principalCents": 400000,
+      "interestCents": 45333,
+      "totalCents": 445333,
+      "closingPrincipalCents": 6400000
+    },
+    {
+      "date": "2030-07-31",
+      "openingPrincipalCents": 6400000,
+      "principalCents": 400000,
+      "interestCents": 42667,
+      "totalCents": 442667,
+      "closingPrincipalCents": 6000000
+    },
+    {
+      "date": "2030-08-31",
+      "openingPrincipalCents": 6000000,
+      "principalCents": 400000,
+      "interestCents": 40000,
+      "totalCents": 440000,
+      "closingPrincipalCents": 5600000
+    },
+    {
+      "date": "2030-09-30",
+      "openingPrincipalCents": 5600000,
+      "principalCents": 400000,
+      "interestCents": 37333,
+      "totalCents": 437333,
+      "closingPrincipalCents": 5200000
+    },
+    {
+      "date": "2030-10-31",
+      "openingPrincipalCents": 5200000,
+      "principalCents": 400000,
+      "interestCents": 34667,
+      "totalCents": 434667,
+      "closingPrincipalCents": 4800000
+    },
+    {
+      "date": "2030-11-30",
+      "openingPrincipalCents": 4800000,
+      "principalCents": 400000,
+      "interestCents": 32000,
+      "totalCents": 432000,
+      "closingPrincipalCents": 4400000
+    },
+    {
+      "date": "2030-12-31",
+      "openingPrincipalCents": 4400000,
+      "principalCents": 400000,
+      "interestCents": 29333,
+      "totalCents": 429333,
+      "closingPrincipalCents": 4000000
+    },
+    {
+      "date": "2031-01-31",
+      "openingPrincipalCents": 4000000,
+      "principalCents": 400000,
+      "interestCents": 26667,
+      "totalCents": 426667,
+      "closingPrincipalCents": 3600000
+    },
+    {
+      "date": "2031-02-28",
+      "openingPrincipalCents": 3600000,
+      "principalCents": 400000,
+      "interestCents": 24000,
+      "totalCents": 424000,
+      "closingPrincipalCents": 3200000
+    },
+    {
+      "date": "2031-03-31",
+      "openingPrincipalCents": 3200000,
+      "principalCents": 400000,
+      "interestCents": 21333,
+      "totalCents": 421333,
+      "closingPrincipalCents": 2800000
+    },
+    {
+      "date": "2031-04-30",
+      "openingPrincipalCents": 2800000,
+      "principalCents": 400000,
+      "interestCents": 18667,
+      "totalCents": 418667,
+      "closingPrincipalCents": 2400000
+    },
+    {
+      "date": "2031-05-31",
+      "openingPrincipalCents": 2400000,
+      "principalCents": 400000,
+      "interestCents": 16000,
+      "totalCents": 416000,
+      "closingPrincipalCents": 2000000
+    },
+    {
+      "date": "2031-06-30",
+      "openingPrincipalCents": 2000000,
+      "principalCents": 400000,
+      "interestCents": 13333,
+      "totalCents": 413333,
+      "closingPrincipalCents": 1600000
+    },
+    {
+      "date": "2031-07-31",
+      "openingPrincipalCents": 1600000,
+      "principalCents": 400000,
+      "interestCents": 10667,
+      "totalCents": 410667,
+      "closingPrincipalCents": 1200000
+    },
+    {
+      "date": "2031-08-31",
+      "openingPrincipalCents": 1200000,
+      "principalCents": 400000,
+      "interestCents": 8000,
+      "totalCents": 408000,
+      "closingPrincipalCents": 800000
+    },
+    {
+      "date": "2031-09-30",
+      "openingPrincipalCents": 800000,
+      "principalCents": 400000,
+      "interestCents": 5333,
+      "totalCents": 405333,
+      "closingPrincipalCents": 400000
+    },
+    {
+      "date": "2031-10-31",
+      "openingPrincipalCents": 400000,
+      "principalCents": 400000,
+      "interestCents": 2667,
+      "totalCents": 402667,
+      "closingPrincipalCents": 0
+    }
+  ],
+  "revisedSchedule": [
+    {
+      "date": "2026-11-30",
+      "openingPrincipalCents": 24000000,
+      "principalCents": 0,
+      "interestCents": 160000,
+      "totalCents": 160000,
+      "closingPrincipalCents": 24000000
+    },
+    {
+      "date": "2026-12-31",
+      "openingPrincipalCents": 24000000,
+      "principalCents": 0,
+      "interestCents": 160000,
+      "totalCents": 160000,
+      "closingPrincipalCents": 24000000
+    },
+    {
+      "date": "2027-01-31",
+      "openingPrincipalCents": 24000000,
+      "principalCents": 0,
+      "interestCents": 160000,
+      "totalCents": 160000,
+      "closingPrincipalCents": 24000000
+    },
+    {
+      "date": "2027-02-28",
+      "openingPrincipalCents": 24000000,
+      "principalCents": 400000,
+      "interestCents": 160000,
+      "totalCents": 560000,
+      "closingPrincipalCents": 23600000
+    },
+    {
+      "date": "2027-03-31",
+      "openingPrincipalCents": 23600000,
+      "principalCents": 400000,
+      "interestCents": 157333,
+      "totalCents": 557333,
+      "closingPrincipalCents": 23200000
+    },
+    {
+      "date": "2027-04-30",
+      "openingPrincipalCents": 23200000,
+      "principalCents": 400000,
+      "interestCents": 154667,
+      "totalCents": 554667,
+      "closingPrincipalCents": 22800000
+    },
+    {
+      "date": "2027-05-31",
+      "openingPrincipalCents": 22800000,
+      "principalCents": 400000,
+      "interestCents": 152000,
+      "totalCents": 552000,
+      "closingPrincipalCents": 22400000
+    },
+    {
+      "date": "2027-06-30",
+      "openingPrincipalCents": 22400000,
+      "principalCents": 400000,
+      "interestCents": 149333,
+      "totalCents": 549333,
+      "closingPrincipalCents": 22000000
+    },
+    {
+      "date": "2027-07-31",
+      "openingPrincipalCents": 22000000,
+      "principalCents": 400000,
+      "interestCents": 146667,
+      "totalCents": 546667,
+      "closingPrincipalCents": 21600000
+    },
+    {
+      "date": "2027-08-31",
+      "openingPrincipalCents": 21600000,
+      "principalCents": 400000,
+      "interestCents": 144000,
+      "totalCents": 544000,
+      "closingPrincipalCents": 21200000
+    },
+    {
+      "date": "2027-09-30",
+      "openingPrincipalCents": 21200000,
+      "principalCents": 400000,
+      "interestCents": 141333,
+      "totalCents": 541333,
+      "closingPrincipalCents": 20800000
+    },
+    {
+      "date": "2027-10-31",
+      "openingPrincipalCents": 20800000,
+      "principalCents": 400000,
+      "interestCents": 138667,
+      "totalCents": 538667,
+      "closingPrincipalCents": 20400000
+    },
+    {
+      "date": "2027-11-30",
+      "openingPrincipalCents": 20400000,
+      "principalCents": 400000,
+      "interestCents": 136000,
+      "totalCents": 536000,
+      "closingPrincipalCents": 20000000
+    },
+    {
+      "date": "2027-12-31",
+      "openingPrincipalCents": 20000000,
+      "principalCents": 400000,
+      "interestCents": 133333,
+      "totalCents": 533333,
+      "closingPrincipalCents": 19600000
+    },
+    {
+      "date": "2028-01-31",
+      "openingPrincipalCents": 19600000,
+      "principalCents": 400000,
+      "interestCents": 130667,
+      "totalCents": 530667,
+      "closingPrincipalCents": 19200000
+    },
+    {
+      "date": "2028-02-29",
+      "openingPrincipalCents": 19200000,
+      "principalCents": 400000,
+      "interestCents": 128000,
+      "totalCents": 528000,
+      "closingPrincipalCents": 18800000
+    },
+    {
+      "date": "2028-03-31",
+      "openingPrincipalCents": 18800000,
+      "principalCents": 400000,
+      "interestCents": 125333,
+      "totalCents": 525333,
+      "closingPrincipalCents": 18400000
+    },
+    {
+      "date": "2028-04-30",
+      "openingPrincipalCents": 18400000,
+      "principalCents": 400000,
+      "interestCents": 122667,
+      "totalCents": 522667,
+      "closingPrincipalCents": 18000000
+    },
+    {
+      "date": "2028-05-31",
+      "openingPrincipalCents": 18000000,
+      "principalCents": 400000,
+      "interestCents": 120000,
+      "totalCents": 520000,
+      "closingPrincipalCents": 17600000
+    },
+    {
+      "date": "2028-06-30",
+      "openingPrincipalCents": 17600000,
+      "principalCents": 400000,
+      "interestCents": 117333,
+      "totalCents": 517333,
+      "closingPrincipalCents": 17200000
+    },
+    {
+      "date": "2028-07-31",
+      "openingPrincipalCents": 17200000,
+      "principalCents": 400000,
+      "interestCents": 114667,
+      "totalCents": 514667,
+      "closingPrincipalCents": 16800000
+    },
+    {
+      "date": "2028-08-31",
+      "openingPrincipalCents": 16800000,
+      "principalCents": 400000,
+      "interestCents": 112000,
+      "totalCents": 512000,
+      "closingPrincipalCents": 16400000
+    },
+    {
+      "date": "2028-09-30",
+      "openingPrincipalCents": 16400000,
+      "principalCents": 400000,
+      "interestCents": 109333,
+      "totalCents": 509333,
+      "closingPrincipalCents": 16000000
+    },
+    {
+      "date": "2028-10-31",
+      "openingPrincipalCents": 16000000,
+      "principalCents": 400000,
+      "interestCents": 106667,
+      "totalCents": 506667,
+      "closingPrincipalCents": 15600000
+    },
+    {
+      "date": "2028-11-30",
+      "openingPrincipalCents": 15600000,
+      "principalCents": 400000,
+      "interestCents": 104000,
+      "totalCents": 504000,
+      "closingPrincipalCents": 15200000
+    },
+    {
+      "date": "2028-12-31",
+      "openingPrincipalCents": 15200000,
+      "principalCents": 400000,
+      "interestCents": 101333,
+      "totalCents": 501333,
+      "closingPrincipalCents": 14800000
+    },
+    {
+      "date": "2029-01-31",
+      "openingPrincipalCents": 14800000,
+      "principalCents": 400000,
+      "interestCents": 98667,
+      "totalCents": 498667,
+      "closingPrincipalCents": 14400000
+    },
+    {
+      "date": "2029-02-28",
+      "openingPrincipalCents": 14400000,
+      "principalCents": 400000,
+      "interestCents": 96000,
+      "totalCents": 496000,
+      "closingPrincipalCents": 14000000
+    },
+    {
+      "date": "2029-03-31",
+      "openingPrincipalCents": 14000000,
+      "principalCents": 400000,
+      "interestCents": 93333,
+      "totalCents": 493333,
+      "closingPrincipalCents": 13600000
+    },
+    {
+      "date": "2029-04-30",
+      "openingPrincipalCents": 13600000,
+      "principalCents": 400000,
+      "interestCents": 90667,
+      "totalCents": 490667,
+      "closingPrincipalCents": 13200000
+    },
+    {
+      "date": "2029-05-31",
+      "openingPrincipalCents": 13200000,
+      "principalCents": 400000,
+      "interestCents": 88000,
+      "totalCents": 488000,
+      "closingPrincipalCents": 12800000
+    },
+    {
+      "date": "2029-06-30",
+      "openingPrincipalCents": 12800000,
+      "principalCents": 400000,
+      "interestCents": 85333,
+      "totalCents": 485333,
+      "closingPrincipalCents": 12400000
+    },
+    {
+      "date": "2029-07-31",
+      "openingPrincipalCents": 12400000,
+      "principalCents": 400000,
+      "interestCents": 82667,
+      "totalCents": 482667,
+      "closingPrincipalCents": 12000000
+    },
+    {
+      "date": "2029-08-31",
+      "openingPrincipalCents": 12000000,
+      "principalCents": 400000,
+      "interestCents": 80000,
+      "totalCents": 480000,
+      "closingPrincipalCents": 11600000
+    },
+    {
+      "date": "2029-09-30",
+      "openingPrincipalCents": 11600000,
+      "principalCents": 400000,
+      "interestCents": 77333,
+      "totalCents": 477333,
+      "closingPrincipalCents": 11200000
+    },
+    {
+      "date": "2029-10-31",
+      "openingPrincipalCents": 11200000,
+      "principalCents": 400000,
+      "interestCents": 74667,
+      "totalCents": 474667,
+      "closingPrincipalCents": 10800000
+    },
+    {
+      "date": "2029-11-30",
+      "openingPrincipalCents": 10800000,
+      "principalCents": 400000,
+      "interestCents": 72000,
+      "totalCents": 472000,
+      "closingPrincipalCents": 10400000
+    },
+    {
+      "date": "2029-12-31",
+      "openingPrincipalCents": 10400000,
+      "principalCents": 400000,
+      "interestCents": 69333,
+      "totalCents": 469333,
+      "closingPrincipalCents": 10000000
+    },
+    {
+      "date": "2030-01-31",
+      "openingPrincipalCents": 10000000,
+      "principalCents": 400000,
+      "interestCents": 66667,
+      "totalCents": 466667,
+      "closingPrincipalCents": 9600000
+    },
+    {
+      "date": "2030-02-28",
+      "openingPrincipalCents": 9600000,
+      "principalCents": 400000,
+      "interestCents": 64000,
+      "totalCents": 464000,
+      "closingPrincipalCents": 9200000
+    },
+    {
+      "date": "2030-03-31",
+      "openingPrincipalCents": 9200000,
+      "principalCents": 400000,
+      "interestCents": 61333,
+      "totalCents": 461333,
+      "closingPrincipalCents": 8800000
+    },
+    {
+      "date": "2030-04-30",
+      "openingPrincipalCents": 8800000,
+      "principalCents": 400000,
+      "interestCents": 58667,
+      "totalCents": 458667,
+      "closingPrincipalCents": 8400000
+    },
+    {
+      "date": "2030-05-31",
+      "openingPrincipalCents": 8400000,
+      "principalCents": 400000,
+      "interestCents": 56000,
+      "totalCents": 456000,
+      "closingPrincipalCents": 8000000
+    },
+    {
+      "date": "2030-06-30",
+      "openingPrincipalCents": 8000000,
+      "principalCents": 400000,
+      "interestCents": 53333,
+      "totalCents": 453333,
+      "closingPrincipalCents": 7600000
+    },
+    {
+      "date": "2030-07-31",
+      "openingPrincipalCents": 7600000,
+      "principalCents": 400000,
+      "interestCents": 50667,
+      "totalCents": 450667,
+      "closingPrincipalCents": 7200000
+    },
+    {
+      "date": "2030-08-31",
+      "openingPrincipalCents": 7200000,
+      "principalCents": 400000,
+      "interestCents": 48000,
+      "totalCents": 448000,
+      "closingPrincipalCents": 6800000
+    },
+    {
+      "date": "2030-09-30",
+      "openingPrincipalCents": 6800000,
+      "principalCents": 400000,
+      "interestCents": 45333,
+      "totalCents": 445333,
+      "closingPrincipalCents": 6400000
+    },
+    {
+      "date": "2030-10-31",
+      "openingPrincipalCents": 6400000,
+      "principalCents": 400000,
+      "interestCents": 42667,
+      "totalCents": 442667,
+      "closingPrincipalCents": 6000000
+    },
+    {
+      "date": "2030-11-30",
+      "openingPrincipalCents": 6000000,
+      "principalCents": 400000,
+      "interestCents": 40000,
+      "totalCents": 440000,
+      "closingPrincipalCents": 5600000
+    },
+    {
+      "date": "2030-12-31",
+      "openingPrincipalCents": 5600000,
+      "principalCents": 400000,
+      "interestCents": 37333,
+      "totalCents": 437333,
+      "closingPrincipalCents": 5200000
+    },
+    {
+      "date": "2031-01-31",
+      "openingPrincipalCents": 5200000,
+      "principalCents": 400000,
+      "interestCents": 34667,
+      "totalCents": 434667,
+      "closingPrincipalCents": 4800000
+    },
+    {
+      "date": "2031-02-28",
+      "openingPrincipalCents": 4800000,
+      "principalCents": 400000,
+      "interestCents": 32000,
+      "totalCents": 432000,
+      "closingPrincipalCents": 4400000
+    },
+    {
+      "date": "2031-03-31",
+      "openingPrincipalCents": 4400000,
+      "principalCents": 400000,
+      "interestCents": 29333,
+      "totalCents": 429333,
+      "closingPrincipalCents": 4000000
+    },
+    {
+      "date": "2031-04-30",
+      "openingPrincipalCents": 4000000,
+      "principalCents": 400000,
+      "interestCents": 26667,
+      "totalCents": 426667,
+      "closingPrincipalCents": 3600000
+    },
+    {
+      "date": "2031-05-31",
+      "openingPrincipalCents": 3600000,
+      "principalCents": 400000,
+      "interestCents": 24000,
+      "totalCents": 424000,
+      "closingPrincipalCents": 3200000
+    },
+    {
+      "date": "2031-06-30",
+      "openingPrincipalCents": 3200000,
+      "principalCents": 400000,
+      "interestCents": 21333,
+      "totalCents": 421333,
+      "closingPrincipalCents": 2800000
+    },
+    {
+      "date": "2031-07-31",
+      "openingPrincipalCents": 2800000,
+      "principalCents": 400000,
+      "interestCents": 18667,
+      "totalCents": 418667,
+      "closingPrincipalCents": 2400000
+    },
+    {
+      "date": "2031-08-31",
+      "openingPrincipalCents": 2400000,
+      "principalCents": 400000,
+      "interestCents": 16000,
+      "totalCents": 416000,
+      "closingPrincipalCents": 2000000
+    },
+    {
+      "date": "2031-09-30",
+      "openingPrincipalCents": 2000000,
+      "principalCents": 400000,
+      "interestCents": 13333,
+      "totalCents": 413333,
+      "closingPrincipalCents": 1600000
+    },
+    {
+      "date": "2031-10-31",
+      "openingPrincipalCents": 1600000,
+      "principalCents": 400000,
+      "interestCents": 10667,
+      "totalCents": 410667,
+      "closingPrincipalCents": 1200000
+    },
+    {
+      "date": "2031-11-30",
+      "openingPrincipalCents": 1200000,
+      "principalCents": 400000,
+      "interestCents": 8000,
+      "totalCents": 408000,
+      "closingPrincipalCents": 800000
+    },
+    {
+      "date": "2031-12-31",
+      "openingPrincipalCents": 800000,
+      "principalCents": 400000,
+      "interestCents": 5333,
+      "totalCents": 405333,
+      "closingPrincipalCents": 400000
+    },
+    {
+      "date": "2032-01-31",
+      "openingPrincipalCents": 400000,
+      "principalCents": 400000,
+      "interestCents": 2667,
+      "totalCents": 402667,
+      "closingPrincipalCents": 0
+    }
+  ],
+  "locale": "en-CA"
+}

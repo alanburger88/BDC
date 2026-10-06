@@ -1,0 +1,73 @@
+/* Design tokens from the supplied BDC brand brief (subject to BDC brand approval). */
+:root {
+  --navy: #182c3d;
+  --navy-2: #22394d;
+  --navy-3: #2e4a62;
+  --red: #e01a22;
+  --red-deep: #bd1219;
+  --white: #ffffff;
+  --grey-bg: #f4f5f7;
+  --grey-2: #e9ecef;
+  --line: #d5dae0;
+  --line-strong: #aab3bc;
+  --text: #222222;
+  --text-2: #333333;
+  --muted: #5b6770;
+  --blue: #2b59ff;
+  --blue-text: #1f47d6;       /* electric blue darkened for small text contrast */
+  --blue-tint: #eaf0ff;
+  --green-ok: #1f7a4d;
+  --amber: #8a5a00;
+  --amber-tint: #fff4dc;
+  --focus: #2b59ff;
+  --focus-dark: #ffffff;
+
+  /* Series encoding: original vs revised (also distinguished by pattern/label) */
+  --series-original: #8593a0;
+  --series-original-light: #c9d0d7;
+  --series-revised: #182c3d;
+  --series-revised-light: #6f8ba3;
+  --series-accent: #2b59ff;
+
+  --font: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --fs-body: 1rem;            /* 16px */
+  --fs-small: 0.875rem;
+  --fs-overline: 0.8125rem;   /* 13px */
+  --fs-lead: clamp(1.0625rem, 0.95rem + 0.5vw, 1.25rem);
+  --fs-h1: clamp(1.75rem, 1.3rem + 2vw, 2.75rem);
+  --fs-h2: clamp(1.375rem, 1.15rem + 1vw, 1.875rem);
+  --fs-h3: clamp(1.125rem, 1.05rem + 0.35vw, 1.3125rem);
+  --fs-figure: clamp(1.5rem, 1.2rem + 1.2vw, 2.125rem);
+  --lh-body: 1.5;
+  --lh-tight: 1.15;
+  --tracking-tight: -0.02em;
+
+  --radius-card: 14px;
+  --radius-sm: 8px;
+  --radius-pill: 9999px;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  --shadow-lift: 0 8px 28px rgba(24, 44, 61, 0.12);
+  --shadow-panel: -12px 0 40px rgba(24, 44, 61, 0.18);
+
+  --container: 1180px;
+  --gutter: 16px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  /* Reserved bottom space so the accessibility launcher (bottom left) and the
+     Clair launcher (bottom right) never cover content or controls. */
+  --launcher-space: 88px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --vvh: 100vh;
+  --vv-top: 0px;
+}
+
+@media (min-width: 600px) {
+  :root { --gutter: 24px; }
+}

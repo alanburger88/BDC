@@ -1,0 +1,76 @@
+{
+  "status": "Draft scripts from PRD section 8, frozen for creation-time synthesis. Not approved BDC communications.",
+  "chapters": ["welcome", "relief", "difference", "tradeoff", "resume", "next-step"],
+  "voices": {
+    "en-CA": { "voiceId": "EXAVITQu4vr4xnSDxMaL", "voiceName": "Sarah (ElevenLabs premade)", "note": "North American English premade voice; Canadian accent not verified - requires human audition." },
+    "fr-CA": { "voiceId": "EXAVITQu4vr4xnSDxMaL", "voiceName": "Sarah (ElevenLabs premade, multilingual)", "note": "Premade multilingual voice speaking French; Canadian French accent NOT established - requires qualified fr-CA review." }
+  },
+  "model": "eleven_multilingual_v2",
+  "outputFormat": "mp3_44100_128",
+  "voiceSettings": { "stability": 0.55, "similarity_boost": 0.75, "style": 0, "use_speaker_boost": true },
+  "scripts": {
+    "en-CA": [
+      "Hello Camille. Here is the financing update for Atelier Boréal.",
+      "In this example, your principal payments are postponed for November, December and January. You will still pay one thousand six hundred dollars in interest each month.",
+      "Twelve thousand dollars of principal is moved to later in the schedule. Your payments over these three months are eleven thousand nine hundred and twenty dollars lower than before. That is temporary cash-flow relief, not debt forgiveness.",
+      "There is a trade-off. Interest continues to accrue, and the revised schedule adds four thousand eight hundred dollars in interest over the remaining term. Your final payment moves to January thirty-first, twenty thirty-two.",
+      "Principal payments resume on February twenty-eighth, twenty twenty-seven. That month’s total payment is five thousand six hundred dollars.",
+      "Review the revised schedule, explore any amount, or ask Clair for an explanation. You can also prepare a question for your representative. No acceptance is required through this notice."
+    ],
+    "fr-CA": [
+      "Bonjour Camille. Voici la modification du financement d’Atelier Boréal.",
+      "Dans cet exemple, vos remboursements de capital sont reportés pour novembre, décembre et janvier. Vous continuerez de payer mille six cents dollars d’intérêts chaque mois.",
+      "Douze mille dollars de capital seront remboursés plus tard. Au total, vos versements de ces trois mois diminuent de onze mille neuf cent vingt dollars. Il s’agit d’un allègement temporaire de trésorerie, et non d’une remise de dette.",
+      "Il y a une contrepartie. Les intérêts continuent de courir, et le calendrier révisé ajoute quatre mille huit cents dollars d’intérêts sur la durée restante. Votre dernier versement est reporté au trente et un janvier deux mille trente-deux.",
+      "Les remboursements de capital reprennent le vingt-huit février deux mille vingt-sept. Le versement total de ce mois sera de cinq mille six cents dollars.",
+      "Consultez le calendrier révisé, explorez un montant ou demandez une explication à Clair. Vous pouvez aussi préparer une question pour votre personne-ressource. Aucune acceptation n’est requise dans cet avis."
+    ]
+  },
+  "marks": {
+    "en-CA": {
+      "company": "Atelier Boréal",
+      "months": "November, December and January",
+      "interest1600": "one thousand six hundred dollars",
+      "deferred12000": "Twelve thousand dollars",
+      "relief11920": "eleven thousand nine hundred and twenty",
+      "notForgiveness": "not debt forgiveness",
+      "tradeoff": "There is a trade-off",
+      "extra4800": "four thousand eight hundred dollars",
+      "maturity": "Your final payment moves",
+      "resumeDate": "February twenty-eighth",
+      "payment5600": "five thousand six hundred dollars",
+      "reviewSchedule": "Review the revised schedule",
+      "askClair": "ask Clair",
+      "prepareQuestion": "prepare a question",
+      "noAcceptance": "No acceptance is required"
+    },
+    "fr-CA": {
+      "company": "Atelier Boréal",
+      "months": "novembre, décembre et janvier",
+      "interest1600": "mille six cents dollars",
+      "deferred12000": "Douze mille dollars",
+      "relief11920": "onze mille neuf cent vingt",
+      "notForgiveness": "et non d’une remise de dette",
+      "tradeoff": "Il y a une contrepartie",
+      "extra4800": "quatre mille huit cents dollars",
+      "maturity": "Votre dernier versement est reporté",
+      "resumeDate": "vingt-huit février",
+      "payment5600": "cinq mille six cents dollars",
+      "reviewSchedule": "Consultez le calendrier révisé",
+      "askClair": "demandez une explication à Clair",
+      "prepareQuestion": "préparer une question",
+      "noAcceptance": "Aucune acceptation"
+    }
+  },
+  "auditions": {
+    "fr-CA": {
+      "text": "Les remboursements de capital reprennent le vingt-huit février deux mille vingt-sept.",
+      "voices": [
+        { "voiceId": "EXAVITQu4vr4xnSDxMaL", "voiceName": "Sarah" },
+        { "voiceId": "XrExE9yKIg1WjnnlVkGX", "voiceName": "Matilda" },
+        { "voiceId": "FGY2WhTYpPnrIDTdsKH5", "voiceName": "Laura" },
+        { "voiceId": "onwK4e9ZLuTAKqWW03F9", "voiceName": "Daniel" }
+      ]
+    }
+  }
+}

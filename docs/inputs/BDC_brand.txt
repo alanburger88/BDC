@@ -1,0 +1,74 @@
+Brand Overview: BDC (Business Development Bank of Canada)
+1. Color Palette
+Primary Dark / Slate Navy: #182C3D (dominant background for dark sections, footer, and deep contrast panels)
+
+Primary Brand Red: #E01A22 (primary call-to-action buttons, key headline accents, and brand asterisk)
+
+Deep Red / Shadow Red: #BD1219 (hover states, secondary facets of the red graphic element)
+
+Pure White: #FFFFFF (light section backgrounds, pill buttons, header background, dark-mode text)
+
+Off-White / Cool Gray: #F4F5F7 (subtle section cards, secondary card backgrounds)
+
+Body Text (Charcoal): #222222 to #333333 (reading text on light backgrounds)
+
+Muted Gray: #5B6770 (secondary labels, metadata, captions, input borders)
+
+Accent Electric Blue: #2B59FF (featured tool cards, illustration accents)
+
+2. Typography
+Font Family: Clean geometric humanist sans-serif (e.g., Helvetica Neue, Arial, or modern geometric grotesques like Inter / Graphik).
+
+Headings (H1/H2):
+
+Weight: 500 (Medium) to 700 (Bold).
+
+Scale: Large, tight letter-spacing (-0.02em), compact line height (1.1 to 1.2).
+
+Features: Sentence case, occasional inline color highlights (e.g., contrasting red words in a black title).
+
+Subheadings / Lead Text:
+
+Weight: 400 (Regular) to 500 (Medium).
+
+Size: 18px – 22px, generous line height (1.4 – 1.5).
+
+Body Copy:
+
+Weight: 400 (Regular).
+
+Size: 15px – 16px, line height 1.5.
+
+Overlines / Category Tags:
+
+Weight: 500 (Medium) or 600 (Semi-bold).
+
+Size: 12px – 13px, subtle letter-spacing.
+
+3. UI Components & Design System
+Buttons & CTAs:
+
+Primary Action: Solid red background (#E01A22), white text, full pill shape (border-radius: 9999px), padding approx. 12px 24px.
+
+Secondary / Ghost Action: Transparent background with a crisp 1px–1.5px solid border (white border on dark, slate border on light), matching pill shape.
+
+Text Links: Clean inline link with a trailing red right-arrow icon (→ Learn more).
+
+Cards & Containers:
+
+Generous corner radiuses (border-radius: 12px to 16px).
+
+Overflow hidden, clean padding, subtle border or soft drop shadows (0 4px 20px rgba(0, 0, 0, 0.05)).
+
+Imagery & Motifs:
+
+People-Centric Photography: High-contrast, authentic, warm portraits and real workplace environments focused on diverse entrepreneurs.
+
+Brand Icon: The multi-pointed geometric red/faceted star or asterisk motif used as an illustrative watermark or anchor graphic.
+
+4. Tone & Voice
+Tone: Empowering, institutional yet approachable, confident, and direct.
+
+Core Positioning: "The bank for Canadian entrepreneurs."
+
+Copy Style: Action-driven verbs ("Kick your next projects into gear", "Face your next challenges with confidence"), concise value propositions, and entrepreneur-first messaging.

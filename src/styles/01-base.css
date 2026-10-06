@@ -1,0 +1,99 @@
+/* Base element styles. Overflow is fixed at the component level (min-width: 0,
+   wrapping), never by clipping the page with overflow-x: hidden. */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  background: var(--grey-bg);
+}
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--text);
+  background: var(--grey-bg);
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+html.overlay-open, html.overlay-open body { overflow: hidden; }
+
+h1, h2, h3, h4 {
+  margin: 0 0 var(--space-3);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-tight);
+  font-weight: 600;
+  color: var(--navy);
+  overflow-wrap: break-word;
+  hyphens: manual;
+}
+h1 { font-size: var(--fs-h1); font-weight: 700; }
+h2 { font-size: var(--fs-h2); }
+h3 { font-size: var(--fs-h3); }
+h4 { font-size: 1rem; letter-spacing: 0; }
+
+p { margin: 0 0 var(--space-3); }
+p:last-child { margin-bottom: 0; }
+ul, ol { margin: 0 0 var(--space-3); padding-left: 1.25rem; }
+li + li { margin-top: var(--space-1); }
+strong { font-weight: 700; }
+small { font-size: var(--fs-small); }
+
+a { color: var(--blue-text); text-underline-offset: 0.15em; }
+a:hover { color: var(--navy); }
+
+img, svg, video, canvas { max-width: 100%; }
+img { height: auto; }
+
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+[hidden] { display: none !important; }
+
+table { border-collapse: collapse; width: 100%; }
+th, td { text-align: left; vertical-align: top; }
+
+:focus { outline: none; }
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+.on-dark :focus-visible, .media-stage :focus-visible { outline-color: var(--focus-dark); }
+[data-view-heading]:focus-visible, [tabindex="-1"]:focus-visible { outline-offset: 4px; }
+
+.sr-only {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0);
+  white-space: nowrap; border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: var(--gutter);
+  top: -100px;
+  z-index: 1000;
+  background: var(--navy);
+  color: var(--white);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  font-weight: 600;
+}
+.skip-link:focus { top: var(--space-2); color: var(--white); }
+
+.money { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.num { font-variant-numeric: tabular-nums; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
