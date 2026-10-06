@@ -33,8 +33,11 @@ App.shell = (() => {
   }
 
   function onLocaleChanged(next) {
+    // Capture focus/scroll before the header is rebuilt so they can be restored
+    const fid = App.router.activeFid();
+    const scroll = window.scrollY;
     renderChrome();
-    App.router.rerender();
+    App.router.rerender({ fid, scroll });
     App.events.log('language_changed', { id: next });
     App.announce(t('shell.languageChanged'));
   }

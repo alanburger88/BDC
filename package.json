@@ -1,0 +1,19 @@
+{
+  "name": "bdc-financing-notice-demo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Self-contained bilingual SPA concept demo of an interactive financing-change notice (fictional data).",
+  "type": "module",
+  "scripts": {
+    "validate:fixture": "node tools/fixture.mjs",
+    "voiceover": "NODE_USE_ENV_PROXY=1 node tools/generate-voiceover.mjs",
+    "build": "node tools/build.mjs",
+    "test:smoke": "node tests/smoke.mjs",
+    "test:acceptance": "node tests/acceptance.mjs",
+    "test:modules": "node tests/run-modules.mjs",
+    "test": "node tools/build.mjs && node tests/smoke.mjs && node tests/run-modules.mjs && node tests/acceptance.mjs"
+  },
+  "devDependencies": {
+    "axe-core": "^4.10.0"
+  }
+}

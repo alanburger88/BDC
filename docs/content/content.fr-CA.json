@@ -1,0 +1,276 @@
+{
+  "common": {
+    "docTitle": "Avis important concernant votre financement (démonstration conceptuelle)",
+    "close": "Fermer",
+    "cancel": "Annuler",
+    "back": "Retour",
+    "backTo": "Retour à {place}",
+    "breadcrumb": "Chemin de retour",
+    "explainWithAI": "Expliquer avec l’IA",
+    "askAboutThis": "Poser une question à ce sujet",
+    "askAQuestion": "Poser une question",
+    "viewInNotice": "Voir dans votre avis",
+    "seeTheDetail": "Voir le détail",
+    "seeInGlossary": "Voir dans le glossaire",
+    "definition": "afficher la définition",
+    "closeDefinition": "Fermer la définition",
+    "opensExternal": "ouvre un site Web externe de BDC dans un nouvel onglet",
+    "illustrativeNote": "Calendrier de financement illustratif, et non une offre de BDC.",
+    "amountsInCAD": "Montants en dollars canadiens.",
+    "renderError": "Cette section ne peut pas être affichée. Veuillez choisir une autre section.",
+    "timeLong": "{m} min {s} s",
+    "original": "Initial",
+    "revised": "Révisé",
+    "before": "Avant",
+    "after": "Après",
+    "difference": "Écart",
+    "principal": "Capital",
+    "interest": "Intérêts",
+    "total": "Versement total",
+    "openingBalance": "Capital au début",
+    "closingBalance": "Capital à la fin",
+    "noPayment": "Aucun versement (prêt déjà remboursé selon le calendrier initial)",
+    "download": "Télécharger",
+    "copy": "Copier",
+    "copied": "Copié",
+    "copyFailed": "Copie non disponible dans ce navigateur",
+    "print": "Imprimer / Enregistrer en PDF",
+    "demoLabel": "Démo",
+    "languageNames": {
+      "en-CA": "anglais",
+      "fr-CA": "français"
+    },
+    "writtenIn": "Rédigé en {language}",
+    "badges": {
+      "changed": "Modifié",
+      "unchanged": "Inchangé",
+      "temporary": "Temporaire",
+      "later": "Date ultérieure",
+      "demo": "Démo"
+    },
+    "perMonth": "par mois",
+    "months": {
+      "one": "{n} mois",
+      "other": "{n} mois"
+    }
+  },
+  "shell": {
+    "banner": "Démonstration conceptuelle • Clientèle et modalités fictives • Aucun lien avec les systèmes de BDC.",
+    "descriptor": "Avis important concernant votre financement",
+    "descriptorMeta": "Avis {notice}",
+    "demoPill": "Démo",
+    "logoPlaceholder": "Espace réservé au logo de BDC",
+    "skip": "Passer au contenu principal",
+    "sectionsLabel": "Sections de l’avis",
+    "sectionsButton": "Sections : {section}",
+    "current": "(section actuelle)",
+    "languageChanged": "La langue est maintenant le français.",
+    "launcherSub": "Votre guide du financement",
+    "demoInsights": "Aperçu de la démo",
+    "resetDemo": "Réinitialiser la démo",
+    "resetTitle": "Réinitialiser cette démonstration?",
+    "resetBody": "Cette action efface les événements locaux de la démo, les demandes de démonstration rédigées ou créées, les réponses au sondage, la conversation avec Clair et la mention « Marquer comme consulté ». L’avis lui-même ne change pas.",
+    "resetConfirm": "Réinitialiser la démo",
+    "resetDone": "La démonstration a été réinitialisée.",
+    "footerData": "Ce fichier unique contient uniquement des données fictives. Aucune information saisie ne quitte ce navigateur, sauf si vous choisissez d’ouvrir un lien externe de BDC. Le module d’accessibilité est le seul service en ligne que cette page charge automatiquement.",
+    "aboutTitle": "À propos de cette démonstration",
+    "aboutBody": [
+      "Prototype conceptuel d’un avis de financement interactif. Camille Roy, Atelier Boréal Inc., le prêt et tous les montants sont fictifs. Rien ici ne constitue une offre, une entente, une politique ou un système de BDC.",
+      "Clair est un nom proposé pour la démo. Dans ce fichier, Clair répond uniquement à partir de cet avis type, selon des règles locales; il n’y a aucune connexion à une IA en direct.",
+      "La narration a été générée avant la distribution avec la synthèse vocale d’ElevenLabs et est intégrée à ce fichier. La lecture ne communique jamais avec ElevenLabs.",
+      "Les demandes de démonstration, les réponses au sondage et la mention « Marquer comme consulté » restent dans cet onglet et sont effacées lorsque vous réinitialisez la démo ou fermez l’onglet."
+    ],
+    "buildInfo": "Version {version} · {date} · Avis {notice} · Version du dossier {record}"
+  },
+  "nav": {
+    "overview": "Aperçu",
+    "changes": "Ce qui change",
+    "payments": "Versements et incidence",
+    "documents": "Votre avis",
+    "support": "Du soutien pour vous",
+    "help": "Aide et questions",
+    "insights": "Aperçu de la démo"
+  },
+  "items": {
+    "general": "Cet avis (question générale)",
+    "month": "Versement de {month}",
+    "clause": "Clause de l’avis : {title}",
+    "term": "Terme du glossaire : {term}",
+    "chapter": "Chapitre vidéo : {title}",
+    "faq": "Question fréquente",
+    "card": {
+      "principal": "Remboursements de capital",
+      "interest": "Intérêts",
+      "next-payment": "Prochain versement",
+      "maturity": "Date du dernier versement (échéance)",
+      "fees": "Frais de modification",
+      "rate": "Taux d’intérêt (inchangé)",
+      "debt": "Capital toujours dû"
+    },
+    "summary": {
+      "next-payment": "Prochain versement : 30 novembre 2026",
+      "resume": "Reprise des remboursements de capital",
+      "relief": "Versements réduits, de novembre à janvier",
+      "extra-interest": "Intérêts additionnels sur la durée restante"
+    },
+    "resource": {
+      "financial-management": "Consultation en gestion financière",
+      "working-capital": "Prêt de fonds de roulement",
+      "learning": "Ressources d’apprentissage de BDC sur la trésorerie"
+    },
+    "chart": {
+      "payments": "Graphique comparatif des versements, de novembre à avril",
+      "balance": "Graphique du capital restant"
+    },
+    "infographic": {
+      "relief": "Effet sur la trésorerie, de novembre à janvier",
+      "cost": "Total des intérêts additionnels"
+    }
+  },
+  "clauses": {
+    "purpose": "1. Objet du présent avis",
+    "amendment": "2. Résumé de la modification",
+    "postponement": "3. Période de report des remboursements de capital",
+    "interest": "4. Intérêts pendant le report",
+    "resumption": "5. Reprise des remboursements de capital",
+    "maturity": "6. Date d’échéance révisée",
+    "cost": "7. Incidence sur les intérêts et le total des versements",
+    "unchanged": "8. Modalités inchangées",
+    "action": "9. Ce que vous devez faire",
+    "schedule": "10. Calendrier de remboursement révisé",
+    "assumptions": "11. Hypothèses utilisées dans cette illustration",
+    "contact": "12. Questions et soutien"
+  },
+  "chapters": {
+    "welcome": "Un mot de bienvenue",
+    "relief": "Trois mois de répit",
+    "difference": "D’où vient l’écart",
+    "tradeoff": "La contrepartie",
+    "resume": "La reprise des remboursements de capital",
+    "next-step": "Votre prochaine étape"
+  },
+  "glossary": {
+    "title": "Glossaire",
+    "principal": {
+      "term": "Capital",
+      "definition": "Le montant emprunté qui reste à rembourser, sans les intérêts."
+    },
+    "interest": {
+      "term": "Intérêts",
+      "definition": "Le coût de l’emprunt, calculé à partir du solde et du taux applicable."
+    },
+    "postponement": {
+      "term": "Report des remboursements de capital",
+      "definition": "Le fait de reporter les remboursements de capital pendant une période déterminée. Des intérêts peuvent rester payables pendant cette période."
+    },
+    "instalment": {
+      "term": "Versement",
+      "definition": "Un paiement prévu au calendrier dans le cadre de l’entente de financement."
+    },
+    "maturity": {
+      "term": "Date d’échéance",
+      "definition": "La date à laquelle le solde restant du prêt doit être entièrement remboursé."
+    },
+    "outstanding": {
+      "term": "Capital restant à rembourser",
+      "definition": "Le capital toujours dû à une date donnée."
+    },
+    "fixedRate": {
+      "term": "Taux fixe",
+      "definition": "Un taux qui ne change pas pendant la période à taux fixe indiquée."
+    },
+    "cashFlow": {
+      "term": "Trésorerie",
+      "definition": "L’argent qui entre dans l’entreprise et qui en sort."
+    },
+    "amortisation": {
+      "term": "Amortissement",
+      "definition": "Le remboursement du capital selon un calendrier."
+    },
+    "capitalisedInterest": {
+      "term": "Intérêts capitalisés",
+      "definition": "Des intérêts ajoutés au montant dû. Cela ne se produit pas dans cette démonstration."
+    }
+  },
+  "overview": {
+    "greeting": "Bonjour {name}. Faisons le point sur la modification de votre financement.",
+    "overline": "Avis de modification · en vigueur le {date}",
+    "title": "Vos remboursements de capital sont reportés de trois mois.",
+    "intro": "Dans cet exemple fictif, le [[postponement|report temporaire des remboursements de capital]] demandé pour {company} a été approuvé, et la modification est finalisée. Voici ce que cela change pour vos versements, et ce qui demeure inchangé.",
+    "cta": {
+      "changes": "Voir ce qui change",
+      "watch": "Voir votre explication personnalisée",
+      "ask": "Poser une question"
+    },
+    "illustration": {
+      "caption": "Illustration d’un atelier de fabrication. Il ne s’agit pas d’une photo de la personne destinataire ni du personnel de BDC."
+    },
+    "summary": {
+      "title": "Votre modification en un coup d’œil",
+      "intro": "Chaque carte mène au détail mois par mois derrière le montant.",
+      "seeDetail": "Voir le détail",
+      "seeDetailAria": "Voir le détail : {item}"
+    },
+    "cards": {
+      "next-payment": {
+        "label": "Prochain versement",
+        "sub": "Payable le {date}",
+        "note": "Intérêts seulement. Aucun remboursement de capital ce mois-ci."
+      },
+      "resume": {
+        "label": "Reprise des remboursements de capital",
+        "note": "Premier versement après le report : {total} ({principal} de capital + {interest} d’intérêts)."
+      },
+      "relief": {
+        "label": "Effet sur la trésorerie",
+        "figure": "{amount} de moins",
+        "sub": "versés de {from} à {to}",
+        "original": "Versements initiaux",
+        "revised": "Versements révisés"
+      },
+      "extra-interest": {
+        "label": "Intérêts additionnels",
+        "sub": "sur la durée restante du calendrier",
+        "original": "Total des intérêts initial",
+        "revised": "Total des intérêts révisé"
+      }
+    },
+    "beside": {
+      "title": "À retenir",
+      "maturityTitle": "Date du dernier versement ([[maturity|échéance]])",
+      "maturityText": "Votre dernier versement passe du {from} au {to}.",
+      "owingTitle": "[[principal|Capital]] toujours dû",
+      "owingText": "Les {amount} de capital reportés restent dus. Il s’agit d’un allègement temporaire de trésorerie, et non d’une réduction de ce que vous devez."
+    },
+    "todo": {
+      "title": "Ce que vous devez faire",
+      "step1Title": "Consultez le calendrier de remboursement révisé",
+      "step1Text": "Vérifiez les dates et les montants révisés, à commencer par le versement payable le {date}.",
+      "step1Link": "Ouvrir le calendrier révisé",
+      "step2Title": "Mettez à jour la planification interne de votre [[cashFlow|trésorerie]]",
+      "step2Text": "Prévoyez des versements d’intérêts seulement de {interest} de {from} à {to}, puis un versement de {resumed} le {resumeDate}, à la reprise des remboursements de capital.",
+      "noAcceptance": "Aucune acceptation n’est requise dans cet avis. La modification est déjà approuvée et finalisée.",
+      "markReviewed": "Marquer comme consulté",
+      "markHint": "Facultatif. Conserve une note dans cet onglet seulement.",
+      "reviewedStatus": "Marqué comme consulté dans cette démo. Il s’agit uniquement d’une note locale, et non d’une acceptation, d’un consentement ni d’une preuve de compréhension."
+    },
+    "same": {
+      "title": "Ce qui ne change pas",
+      "intro": "Le report modifie le moment où le capital est remboursé. Ces modalités ne changent pas.",
+      "rateLabel": "Taux d’[[interest|intérêt]]",
+      "rateValue": "{rate}, [[fixedRate|taux fixe]]",
+      "instalmentLabel": "Versement mensuel de [[principal|capital]]",
+      "instalmentValue": "{amount} par mois dès la reprise des remboursements",
+      "feeLabel": "Frais de modification",
+      "feeValue": "{fee}, aucuns frais pour cette modification",
+      "loanLabel": "Numéro du prêt"
+    },
+    "media": {
+      "title": "Votre explication personnalisée",
+      "meta": "Environ une minute · Sous-titres et transcription inclus · Rien ne joue avant que vous appuyiez sur Lecture",
+      "text": "Une courte présentation animée de cet avis, narrée pour vous en français ou en anglais.",
+      "unavailableTitle": "Lecteur d’explication non disponible",
+      "unavailableText": "Le lecteur d’explication n’est pas inclus dans cette version. La même information se trouve sur cette page et dans la section « Ce qui change »."
+    }
+  }
+}

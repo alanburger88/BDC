@@ -244,7 +244,10 @@ App.ui = (() => {
     btn.addEventListener('pointerdown', (e) => { pointerType = e.pointerType || 'mouse'; });
     btn.addEventListener('mouseenter', () => { if (pointerType !== 'touch') show(false); });
     btn.addEventListener('mouseleave', () => App.popover.scheduleHide());
-    btn.addEventListener('focus', () => { if (btn.matches(':focus-visible')) show(false); });
+    btn.addEventListener('focus', () => {
+      if (btn.dataset.suppressFocusOpen) return;
+      if (btn.matches(':focus-visible')) show(false);
+    });
     btn.addEventListener('blur', (e) => App.popover.onFocusOut(e));
     btn.addEventListener('click', (e) => {
       e.preventDefault();

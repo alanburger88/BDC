@@ -180,9 +180,9 @@ App.router = (() => {
     if (hd) App.util.focusEl(hd, { preventScroll: false });
   }
 
-  function rerender() {
-    const fid = activeFid();
-    const scroll = window.scrollY;
+  function rerender(override = {}) {
+    const fid = override.fid !== undefined ? override.fid : activeFid();
+    const scroll = override.scroll !== undefined ? override.scroll : window.scrollY;
     render(current, { rerender: true, restore: { scroll, fid } });
   }
 
@@ -210,6 +210,7 @@ App.router = (() => {
     start,
     focusHeading,
     current: () => current,
+    activeFid,
     onChange(fn) { changeListeners.push(fn); },
     views,
   };

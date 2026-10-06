@@ -1,0 +1,276 @@
+{
+  "common": {
+    "docTitle": "Important financing notice (concept demonstration)",
+    "close": "Close",
+    "cancel": "Cancel",
+    "back": "Back",
+    "backTo": "Back to {place}",
+    "breadcrumb": "Return path",
+    "explainWithAI": "Explain with AI",
+    "askAboutThis": "Ask about this",
+    "askAQuestion": "Ask a question",
+    "viewInNotice": "View this in your notice",
+    "seeTheDetail": "See the detail",
+    "seeInGlossary": "See in glossary",
+    "definition": "show definition",
+    "closeDefinition": "Close definition",
+    "opensExternal": "opens an external BDC website in a new tab",
+    "illustrativeNote": "Illustrative financing schedule, not a BDC offer.",
+    "amountsInCAD": "Amounts in Canadian dollars.",
+    "renderError": "This section could not be displayed. Please choose another section.",
+    "timeLong": "{m} min {s} s",
+    "original": "Original",
+    "revised": "Revised",
+    "before": "Before",
+    "after": "After",
+    "difference": "Difference",
+    "principal": "Principal",
+    "interest": "Interest",
+    "total": "Total payment",
+    "openingBalance": "Opening principal",
+    "closingBalance": "Closing principal",
+    "noPayment": "No payment (loan already repaid under the original schedule)",
+    "download": "Download",
+    "copy": "Copy",
+    "copied": "Copied",
+    "copyFailed": "Copy not available in this browser",
+    "print": "Print / Save as PDF",
+    "demoLabel": "Demo",
+    "languageNames": {
+      "en-CA": "English",
+      "fr-CA": "French"
+    },
+    "writtenIn": "Written in {language}",
+    "badges": {
+      "changed": "Changed",
+      "unchanged": "Unchanged",
+      "temporary": "Temporary",
+      "later": "Later date",
+      "demo": "Demo"
+    },
+    "perMonth": "per month",
+    "months": {
+      "one": "{n} month",
+      "other": "{n} months"
+    }
+  },
+  "shell": {
+    "banner": "Concept demonstration • Fictional client and financing terms • Not connected to BDC.",
+    "descriptor": "Important financing notice",
+    "descriptorMeta": "Notice {notice}",
+    "demoPill": "Demo",
+    "logoPlaceholder": "BDC logo placeholder",
+    "skip": "Skip to main content",
+    "sectionsLabel": "Notice sections",
+    "sectionsButton": "Sections: {section}",
+    "current": "(current section)",
+    "languageChanged": "Language changed to English.",
+    "launcherSub": "Your financing guide",
+    "demoInsights": "Demo insights",
+    "resetDemo": "Reset demo",
+    "resetTitle": "Reset this demonstration?",
+    "resetBody": "This clears the local demo events, any drafted or created demo requests, survey responses, the Clair conversation and “Mark as reviewed”. The notice itself does not change.",
+    "resetConfirm": "Reset demo",
+    "resetDone": "The demonstration was reset.",
+    "footerData": "This single file contains fictional data only. No information you enter leaves this browser, except when you choose to open an external BDC link. The accessibility widget is the one online service this page loads automatically.",
+    "aboutTitle": "About this demonstration",
+    "aboutBody": [
+      "Concept prototype of an interactive financing notice. Camille Roy, Atelier Boréal Inc., the loan and all amounts are fictional. Nothing here is a BDC offer, agreement, policy or system.",
+      "Clair is a proposed demo name. In this file it answers only from this sample notice using local rules; there is no live AI connection.",
+      "The narration was generated before distribution with ElevenLabs text-to-speech and is embedded in this file. Playback never contacts ElevenLabs.",
+      "Demo requests, survey answers and “Mark as reviewed” stay in this browser tab and are cleared when you reset or close it."
+    ],
+    "buildInfo": "Build {version} · {date} · Notice {notice} · Record version {record}"
+  },
+  "nav": {
+    "overview": "Overview",
+    "changes": "What changed",
+    "payments": "Payments & impact",
+    "documents": "Your notice",
+    "support": "Support for you",
+    "help": "Help & questions",
+    "insights": "Demo insights"
+  },
+  "items": {
+    "general": "This notice (general question)",
+    "month": "{month} payment",
+    "clause": "Notice clause: {title}",
+    "term": "Glossary term: {term}",
+    "chapter": "Video chapter: {title}",
+    "faq": "Frequently asked question",
+    "card": {
+      "principal": "Principal payments",
+      "interest": "Interest",
+      "next-payment": "Next payment",
+      "maturity": "Final payment date (maturity)",
+      "fees": "Change fee",
+      "rate": "Interest rate (unchanged)",
+      "debt": "Principal still owing"
+    },
+    "summary": {
+      "next-payment": "Next payment: 30 November 2026",
+      "resume": "Principal payments resume",
+      "relief": "Lower payments, November to January",
+      "extra-interest": "Additional interest over the remaining schedule"
+    },
+    "resource": {
+      "financial-management": "Financial management consulting",
+      "working-capital": "Working Capital Loan",
+      "learning": "BDC cash-flow learning resources"
+    },
+    "chart": {
+      "payments": "Payment comparison chart, November to April",
+      "balance": "Principal balance chart"
+    },
+    "infographic": {
+      "relief": "Cash-flow effect, November to January",
+      "cost": "Total additional interest"
+    }
+  },
+  "clauses": {
+    "purpose": "1. Purpose of this notice",
+    "amendment": "2. Amendment summary",
+    "postponement": "3. Principal postponement period",
+    "interest": "4. Interest during the postponement",
+    "resumption": "5. Resumption of principal payments",
+    "maturity": "6. Revised maturity date",
+    "cost": "7. Effect on interest and total payments",
+    "unchanged": "8. Terms that remain unchanged",
+    "action": "9. What you need to do",
+    "schedule": "10. Revised repayment schedule",
+    "assumptions": "11. Assumptions used in this illustration",
+    "contact": "12. Questions and support"
+  },
+  "chapters": {
+    "welcome": "A personal welcome",
+    "relief": "Three months of breathing room",
+    "difference": "Where the difference comes from",
+    "tradeoff": "The trade-off",
+    "resume": "Returning to principal payments",
+    "next-step": "Your next step"
+  },
+  "glossary": {
+    "title": "Glossary",
+    "principal": {
+      "term": "Principal",
+      "definition": "The amount borrowed that remains to be repaid, excluding interest."
+    },
+    "interest": {
+      "term": "Interest",
+      "definition": "The cost of borrowing, calculated using the balance and the applicable rate."
+    },
+    "postponement": {
+      "term": "Principal postponement",
+      "definition": "Delaying principal payments for a set period. Interest may still be payable during that time."
+    },
+    "instalment": {
+      "term": "Instalment",
+      "definition": "A scheduled payment under the financing arrangement."
+    },
+    "maturity": {
+      "term": "Maturity date",
+      "definition": "The date the remaining loan balance is scheduled to be fully repaid."
+    },
+    "outstanding": {
+      "term": "Outstanding principal",
+      "definition": "Principal still owing at the relevant date."
+    },
+    "fixedRate": {
+      "term": "Fixed rate",
+      "definition": "A rate that does not change during the specified fixed-rate period."
+    },
+    "cashFlow": {
+      "term": "Cash flow",
+      "definition": "Money coming into and going out of the business."
+    },
+    "amortisation": {
+      "term": "Amortisation",
+      "definition": "Repayment of principal over a schedule."
+    },
+    "capitalisedInterest": {
+      "term": "Capitalised interest",
+      "definition": "Interest added to the amount owing. This does not occur in this demonstration."
+    }
+  },
+  "overview": {
+    "greeting": "Hello, {name}. Let’s walk through your financing update.",
+    "overline": "Notice of amendment · effective {date}",
+    "title": "Your principal payments are postponed for three months.",
+    "intro": "In this fictional example, the temporary [[postponement|principal postponement]] requested for {company} has been approved and the amendment is complete. Here is what it means for your payments, and what stays the same.",
+    "cta": {
+      "changes": "See what changes",
+      "watch": "Watch your personalised explanation",
+      "ask": "Ask a question"
+    },
+    "illustration": {
+      "caption": "Illustration of a manufacturing workshop. Not a photograph of the recipient or BDC staff."
+    },
+    "summary": {
+      "title": "Your update at a glance",
+      "intro": "Each card leads to the month-by-month detail behind the figure.",
+      "seeDetail": "See the detail",
+      "seeDetailAria": "See the detail: {item}"
+    },
+    "cards": {
+      "next-payment": {
+        "label": "Next payment",
+        "sub": "Due {date}",
+        "note": "Interest only. No principal is due this month."
+      },
+      "resume": {
+        "label": "Principal payments resume",
+        "note": "First payment after the postponement: {total} ({principal} principal + {interest} interest)."
+      },
+      "relief": {
+        "label": "Cash-flow effect",
+        "figure": "{amount} less",
+        "sub": "paid from {from} to {to}",
+        "original": "Original payments",
+        "revised": "Revised payments"
+      },
+      "extra-interest": {
+        "label": "Additional interest",
+        "sub": "across the remaining schedule",
+        "original": "Original total interest",
+        "revised": "Revised total interest"
+      }
+    },
+    "beside": {
+      "title": "Keep in mind",
+      "maturityTitle": "Final payment date ([[maturity|maturity]])",
+      "maturityText": "Your final payment moves from {from} to {to}.",
+      "owingTitle": "[[principal|Principal]] still owing",
+      "owingText": "The {amount} of postponed principal remains owing. This is temporary cash-flow relief, not a reduction in what you owe."
+    },
+    "todo": {
+      "title": "What you need to do",
+      "step1Title": "Review the updated repayment schedule",
+      "step1Text": "Check the revised dates and amounts, starting with the payment due {date}.",
+      "step1Link": "Open the revised schedule",
+      "step2Title": "Update your internal [[cashFlow|cash-flow]] planning",
+      "step2Text": "Plan for interest-only payments of {interest} from {from} to {to}, then a payment of {resumed} on {resumeDate}, when principal payments resume.",
+      "noAcceptance": "No acceptance is required through this notice. The amendment is already approved and complete.",
+      "markReviewed": "Mark as reviewed",
+      "markHint": "Optional. Keeps a note in this browser tab only.",
+      "reviewedStatus": "Marked as reviewed in this demo. This is a local note only — not acceptance, consent or proof of understanding."
+    },
+    "same": {
+      "title": "What stays the same",
+      "intro": "The postponement changes when principal is repaid. These terms do not change.",
+      "rateLabel": "[[interest|Interest]] rate",
+      "rateValue": "{rate}, [[fixedRate|fixed]]",
+      "instalmentLabel": "Monthly [[principal|principal]] instalment",
+      "instalmentValue": "{amount} per month once payments resume",
+      "feeLabel": "Change fee",
+      "feeValue": "{fee}, no fee for this change",
+      "loanLabel": "Loan identifier"
+    },
+    "media": {
+      "title": "Your personalised explanation",
+      "meta": "About one minute · Captions and transcript included · Nothing plays until you press Play",
+      "text": "A short animated walkthrough of this notice, narrated for you in English or French.",
+      "unavailableTitle": "Explanation player unavailable",
+      "unavailableText": "The explanation player is not included in this build. The same information is on this page and in “What changed”."
+    }
+  }
+}

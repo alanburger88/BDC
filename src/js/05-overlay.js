@@ -224,7 +224,12 @@ App.popover = (() => {
     el.remove();
     trigger.setAttribute('aria-expanded', 'false');
     trigger.removeAttribute('aria-controls');
-    if (restoreFocus && trigger.isConnected) trigger.focus();
+    if (restoreFocus && trigger.isConnected) {
+      // Returning focus must not re-open the definition via the focus handler
+      trigger.dataset.suppressFocusOpen = '1';
+      trigger.focus();
+      setTimeout(() => { delete trigger.dataset.suppressFocusOpen; }, 0);
+    }
   }
 
   document.addEventListener('keydown', (e) => {
