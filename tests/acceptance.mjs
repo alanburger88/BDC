@@ -312,30 +312,32 @@ await check('AC-09', 'Reflow at 400% zoom; on-screen keyboard does not hide cont
 
 // AC-10 Greeting ------------------------------------------------------------------
 await check('AC-10', 'Personalised handshake greeting once; static with reduced motion', async (notes) => {
+  const animOf = (page) => page.evaluate(() => {
+    const svgEl = document.querySelector('#view .ov-hs');
+    if (!svgEl) return 'no-handshake';
+    if (svgEl.getAttribute('aria-hidden') !== 'true' && !svgEl.closest('[aria-hidden="true"]')) return 'not-hidden';
+    return [svgEl, ...svgEl.querySelectorAll('*')].map((e) => getComputedStyle(e).animationName).filter((n) => n && n !== 'none').join(',') || 'none';
+  });
   for (const rm of ['no-preference', 'reduce']) {
     const { page, context } = await newPage(browser, { width: 1280, reducedMotion: rm });
-    await gotoApp(page, '#/overview', FILE);
+    await page.goto(`${fileUrl(FILE)}#/overview`);
+    await page.waitForSelector('html.app-ready');
     const txt = await page.locator('#view').innerText();
     assert(/Hello, Camille\. Let’s walk through your financing update\./.test(txt), 'greeting text missing');
-    const anim = await page.evaluate(() => {
-      const svgEl = document.querySelector('#view svg[aria-hidden="true"][class*="hand"], #view .ov-handshake svg, #view [class*="handshake"]');
-      if (!svgEl) return 'no-handshake';
-      const all = [svgEl, ...svgEl.querySelectorAll('*')];
-      return all.map((e) => getComputedStyle(e).animationName).filter((n) => n && n !== 'none').join(',') || 'none';
-    });
-    notes.push(`${rm}: handshake animation = ${anim}`);
-    assert(anim !== 'no-handshake', 'handshake icon not found');
-    if (rm === 'reduce') assert(anim === 'none' || /0\.001ms/.test(anim), 'animation active under reduced motion');
-    // second render of overview in same session must not replay
+    const anim = await animOf(page);
+    notes.push(`${rm}: handshake animation on first view = ${anim}`);
+    assert(!['no-handshake', 'not-hidden'].includes(anim), `handshake problem: ${anim}`);
+    if (rm === 'reduce') assert(anim === 'none', 'animation active under reduced motion');
+    else assert(anim !== 'none', 'handshake does not animate on first view');
     await go(page, '#/changes');
     await go(page, '#/overview');
-    const again = await page.evaluate(() => {
-      const svgEl = document.querySelector('#view .ov-handshake svg, #view [class*="handshake"]');
-      return svgEl ? [svgEl, ...svgEl.querySelectorAll('*')].map((e) => getComputedStyle(e).animationName).filter((n) => n && n !== 'none').join(',') || 'none' : 'missing';
-    });
+    const again = await animOf(page);
     assert(again === 'none', `handshake replays on revisit (${again})`);
+    await setLocale(page, 'fr-CA');
+    assert((await page.locator('#view').innerText()).includes('Bonjour Camille. Faisons le point sur la modification de votre financement.'), 'French greeting missing');
     await context.close();
   }
+  notes.push('plays once per session (not on revisit or language switch); static under reduced motion; icon aria-hidden');
 });
 
 // AC-11 Media quality (existence; human review is manual) -------------------
@@ -355,14 +357,77 @@ await check('AC-11', 'Creation-time ElevenLabs audio embedded in both languages'
 await check('AC-12', 'Pause, replay, seek, speed, captions and chapter-mapped language switch stay in sync', async (notes) => {
   const { page, context } = await newPage(browser, { width: 1280 });
   await gotoApp(page, '#/overview', FILE);
+  const cues = JSON.parse(HTML.match(/id="data-cues">([\s\S]*?)<\/script>/)[1]);
   const st = () => page.evaluate(() => window.BDCNotice.media.state());
-  await page.locator('#view').getByRole('button', { name: /play/i }).first().click();
-  await page.waitForTimeout(1800);
+  const norm = (x) => x.replace(/\s+/g, ' ').trim();
+  const captionSync = async () => {
+    const r = await page.evaluate(() => ({ t: window.BDCNotice.media.state().time, l: window.BDCNotice.media.state().locale, cap: (document.querySelector('.media-caption-text') || {}).textContent || '' }));
+    const cue = cues[r.l].captions.find((c) => r.t >= c.start - 0.15 && r.t < c.end + 0.15);
+    return { ...r, ok: !r.cap || (cue && norm(cue.text).includes(norm(r.cap))), cue: cue && cue.text };
+  };
+  assert(!(await st()).playing, 'autoplay detected');
+  await page.locator('[data-fid="media-poster-play"]').click();
+  await page.waitForTimeout(1600);
   let s = await st();
-  notes.push(`after play: ${JSON.stringify(s).slice(0, 160)}`);
-  assert(s && s.time > 0.5, 'playback did not advance');
+  assert(s.playing && s.time > 0.6, `playback did not advance (${s.time})`);
+  let c = await captionSync();
+  assert(c.ok, `caption out of sync at ${c.t}: "${c.cap}" vs cue "${c.cue}"`);
+  // pause holds the clock
+  await page.locator('[data-fid="media-play"]').click();
+  const t1 = (await st()).time;
+  await page.waitForTimeout(600);
+  const t2 = (await st()).time;
+  assert(Math.abs(t2 - t1) < 0.05, `clock drifted while paused (${t1} → ${t2})`);
+  // chapter selection seeks to the semantic chapter start
+  await page.locator('[data-fid="media-chapters-toggle"]').click();
+  await page.locator('[data-fid="media-chapter-tradeoff"]').click();
+  await page.waitForTimeout(300);
+  s = await st();
+  const trade = cues['en-CA'].chapters.find((x) => x.id === 'tradeoff');
+  assert(s.chapter === 'tradeoff' && Math.abs(s.time - trade.start) < 0.35, `chapter seek wrong: ${s.chapter} @ ${s.time}`);
+  // seek bar
+  await page.locator('[data-fid="media-seek"]').evaluate((el) => { el.value = '45'; el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true })); });
+  await page.waitForTimeout(250);
+  s = await st();
+  assert(Math.abs(s.time - 45) < 0.6 && s.chapter === 'resume', `seek bar wrong: ${s.time} ${s.chapter}`);
+  c = await captionSync();
+  assert(c.ok, `caption out of sync after seek: "${c.cap}"`);
+  // speed
+  await page.locator('[data-fid="media-speed"]').selectOption('1.5');
+  if (!(await st()).playing) await page.locator('[data-fid="media-play"]').click();
+  const before = (await st()).time;
+  await page.waitForTimeout(1000);
+  s = await st();
+  assert(s.playbackRate === 1.5, `playbackRate ${s.playbackRate}`);
+  assert(s.time - before > 1.15, `1.5x did not advance faster (${(s.time - before).toFixed(2)} s in 1 s)`);
+  c = await captionSync();
+  assert(c.ok, `caption out of sync at 1.5x: "${c.cap}"`);
+  // captions toggle
+  await page.locator('[data-fid="media-captions"]').click();
+  await page.waitForTimeout(150);
+  assert((await st()).captions === false, 'captions did not toggle off');
+  await page.locator('[data-fid="media-captions"]').click();
+  // replay
+  await page.locator('[data-fid="media-replay"]').click();
+  await page.waitForTimeout(400);
+  s = await st();
+  assert(s.time < 1.2 && s.playing, `replay did not restart (${s.time})`);
+  // language switch maps to the equivalent chapter start and stays paused
+  await page.locator('[data-fid="media-seek"]').evaluate((el) => { el.value = '20'; el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true })); });
+  await page.waitForTimeout(300);
+  const enCh = (await st()).chapter;
+  await setLocale(page, 'fr-CA');
+  await page.waitForTimeout(300);
+  s = await st();
+  const frStart = cues['fr-CA'].chapters.find((x) => x.id === enCh).start;
+  assert(s.locale === 'fr-CA' && !s.playing, 'did not pause on language switch');
+  assert(s.chapter === enCh && Math.abs(s.time - frStart) < 0.05, `fr mapping wrong: ${s.chapter} @ ${s.time} (expected ${enCh} @ ${frStart})`);
+  await page.locator('[data-fid="media-play"]').click();
+  await page.waitForTimeout(800);
+  s = await st();
+  assert(s.playing && s.time > frStart, 'French replay of chapter did not play');
+  notes.push(`no autoplay; play/pause clock stable; chapter + seek-bar seeks; captions match cues at 1×/1.5×; replay; EN "${enCh}" → FR chapter start ${frStart}s, paused`);
   await context.close();
-  return 'PARTIAL';
 });
 
 // AC-13 / AC-14 Clair ---------------------------------------------------------
@@ -415,6 +480,10 @@ await check('AC-14', 'Clair grounded answers for seeded and paraphrased question
   const status = await page.evaluate(() => { window.BDCNotice.clair.open({ kind: 'general' }); return document.querySelector('[data-overlay="clair"]').innerText; });
   assert(/Demo assistant • Answers from this sample notice • No live AI connection\./.test(status), 'demo status line missing');
   assert(probe.relief.every((x) => /11,920|11 920/.test(x.text) || /12,000|12 000/.test(x.text)), 'relief answer lacks values');
+  const expect = { relief: /relief/i, extraCost: /cost|extra|interest/i, maturity: /maturity|final|last/i, resume: /resum/i, next: /next/i, rate: /rate/i, fees: /fee/i, accept: /accept/i, limits: /limit/i, unrelated: /unrelated|outOfScope|fallback/i };
+  const wrong = Object.entries(probe).flatMap(([k, arr]) => arr.filter((x) => !expect[k].test(x.intent || '')).map((x) => `${k}: "${x.q}" → ${x.intent}`));
+  assert(!wrong.length, `misrouted: ${wrong.join('; ')}`);
+  notes.push('Human review of answer wording and wider paraphrase coverage is MANUAL');
   return 'PARTIAL';
 });
 
@@ -468,7 +537,7 @@ await check('AC-16', 'Three labelled faces, touch + keyboard, changeable, dismis
 await check('AC-17', 'Definitions by hover, focus and click/tap; dismiss and return to term', async (notes) => {
   const { page, context } = await newPage(browser, { width: 1280 });
   await gotoApp(page, '#/changes', FILE);
-  const term = page.locator('#view button.term').first();
+  const term = page.locator('#view .term').first();
   assert(await term.count() === 1, 'no glossary term on What changed');
   await term.hover();
   await page.waitForTimeout(150);

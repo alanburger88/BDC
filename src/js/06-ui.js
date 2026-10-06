@@ -76,20 +76,38 @@ App.ui = (() => {
   }
 
   // Label for any selectable item, used by Clair's context chip, the query form and back links.
+  // "de décembre 2026" / "d’avril 2027" in French; the plain month elsewhere
+  function monthPhrase(id) {
+    const m = App.fmt.date(id, 'monthYear');
+    if (App.i18n.locale !== 'fr-CA') return m;
+    return /^[aeiouyhâàéèêëîïôœûù]/i.test(m) ? `d’${m}` : `de ${m}`;
+  }
+
   function itemLabel(ctx) {
     if (!ctx || !ctx.kind || ctx.kind === 'general') return t('items.general');
+    const label = itemLabelRaw(ctx);
+    return label.startsWith('⟦') ? t('items.general') : label;
+  }
+
+  function itemLabelRaw(ctx) {
+    const has = (k) => App.i18n.has(k);
     const id = ctx.id;
     switch (ctx.kind) {
-      case 'card': return t(`items.card.${id}`);
-      case 'summary': return t(`items.summary.${id}`);
-      case 'month': return t('items.month', { month: App.fmt.date(id, 'monthYear') });
+      case 'card': return has(`items.card.${id}`) ? t(`items.card.${id}`) : t('items.general');
+      case 'summary': return has(`items.summary.${id}`) ? t(`items.summary.${id}`, { date: App.fmt.date(App.rec.nextPayment().date, 'long') }) : t('items.general');
+      case 'month': return App.rec.isMonthId(id) ? t('items.month', { month: monthPhrase(id) }) : t('items.general');
       case 'clause': return t('items.clause', { title: t(`clauses.${id}`) });
       case 'term': return t('items.term', { term: t(`glossary.${id}.term`) });
       case 'chapter': return t('items.chapter', { title: t(`chapters.${id}`) });
       case 'resource': return t(`items.resource.${id}`);
       case 'chart': return t(`items.chart.${id}`);
       case 'infographic': return t(`items.infographic.${id}`);
-      case 'faq': return t('items.faq');
+      case 'faq': {
+        const k = `help.faq.items.${id}.q`;
+        if (!id || !App.i18n.has(k)) return t('items.faq');
+        const D = App.record.derived;
+        return t(k, { relief: App.fmt.money(D.nearTermPaymentReductionCents, { compact: true }), deferred: App.fmt.money(D.principalDeferredCents, { compact: true }) });
+      }
       case 'section': return t(`nav.${id}`);
       default: return t('items.general');
     }
@@ -108,7 +126,7 @@ App.ui = (() => {
       iconName: 'sparkle',
       fid,
       className: 'btn-explain',
-      ariaLabel: opts.ariaLabel || `${t('common.explainWithAI')}: ${itemLabel(ctx)}`,
+      ariaLabel: opts.ariaLabel || t('common.labelWithItem', { label: t('common.explainWithAI'), item: itemLabel(ctx) }),
       onClick: (e) => {
         if (App.clair) App.clair.open(contextWithFid(ctx, fid), e.currentTarget);
       },
@@ -124,7 +142,7 @@ App.ui = (() => {
       iconName: 'chat',
       fid,
       className: 'btn-ask',
-      ariaLabel: opts.ariaLabel || `${t('common.askAboutThis')}: ${itemLabel(ctx)}`,
+      ariaLabel: opts.ariaLabel || t('common.labelWithItem', { label: t('common.askAboutThis'), item: itemLabel(ctx) }),
       onClick: (e) => {
         if (App.query) App.query.open(contextWithFid(ctx, fid), e.currentTarget);
       },
@@ -145,7 +163,7 @@ App.ui = (() => {
       iconAfter: 'arrowRight',
       fid,
       className: 'btn-notice-link',
-      ariaLabel: `${opts.label || t('common.viewInNotice')}: ${t(`clauses.${clauseId}`)}`,
+      ariaLabel: t('common.labelWithItem', { label: opts.label || t('common.viewInNotice'), item: t(`clauses.${clauseId}`) }),
       href: App.router.href('documents', clauseId),
       onClick: (e) => {
         e.preventDefault();
@@ -178,8 +196,8 @@ App.ui = (() => {
     if (!top) return null;
     const fromRoute = App.router.parse(top.from);
     let place = t(`nav.${fromRoute.section}`);
-    if (top.ctx) place = `${place}: ${itemLabel(top.ctx)}`;
-    else if (fromRoute.item && App.rec.isMonthId(fromRoute.item)) place = `${place}: ${itemLabel({ kind: 'month', id: fromRoute.item })}`;
+    if (top.ctx) place = t('common.labelWithItem', { label: place, item: itemLabel(top.ctx) });
+    else if (fromRoute.item && App.rec.isMonthId(fromRoute.item)) place = t('common.labelWithItem', { label: place, item: itemLabel({ kind: 'month', id: fromRoute.item }) });
     return h('nav', { class: 'back-nav', 'aria-label': t('common.breadcrumb') },
       button({
         label: t('common.backTo', { place }),
@@ -208,8 +226,11 @@ App.ui = (() => {
   function term(id, text) {
     const label = text || t(`glossary.${id}.term`);
     let pointerType = 'mouse';
-    const btn = h('button', {
-      type: 'button',
+    // An inline element (not <button>) so multi-word terms can wrap like text;
+    // it keeps button semantics and keyboard activation.
+    const btn = h('span', {
+      role: 'button',
+      tabindex: '0',
       class: 'term',
       'aria-expanded': 'false',
       'data-term': id,
@@ -231,7 +252,7 @@ App.ui = (() => {
             e.preventDefault();
             const origin = App.router.current();
             api.close();
-            App.router.go(App.router.href('help', 'glossary', id), { origin: { fid: btn.getAttribute('data-fid'), ctx: origin.item && App.rec.isMonthId(origin.item) ? { kind: 'month', id: origin.item } : null }, focus: 'item' });
+            App.router.go(App.router.href('help', 'glossary', id), { origin: { fid: btn.getAttribute('data-fid'), ctx: origin.item && App.rec.isMonthId(origin.item) ? { kind: 'month', id: origin.item } : { kind: 'term', id } }, focus: 'item' });
           },
         }),
         h('button', { type: 'button', class: 'btn btn-icon popover-close', 'aria-label': t('common.closeDefinition'), on: { click: () => api.close() } }, icon('close', { size: 16 }))));
@@ -249,6 +270,12 @@ App.ui = (() => {
       if (btn.matches(':focus-visible')) show(false);
     });
     btn.addEventListener('blur', (e) => App.popover.onFocusOut(e));
+    btn.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+        e.preventDefault();
+        btn.click();
+      }
+    });
     btn.addEventListener('click', (e) => {
       e.preventDefault();
       const cur = App.popover.current();
@@ -300,5 +327,5 @@ App.ui = (() => {
   /** Visually hidden text */
   const srOnly = (text) => h('span', { class: 'sr-only' }, text);
 
-  return { stableId, resetCounters, icon, button, badge, money, itemLabel, explainButton, askButton, noticeLink, routeLink, goWithReturn, backControl, sectionHeader, demoNote, term, rich, plain, disclosure, srOnly, ICONS };
+  return { monthPhrase, stableId, resetCounters, icon, button, badge, money, itemLabel, explainButton, askButton, noticeLink, routeLink, goWithReturn, backControl, sectionHeader, demoNote, term, rich, plain, disclosure, srOnly, ICONS };
 })();

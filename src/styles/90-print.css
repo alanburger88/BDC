@@ -10,9 +10,9 @@
   body > *:not(#print-root) { display: none !important; }
   .print-root { display: block !important; }
   .print-root h1, .print-root h2, .print-root h3 { color: #000; break-after: avoid; }
-  .print-root table { break-inside: auto; }
-  .print-root tr { break-inside: avoid; }
-  .print-root thead { display: table-header-group; }
+  :where(.print-root) table { break-inside: auto; }
+  :where(.print-root) tr { break-inside: avoid; }
+  :where(.print-root) thead { display: table-header-group; }
   .print-root a { color: #000; text-decoration: none; }
   .print-root .print-clause { break-inside: avoid; }
 }

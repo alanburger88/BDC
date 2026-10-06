@@ -115,7 +115,7 @@
 
 /* Glossary terms and popover */
 .term {
-  display: inline; padding: 0; margin: 0; border: 0; background: none;
+  display: inline; padding: 0; margin: 0; border: 0; background: none; -webkit-box-decoration-break: clone; box-decoration-break: clone;
   font: inherit; color: inherit; text-align: inherit;
   text-decoration: underline dotted; text-decoration-color: var(--blue); text-decoration-thickness: 2px; text-underline-offset: 0.2em;
   cursor: help; border-radius: 2px;

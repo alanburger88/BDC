@@ -135,6 +135,14 @@ App.overlay = (() => {
   }
 
   document.addEventListener('keydown', onKeydown);
+  App.i18n.onChange(() => {
+    if (!currentOv) return;
+    const btn = currentOv.el.querySelector('.overlay-close');
+    if (!btn) return;
+    btn.setAttribute('aria-label', t('common.close'));
+    const txt = btn.querySelector('.overlay-close-text');
+    if (txt) txt.textContent = t('common.close');
+  });
   if (window.visualViewport) {
     window.visualViewport.addEventListener('resize', syncViewport);
     window.visualViewport.addEventListener('scroll', syncViewport);

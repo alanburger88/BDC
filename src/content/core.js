@@ -50,6 +50,7 @@ App.i18n.register('common', {
     },
     perMonth: 'per month',
     months: { one: '{n} month', other: '{n} months' },
+    labelWithItem: '{label}: {item}',
   },
   'fr-CA': {
     docTitle: 'Avis important concernant votre financement (démonstration conceptuelle)',
@@ -99,6 +100,7 @@ App.i18n.register('common', {
     },
     perMonth: 'par mois',
     months: { one: '{n} mois', other: '{n} mois' },
+    labelWithItem: '{label} : {item}',
   },
 });
 
@@ -200,7 +202,7 @@ App.i18n.register('items', {
       debt: 'Principal still owing',
     },
     summary: {
-      'next-payment': 'Next payment: 30 November 2026',
+      'next-payment': 'Next payment: {date}',
       resume: 'Principal payments resume',
       relief: 'Lower payments, November to January',
       'extra-interest': 'Additional interest over the remaining schedule',
@@ -221,7 +223,7 @@ App.i18n.register('items', {
   },
   'fr-CA': {
     general: 'Cet avis (question générale)',
-    month: 'Versement de {month}',
+    month: 'Versement {month}',
     clause: 'Clause de l’avis : {title}',
     term: 'Terme du glossaire : {term}',
     chapter: 'Chapitre vidéo : {title}',
@@ -236,7 +238,7 @@ App.i18n.register('items', {
       debt: 'Capital toujours dû',
     },
     summary: {
-      'next-payment': 'Prochain versement : 30 novembre 2026',
+      'next-payment': 'Prochain versement : {date}',
       resume: 'Reprise des remboursements de capital',
       relief: 'Versements réduits, de novembre à janvier',
       'extra-interest': 'Intérêts additionnels sur la durée restante',

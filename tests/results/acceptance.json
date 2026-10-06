@@ -1,8 +1,74 @@
 {
-  "file": "/tmp/claude-0/-home-user-BDC/7eb034b6-7b0f-5b64-96c3-7386ec91b7c5/scratchpad/query/full/index.html",
-  "ranAt": "2026-10-06T15:11:16.832Z",
+  "file": "/home/user/BDC/dist/index.html",
+  "ranAt": "2026-10-06T15:26:19.992Z",
   "browser": "Chromium (Playwright)",
   "results": [
+    {
+      "id": "AC-01",
+      "title": "One-file portability (file:// and static host)",
+      "status": "PASS",
+      "notes": [
+        "file size 3.43 MB",
+        "file: 6 sections rendered, no console errors",
+        "http: 6 sections rendered, no console errors"
+      ],
+      "ms": 3159
+    },
+    {
+      "id": "AC-02",
+      "title": "Runtime network isolation (no ElevenLabs, model or telemetry requests)",
+      "status": "PASS",
+      "notes": [
+        "requests observed: 1 (widget: 1)"
+      ],
+      "ms": 4507
+    },
+    {
+      "id": "AC-03",
+      "title": "Offline operation (voiceover, tabs, charts, definitions, assistant, query, survey)",
+      "status": "PASS",
+      "notes": [
+        "audio offline: {\"en-CA\":\"ok 60.2s\",\"fr-CA\":\"ok 62.6s\"}"
+      ],
+      "ms": 5758
+    },
+    {
+      "id": "AC-04",
+      "title": "Financial consistency of embedded schedules and displayed key figures",
+      "status": "PASS",
+      "notes": [
+        "60/63 rows, totals 48,800/53,600 and 288,800/293,600, half-up rounding, zero end; key figures shown in both locales"
+      ],
+      "ms": 690
+    },
+    {
+      "id": "AC-05",
+      "title": "Principal owed, extra interest and later maturity visible without drill-down",
+      "status": "PASS",
+      "notes": [
+        "visible on first screen render at 390px without opening disclosures"
+      ],
+      "ms": 428
+    },
+    {
+      "id": "AC-06",
+      "title": "Card → month → explanation → formal clause → Back returns to same context",
+      "status": "PASS",
+      "notes": [
+        "clause reached: #/documents/postponement, focus on #clause-postponement",
+        "back to #/payments/2026-12, focus explain-month-2026-12, scroll 2667 (was 2667)"
+      ],
+      "ms": 2651
+    },
+    {
+      "id": "AC-07",
+      "title": "Mobile vertical section selector with all six sections",
+      "status": "PASS",
+      "notes": [
+        "compact at 390 (EN+FR), tabs at 1280; selector closes after choice"
+      ],
+      "ms": 2136
+    },
     {
       "id": "AC-08",
       "title": "No horizontal scrolling at 320px (sections, dialogs, French)",
@@ -10,7 +76,7 @@
       "notes": [
         "all routes + Clair + query dialogs fit at 320px in EN and FR"
       ],
-      "ms": 8106
+      "ms": 7895
     },
     {
       "id": "AC-09",
@@ -19,7 +85,78 @@
       "notes": [
         "Clair send and query textarea reachable in a keyboard-reduced viewport (390×420); real-device keyboard test is MANUAL"
       ],
-      "ms": 1621
+      "ms": 1630
+    },
+    {
+      "id": "AC-10",
+      "title": "Personalised handshake greeting once; static with reduced motion",
+      "status": "PASS",
+      "notes": [
+        "no-preference: handshake animation on first view = ov-halo,ov-shake",
+        "reduce: handshake animation on first view = none",
+        "plays once per session (not on revisit or language switch); static under reduced motion; icon aria-hidden"
+      ],
+      "ms": 1851
+    },
+    {
+      "id": "AC-11",
+      "title": "Creation-time ElevenLabs audio embedded in both languages",
+      "status": "PARTIAL",
+      "notes": [
+        "en-CA: 942 KB MP3",
+        "fr-CA: 980 KB MP3",
+        "durations en 60.264s, fr 62.694s; voice Sarah (ElevenLabs premade); model eleven_multilingual_v2",
+        "Pronunciation, amounts, dates and Canadian-French accent require human audition (MANUAL)"
+      ],
+      "ms": 4
+    },
+    {
+      "id": "AC-12",
+      "title": "Pause, replay, seek, speed, captions and chapter-mapped language switch stay in sync",
+      "status": "PASS",
+      "notes": [
+        "no autoplay; play/pause clock stable; chapter + seek-bar seeks; captions match cues at 1×/1.5×; replay; EN \"difference\" → FR chapter start 14.056s, paused"
+      ],
+      "ms": 7098
+    },
+    {
+      "id": "AC-13",
+      "title": "Clair opens from the right; full-width on mobile; contextual triggers pass the item",
+      "status": "PASS",
+      "notes": [
+        "1280px: right-anchored width 420, context ok, focus returned",
+        "390px: right-anchored width 390, context ok, focus returned"
+      ],
+      "ms": 2323
+    },
+    {
+      "id": "AC-14",
+      "title": "Clair grounded answers for seeded and paraphrased questions; safe fallback; labelled demo",
+      "status": "PARTIAL",
+      "notes": [
+        "relief: \"Why is the relief not $12,000?\" → whyRelief",
+        "relief: \"pourquoi pas 12 000 $ de répit?\" → whyRelief",
+        "extraCost: \"how much more will this cost me overall\" → totalCost",
+        "extraCost: \"combien d’intérêts de plus au total\" → totalCost",
+        "maturity: \"when is my last payment now\" → maturity",
+        "maturity: \"quand est mon dernier versement\" → maturity",
+        "resume: \"when do principal payments start again\" → resume",
+        "resume: \"quand reprennent les remboursements de capital\" → resume",
+        "next: \"what is my next payment\" → nextPayment",
+        "next: \"mon prochain versement\" → nextPayment",
+        "rate: \"does my interest rate change\" → rate",
+        "rate: \"est-ce que le taux change\" → rate",
+        "fees: \"is there a fee for this\" → fees",
+        "fees: \"y a-t-il des frais\" → fees",
+        "accept: \"do I need to sign or accept\" → acceptance",
+        "accept: \"dois-je accepter quelque chose\" → acceptance",
+        "limits: \"please approve another postponement\" → limitApprove",
+        "limits: \"am I eligible for more funding\" → limitEligibility",
+        "unrelated: \"what is the weather in Montreal\" → unrelated",
+        "unrelated: \"who won the hockey game\" → unrelated",
+        "Human review of answer wording and wider paraphrase coverage is MANUAL"
+      ],
+      "ms": 566
     },
     {
       "id": "AC-15",
@@ -28,7 +165,25 @@
       "notes": [
         "draft → review → local confirmation with DEMO- reference; no free text in events/storage"
       ],
-      "ms": 1368
+      "ms": 1382
+    },
+    {
+      "id": "AC-16",
+      "title": "Three labelled faces, touch + keyboard, changeable, dismissible, not NPS",
+      "status": "PASS",
+      "notes": [
+        "3 labelled faces, keyboard + tap, change allowed"
+      ],
+      "ms": 866
+    },
+    {
+      "id": "AC-17",
+      "title": "Definitions by hover, focus and click/tap; dismiss and return to term",
+      "status": "PASS",
+      "notes": [
+        "hover shows, click pins, Escape closes and returns focus"
+      ],
+      "ms": 1536
     },
     {
       "id": "AC-18",
@@ -37,7 +192,25 @@
       "notes": [
         "build-time dictionary parity check passes; no ⟦missing⟧ keys at runtime"
       ],
-      "ms": 2415
+      "ms": 2417
+    },
+    {
+      "id": "AC-19",
+      "title": "Supplied widget script once; launcher area bottom-left reserved",
+      "status": "PARTIAL",
+      "notes": [
+        "snippet present once; Clair launcher bottom-right; vendor launcher position depends on account config and could not be loaded here (egress blocked) → MANUAL"
+      ],
+      "ms": 511
+    },
+    {
+      "id": "AC-20",
+      "title": "At most three relevant cards; no eligibility claims; hardship rule; deliberate links",
+      "status": "PASS",
+      "notes": [
+        "3 BDC links, new tab + noopener; hardship rule hides loan card"
+      ],
+      "ms": 622
     },
     {
       "id": "AC-21",
@@ -46,7 +219,16 @@
       "notes": [
         "axe-core: 0 WCAG 2.x A/AA violations on all sections in EN and FR; screen-reader review is MANUAL"
       ],
-      "ms": 10208
+      "ms": 10034
+    },
+    {
+      "id": "AC-22",
+      "title": "CSV and print views reproduce approved data with demo notice identity",
+      "status": "PASS",
+      "notes": [
+        "CSV: 63 dated rows + notice id (DEMO-BDC-CHANGE-2026-001_revised-schedule_en-CA.csv); print view rendered to /home/user/BDC/tests/results/notice-print.pdf"
+      ],
+      "ms": 716
     },
     {
       "id": "AC-23",
@@ -55,7 +237,16 @@
       "notes": [
         "localStorage keys: (none); fixture status: fictional demonstration"
       ],
-      "ms": 503
+      "ms": 493
+    },
+    {
+      "id": "AC-24",
+      "title": "Supplied logo embedded unaltered; no broken images or remote fonts",
+      "status": "PASS",
+      "notes": [
+        "logo 1280×680 rendered 64×34 (aspect preserved); no remote fonts"
+      ],
+      "ms": 521
     }
   ]
 }

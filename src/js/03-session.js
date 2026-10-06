@@ -39,7 +39,6 @@ App.events = (() => {
     video_started: 'oncePerId',
     video_completed: 'oncePerId',
     video_chapter_viewed: 'oncePerId',
-    query_drafted: 'oncePerId',
     section_viewed: 'consecutive',
     detail_opened: 'consecutive',
   };

@@ -112,8 +112,9 @@ App.router = (() => {
     // Maintain the back stack: keep the top entry while we stay in its target section.
     const stack = backStack();
     const top = stack[stack.length - 1];
-    if (top && !opts.isBack) {
-      if (sectionOf(top.to) === r.section) top.to = r.hash;
+    if (top && !opts.isBack && !opts.browser) {
+      if (top.from === r.hash) stack.pop(); // returned to the origin by other means
+      else if (sectionOf(top.to) === r.section) top.to = r.hash;
       else if (!opts.origin) stack.length = 0;
     }
     render(r, opts);
@@ -159,16 +160,18 @@ App.router = (() => {
         if (opts.rerender) window.scrollTo(0, opts.restore.scroll || 0);
         return;
       }
-      if (itemEl && opts.focus !== false && (opts.focus === 'item' || !opts.browser)) {
-        itemEl.scrollIntoView({ block: 'start', behavior: App.util.prefersReducedMotion() ? 'auto' : 'smooth' });
+      const explicitFid = typeof opts.focus === 'string' && !['item', 'none', 'heading'].includes(opts.focus);
+      if (itemEl && !explicitFid && opts.focus !== 'heading') {
+        // Deep links (initial load, typed URL, Back/Forward) also land on the item
+        itemEl.scrollIntoView({ block: 'start', behavior: App.util.prefersReducedMotion() || opts.initial || opts.browser ? 'auto' : 'smooth' });
         if (opts.focus !== 'none') App.util.focusEl(itemEl, { preventScroll: true });
         return;
       }
       if (sectionChanged && !opts.keepScroll) window.scrollTo(0, 0);
-      if (opts.focus === 'heading') focusHeading();
-      else if (typeof opts.focus === 'string' && !['item', 'none'].includes(opts.focus)) {
+      if (opts.focus === 'heading' || opts.focus === 'item') focusHeading();
+      else if (explicitFid) {
         const el = App.util.findByFid(opts.focus);
-        if (el) App.util.focusEl(el);
+        if (el) App.util.focusEl(el); else focusHeading();
       }
     });
 
@@ -195,7 +198,7 @@ App.router = (() => {
       location.replace('#/overview');
       render(parse('#/overview'), { initial: true, focus: false });
     } else {
-      render(r, { initial: true, focus: false });
+      render(r, { initial: true, focus: r.item ? 'item' : false });
     }
   }
 

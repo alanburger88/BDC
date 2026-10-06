@@ -31,7 +31,7 @@ for (const locale of locales) {
       if (of.overflow || of.offenders.length) problems.push(`overflow scrollWidth=${of.scrollWidth} client=${of.clientWidth} ${JSON.stringify(of.offenders.slice(0, 4))}`);
       if (mk.length) problems.push(`missing keys ${mk.slice(0, 6).join(', ')}`);
       if (problems.length) { failures += 1; console.log(`✗ ${locale} ${w}px #/${r}: ${problems.join(' | ')}`); }
-      if (shots) await page.screenshot({ path: `${shots}/${locale}-${w}-${r}.png`, fullPage: true });
+      if (shots) await page.screenshot({ path: `${shots}/${locale}-${w}-${r.replace(/\//g, '_')}.png`, fullPage: true });
     }
   }
 }

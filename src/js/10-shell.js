@@ -247,12 +247,12 @@ App.shell = (() => {
     els.headerBar = h('div', { class: 'container header-bar' });
     els.nav = h('nav', { class: 'section-nav', 'aria-label': 'Notice sections / Sections de l’avis' });
     els.navWrap = h('div', { class: 'container nav-wrap' }, els.nav);
-    els.header = h('header', { class: 'site-header' }, els.headerBar, els.navWrap);
+    els.header = h('header', { class: 'site-header' }, els.banner, els.headerBar, els.navWrap);
     els.view = h('div', { id: 'view', class: 'view' });
     els.main = h('main', { id: 'main', tabindex: '-1' }, h('div', { class: 'container' }, els.view));
     els.footer = h('footer', { class: 'site-footer on-dark' });
     els.launcher = h('div', { class: 'launcher-wrap' });
-    app.append(els.skip, els.banner, els.header, els.main, els.footer, els.launcher);
+    app.append(els.skip, els.header, els.main, els.footer, els.launcher);
     renderChrome();
     if (window.ResizeObserver) new ResizeObserver(App.util.debounce(checkFit, 30)).observe(els.navWrap);
     window.addEventListener('resize', App.util.debounce(checkFit, 30));
@@ -271,5 +271,5 @@ App.shell = (() => {
     document.documentElement.setAttribute('data-route', route.section);
   }
 
-  return { mount, update, checkFit, isCompact: () => compact, resetDemo };
+  return { mount, update, checkFit, isCompact: () => compact, resetDemo, confirmReset };
 })();

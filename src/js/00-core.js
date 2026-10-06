@@ -268,7 +268,12 @@ App.fmt = (() => {
   function date(iso, style = 'long', locale = loc()) {
     if (!iso) return '';
     const d = parseISO(iso.length === 7 ? `${iso}-01` : iso);
-    return df(locale, DATE_STYLES[style] || DATE_STYLES.long).format(d);
+    const f = df(locale, DATE_STYLES[style] || DATE_STYLES.long);
+    // Canadian French writes the first day of a month as an ordinal: « 1er novembre 2026 »
+    if (locale === 'fr-CA' && iso.length > 7 && d.getUTCDate() === 1 && (DATE_STYLES[style] || DATE_STYLES.long).day) {
+      return f.formatToParts(d).map((p) => (p.type === 'day' ? '1er' : p.value)).join('');
+    }
+    return f.format(d);
   }
 
   function percentFromBp(bp, locale = loc()) {
@@ -292,5 +297,12 @@ App.fmt = (() => {
     return App.i18n.t('common.timeLong', { m, s: r });
   }
 
-  return { money, decimal, date, parseISO, percentFromBp, number, time, timeLong };
+  // Local wall-clock time of an event timestamp (demo events only)
+  function clock(isoTs, locale = loc()) {
+    const key = `clock${locale}`;
+    if (!cache.has(key)) cache.set(key, new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+    return cache.get(key).format(new Date(isoTs));
+  }
+
+  return { money, decimal, date, parseISO, percentFromBp, number, time, timeLong, clock };
 })();
