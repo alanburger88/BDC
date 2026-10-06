@@ -348,8 +348,8 @@ await check('AC-11', 'Creation-time ElevenLabs audio embedded in both languages'
     notes.push(`${l}: ${(m[1].length * 0.75 / 1024).toFixed(0)} KB MP3`);
   }
   const cues = JSON.parse(HTML.match(/id="data-cues">([\s\S]*?)<\/script>/)[1]);
-  notes.push(`durations en ${cues['en-CA'].duration}s, fr ${cues['fr-CA'].duration}s; voice ${cues['en-CA'].voice.name}; model ${cues['en-CA'].model}`);
-  notes.push('Pronunciation, amounts, dates and Canadian-French accent require human audition (MANUAL)');
+  notes.push(`durations en ${cues['en-CA'].duration}s, fr ${cues['fr-CA'].duration}s; voices en: ${cues['en-CA'].voice.name}, fr: ${cues['fr-CA'].voice.name}; model ${cues['en-CA'].model}`);
+  notes.push('Pronunciation, amounts and dates require human audition (MANUAL)');
   return 'PARTIAL';
 });
 

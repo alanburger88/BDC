@@ -13,12 +13,12 @@ Model: eleven_multilingual_v2 · format mp3_44100_128
 5. **resume** — Principal payments resume on February twenty-eighth, twenty twenty-seven. That month’s total payment is five thousand six hundred dollars.
 6. **next-step** — Review the revised schedule, explore any amount, or ask Clair for an explanation. You can also prepare a question for your representative. No acceptance is required through this notice.
 
-## fr-CA — voice: Sarah (ElevenLabs premade, multilingual)
+## fr-CA — voice: Amélie (ElevenLabs Voice Library)
 
-> Premade multilingual voice speaking French; Canadian French accent NOT established - requires qualified fr-CA review.
+> Selected by the product owner on 2026-10-06. Voice ID taken from public ElevenLabs voice-library listings (Amélie, young, confident and friendly; Quebec French); confirm the ID in the ElevenLabs Voice Library.
 
 1. **welcome** — Bonjour Camille. Voici la modification du financement d’Atelier Boréal.
-2. **relief** — Dans cet exemple, vos remboursements de capital sont reportés pour novembre, décembre et janvier. Vous continuerez de payer mille six cents dollars d’intérêts chaque mois.
+2. **relief** — Dans cet exemple, vos remboursements de capital de novembre, décembre et janvier sont reportés. Vous continuerez de payer mille six cents dollars d’intérêts chaque mois.
 3. **difference** — Douze mille dollars de capital seront remboursés plus tard. Au total, vos versements de ces trois mois diminuent de onze mille neuf cent vingt dollars. Il s’agit d’un allègement temporaire de trésorerie, et non d’une remise de dette.
 4. **tradeoff** — Il y a une contrepartie. Les intérêts continuent de courir, et le calendrier révisé ajoute quatre mille huit cents dollars d’intérêts sur la durée restante. Votre dernier versement est reporté au trente et un janvier deux mille trente-deux.
 5. **resume** — Les remboursements de capital reprennent le vingt-huit février deux mille vingt-sept. Le versement total de ce mois sera de cinq mille six cents dollars.

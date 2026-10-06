@@ -42,7 +42,7 @@
 | AC-08 No horizontal scrolling | **PASS** | All routes, detail views, Clair and query fit at 320 px in EN and FR |
 | AC-09 Zoom and input | **PARTIAL** | 400% zoom (320 px) is covered by AC-08. Keyboard-reduced viewports (390×420, 320×256) keep Clair send and the query controls reachable. **Real-device on-screen keyboard: manual.** |
 | AC-10 Greeting | **PASS** | Handshake animates once per session (not on revisit or language switch), is static under reduced motion, and is aria-hidden |
-| AC-11 Media quality | **PARTIAL** | Real creation-time ElevenLabs audio is embedded for both languages. **Pronunciation and accent review: manual. No Canadian-French voice could be selected (§4.1).** |
+| AC-11 Media quality | **PARTIAL** | Creation-time ElevenLabs audio is embedded for both languages: en-CA Sarah, 60.3 s; fr-CA Amélie (Quebec French, chosen by the product owner), 69.3 s. Loudness is matched (−17.7 / −18.5 LUFS). **Pronunciation audition: manual (§4.1).** |
 | AC-12 Video-like behaviour | **PASS** | No autoplay; pause holds the clock; chapter and seek-bar seeks work; captions match cues at 1× and 1.5×; replay works; an EN chapter maps to the FR chapter start, paused |
 | AC-13 Right-side assistance | **PASS** | 420 px panel anchored right on desktop, full width at 390 px, context chip shows the selected item, and focus returns |
 | AC-14 Assistant integrity | **PARTIAL** | 20 seeded/paraphrased EN+FR probes route to the right intents, including limits and out-of-scope; demo label is exact. **Wording review: manual.** |
@@ -61,11 +61,11 @@
 
 ### 2.3 Independent QA sweep
 
-Seven independent lenses audited the integrated build: PRD §1–9, PRD §10–19, financial accuracy, Canadian French, accessibility (keyboard walkthrough, axe with overlays open, forced colours), visual/responsive (320–1440 px, 200%/400% zoom, short phones) and interaction/state. **73 findings** were raised: 50 in round 1 and 23 in round 2. Each was reproduced before fixing; regression assertions were added for every fix.
+Seven independent lenses audited the integrated build: PRD §1–9, PRD §10–19, financial accuracy, Canadian French, accessibility (keyboard walkthrough, axe with overlays open, forced colours), visual/responsive (320–1440 px, 200%/400% zoom, short phones) and interaction/state. **73 findings** were raised: 50 in round 1 and 23 in round 2. All are now resolved. Each was reproduced before fixing; regression assertions were added for every fix.
 
 | Round | Raised | Fixed | Already fixed / refuted | Deferred to human review |
 |---|---|---|---|---|
-| 1 (5 lenses) | 50 (incl. 4 duplicate pairs) | 48 | 0 | 2 (fr-CA voice; narration wording, which must stay the approved script) |
+| 1 (5 lenses) | 50 (incl. 4 duplicate pairs) | 50 | 0 | 0 (the fr-CA voice and the chapter 2 wording were resolved after product-owner decisions) |
 | 2 (visual + state) | 23 | 23 | 0 | 0 |
 
 The audits confirmed many items **as met** without findings, including:
@@ -109,8 +109,8 @@ Notable fixes:
 
 ## 4. Known limitations and items requiring human review
 
-1. **AC-11 voices (blocked on inputs).** Both narrations use the ElevenLabs premade voice "Sarah" with `eleven_multilingual_v2`. The available key could synthesise speech but could not list or audition voices. A **Canadian French accent is not established** and the English accent is not verified as Canadian. Four fr-CA auditions are in `docs/audio-auditions/`. To fix: supply approved voice IDs, update `src/content/narration.json` and run `tools/generate-voiceover.mjs`.
-2. **Narration script wording.** The audio uses the PRD draft scripts verbatim, as the PRD requires. The QA sweep suggested a more idiomatic fr-CA line for chapter 2 (« vos remboursements de capital de novembre, décembre et janvier sont reportés »). Changing it requires script approval and re-synthesis.
+1. **AC-11 voices.** en-CA uses the ElevenLabs premade voice "Sarah"; a Canadian English accent is not verified. fr-CA uses **Amélie** (`UJCi4DDncuo0VJDSIegj`, ElevenLabs Voice Library, Quebec French), selected by the product owner. The key cannot read voice metadata, so the ID came from public voice-library listings: confirm it in the ElevenLabs Voice Library. Both tracks still need a pronunciation audition (amounts, dates, "Atelier Boréal", "Clair"). The French track was loudness-normalised (−27.5 → −18.5 LUFS) to match English, with no timing change.
+2. **Narration script wording.** The audio uses the PRD draft scripts verbatim, with one approved exception: the fr-CA chapter 2 line now reads « vos remboursements de capital de novembre, décembre et janvier sont reportés » (product owner, 2026-10-06).
 3. **Canadian French copy.** All fr-CA copy is implementation input. A qualified Canadian French reviewer should sign it off using `docs/content/content-review.csv` (side-by-side, with a notes column).
 4. **Accessibility widget (AC-19).** The supplied snippet is included exactly once. Its host (`accessibilityserver.org`) is blocked from this environment, so the vendor launcher's bottom-left placement, its resource origins and its data handling could not be observed. The app reserves bottom-left space and keeps its own launcher bottom-right. Verify online, and confirm placement in the vendor account configuration.
 5. **External links.** The four PRD-verified BDC destinations and the learning-resource pair (seasonal-business cash-flow article, EN/FR) were confirmed through search-engine indexes only, because bdc.ca is blocked from this environment. Re-check them during content approval.

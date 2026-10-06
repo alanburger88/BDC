@@ -44,7 +44,7 @@ App.i18n.register('media', {
     transcriptIntro: 'The full narration, grouped by chapter. Select a chapter title to play from that point.',
     playFromChapter: 'Play from chapter {n}: {title}',
     note: 'Narration generated before distribution with ElevenLabs text-to-speech and embedded in this file. Playback works offline and never contacts ElevenLabs.',
-    voice: 'Voice: {name}, an ElevenLabs premade voice · Model: {model} · Pronunciation pending human review.',
+    voice: 'Voice: {name} (ElevenLabs) · Model: {model} · Pronunciation pending human review.',
     end: {
       title: 'Your next step',
       text: 'No acceptance is required through this notice.',
@@ -143,7 +143,7 @@ App.i18n.register('media', {
     transcriptIntro: 'La narration complète, regroupée par chapitre. Sélectionnez le titre d’un chapitre pour lancer la lecture à partir de ce point.',
     playFromChapter: 'Lancer la lecture à partir du chapitre {n}\u00a0: {title}',
     note: 'Narration générée avant la distribution au moyen de la synthèse vocale d’ElevenLabs et intégrée à ce fichier. La lecture fonctionne hors ligne et ne communique jamais avec ElevenLabs.',
-    voice: 'Voix\u00a0: {name}, une voix prédéfinie d’ElevenLabs · Modèle\u00a0: {model} · Prononciation à faire valider.',
+    voice: 'Voix\u00a0: {name} (ElevenLabs) · Modèle\u00a0: {model} · Prononciation à faire valider.',
     end: {
       title: 'Votre prochaine étape',
       text: 'Aucune acceptation n’est requise dans cet avis.',

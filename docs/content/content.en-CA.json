@@ -1111,7 +1111,7 @@
     "transcriptIntro": "The full narration, grouped by chapter. Select a chapter title to play from that point.",
     "playFromChapter": "Play from chapter {n}: {title}",
     "note": "Narration generated before distribution with ElevenLabs text-to-speech and embedded in this file. Playback works offline and never contacts ElevenLabs.",
-    "voice": "Voice: {name}, an ElevenLabs premade voice · Model: {model} · Pronunciation pending human review.",
+    "voice": "Voice: {name} (ElevenLabs) · Model: {model} · Pronunciation pending human review.",
     "end": {
       "title": "Your next step",
       "text": "No acceptance is required through this notice.",

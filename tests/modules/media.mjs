@@ -380,7 +380,7 @@ const fr = await page.evaluate(() => ({
   speed: [...document.querySelectorAll('[data-fid="media-speed"] option')].map((o) => o.textContent),
   note: document.querySelector('.media-player .media-note').textContent,
 }));
-ok('fr-CA labels: controls, chapter, spoken seek value', fr.play === 'Lecture' && fr.label === 'Chapitre 3 sur 6 · D’où vient l’écart' && /^\d+ min \d+ s sur 1 min 2 s$/.test(fr.vt), fr);
+ok('fr-CA labels: controls, chapter, spoken seek value', fr.play === 'Lecture' && fr.label === 'Chapitre 3 sur 6 · D’où vient l’écart' && new RegExp(`^\\d+ min \\d+ s sur ${Math.floor(frCues.duration / 60)} min ${Math.floor(frCues.duration % 60)} s$`).test(fr.vt), fr);
 ok('fr-CA transcript (still open) shows the French narration', frCues.captions.every((c) => fr.tx.includes(c.text)) && fr.tx.includes('Transcription'));
 ok('fr-CA speed labels use the French decimal comma (no-break space before ×)', fr.speed.join('|') === '0,75\u00a0×|1\u00a0×|1,25\u00a0×|1,5\u00a0×', fr.speed);
 ok('fr-CA note: offline, never contacts ElevenLabs', fr.note.includes('ne communique jamais avec ElevenLabs'));

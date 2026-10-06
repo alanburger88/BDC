@@ -63,7 +63,7 @@ node tools/generate-voiceover.mjs --cues-only                   # rebuild cues f
 node tools/generate-voiceover.mjs --auditions                   # short fr-CA voice auditions
 ```
 
-The key is read from the environment on a trusted build machine and is never written to any output. Behind an authenticating proxy, run with `NODE_USE_ENV_PROXY=1`. The build refuses to package narration whose script, voice or model changed since synthesis. See [docs/VOICEOVER.md](docs/VOICEOVER.md).
+The key is read from the environment on a trusted build machine and is never written to any output. Voices: en-CA Sarah (premade), fr-CA Amélie (Voice Library, Quebec French). ElevenLabs' raw output is kept as `*.source.mp3`; the embedded copy is loudness-matched (−18 LUFS) when needed. Behind an authenticating proxy, run with `NODE_USE_ENV_PROXY=1`. The build refuses to package narration whose script, voice or model changed since synthesis. See [docs/VOICEOVER.md](docs/VOICEOVER.md).
 
 ## Status and approvals
 

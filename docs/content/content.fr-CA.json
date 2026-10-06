@@ -1111,7 +1111,7 @@
     "transcriptIntro": "La narration complète, regroupée par chapitre. Sélectionnez le titre d’un chapitre pour lancer la lecture à partir de ce point.",
     "playFromChapter": "Lancer la lecture à partir du chapitre {n} : {title}",
     "note": "Narration générée avant la distribution au moyen de la synthèse vocale d’ElevenLabs et intégrée à ce fichier. La lecture fonctionne hors ligne et ne communique jamais avec ElevenLabs.",
-    "voice": "Voix : {name}, une voix prédéfinie d’ElevenLabs · Modèle : {model} · Prononciation à faire valider.",
+    "voice": "Voix : {name} (ElevenLabs) · Modèle : {model} · Prononciation à faire valider.",
     "end": {
       "title": "Votre prochaine étape",
       "text": "Aucune acceptation n’est requise dans cet avis.",

@@ -768,7 +768,7 @@
 "media.transcriptIntro","The full narration, grouped by chapter. Select a chapter title to play from that point.","La narration complète, regroupée par chapitre. Sélectionnez le titre d’un chapitre pour lancer la lecture à partir de ce point.",""
 "media.playFromChapter","Play from chapter {n}: {title}","Lancer la lecture à partir du chapitre {n} : {title}",""
 "media.note","Narration generated before distribution with ElevenLabs text-to-speech and embedded in this file. Playback works offline and never contacts ElevenLabs.","Narration générée avant la distribution au moyen de la synthèse vocale d’ElevenLabs et intégrée à ce fichier. La lecture fonctionne hors ligne et ne communique jamais avec ElevenLabs.",""
-"media.voice","Voice: {name}, an ElevenLabs premade voice · Model: {model} · Pronunciation pending human review.","Voix : {name}, une voix prédéfinie d’ElevenLabs · Modèle : {model} · Prononciation à faire valider.",""
+"media.voice","Voice: {name} (ElevenLabs) · Model: {model} · Pronunciation pending human review.","Voix : {name} (ElevenLabs) · Modèle : {model} · Prononciation à faire valider.",""
 "media.end.title","Your next step","Votre prochaine étape",""
 "media.end.text","No acceptance is required through this notice.","Aucune acceptation n’est requise dans cet avis.",""
 "media.end.schedule","Review the revised schedule","Consulter le calendrier révisé",""

@@ -9,9 +9,9 @@
 //   ELEVENLABS_API_KEY=... node tools/generate-voiceover.mjs [--locale en-CA|fr-CA] [--auditions] [--cues-only]
 // Behind an authenticating egress proxy (no key in the environment), run with
 // NODE_USE_ENV_PROXY=1 so Node's fetch honours HTTPS_PROXY.
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync, copyFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -55,6 +55,36 @@ async function synthesise(voiceId, text) {
     throw new Error(`ElevenLabs ${res.status}: ${detail.slice(0, 400)}`);
   }
   throw new Error('ElevenLabs: retries exhausted');
+}
+
+// Loudness mastering: both languages should play at a similar level so switching
+// language never jumps in volume. ElevenLabs' returned audio is kept untouched as
+// narration-<locale>.source.mp3; the embedded copy is normalised (EBU R128, two-pass
+// loudnorm) only when it is more than MASTER_TOLERANCE LU away from the target.
+// Gain/dynamics processing does not move speech in time, so alignment stays valid.
+const MASTER = { I: -18, TP: -1.5, LRA: 11 };
+const MASTER_TOLERANCE = 2;
+
+function master(sourceFile, outFile) {
+  const run = (args) => execFileSync('ffmpeg', ['-hide_banner', '-nostats', '-y', ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  const stderrOf = (args) => {
+    try { run(args); return ''; } catch (e) { return String(e.stderr || ''); }
+  };
+  // loudnorm prints its JSON on stderr; capture it via a spawn that keeps stderr
+  const measureArgs = ['-i', sourceFile, '-af', `loudnorm=I=${MASTER.I}:TP=${MASTER.TP}:LRA=${MASTER.LRA}:print_format=json`, '-f', 'null', '-'];
+  const res = spawnSync('ffmpeg', ['-hide_banner', '-nostats', ...measureArgs], { encoding: 'utf8' });
+  const json = JSON.parse(res.stderr.slice(res.stderr.lastIndexOf('{'), res.stderr.lastIndexOf('}') + 1));
+  const inputI = Number(json.input_i);
+  if (Math.abs(inputI - MASTER.I) <= MASTER_TOLERANCE) {
+    copyFileSync(sourceFile, outFile);
+    return { method: 'none (within tolerance)', inputI, outputI: inputI };
+  }
+  const filter = `loudnorm=I=${MASTER.I}:TP=${MASTER.TP}:LRA=${MASTER.LRA}:measured_I=${json.input_i}:measured_TP=${json.input_tp}:measured_LRA=${json.input_lra}:measured_thresh=${json.input_thresh}:offset=${json.target_offset}:linear=true`;
+  const err = stderrOf(['-i', sourceFile, '-af', filter, '-ar', '44100', '-ac', '1', '-c:a', 'libmp3lame', '-b:a', '128k', outFile]);
+  if (err) throw new Error(`mastering failed: ${err.slice(-400)}`);
+  const check = spawnSync('ffmpeg', ['-hide_banner', '-nostats', '-i', outFile, '-af', `loudnorm=I=${MASTER.I}:TP=${MASTER.TP}:LRA=${MASTER.LRA}:print_format=json`, '-f', 'null', '-'], { encoding: 'utf8' });
+  const after = JSON.parse(check.stderr.slice(check.stderr.lastIndexOf('{'), check.stderr.lastIndexOf('}') + 1));
+  return { method: `ffmpeg loudnorm two-pass to ${MASTER.I} LUFS / ${MASTER.TP} dBTP`, inputI, outputI: Number(after.input_i), outputTP: Number(after.input_tp) };
 }
 
 function probeDuration(file) {
@@ -167,14 +197,18 @@ async function runLocale(locale) {
   if (!cuesOnly) {
     console.log(`Synthesising ${locale} with voice ${voice.voiceName} (${voice.voiceId}), model ${narration.model}`);
     const res = await synthesise(voice.voiceId, scriptText(locale));
-    writeFileSync(mp3, Buffer.from(res.audio_base64, 'base64'));
-    writeFileSync(alignFile, JSON.stringify({ scriptHash: scriptHash(locale), alignment: res.alignment, normalized_alignment: res.normalized_alignment }, null, 1));
+    const source = join(audioDir, `narration-${locale}.source.mp3`);
+    writeFileSync(source, Buffer.from(res.audio_base64, 'base64'));
+    const mastering = master(source, mp3);
+    console.log(`  mastering: ${mastering.method} (${mastering.inputI} → ${mastering.outputI} LUFS)`);
+    writeFileSync(alignFile, JSON.stringify({ scriptHash: scriptHash(locale), mastering, alignment: res.alignment, normalized_alignment: res.normalized_alignment }, null, 1));
   }
   if (!existsSync(mp3)) throw new Error(`${mp3} missing; run without --cues-only first`);
   const saved = JSON.parse(readFileSync(alignFile, 'utf8'));
   if (saved.scriptHash !== scriptHash(locale)) throw new Error(`${locale}: saved alignment is stale for the current script; re-synthesise`);
   const duration = probeDuration(mp3);
   const cues = buildCues(locale, saved.alignment, duration);
+  if (saved.mastering) cues.mastering = saved.mastering;
   writeFileSync(join(audioDir, `cues-${locale}.json`), JSON.stringify(cues, null, 1));
   console.log(`  ${locale}: ${duration.toFixed(2)} s, ${cues.chapters.length} chapters, ${cues.captions.length} captions`);
 }
