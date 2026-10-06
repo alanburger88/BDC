@@ -1,0 +1,168 @@
+/* Overview: a human welcome, then the facts (PRD section 7).
+ * Amounts and dates are always passed in as {params} formatted with App.fmt
+ * from the issued record; nothing numeric is hard-coded here.
+ * French drafts are implementation input pending qualified fr-CA review. */
+App.i18n.register('overview', {
+  'en-CA': {
+    greeting: 'Hello, {name}. Let’s walk through your financing update.',
+    overline: 'Notice of amendment · effective {date}',
+    title: 'Your principal payments are postponed for three months.',
+    intro: 'In this fictional example, the temporary [[postponement|principal postponement]] requested for {company} has been approved and the amendment is complete. Here is what it means for your payments, and what stays the same.',
+    cta: {
+      changes: 'See what changes',
+      watch: 'Watch your personalised explanation',
+      ask: 'Ask a question',
+    },
+    illustration: {
+      caption: 'Illustration of a manufacturing workshop. Not a photograph of the recipient or BDC staff.',
+    },
+    summary: {
+      title: 'Your update at a glance',
+      intro: 'Each card leads to the month-by-month detail behind the figure.',
+      seeDetail: 'See the detail',
+      seeDetailAria: 'See the detail: {item}',
+    },
+    cards: {
+      'next-payment': {
+        label: 'Next payment',
+        sub: 'Due {date}',
+        note: 'Interest only. No principal is due this month.',
+      },
+      resume: {
+        label: 'Principal payments resume',
+        note: 'First payment after the postponement: {total} ({principal} principal + {interest} interest).',
+      },
+      relief: {
+        label: 'Cash-flow effect',
+        figure: '{amount} less',
+        sub: 'paid from {from} to {to}',
+        original: 'Original payments',
+        revised: 'Revised payments',
+      },
+      'extra-interest': {
+        label: 'Additional interest',
+        sub: 'across the remaining schedule',
+        original: 'Original total interest',
+        revised: 'Revised total interest',
+      },
+    },
+    beside: {
+      title: 'Keep in mind',
+      maturityTitle: 'Final payment date ([[maturity|maturity]])',
+      maturityText: 'Your final payment moves from {from} to {to}.',
+      owingTitle: '[[principal|Principal]] still owing',
+      owingText: 'The {amount} of postponed principal remains owing. This is temporary cash-flow relief, not a reduction in what you owe.',
+    },
+    todo: {
+      title: 'What you need to do',
+      step1Title: 'Review the updated repayment schedule',
+      step1Text: 'Check the revised dates and amounts, starting with the payment due {date}.',
+      step1Link: 'Open the revised schedule',
+      step2Title: 'Update your internal [[cashFlow|cash-flow]] planning',
+      step2Text: 'Plan for interest-only payments of {interest} from {from} to {to}, then a payment of {resumed} on {resumeDate}, when principal payments resume.',
+      noAcceptance: 'No acceptance is required through this notice. The amendment is already approved and complete.',
+      markReviewed: 'Mark as reviewed',
+      markHint: 'Optional. Keeps a note in this browser tab only.',
+      reviewedStatus: 'Marked as reviewed in this demo. This is a local note only — not acceptance, consent or proof of understanding.',
+    },
+    same: {
+      title: 'What stays the same',
+      intro: 'The postponement changes when principal is repaid. These terms do not change.',
+      rateLabel: '[[interest|Interest]] rate',
+      rateValue: '{rate}, [[fixedRate|fixed]]',
+      instalmentLabel: 'Monthly [[principal|principal]] instalment',
+      instalmentValue: '{amount} per month once payments resume',
+      feeLabel: 'Change fee',
+      feeValue: '{fee}, no fee for this change',
+      loanLabel: 'Loan identifier',
+    },
+    media: {
+      title: 'Your personalised explanation',
+      meta: 'About one minute · Captions and transcript included · Nothing plays until you press Play',
+      text: 'A short animated walkthrough of this notice, narrated for you in English or French.',
+      unavailableTitle: 'Explanation player unavailable',
+      unavailableText: 'The explanation player is not included in this build. The same information is on this page and in “What changed”.',
+    },
+  },
+  'fr-CA': {
+    greeting: 'Bonjour {name}. Faisons le point sur la modification de votre financement.',
+    overline: 'Avis de modification · en vigueur le {date}',
+    title: 'Vos remboursements de capital sont reportés de trois mois.',
+    intro: 'Dans cet exemple fictif, le [[postponement|report temporaire des remboursements de capital]] demandé pour {company} a été approuvé, et la modification est finalisée. Voici ce que cela change pour vos versements, et ce qui demeure inchangé.',
+    cta: {
+      changes: 'Voir ce qui change',
+      watch: 'Voir votre explication personnalisée',
+      ask: 'Poser une question',
+    },
+    illustration: {
+      caption: 'Illustration d’un atelier de fabrication. Il ne s’agit pas d’une photo de la personne destinataire ni du personnel de BDC.',
+    },
+    summary: {
+      title: 'Votre modification en un coup d’œil',
+      intro: 'Chaque carte mène au détail mois par mois derrière le montant.',
+      seeDetail: 'Voir le détail',
+      seeDetailAria: 'Voir le détail : {item}',
+    },
+    cards: {
+      'next-payment': {
+        label: 'Prochain versement',
+        sub: 'Payable le {date}',
+        note: 'Intérêts seulement. Aucun remboursement de capital ce mois-ci.',
+      },
+      resume: {
+        label: 'Reprise des remboursements de capital',
+        note: 'Premier versement après le report : {total} ({principal} de capital + {interest} d’intérêts).',
+      },
+      relief: {
+        label: 'Effet sur la trésorerie',
+        figure: '{amount} de moins',
+        sub: 'versés de {from} à {to}',
+        original: 'Versements initiaux',
+        revised: 'Versements révisés',
+      },
+      'extra-interest': {
+        label: 'Intérêts additionnels',
+        sub: 'sur la durée restante du calendrier',
+        original: 'Total des intérêts initial',
+        revised: 'Total des intérêts révisé',
+      },
+    },
+    beside: {
+      title: 'À retenir',
+      maturityTitle: 'Date du dernier versement ([[maturity|échéance]])',
+      maturityText: 'Votre dernier versement passe du {from} au {to}.',
+      owingTitle: '[[principal|Capital]] toujours dû',
+      owingText: 'Les {amount} de capital reportés restent dus. Il s’agit d’un allègement temporaire de trésorerie, et non d’une réduction de ce que vous devez.',
+    },
+    todo: {
+      title: 'Ce que vous devez faire',
+      step1Title: 'Consultez le calendrier de remboursement révisé',
+      step1Text: 'Vérifiez les dates et les montants révisés, à commencer par le versement payable le {date}.',
+      step1Link: 'Ouvrir le calendrier révisé',
+      step2Title: 'Mettez à jour la planification interne de votre [[cashFlow|trésorerie]]',
+      step2Text: 'Prévoyez des versements d’intérêts seulement de {interest} de {from} à {to}, puis un versement de {resumed} le {resumeDate}, à la reprise des remboursements de capital.',
+      noAcceptance: 'Aucune acceptation n’est requise dans cet avis. La modification est déjà approuvée et finalisée.',
+      markReviewed: 'Marquer comme consulté',
+      markHint: 'Facultatif. Conserve une note dans cet onglet seulement.',
+      reviewedStatus: 'Marqué comme consulté dans cette démo. Il s’agit uniquement d’une note locale, et non d’une acceptation, d’un consentement ni d’une preuve de compréhension.',
+    },
+    same: {
+      title: 'Ce qui ne change pas',
+      intro: 'Le report modifie le moment où le capital est remboursé. Ces modalités ne changent pas.',
+      rateLabel: 'Taux d’[[interest|intérêt]]',
+      rateValue: '{rate}, [[fixedRate|taux fixe]]',
+      instalmentLabel: 'Versement mensuel de [[principal|capital]]',
+      instalmentValue: '{amount} par mois dès la reprise des remboursements',
+      feeLabel: 'Frais de modification',
+      feeValue: '{fee}, aucuns frais pour cette modification',
+      loanLabel: 'Numéro du prêt',
+    },
+    media: {
+      title: 'Votre explication personnalisée',
+      meta: 'Environ une minute · Sous-titres et transcription inclus · Rien ne joue avant que vous appuyiez sur Lecture',
+      text: 'Une courte présentation animée de cet avis, narrée pour vous en français ou en anglais.',
+      unavailableTitle: 'Lecteur d’explication non disponible',
+      unavailableText: 'Le lecteur d’explication n’est pas inclus dans cette version. La même information se trouve sur cette page et dans la section « Ce qui change ».',
+    },
+  },
+});
