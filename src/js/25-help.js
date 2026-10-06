@@ -361,7 +361,7 @@
       cost: [App.router.href('payments', 'cost'), k('faq.links.cost')],
       relief: [App.router.href('payments', 'relief'), k('faq.links.relief')],
       schedule: [App.router.href('payments', 'schedule'), k('faq.links.schedule')],
-      month: [App.router.href('payments', p.firstMonth), k('faq.links.month', { month: date(p.firstMonth, 'monthYear') })],
+      month: [App.router.href('payments', p.firstMonth), k('faq.links.month', { month: App.ui.monthPhrase(p.firstMonth) })],
       documents: [App.router.href('documents'), k('faq.links.documents')],
     };
     const [target, label] = targets[meta.link];
@@ -540,7 +540,7 @@
       h('p', { class: 'hlp-ask-body' }, k('ask.body')),
       h('div', { class: ['button-row', 'hlp-ask-actions'] }, askBtn, clairBtn),
       msg,
-      h('p', { class: 'hlp-ask-local' }, App.ui.icon('lock', { size: 16 }), h('span', null, k('ask.local'))),
+      h('p', { class: 'hlp-ask-local' }, App.ui.icon('info', { size: 16 }), h('span', null, k('ask.local'))),
       clairBtn ? h('p', { class: 'hlp-ask-local' }, App.ui.icon('info', { size: 16 }), h('span', null, k('ask.clairNote'))) : null);
   }
 

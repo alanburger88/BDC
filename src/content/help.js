@@ -246,7 +246,7 @@ App.i18n.register('help', {
         cost: 'Comparer le total des intérêts et des versements',
         relief: 'Voir l’écart mois par mois',
         schedule: 'Voir le calendrier révisé complet',
-        month: 'Voir le versement de {month}',
+        month: 'Voir le versement {month}',
         documents: 'Aller à votre avis',
       },
       items: {

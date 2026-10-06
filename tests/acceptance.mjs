@@ -159,7 +159,7 @@ await check('AC-04', 'Financial consistency of embedded schedules and displayed 
   });
   const { page, context } = await newPage(browser, { width: 1280 });
   await gotoApp(page, '#/overview', FILE);
-  const txt = await page.locator('#view').innerText();
+  const txt = (await page.locator('#view').innerText()).replace(/\u202f|\u00a0/g, ' ');
   for (const v of ['$1,600', '$11,920', '$4,800', 'January 31, 2032', 'February 28, 2027']) assert(txt.includes(v), `overview missing ${v}`);
   await setLocale(page, 'fr-CA');
   const fr = (await page.locator('#view').innerText()).replace(/ | /g, ' ');

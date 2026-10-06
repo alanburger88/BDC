@@ -122,10 +122,13 @@ App.util = (() => {
         return true;
       }
     } catch (e) { /* fall through */ }
+    const previous = document.activeElement;
     try {
       const ta = document.createElement('textarea');
       ta.value = text;
       ta.setAttribute('readonly', '');
+      ta.setAttribute('aria-hidden', 'true');
+      ta.setAttribute('tabindex', '-1');
       ta.style.position = 'fixed';
       ta.style.opacity = '0';
       document.body.appendChild(ta);
@@ -135,6 +138,11 @@ App.util = (() => {
       return ok;
     } catch (e) {
       return false;
+    } finally {
+      // The fallback steals focus to select the text; give it back to the caller's control
+      if (previous && previous.isConnected && document.activeElement !== previous) {
+        try { previous.focus({ preventScroll: true }); } catch (e) { /* ignore */ }
+      }
     }
   }
 

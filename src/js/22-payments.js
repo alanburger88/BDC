@@ -22,11 +22,14 @@
   /* ---------- formatting helpers (display only) ---------- */
   const money = (cents) => App.fmt.money(cents);
   const whole = (cents) => App.fmt.money(cents, { compact: true });
-  const signed = (cents) => App.fmt.money(cents, { signed: true });
+  // A difference is shown as an unsigned amount plus a direction word ("$4,000.00 lower"),
+  // never "−$4,000.00 lower", which reads as a double negative.
+  const unsigned = (cents) => App.fmt.money(Math.abs(cents));
   // fr-CA typography writes the first day of a month as "1er" (Intl gives "1 novembre").
+  // Day and month stay on one line ("28 février" / "February 28"); fr-CA "1er" comes from App.fmt.
   const date = (iso, style = 'long') => {
     const out = App.fmt.date(iso, style);
-    return App.i18n.locale === 'fr-CA' && /^(long|medium)$/.test(style) ? out.replace(/^1 /, '1er ') : out;
+    return /^(long|medium|dayMonth|dayMonthShort)$/.test(style) ? out.replace(' ', '\u00a0') : out;
   };
   const cap = (s) => (s ? s.charAt(0).toLocaleUpperCase(App.i18n.locale) + s.slice(1) : s);
   const monthName = (id) => cap(date(id, 'monthYear'));
@@ -97,7 +100,7 @@
     return h('span', { class: ['pay-diff', `pay-diff--${kind}`, extraClass] },
       kind === 'same'
         ? k('diff.same')
-        : [h('span', { class: 'pay-diff-amt money' }, signed(cents)), ' ', h('span', { class: 'pay-diff-word' }, k(`diff.${kind}Word`))]);
+        : [h('span', { class: 'pay-diff-amt money' }, unsigned(cents)), ' ', h('span', { class: 'pay-diff-word' }, k(`diff.${kind}Word`))]);
   }
 
   function isPostponed(m) { return !!(m.revised && m.revised.principalCents === 0); }
@@ -406,7 +409,15 @@
     const months = App.rec.monthsInYear(y);
     const open = isYearOpen(st, y);
     const panelId = `pay-year-panel-${y}`;
-    const hasO = months.some((m) => m.original);
+    // Each schedule gets its own payment count: in 2031 the original schedule has 10 payments
+    // (it ends in October) while the revised one has 12. The amount is labelled as the sum of
+    // that schedule's payments listed for the year (display aggregation of fixture rows).
+    const yearLine = (sched, label) => {
+      const n = months.filter((m) => m[sched]).length;
+      return h('span', { class: 'pay-year-total', dataset: { schedule: sched } }, n
+        ? k(`list.yearSchedule.${n === 1 ? 'one' : 'other'}`, { schedule: label, n: App.fmt.number(n), amount: money(sumRows(months, sched)) })
+        : k('list.yearNone', { schedule: label }));
+    };
     const panel = h('ul', { class: 'pay-mlist pay-mlist--year', id: panelId, hidden: !open }, months.map((m) => monthCard(m, f, selectedId)));
     const btn = h('button', {
       type: 'button',
@@ -425,34 +436,67 @@
       },
     },
     h('span', { class: 'pay-year-main' },
-      h('span', { class: 'pay-year-name' }, y),
-      h('span', { class: 'pay-year-count' }, plural('list.yearMonths', months.length))),
+      h('span', { class: 'pay-year-name' }, y)),
     h('span', { class: 'pay-year-totals' },
-      h('span', { class: 'pay-year-total' }, hasO ? k('list.yearOriginal', { amount: money(sumRows(months, 'original')) }) : k('list.yearOriginalNone')),
+      yearLine('original', k('list.original')),
       ' ',
-      h('span', { class: 'pay-year-total' }, k('list.yearRevised', { amount: money(sumRows(months, 'revised')) }))),
+      yearLine('revised', k('list.revised'))),
     App.ui.icon('chevronDown', { class: 'pay-year-chevron' }));
     return h('li', { class: 'pay-year' }, h('h3', { class: 'pay-year-h' }, btn), panel);
   }
 
-  function totalsBlock(range, months) {
-    const sO = sumRows(months, 'original');
-    const sR = sumRows(months, 'revised');
-    const nO = months.filter((m) => m.original).length;
-    const nR = months.filter((m) => m.revised).length;
-    const tile = (cls, label, value, sub) => h('div', { class: ['pay-total', cls] }, h('dt', null, label), h('dd', null, value, sub ? h('span', { class: 'pay-total-sub' }, sub) : null));
-    return h('div', { class: 'pay-totals-wrap' },
-      h('p', { class: 'pay-totals-title', id: 'pay-totals-title' }, k('list.totalsTitle', { range: k(`range.${range}`) })),
-      h('dl', { class: 'pay-totals', 'aria-labelledby': 'pay-totals-title' },
-        tile('pay-total--o', k('list.totalsOriginal'), h('span', { class: 'money' }, money(sO)), plural('list.payments', nO)),
-        tile('pay-total--r', k('list.totalsRevised'), h('span', { class: 'money' }, money(sR)), plural('list.payments', nR)),
-        tile('pay-total--d', k('list.totalsDiff'), diffEl(sR - sO))));
+  /** Totals for a range of months. The first three months and the full remaining term have
+   * approved, build-validated figures in App.record.derived, and those are what is shown. Any
+   * other selection (the first six months) has no approved figure, so it is shown and exported
+   * only as a clearly labelled sum of the displayed fixture rows (source "sum"). */
+  function rangeTotals(range, months) {
+    const d = App.record.derived;
+    const count = (sched) => months.filter((m) => m[sched]).length;
+    if (range === '3') {
+      return { source: 'record', o: d.originalNearTermPaymentsCents, r: d.revisedNearTermPaymentsCents, diff: -d.nearTermPaymentReductionCents, nO: count('original'), nR: count('revised') };
+    }
+    if (range === 'all') {
+      // Both schedules repay the same principal, so the difference in total remaining payments
+      // is the approved additional lifetime interest (reconciled at build time).
+      return { source: 'record', o: d.originalTotalPaymentsCents, r: d.revisedTotalPaymentsCents, diff: d.additionalLifetimeInterestCents, nO: d.originalPaymentCount, nR: d.revisedPaymentCount };
+    }
+    const o = sumRows(months, 'original');
+    const r = sumRows(months, 'revised');
+    return { source: 'sum', o, r, diff: r - o, nO: count('original'), nR: count('revised') };
   }
 
-  function listArea(f, st, selectedId) {
+  function totalsBlock(range, months, p) {
+    const tot = rangeTotals(range, months);
+    const sum = tot.source === 'sum';
+    const tile = (cls, label, value, sub) => h('div', { class: ['pay-total', cls] }, h('dt', null, label), h('dd', null, value, sub ? h('span', { class: 'pay-total-sub' }, sub) : null));
+    let note = null;
+    if (sum) {
+      // Months in the selection where principal has resumed and the revised payment is higher
+      // explain why this sum's difference is smaller than the approved near-term reduction.
+      const later = months.filter((m) => m.original && m.revised && !isPostponed(m) && m.differenceCents > 0);
+      note = h('div', { class: 'pay-totals-note', id: 'pay-totals-note' },
+        h('p', null, k('list.sumNote')),
+        later.length ? h('p', null, k('list.sumWhy', {
+          from: date(later[0].id, 'monthYear'),
+          to: date(later[later.length - 1].id, 'monthYear'),
+          relief: p.relief,
+          reliefFrom: p.from,
+          reliefTo: p.to,
+        })) : null);
+    }
+    return h('div', { class: ['pay-totals-wrap', sum ? 'pay-totals-wrap--sum' : null], dataset: { source: tot.source } },
+      h('p', { class: 'pay-totals-title', id: 'pay-totals-title' }, k(sum ? 'list.sumTitle' : 'list.totalsTitle', { range: k(`range.${range}`) })),
+      h('dl', { class: 'pay-totals', 'aria-labelledby': 'pay-totals-title', 'aria-describedby': sum ? 'pay-totals-note' : null },
+        tile('pay-total--o', k('list.totalsOriginal'), h('span', { class: 'money' }, money(tot.o)), plural('list.payments', tot.nO)),
+        tile('pay-total--r', k('list.totalsRevised'), h('span', { class: 'money' }, money(tot.r)), plural('list.payments', tot.nR)),
+        tile('pay-total--d', k(sum ? 'list.sumDiff' : 'list.totalsDiff'), diffEl(tot.diff))),
+      note);
+  }
+
+  function listArea(f, p, st, selectedId) {
     const range = st.range;
     const months = App.rec.range(range);
-    const out = [totalsBlock(range, months)];
+    const out = [totalsBlock(range, months, p)];
     if (selectedId && !months.some((m) => m.id === selectedId)) {
       out.push(h('p', { class: 'callout callout--neutral pay-outside' }, App.ui.icon('info'), h('span', null, k('list.outside', { month: monthName(selectedId) }))));
     }
@@ -487,7 +531,7 @@
     if (!RANGES.includes(r) || !cur) return;
     st.range = r;
     App.util.clear(cur.listHost);
-    App.util.append(cur.listHost, listArea(cur.f, st, cur.selectedId));
+    App.util.append(cur.listHost, listArea(cur.f, cur.p, st, cur.selectedId));
     if (cur.selHint) cur.selHint.textContent = k('downloads.selectionHint', { range: k(`range.${r}`) });
     if (cur.detailEl && cur.detailEl.isConnected && cur.selectedId) {
       const next = detailPanel(App.rec.month(cur.selectedId), cur.f, cur.p, st);
@@ -495,7 +539,7 @@
       cur.detailEl = next;
     }
     const n = App.rec.range(r).length;
-    App.announce(k('list.showing', { range: k(`range.${r}`), count: plural('list.payments', n) }));
+    App.announce(k('list.showing', { range: k(`range.${r}`), count: period(n) }));
     alignDetail();
   }
 
@@ -611,70 +655,108 @@
   }
 
   /* ---------- CSV export (generated locally) ---------- */
+  // The full revised/original schedules come from the notice module's exporter
+  // (App.notice.csv) whenever it is in the build, so the Payments and Your notice tabs
+  // download the same file. The local builders below use the same quoting, BOM, CRLF line
+  // endings, metadata labels and status wording; fullScheduleCsv is only a fallback for a
+  // build without the notice module.
   function csvCell(v) {
     const s = v === null || v === undefined ? '' : String(v);
-    return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    return /[",;\r\n]/.test(s) || /^\s|\s$/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  }
+  const csvText = (rows) => `﻿${rows.map((r) => r.map(csvCell).join(',')).join('\r\n')}\r\n`;
+  const CSV_MIME = 'text/csv;charset=utf-8';
+  const CSV_COLS = ['opening', 'principal', 'interest', 'total', 'closing'];
+
+  function csvStatus() {
+    const raw = String(App.record.status || '');
+    return /^fictional demonstration/i.test(raw) ? k('csv.statusValue') : raw;
+  }
+
+  function csvMeta(scheduleLabel, countKey, count) {
+    const R = App.record;
+    return [
+      [k('csv.noticeId'), R.noticeId],
+      [k('csv.recordVersion'), R.recordVersion],
+      [k('csv.status'), csvStatus()],
+      [k('csv.loanId'), R.loan.id],
+      [k('csv.company'), R.client.company],
+      [k('csv.schedule'), scheduleLabel],
+      [k('csv.issueDate'), R.issueDate],
+      [k('csv.effectiveDate'), R.effectiveDate],
+      [k('csv.currency'), R.loan.currency],
+      [k(`csv.${countKey}`), count],
+      [k('csv.source'), k('csv.sourceValue')],
+      [k('csv.note')],
+      [],
+    ];
+  }
+
+  /** Fallback only (no notice module in the build): mirrors App.notice.csv(kind). */
+  function fullScheduleCsv(which) {
+    const R = App.record;
+    const d = R.derived;
+    const dec = App.fmt.decimal;
+    const revised = which === 'revised';
+    const sched = revised ? R.revisedSchedule : R.originalSchedule;
+    const rows = [
+      ...csvMeta(k(revised ? 'csv.scheduleRevised' : 'csv.scheduleOriginal'), 'payments', sched.length),
+      [k('csv.date'), k('csv.number'), ...CSV_COLS.map((c) => k(`csv.${c}`))],
+      ...sched.map((row, i) => [row.date, i + 1, ...CSV_COLS.map((c) => dec(row[FIELDS[c]]))]),
+      [k('csv.totals'), '', '',
+        dec(R.loan.principalAtScheduleStartCents),
+        dec(revised ? d.revisedTotalInterestCents : d.originalTotalInterestCents),
+        dec(revised ? d.revisedTotalPaymentsCents : d.originalTotalPaymentsCents),
+        ''],
+    ];
+    return { filename: `${R.noticeId}_${which}-schedule_${App.i18n.locale}.csv`, mime: CSV_MIME, content: csvText(rows) };
+  }
+
+  /** Displayed selection: both schedules side by side with the monthly difference. The totals
+   * row uses the approved range totals when the record has them (first three months, full
+   * term); otherwise it is labelled as a sum of the rows above. */
+  function selectionCsv(range) {
+    const R = App.record;
+    const dec = App.fmt.decimal;
+    const months = App.rec.range(range);
+    const tot = rangeTotals(range, months);
+    const comp = (sched, fld) => dec(sumRows(months, sched, fld));
+    const rows = [
+      ...csvMeta(k('csv.scheduleSelection', { range: k(`range.${range}`) }), 'months', months.length),
+      [
+        k('csv.date'),
+        ...CSV_COLS.map((c) => k('csv.original', { column: k(`csv.${c}`) })),
+        ...CSV_COLS.map((c) => k('csv.revised', { column: k(`csv.${c}`) })),
+        k('csv.difference'),
+      ],
+      ...months.map((m) => [
+        m.date,
+        ...CSV_COLS.map((c) => (m.original ? dec(m.original[FIELDS[c]]) : '')),
+        ...CSV_COLS.map((c) => (m.revised ? dec(m.revised[FIELDS[c]]) : '')),
+        dec(m.differenceCents),
+      ]),
+      [
+        k(tot.source === 'record' ? 'csv.totals' : 'csv.totalsSum'),
+        '', comp('original', 'principalCents'), comp('original', 'interestCents'), dec(tot.o), '',
+        '', comp('revised', 'principalCents'), comp('revised', 'interestCents'), dec(tot.r), '',
+        dec(tot.diff),
+      ],
+    ];
+    const slug = range === 'all' ? 'full-term' : `first-${range}-months`;
+    return { filename: `${R.noticeId}_selection-${slug}_${App.i18n.locale}.csv`, mime: CSV_MIME, content: csvText(rows) };
   }
 
   function csv(kind) {
     if (!CSV_KINDS.includes(kind)) throw new Error(`Unknown CSV kind ${kind}`);
-    const R = App.record;
-    const dec = App.fmt.decimal;
-    const rows = [];
-    const pre = (key, value) => rows.push([k(`csv.${key}`), value]);
-    const COLS = ['opening', 'principal', 'interest', 'total', 'closing'];
-    const selection = kind.startsWith('selection-');
-    const range = selection ? kind.slice('selection-'.length) : null;
-    let content;
-    let filename;
-    if (selection) {
-      content = k('csv.contentSelection', { range: k(`range.${range}`) });
-      filename = `${R.noticeId}_selection-${range === 'all' ? 'full-term' : `first-${range}-months`}.csv`;
-    } else if (kind === 'revised-full') {
-      content = k('csv.contentRevised');
-      filename = `${R.noticeId}_revised-schedule.csv`;
-    } else {
-      content = k('csv.contentOriginal');
-      filename = `${R.noticeId}_original-schedule.csv`;
+    if (kind.startsWith('selection-')) return selectionCsv(kind.slice('selection-'.length));
+    const which = kind === 'revised-full' ? 'revised' : 'original';
+    if (App.notice && typeof App.notice.csv === 'function') {
+      try {
+        const file = App.notice.csv(which);
+        if (file && file.filename && file.content) return { mime: CSV_MIME, ...file };
+      } catch (e) { /* fall back to the local builder below */ }
     }
-    pre('noticeId', R.noticeId);
-    pre('recordVersion', R.recordVersion);
-    pre('loanId', R.loan.id);
-    pre('status', k('csv.statusValue'));
-    pre('currency', R.loan.currency);
-    pre('content', content);
-    pre('generated', k('csv.generatedValue'));
-    rows.push([]);
-    if (selection) {
-      const months = App.rec.range(range);
-      rows.push([
-        k('csv.date'),
-        ...COLS.map((c) => k('csv.original', { column: k(`csv.${c}`) })),
-        ...COLS.map((c) => k('csv.revised', { column: k(`csv.${c}`) })),
-        k('csv.difference'),
-      ]);
-      months.forEach((m) => rows.push([
-        m.date,
-        ...COLS.map((c) => (m.original ? dec(m.original[FIELDS[c]]) : '')),
-        ...COLS.map((c) => (m.revised ? dec(m.revised[FIELDS[c]]) : '')),
-        dec(m.differenceCents),
-      ]));
-      const tot = (sched, fld) => dec(sumRows(months, sched, fld));
-      rows.push([
-        k('csv.totals'),
-        '', tot('original', 'principalCents'), tot('original', 'interestCents'), tot('original', 'totalCents'), '',
-        '', tot('revised', 'principalCents'), tot('revised', 'interestCents'), tot('revised', 'totalCents'), '',
-        dec(sumRows(months, 'revised') - sumRows(months, 'original')),
-      ]);
-    } else {
-      const sched = kind === 'revised-full' ? R.revisedSchedule : R.originalSchedule;
-      rows.push([k('csv.date'), k('csv.number'), ...COLS.map((c) => k(`csv.${c}`))]);
-      sched.forEach((row, i) => rows.push([row.date, i + 1, ...COLS.map((c) => dec(row[FIELDS[c]]))]));
-      const sum = (fld) => dec(sched.reduce((a, row) => a + row[fld], 0));
-      rows.push([k('csv.totals'), '', '', sum('principalCents'), sum('interestCents'), sum('totalCents'), '']);
-    }
-    const text = `﻿${rows.map((r) => r.map(csvCell).join(',')).join('\r\n')}\r\n`;
-    return { filename, mime: 'text/csv;charset=utf-8', content: text };
+    return fullScheduleCsv(which);
   }
 
   function download(kind) {
@@ -723,7 +805,7 @@
     const mounts = [];
 
     const listHost = h('div', { class: 'pay-list-area' });
-    App.util.append(listHost, listArea(f, st, monthId));
+    App.util.append(listHost, listArea(f, p, st, monthId));
     const listCol = h('div', { class: 'pay-list-col' }, listHost);
     const detailEl = detailPanel(selected, f, p, st);
     const relief = reliefCard(f, p);

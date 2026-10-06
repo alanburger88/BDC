@@ -291,3 +291,16 @@ legend { font-weight: 600; color: var(--navy); padding: 0; margin-bottom: var(--
 .mb-0 { margin-bottom: 0; }
 .text-red { color: var(--red-deep); }
 .print-only { display: none; }
+
+/* Windows High Contrast / forced colours: keep selection states and icons visible */
+@media (forced-colors: active) {
+  .segmented input:checked + label {
+    forced-color-adjust: none;
+    background: Highlight; color: HighlightText; border-color: Highlight;
+    outline: 2px solid CanvasText; outline-offset: 2px;
+  }
+  .icon { color: CanvasText; }
+  .btn .icon, .btn-link .icon-after { color: ButtonText; }
+  .badge, .chip, .card, .compare-cell { border: 1px solid CanvasText; }
+  [aria-pressed="true"], [aria-selected="true"], [aria-current="page"] { outline: 2px solid Highlight; outline-offset: 2px; }
+}

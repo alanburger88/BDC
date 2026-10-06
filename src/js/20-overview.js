@@ -16,7 +16,8 @@
   // Canadian French writes the first day of a month as "1er" (Intl gives "1").
   function date(iso, style = 'long') {
     const s = App.fmt.date(iso, style);
-    return App.i18n.locale === 'fr-CA' ? s.replace(/^1 /, '1er ') : s;
+    // fr-CA "1er" comes from App.fmt; keep the day with its month on one line
+    return /^(long|medium|dayMonth|dayMonthShort)$/.test(style) ? s.replace(' ', '\u00a0') : s;
   }
   const monthName = (iso) => App.fmt.date(iso, 'month');
 

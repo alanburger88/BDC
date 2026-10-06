@@ -607,7 +607,7 @@ await page.evaluate(() => { window.BDCNotice.session.slice('review').reviewed = 
 await page.click('[data-fid="ins-answer-nextPayment"]');
 await page.waitForTimeout(80);
 v = await page.evaluate(() => ({ answer: document.querySelector('.ins-answer-text')?.textContent || '', progress: document.querySelector('#ins-task-progress').textContent }));
-check('expected answer uses record values (next payment $1,600, November 30, 2026)', /\$1,600/.test(v.answer) && /November 30, 2026/.test(v.answer), v.answer);
+check('expected answer uses record values (next payment $1,600, November 30, 2026)', /\$1,600/.test(v.answer) && /November\s30, 2026/.test(v.answer), v.answer);
 await page.check('#ins-task-nextPayment');
 check('ticking a task updates progress', await page.evaluate(() => document.querySelector('#ins-task-progress').textContent === '1 of 4 tasks completed'));
 check('four presenter tasks listed', await page.evaluate(() => [...document.querySelectorAll('.ins-task-title')].map((e) => e.textContent).join('|') === 'Find the next payment|Identify when principal payments resume|Explain that the principal remains owing|Identify the additional total interest'));

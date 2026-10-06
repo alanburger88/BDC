@@ -193,7 +193,7 @@ App.i18n.register('clair', {
     inLanguage: 'En {language}',
     announce: 'Clair : {text}',
     and: 'et',
-    greeting: 'Bonjour! Je suis Clair, un guide de démonstration pour cet avis de financement type. Demandez-moi ce qui change, combien vous payez et quand, ou choisissez une question suggérée ci-dessous.',
+    greeting: 'Bonjour! Je suis Clair, l’assistant de démonstration pour cet avis de financement type. Demandez-moi ce qui change, combien vous payez et quand, ou choisissez une question suggérée ci-dessous.',
 
     suggestions: {
       whyRelief: 'Pourquoi l’allègement n’est-il pas de {deferred}?',

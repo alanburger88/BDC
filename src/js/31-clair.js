@@ -31,8 +31,8 @@
 
   // Canadian French writes the first day of a month as "1er" (core formatting gives "1")
   function longDate(iso) {
-    const s = App.fmt.date(iso, 'long');
-    return App.i18n.locale === 'fr-CA' ? s.replace(/^1 /, '1er ') : s;
+    // fr-CA "1er" comes from App.fmt; keep the day with its month on one line
+    return App.fmt.date(iso, 'long').replace(' ', '\u00a0');
   }
 
   function vals() {

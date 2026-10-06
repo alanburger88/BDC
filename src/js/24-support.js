@@ -259,7 +259,7 @@
             focus: 'heading',
           })),
         h('div', { class: 'sup-card-foot' },
-          h('p', { class: 'sup-help-note' }, App.ui.icon('lock', { size: 16 }), h('span', null, k('cards.help.note'))))));
+          h('p', { class: 'sup-help-note' }, App.ui.icon('info', { size: 16 }), h('span', null, k('cards.help.note'))))));
   }
 
   function basisStrip() {

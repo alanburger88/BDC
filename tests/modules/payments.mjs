@@ -6,6 +6,10 @@
 // switching for out-of-range months, special routes (relief, cost, schedule),
 // separate infographics with record values, balance chart + data views, CSV
 // exports (content, filenames, events), fr-CA, 320px reflow, honest wording.
+// QA fixes covered: R-20 (approved range totals vs labelled sums, per-schedule year
+// counts), R-22 (unsigned amount + direction word), R-23/R-38 (one exporter for the full
+// schedules, aligned selection CSV labels), R-33 (fr-CA spacing), R-36 (fr wording),
+// R-45 (forced colours: selected range and chart parts use system colours).
 // Usage: node tests/modules/payments.mjs [path/to/index.html]
 import { readFileSync } from 'node:fs';
 import { launch, newPage, gotoApp, overflowReport, missingKeys, DEFAULT_FILE } from '../lib/browser.mjs';
@@ -46,14 +50,14 @@ const expected = (page) => page.evaluate(() => {
     extraSigned: A.fmt.money(D.additionalLifetimeInterestCents, { compact: true, signed: true }),
     origNear: m(D.originalNearTermPaymentsCents),
     revNear: m(D.revisedNearTermPaymentsCents),
-    reliefSigned: A.fmt.money(-D.nearTermPaymentReductionCents, { signed: true }),
+    reliefAmt: A.fmt.money(D.nearTermPaymentReductionCents),
     origInt: w(D.originalTotalInterestCents),
     revInt: w(D.revisedTotalInterestCents),
     origTotal: w(D.originalTotalPaymentsCents),
     revTotal: w(D.revisedTotalPaymentsCents),
     origTotalCents: m(D.originalTotalPaymentsCents),
     revTotalCents: m(D.revisedTotalPaymentsCents),
-    lifetimeSigned: A.fmt.money(D.additionalLifetimeInterestCents, { signed: true }),
+    lifetimeAmt: A.fmt.money(D.additionalLifetimeInterestCents),
     origMaturity: A.fmt.date(R.change.originalMaturity),
     revMaturity: A.fmt.date(R.change.revisedMaturity),
     resume: A.fmt.date(R.change.resumePrincipalDate),
@@ -70,7 +74,7 @@ const monthRow = (page, id) => page.evaluate((mid) => {
   const my = A.fmt.date(mid, 'monthYear');
   const of = A.i18n.t(/^[aeiouyàâéèêëîïôûùüœ]/i.test(my) ? 'payments.ofMonthVowel' : 'payments.ofMonth', { month: my });
   const title = A.i18n.t('payments.detail.title', { month: of });
-  return { o: f(c.original), r: f(c.revised), diff: A.fmt.money(c.differenceCents, { signed: true }), title: title.charAt(0).toLocaleUpperCase(A.i18n.locale) + title.slice(1) };
+  return { o: f(c.original), r: f(c.revised), diff: A.fmt.money(Math.abs(c.differenceCents)), title: title.charAt(0).toLocaleUpperCase(A.i18n.locale) + title.slice(1) };
 }, id);
 
 const detailValues = (page) => page.evaluate(() => {
@@ -136,25 +140,35 @@ const browser = await launch();
   await page.keyboard.press('ArrowLeft');
   await wait(page);
   check('en: ArrowLeft selects "First three months" (3 cards), focus stays on radio', (await checkedRange(page)) === '3' && (await visibleCards(page)).length === 3 && (await activeFid(page)) === 'pay-range-3', { r: await checkedRange(page), f: await activeFid(page) });
-  const totals3 = N(await page.locator('.pay-totals').innerText());
-  check('en: 3-month totals 16,720.00 vs 4,800.00, 11,920.00 lower', totals3.includes(N(e.origNear)) && totals3.includes(N(e.revNear)) && totals3.includes(`${N(e.reliefSigned)} lower`), totals3);
+  const totals3 = N(await page.locator('.pay-totals-wrap').innerText());
+  check('en: 3-month totals are the approved record values 16,720.00 vs 4,800.00, $11,920.00 lower', totals3.includes(N(e.origNear)) && totals3.includes(N(e.revNear)) && totals3.includes(`${N(e.reliefAmt)} lower`) && !totals3.includes('−') && (await page.getAttribute('.pay-totals-wrap', 'data-source')) === 'record' && /^Total payments for the months shown: First three months/.test(totals3), totals3);
   const card0 = N(await page.locator('[data-fid="pay-month-2026-11"]').innerText());
-  check('en: month card labels Original / Revised / Difference with sign and word', /Original/.test(card0) && /Revised/.test(card0) && /−\$4,000\.00 lower/.test(card0), card0);
+  check('en: month card labels Original / Revised / Difference as amount + word, no minus sign (R-22)', /Original/.test(card0) && /Revised/.test(card0) && /Difference \$4,000\.00 lower/.test(card0) && !card0.includes('−'), card0);
+  // R-20: the six-month selection has no approved total, so it is a clearly labelled sum with an explanation
+  await page.locator('label[for="pay-range-6"]').click();
+  await wait(page);
+  const totals6 = N(await page.locator('.pay-totals-wrap').innerText());
+  check('en: 6-month block is labelled as a sum of the payments shown, not an approved total (R-20)', (await page.getAttribute('.pay-totals-wrap', 'data-source')) === 'sum' && /^Sum of the payments shown: First six months/.test(totals6) && /Difference between the sums \$11,680\.00 lower/.test(totals6) && /not a figure from your notice/.test(totals6), totals6);
+  check('en: 6-month note explains why the sum differs from the $11,920 relief (Feb–Apr higher)', totals6.includes(`From February 2027 to April 2027, principal payments have resumed and each revised payment is higher than the original, so this difference is smaller than the ${N(e.relief)} of lower payments from November 2026 to January 2027.`), totals6);
+  check('en: 6-month totals list is described by its note', (await page.getAttribute('.pay-totals', 'aria-describedby')) === 'pay-totals-note' && await page.locator('#pay-totals-note').count() === 1);
 
   await page.locator('label[for="pay-range-all"]').click();
   await wait(page);
   const yearsInfo = await page.evaluate(() => [...document.querySelectorAll('.pay-year-btn')].map((b) => [b.getAttribute('data-fid'), b.getAttribute('aria-expanded')]));
   check('en: full term groups by year, only the first year open', yearsInfo.length === e.years.length && yearsInfo.filter(([, x]) => x === 'true').length === 1 && yearsInfo[0][1] === 'true', yearsInfo);
   check('en: full term shows 2 cards by default (never 63 expanded)', (await visibleCards(page)).length === 2, (await visibleCards(page)).length);
-  const totalsAll = N(await page.locator('.pay-totals').innerText());
-  check('en: full-term totals 288,800 vs 293,600 (+4,800 higher)', totalsAll.includes(N(e.origTotalCents)) && totalsAll.includes(N(e.revTotalCents)) && totalsAll.includes(`${N(e.lifetimeSigned)} higher`), totalsAll);
+  const totalsAll = N(await page.locator('.pay-totals-wrap').innerText());
+  check('en: full-term totals are the approved record values 288,800 (60 payments) vs 293,600 (63 payments), $4,800.00 higher', (await page.getAttribute('.pay-totals-wrap', 'data-source')) === 'record' && totalsAll.includes(`${N(e.origTotalCents)} 60 payments`) && totalsAll.includes(`${N(e.revTotalCents)} 63 payments`) && totalsAll.includes(`Difference ${N(e.lifetimeAmt)} higher`) && !/[−+]/.test(totalsAll), totalsAll);
   await page.locator('[data-fid="pay-year-2027"]').click();
   await wait(page, 150);
   check('en: opening 2027 shows its 12 months', (await visibleCards(page)).length === 14);
   const yearHead = N(await page.locator('[data-fid="pay-year-2027"]').innerText());
-  check('en: year header shows yearly totals', /Original \$[\d,]+\.\d\d\s*·?\s*Revised \$[\d,]+\.\d\d/.test(yearHead), yearHead);
+  check('en: year header labels each schedule\'s payment count and the sum of its payments', yearHead === '2027 Original: 12 payments totalling $64,800.00 Revised: 12 payments totalling $61,733.33', yearHead);
+  const y2031 = N(await page.locator('[data-fid="pay-year-2031"]').innerText());
+  check('en: 2031 header gives the original schedule its own count (10 payments, not "12 months") (R-20)', y2031 === '2031 Original: 10 payments totalling $41,466.67 Revised: 12 payments totalling $50,400.00' && !/months/.test(y2031), y2031);
   const lastYearHead = N(await page.locator(`[data-fid="pay-year-${e.years[e.years.length - 1]}"]`).innerText());
-  check('en: final year header says "Original: no payment" (original schedule ended)', /Original: no payment\s*·?\s*Revised \$[\d,]+\.\d\d/.test(lastYearHead), lastYearHead);
+  check('en: final year header says "Original: no payments" and "Revised: 1 payment of …"', lastYearHead === '2032 Original: no payments Revised: 1 payment of $4,026.67', lastYearHead);
+  check('en: year hint says the amounts are sums of each schedule\'s payments', /sum of its payments in that year/.test(await page.locator('.pay-years-hint').innerText()));
   await go(page, '#/overview');
   await go(page, '#/payments');
   check('en: range and open years remembered for the session', (await checkedRange(page)) === 'all' && (await page.getAttribute('[data-fid="pay-year-2027"]', 'aria-expanded')) === 'true');
@@ -177,7 +191,7 @@ const browser = await launch();
   });
   check('en: payment chart uses the wide paired-column layout at 1280px', chart.layout === 'wide', chart.layout);
   check('en: six month controls, Nov 2026 – Apr 2027', JSON.stringify(chart.buttons.map((b) => b[0])) === JSON.stringify(['2026-11', '2026-12', '2027-01', '2027-02', '2027-03', '2027-04']), chart.buttons.map((b) => b[0]));
-  check('en: month controls have full accessible names', /^November 2026: original payment \$5,600\.00, revised payment \$1,600\.00, −\$4,000\.00 lower/.test(chart.buttons[0][1]), chart.buttons[0][1]);
+  check('en: month controls have full accessible names, difference as amount + word (R-22)', /^November 2026: original payment \$5,600\.00, revised payment \$1,600\.00, \$4,000\.00 lower\. Show the breakdown\.$/.test(chart.buttons[0][1]) && chart.buttons.every((b) => !/[−+]\$/.test(b[1])), chart.buttons[0][1]);
   check('en: chart SVG decorative, hatched pattern, 12 direct total labels', chart.svgHidden === 'true' && chart.patterns >= 2 && chart.totals === 12, chart);
   check('en: dollar y-axis with unit label and 4-item legend', chart.ticks.includes('$0') && chart.ticks.includes('$6,000') && /CAD/.test(chart.unit) && chart.legend.length === 4, chart);
   await page.locator('[data-fid="pay-chart-2026-12"]').click();
@@ -205,7 +219,7 @@ const browser = await launch();
   check('en: detail title "December 2026 payment"', N(dec.title) === N(decExp.title), dec.title);
   check('en: detail shows original opening/principal/interest/total/closing', JSON.stringify(dec.o.map(N)) === JSON.stringify(decExp.o.map(N)), dec.o);
   check('en: detail shows revised opening/principal/interest/total/closing', JSON.stringify(dec.r.map(N)) === JSON.stringify(decExp.r.map(N)), dec.r);
-  check('en: detail shows signed difference with word', N(dec.diff).includes(`${N(decExp.diff)} lower`), dec.diff);
+  check('en: detail shows the difference as amount + word, no minus sign', /^Difference in total payment\s*/.test(N(dec.diff)) && N(dec.diff).endsWith(`${N(decExp.diff)} lower`) && !dec.diff.includes('−'), dec.diff);
   check('en: why it differs explains postponement and higher interest', /principal postponement/.test(dec.why) && /\$26\.67 more/.test(dec.why), dec.why);
   check('en: Explain (explain-month-2026-12), Ask and notice clause actions', dec.explain && dec.ask && dec.notice === '#/documents/schedule', dec);
   check('en: Explain/Ask guarded when Clair/query are absent (no error on click)', await (async () => {
@@ -261,7 +275,7 @@ const browser = await launch();
   // Extended month (original null)
   await go(page, '#/payments/2031-12');
   const ext = await detailValues(page);
-  check('en: added month shows "no payment" for the original schedule', ext.text.includes(e.noPayment) && ext.o.every((x) => /^—/.test(N(x))) && /Added month/.test(ext.text) && /fully repaid on October 31, 2031/.test(ext.why), ext);
+  check('en: added month shows "no payment" for the original schedule', ext.text.includes(e.noPayment) && ext.o.every((x) => /^—/.test(N(x))) && /Added month/.test(ext.text) && /fully repaid on October\s31, 2031/.test(ext.why), ext);
   await go(page, '#/payments/2032-01');
   check('en: final revised month explained', /last payment of the revised schedule/.test((await detailValues(page)).why));
 
@@ -318,35 +332,61 @@ const browser = await launch();
   await page.locator('[data-fid="pay-data-toggle-balance"]').click();
   await wait(page, 150);
   const bdv = N(await page.locator('#pay-data-balance table').innerText());
-  check('en: balance data view lists key dates incl. "Repaid"', /November 1, 2026/.test(bdv) && /Repaid/.test(bdv) && /January 31, 2032/.test(bdv) && (await page.locator('#pay-data-balance tbody tr').count()) === 9, bdv);
+  check('en: balance data view lists key dates incl. "Repaid"', /November\s1, 2026/.test(bdv) && /Repaid/.test(bdv) && /January\s31, 2032/.test(bdv) && (await page.locator('#pay-data-balance tbody tr').count()) === 9, bdv);
 
-  // CSV builders
+  // CSV builders (R-23/R-38: the full schedules come from the notice exporter when present;
+  // the selection CSV and the fallback use the same labels, status wording, BOM and CRLF)
   const csvs = await page.evaluate(() => Object.fromEntries(window.BDCNotice.payments.CSV_KINDS.map((kd) => [kd, window.BDCNotice.payments.csv(kd)])));
-  const dated = (c) => c.content.split(/\r\n/).filter((r) => /^\d{4}-\d{2}-\d{2},/.test(r));
+  const lines = (c) => c.content.replace(/^﻿/, '').split('\r\n');
+  const dated = (c) => lines(c).filter((r) => /^\d{4}-\d{2}-\d{2},/.test(r));
   const last = (c) => c.content.trim().split(/\r\n/).pop();
+  const viaNotice = await page.evaluate(() => {
+    const A = window.BDCNotice;
+    if (!A.notice || typeof A.notice.csv !== 'function') return null;
+    const notice = { revised: A.notice.csv('revised'), original: A.notice.csv('original') };
+    const keep = A.notice;
+    delete A.notice; // exercise the local fallback builder
+    const fallback = { revised: A.payments.csv('revised-full'), original: A.payments.csv('original-full') };
+    A.notice = keep;
+    return { notice, fallback };
+  });
   const rv = csvs['revised-full'];
-  check('en: revised CSV filename', rv.filename === 'DEMO-BDC-CHANGE-2026-001_revised-schedule.csv', rv.filename);
-  check('en: CSV starts with UTF-8 BOM and preamble (notice, version, loan, status)', rv.content.startsWith('﻿Notice identifier,DEMO-BDC-CHANGE-2026-001\r\nRecord version,1.0\r\nLoan identifier,DEMO-4821\r\nStatus,Fictional demonstration – not a BDC offer or agreement'), rv.content.slice(0, 200));
+  const ov = csvs['original-full'];
+  check('en: revised CSV filename matches the notice tab (notice id + locale)', rv.filename === 'DEMO-BDC-CHANGE-2026-001_revised-schedule_en-CA.csv' && ov.filename === 'DEMO-BDC-CHANGE-2026-001_original-schedule_en-CA.csv', [rv.filename, ov.filename]);
+  if (viaNotice) {
+    check('en: full revised/original CSVs are exactly the notice exporter\'s files (R-23)', rv.content === viaNotice.notice.revised.content && rv.filename === viaNotice.notice.revised.filename && ov.content === viaNotice.notice.original.content && ov.filename === viaNotice.notice.original.filename);
+    check('en: local fallback builder reproduces the notice exporter byte for byte', viaNotice.fallback.revised.content === viaNotice.notice.revised.content && viaNotice.fallback.revised.filename === viaNotice.notice.revised.filename && viaNotice.fallback.original.content === viaNotice.notice.original.content, [viaNotice.fallback.revised.content.slice(0, 300), viaNotice.notice.revised.content.slice(0, 300)]);
+  } else {
+    console.log('  (notice module not in this build: checking the local fallback only)');
+  }
+  check('en: CSV starts with UTF-8 BOM and the notice metadata labels/status', rv.content.startsWith('﻿Notice,DEMO-BDC-CHANGE-2026-001\r\nRecord version,1.0\r\nStatus,Fictional demonstration — not a BDC offer or actual agreement\r\nLoan,DEMO-4821\r\n') && lines(rv).includes('Source,Generated locally in this browser from the demonstration record') && lines(rv).includes('"Illustrative financing schedule, not a BDC offer."'), rv.content.slice(0, 300));
+  check('en: CSV uses CRLF line endings only', !/[^\r]\n/.test(rv.content) && !/[^\r]\n/.test(csvs['selection-6'].content));
   check('en: CSV has a blank row then localized header', /\r\n\r\nPayment date,Payment number,Opening principal,Principal,Interest,Total payment,Closing principal\r\n/.test(rv.content));
   check('en: revised CSV has 63 dated rows, machine decimals', dated(rv).length === 63 && dated(rv)[0] === '2026-11-30,1,240000.00,0.00,1600.00,1600.00,240000.00' && !rv.content.includes('560000'), dated(rv)[0]);
-  check('en: revised CSV totals row (240,000 / 53,600 / 293,600)', last(rv) === 'Total,,,240000.00,53600.00,293600.00,', last(rv));
-  const ov = csvs['original-full'];
-  check('en: original CSV 60 rows, totals 48,800 / 288,800', ov.filename.endsWith('_original-schedule.csv') && dated(ov).length === 60 && last(ov) === 'Total,,,240000.00,48800.00,288800.00,', [dated(ov).length, last(ov)]);
+  check('en: revised CSV totals row (240,000 / 53,600 / 293,600)', last(rv) === 'Totals,,,240000.00,53600.00,293600.00,', last(rv));
+  check('en: original CSV 60 rows, totals 48,800 / 288,800', dated(ov).length === 60 && last(ov) === 'Totals,,,240000.00,48800.00,288800.00,', [dated(ov).length, last(ov)]);
   const s3 = csvs['selection-3'];
+  // Shared metadata rows carry the same labels (and values) as the notice exporter's file
+  const meta = (c) => lines(c).slice(0, lines(c).indexOf(''));
+  const ms = meta(s3);
+  const mr = meta(rv);
+  check('en: selection CSV metadata uses the notice labels (Notice, Record version, Status, Loan, …, Source)', ms.length === mr.length && ms.every((row, i) => (i === 5 || i === 9 ? row.split(',')[0] === (i === 5 ? 'Schedule' : 'Number of months') : row === mr[i])) && ms[5] === 'Schedule,Original and revised payments compared – First three months' && ms[9] === 'Number of months,3', { ms, mr });
   check('en: selection-3 CSV compares both schedules with difference', dated(s3).length === 3 && dated(s3)[0] === '2026-11-30,240000.00,4000.00,1600.00,5600.00,236000.00,240000.00,0.00,1600.00,1600.00,240000.00,-4000.00', dated(s3)[0]);
-  check('en: selection-3 totals reconcile (16,720 vs 4,800; −11,920)', last(s3) === 'Total,,12000.00,4720.00,16720.00,,,0.00,4800.00,4800.00,,-11920.00', last(s3));
+  check('en: selection-3 totals are the approved values (16,720 vs 4,800; −11,920)', last(s3) === 'Totals,,12000.00,4720.00,16720.00,,,0.00,4800.00,4800.00,,-11920.00', last(s3));
+  const s6 = csvs['selection-6'];
+  check('en: selection-6 totals row is labelled as a sum of the rows above (R-20)', last(s6) === 'Sum of the rows above,,24000.00,9200.00,33200.00,,,12000.00,9520.00,21520.00,,-11680.00', last(s6));
   const sa = csvs['selection-all'];
-  check('en: selection-all 63 rows, original blank after Oct 2031, +4,800 total', dated(sa).length === 63 && dated(sa)[62].startsWith('2032-01-31,,,,,,4000.00,') && last(sa).endsWith(',4800.00') && sa.filename.endsWith('_selection-full-term.csv'), [dated(sa)[62], last(sa)]);
-  check('en: selection-6 filename', csvs['selection-6'].filename === 'DEMO-BDC-CHANGE-2026-001_selection-first-6-months.csv');
+  check('en: selection-all 63 rows, original blank after Oct 2031, approved totals +4,800', dated(sa).length === 63 && dated(sa)[62].startsWith('2032-01-31,,,,,,4000.00,') && last(sa) === 'Totals,,240000.00,48800.00,288800.00,,,240000.00,53600.00,293600.00,,4800.00' && sa.filename === 'DEMO-BDC-CHANGE-2026-001_selection-full-term_en-CA.csv', [dated(sa)[62], last(sa), sa.filename]);
+  check('en: selection-6 filename', s6.filename === 'DEMO-BDC-CHANGE-2026-001_selection-first-6-months_en-CA.csv', s6.filename);
 
   // Downloads through the UI + events
   const [dl] = await Promise.all([page.waitForEvent('download'), page.locator('[data-fid="pay-dl-revised"]').click()]);
   const dlText = readFileSync(await dl.path(), 'utf8');
-  check('en: "Download full revised schedule (CSV)" downloads the file', dl.suggestedFilename() === 'DEMO-BDC-CHANGE-2026-001_revised-schedule.csv' && dlText.includes('DEMO-BDC-CHANGE-2026-001') && dlText.split(/\r?\n/).filter((r) => /^\d{4}-\d{2}-\d{2}/.test(r)).length === 63, dl.suggestedFilename());
+  check('en: "Download full revised schedule (CSV)" downloads the same file as the notice tab', dl.suggestedFilename() === 'DEMO-BDC-CHANGE-2026-001_revised-schedule_en-CA.csv' && dlText.split(/\r?\n/).filter((r) => /^\d{4}-\d{2}-\d{2}/.test(r)).length === 63 && (!viaNotice || dlText.replace(/^﻿/, '') === viaNotice.notice.revised.content.replace(/^﻿/, '')), dl.suggestedFilename());
   const [dl2] = await Promise.all([page.waitForEvent('download'), page.locator('[data-fid="pay-dl-selection"]').click()]);
-  check('en: "Download displayed selection" follows the current range', dl2.suggestedFilename() === 'DEMO-BDC-CHANGE-2026-001_selection-full-term.csv', dl2.suggestedFilename());
+  check('en: "Download displayed selection" follows the current range', dl2.suggestedFilename() === 'DEMO-BDC-CHANGE-2026-001_selection-full-term_en-CA.csv', dl2.suggestedFilename());
   const [dl3] = await Promise.all([page.waitForEvent('download'), page.locator('[data-fid="pay-dl-original"]').click()]);
-  check('en: "Download full original schedule" works', dl3.suggestedFilename() === 'DEMO-BDC-CHANGE-2026-001_original-schedule.csv');
+  check('en: "Download full original schedule" works', dl3.suggestedFilename() === 'DEMO-BDC-CHANGE-2026-001_original-schedule_en-CA.csv', dl3.suggestedFilename());
   const ev = await page.evaluate(() => window.BDCNotice.events.all().filter((x) => x.type === 'schedule_exported').map((x) => x.id));
   check('en: schedule_exported events logged with identifiers only', JSON.stringify(ev) === JSON.stringify(['revised-full', 'selection-all', 'original-full']), ev);
   check('en: download buttons have accessible names matching /revised schedule.*CSV/', await page.locator('#view').getByRole('button', { name: /revised schedule.*CSV/i }).count() >= 1);
@@ -379,14 +419,39 @@ const browser = await launch();
   check('fr: no elided word split from a glossary term (e.g. “d’ / intérêts”)', elidedTerms.length === 0, elidedTerms);
   const startLabel = await page.evaluate(() => (document.querySelector('#pay-data-balance tbody th') || {}).textContent || '');
   check('fr: first-of-month date written “1er novembre 2026”', /^1er novembre 2026/.test(N(startLabel)), startLabel);
-  check('fr: difference uses "de plus"', /\+80,00 \$ de plus/.test(N(ft.diff)), ft.diff);
+  check('fr: difference is amount + "de plus", no plus sign (R-22)', /^Écart du versement total\s*80,00 \$ de plus$/.test(N(ft.diff)), ft.diff);
   const frText = await viewText(page);
   check('fr: key values present (11 920 $, 4 800 $, 31 janvier 2032)', [ef.relief, ef.extra, ef.revMaturity].every((x) => frText.includes(N(x))), [ef.relief, ef.extra, ef.revMaturity]);
   check('fr: no forbidden framing (remise de dette/sans intérêt/congé/économie)', !/remise|sans intérêt|congé|économi/i.test(frText), (frText.match(/remise|sans intérêt|congé|économi/i) || [])[0]);
-  check('fr: chart month control names in French', /^Avril 2027 : versement initial 5 466,67 \$, versement révisé 5 546,67 \$, \+80,00 \$ de plus/.test(N(await page.getAttribute('[data-fid="pay-chart-2027-04"]', 'aria-label'))), await page.getAttribute('[data-fid="pay-chart-2027-04"]', 'aria-label'));
+  check('fr: chart month control names in French, amount + word, no-break space before « : »', /^Avril 2027\u00a0: versement initial 5 466,67 \$, versement révisé 5 546,67 \$, 80,00 \$ de plus\./.test((await page.getAttribute('[data-fid="pay-chart-2027-04"]', 'aria-label')).replace(/[\u202f]/g, ' ').replace(/(\d)\u00a0(\d)/g, '$1 $2').replace(/\u00a0\$/g, ' $')), await page.getAttribute('[data-fid="pay-chart-2027-04"]', 'aria-label'));
   check('fr: balance end labels in French', (await page.locator('.pay-chart-host--balance .pay-svg-endlabel').allTextContents()).some((x) => /Révisé.*remboursé en janv/.test(x)));
-  const frCsv = await page.evaluate(() => window.BDCNotice.payments.csv('selection-6'));
-  check('fr: CSV localized labels, same machine numbers', frCsv.content.includes('Numéro de l’avis,DEMO-BDC-CHANGE-2026-001') && frCsv.content.includes('Statut,Démonstration fictive – ni une offre ni une entente de BDC') && frCsv.content.includes('Date du versement,Initial – Capital au début') && frCsv.content.includes('2026-11-30,240000.00,4000.00,1600.00,5600.00'), frCsv.content.slice(0, 400));
+  const frCsv = await page.evaluate(() => {
+    const A = window.BDCNotice;
+    return { s3: A.payments.csv('selection-3'), s6: A.payments.csv('selection-6'), rv: A.payments.csv('revised-full'), notice: A.notice && A.notice.csv ? A.notice.csv('revised') : null };
+  });
+  const frLines = (c) => c.content.replace(/^﻿/, '').split('\r\n');
+  check('fr: selection CSV uses the notice labels and status (Avis, Version du dossier, État, Prêt, Source) (R-38)', ['Avis,DEMO-BDC-CHANGE-2026-001', 'Version du dossier,1.0', 'État,Démonstration fictive — ni une offre de BDC ni une entente réelle', 'Prêt,DEMO-4821', 'Source,Généré localement dans ce navigateur à partir du dossier de démonstration', '"Calendrier de financement illustratif, et non une offre de BDC."'].every((row) => frLines(frCsv.s6).includes(row)) && !/Statut|Création|Numéro de l’avis/.test(frCsv.s6.content), frCsv.s6.content.slice(0, 500));
+  check('fr: CSV header and machine numbers', frCsv.s6.content.includes('Date du versement,Initial – Capital au début') && frCsv.s6.content.includes('2026-11-30,240000.00,4000.00,1600.00,5600.00') && frCsv.s6.filename.endsWith('_fr-CA.csv'), frCsv.s6.filename);
+  check('fr: totals rows « Totaux » (approved) and « Somme des lignes ci-dessus » (six months)', frLines(frCsv.s3).filter(Boolean).pop().startsWith('Totaux,') && frLines(frCsv.s6).filter(Boolean).pop().startsWith('Somme des lignes ci-dessus,'), [frLines(frCsv.s3).filter(Boolean).pop(), frLines(frCsv.s6).filter(Boolean).pop()]);
+  check('fr: full revised CSV is the notice tab\'s French file', frCsv.rv.filename === 'DEMO-BDC-CHANGE-2026-001_revised-schedule_fr-CA.csv' && (!frCsv.notice || frCsv.rv.content === frCsv.notice.content) && frLines(frCsv.rv).filter(Boolean).pop().startsWith('Totaux,'), frCsv.rv.filename);
+  // R-36: a schedule is not repaid; the loan is
+  await go(page, '#/payments/2031-12');
+  const frAdded = N((await detailValues(page)).why);
+  check('fr: « Selon le calendrier initial, le prêt était entièrement remboursé… » (R-36)', frAdded.includes('Selon le calendrier initial, le prêt était entièrement remboursé le 31 octobre 2031.') && !/calendrier initial (était|est) (entièrement )?remboursé/.test(frAdded), frAdded);
+  const frBal = N(await page.locator('.pay-balance-card .pay-text-summary').innerText());
+  check('fr: balance summary says the loan is repaid under each schedule (R-36)', frBal.includes('Selon le calendrier initial, le prêt est entièrement remboursé le 31 octobre 2031; selon le calendrier révisé, le 31 janvier 2032.') && !/calendrier initial est remboursé/.test(frBal), frBal);
+  // R-33: Canadian French spacing in the whole payments namespace
+  const frSpacing = await page.evaluate(() => {
+    const bad = [];
+    (function walk(v, path) {
+      if (typeof v === 'string') { if (/ [:;?!»]|« | [;?!]/.test(v)) bad.push(`${path}: ${v.slice(0, 50)}`); } else if (v && typeof v === 'object') Object.keys(v).forEach((key) => walk(v[key], `${path}.${key}`));
+    }(window.BDCNotice.i18n.tv('payments'), 'payments'));
+    return bad;
+  });
+  check('fr: no ordinary space before « : » or inside « », none before ; ? ! (R-33)', frSpacing.length === 0, frSpacing);
+  const frYears = await page.evaluate(() => [...document.querySelectorAll('.pay-year-btn')].map((b) => b.innerText.replace(/\s+/g, ' ').trim()));
+  check('fr: year headers « Initial : 10 versements totalisant … » with per-schedule counts', frYears.includes('2031 Initial : 10 versements totalisant 41 466,67 $ Révisé : 12 versements totalisant 50 400,00 $') && frYears.includes('2032 Initial : aucun versement Révisé : 1 versement de 4 026,67 $'), frYears);
+  await go(page, '#/payments/2027-02');
   const mk = await missingKeys(page);
   check('fr: no missing dictionary keys', mk.length === 0, mk);
   await page.locator('[data-fid="pay-chart-2026-11"]').click();
@@ -444,6 +509,42 @@ const browser = await launch();
   await wait(page, 400);
   check('resize: chart redraw keeps focus on the month control', (await activeFid(page)) === 'pay-chart-2027-01', await activeFid(page));
   check('1024: no console errors', consoleMsgs.length === 0, consoleMsgs.slice(0, 5));
+  await context.close();
+}
+
+/* ======================= forced colours (R-45) ======================= */
+{
+  const { page, consoleMsgs, context } = await newPage(browser, { width: 1280, height: 900 });
+  await page.emulateMedia({ forcedColors: 'active', colorScheme: 'dark' });
+  await gotoApp(page, '#/payments/2026-12', file);
+  const fc = await page.evaluate(() => {
+    const probe = document.createElement('div');
+    document.body.appendChild(probe);
+    const sys = (c) => { probe.style.color = c; return getComputedStyle(probe).color; };
+    const S = { canvas: sys('Canvas'), text: sys('CanvasText'), highlight: sys('Highlight'), gray: sys('GrayText') };
+    probe.remove();
+    const cs = (sel) => { const el = document.querySelector(sel); return el ? getComputedStyle(el) : null; };
+    const checked = cs('input[name="pay-range"]:checked + label');
+    const unchecked = cs('input[name="pay-range"]:not(:checked) + label');
+    return {
+      S,
+      checkedBg: checked.backgroundColor,
+      uncheckedBg: unchecked.backgroundColor,
+      month: cs('.pay-chart-host .pay-svg-month:not(.is-selected)').fill,
+      monthSel: cs('.pay-chart-host .pay-svg-month.is-selected').fill,
+      total: cs('.pay-chart-host .pay-svg-total').fill,
+      tick: cs('.pay-chart-host .pay-svg-tick').fill,
+      revP: cs('.pay-chart-host .pay-seg--ri').fill,
+      revLine: cs('.pay-chart-host--balance .pay-svg-line--r').stroke,
+      endLabel: cs('.pay-chart-host--balance .pay-svg-endlabel').fill,
+      hbarR: cs('.pay-hbar--r').backgroundColor,
+      hbarX: cs('.pay-hbar--x').backgroundColor,
+    };
+  });
+  check('forced colours: selected range shows Highlight, unlike the other options', fc.checkedBg === fc.S.highlight && fc.uncheckedBg !== fc.checkedBg, fc);
+  check('forced colours: chart month, total and axis labels use CanvasText; selected month Highlight', [fc.month, fc.total, fc.tick, fc.endLabel].every((x) => x === fc.S.text) && fc.monthSel === fc.S.highlight, fc);
+  check('forced colours: bars and lines use system colours (not invisible navy)', fc.revP === fc.S.gray && fc.revLine === fc.S.text && fc.hbarR === fc.S.text && fc.hbarX === fc.S.highlight, fc);
+  check('forced colours: no console errors', consoleMsgs.length === 0, consoleMsgs.slice(0, 5));
   await context.close();
 }
 

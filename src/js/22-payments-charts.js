@@ -84,7 +84,8 @@
 
   function diffPhrase(cents) {
     if (cents === 0) return K('diff.same');
-    return K(cents < 0 ? 'diff.lower' : 'diff.higher', { amount: App.fmt.money(cents, { signed: true }) });
+    // Unsigned amount + direction word ("$4,000.00 lower"), never a minus sign with "lower".
+    return K(cents < 0 ? 'diff.lower' : 'diff.higher', { amount: App.fmt.money(Math.abs(cents)) });
   }
 
   function monthAria(m) {

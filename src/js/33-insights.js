@@ -41,8 +41,8 @@
 
   // Canadian French writes the first day of a month as "1er" (Intl gives "1").
   function longDate(iso) {
-    const s = App.fmt.date(iso, 'long');
-    return App.i18n.locale === 'fr-CA' ? s.replace(/^1([ \u00a0])/, '1er$1') : s;
+    // fr-CA "1er" comes from App.fmt; keep the day with its month on one line
+    return App.fmt.date(iso, 'long').replace(' ', '\u00a0');
   }
 
   function allGroups() {
@@ -88,6 +88,11 @@
         else if (section === 'changes') it = itemLabelSafe('card', item);
         else if (section === 'documents') it = has(`clauses.${item}`) ? t(`clauses.${item}`) : null;
         else if (section === 'support') it = itemLabelSafe('resource', item);
+        else if (section === 'help') {
+          const sub = id.split(':')[2];
+          if (item === 'faq' && sub) it = App.ui.itemLabel({ kind: 'faq', id: sub });
+          else if (item === 'glossary' && sub && has(`glossary.${sub}.term`)) it = t(`glossary.${sub}.term`);
+        }
         return it ? `${s} › ${it}` : s;
       }
       case 'glossary_opened': return has(`glossary.${id}.term`) ? t(`glossary.${id}.term`) : null;

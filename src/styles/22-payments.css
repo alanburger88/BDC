@@ -245,6 +245,11 @@
 .pay-total dt { color: var(--muted); font-size: var(--fs-small); }
 .pay-total dd { margin: 0; font-weight: 700; color: var(--navy); text-align: right; font-variant-numeric: tabular-nums; }
 .pay-total-sub { display: block; font-size: 0.8125rem; font-weight: 400; color: var(--muted); }
+/* A selection without approved totals (first six months) shows a labelled sum + why it differs */
+.pay-totals-wrap--sum .pay-totals { box-shadow: none; border-style: dashed; }
+.pay-totals-note { margin-top: var(--space-2); font-size: var(--fs-small); color: var(--text-2); max-width: 720px; }
+.pay-totals-note p { margin: 0; }
+.pay-totals-note p + p { margin-top: var(--space-1); }
 @container paylist (min-width: 520px) {
   .pay-totals { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .pay-total { display: block; }
@@ -297,9 +302,8 @@
 .pay-year-btn[aria-expanded="true"] { background: var(--white); border-color: var(--navy); }
 .pay-year-main { grid-area: main; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px var(--space-3); }
 .pay-year-name { font-size: 1.125rem; font-weight: 700; color: var(--navy); }
-.pay-year-count { font-size: var(--fs-small); color: var(--muted); font-weight: 500; }
-.pay-year-totals { grid-area: totals; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--space-4); min-width: 0; font-size: var(--fs-small); color: var(--text-2); font-weight: 500; font-variant-numeric: tabular-nums; }
-.pay-year-total { white-space: nowrap; }
+.pay-year-totals { grid-area: totals; display: flex; flex-direction: column; gap: 2px; min-width: 0; font-size: var(--fs-small); color: var(--text-2); font-weight: 500; font-variant-numeric: tabular-nums; }
+.pay-year-total { min-width: 0; overflow-wrap: anywhere; }
 .pay-year-chevron { grid-area: chev; color: var(--navy); transition: transform .15s ease; }
 .pay-year-btn[aria-expanded="true"] .pay-year-chevron { transform: rotate(180deg); }
 .pay-mlist--year { padding: var(--space-3) 0 var(--space-2) var(--space-3); border-left: 2px solid var(--line); margin-left: var(--space-2); }
@@ -391,4 +395,46 @@
 
 @media print {
   .pay-hits, .pay-data-toggle, .pay-readout-btn { display: none !important; }
+}
+
+/* ---------- Forced colours (Windows High Contrast and similar) ----------
+   Backgrounds are replaced by Canvas and SVG fills are not adjusted, so the selected range,
+   the chart labels and the bars would vanish. Map every chart part to a system colour:
+   text CanvasText, selection Highlight, original = hatched CanvasText, revised = solid
+   CanvasText (principal) / GrayText (interest), additional interest Highlight. */
+@media (forced-colors: active) {
+  .pay-segmented input:checked + label {
+    forced-color-adjust: none; background: Highlight; color: HighlightText; border-color: Highlight;
+    outline: 2px solid CanvasText; outline-offset: 2px;
+  }
+  .pay-segmented input:focus-visible + label { outline: 3px solid CanvasText; outline-offset: 3px; }
+
+  .pay-svg text, .pay-svg-tick, .pay-svg-total, .pay-svg-month, .pay-svg-year, .pay-svg-series,
+  .pay-svg-endlabel, .pay-svg-endlabel-name, .pay-svg-note { fill: CanvasText; }
+  .pay-svg-month.is-selected { fill: Highlight; }
+  .pay-svg-sel { fill: Canvas; stroke: Highlight; stroke-width: 2; }
+  .pay-svg-grid { stroke: CanvasText; stroke-dasharray: 1 4; }
+  .pay-svg-axis, .pay-svg-bracket { stroke: CanvasText; }
+  .pay-hatch-bg--p, .pay-hatch-bg--i { fill: Canvas; }
+  .pay-hatch-line--p { stroke: CanvasText; }
+  .pay-hatch-line--i { stroke: GrayText; }
+  .pay-seg--rp { fill: CanvasText; }
+  .pay-seg--ri { fill: GrayText; }
+  .pay-seg--op, .pay-seg--oi, .pay-swatch rect { stroke: CanvasText; stroke-width: 1; }
+  .pay-svg-band { fill: Canvas; stroke: GrayText; stroke-width: 1; stroke-dasharray: 3 3; }
+  .pay-svg-line--o { stroke: GrayText; }
+  .pay-svg-line--r { stroke: CanvasText; }
+  .pay-svg-dot { stroke: Canvas; }
+  .pay-svg-dot--o { fill: GrayText; }
+  .pay-svg-dot--r { fill: CanvasText; }
+  .pay-hit:focus-visible { outline-color: Highlight; }
+  /* SVG icons keep an explicit author colour (e.g. navy) in forced colours; follow the text. */
+  .pay-view .icon { color: CanvasText; }
+
+  /* HTML bars and keys drawn with backgrounds */
+  .pay-htrack, .pay-hbar, .pay-key, .pay-cost-extra-key { forced-color-adjust: none; }
+  .pay-htrack { background: Canvas; box-shadow: inset 0 0 0 1px GrayText; }
+  .pay-hbar--o, .pay-key--o { background: repeating-linear-gradient(135deg, CanvasText 0 2px, Canvas 2px 6px); box-shadow: inset 0 0 0 1px CanvasText; }
+  .pay-hbar--r, .pay-key--r { background: CanvasText; }
+  .pay-hbar--x, .pay-cost-extra-key { background: Highlight; }
 }

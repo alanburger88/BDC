@@ -528,7 +528,7 @@ App.i18n.register('changes', {
       rate: {
         formula: 'Intérêts mensuels = capital dû au début du mois × {rate} ÷ 12',
         example: '{opening} × {rate} ÷ 12 = {interest}',
-        rounding: 'Arrondi au cent près (la moitié étant arrondie à la hausse), selon les hypothèses de cette illustration.',
+        rounding: 'Intérêts arrondis au cent le plus proche (la demie étant arrondie au cent supérieur), selon les hypothèses de cette illustration.',
         why: 'Même taux, capital plus élevé : en {month}, les intérêts sont de {revised} au lieu de {original}, car aucun capital n’a été remboursé en {prev}.',
       },
       balance: {
