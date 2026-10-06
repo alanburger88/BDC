@@ -1,0 +1,239 @@
+/* Clair: right-side demo assistant panel (navy header, light body, sticky composer). */
+
+.clair-overlay.overlay--panel { overflow: hidden; }
+
+/* Header strip: avatar + two-level title + close, then the demo status row */
+.clair-overlay .overlay-header {
+  background: var(--navy);
+  color: var(--white);
+  border-bottom: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  row-gap: var(--space-3);
+  padding: var(--space-4) var(--space-4) var(--space-3) var(--space-5);
+}
+.clair-overlay .overlay-heading {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.clair-avatar {
+  flex: 0 0 auto;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: var(--white);
+}
+.clair-overlay .overlay-title {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin: 0;
+  color: var(--white);
+  letter-spacing: 0;
+  border-radius: 6px;
+}
+.clair-title-name { font-size: 1.25rem; font-weight: 700; line-height: 1.15; letter-spacing: var(--tracking-tight); }
+.clair-title-desc { font-size: 0.875rem; font-weight: 500; line-height: 1.3; color: #d3dbe2; }
+.clair-status {
+  flex: 1 0 100%;
+  display: flex; align-items: flex-start; gap: var(--space-2);
+  margin: 0;
+  padding-top: var(--space-3);
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: #d3dbe2;
+}
+.clair-status .icon { flex: 0 0 auto; margin-top: 1px; color: #a9bdff; }
+.clair-status-text { min-width: 0; }
+/* The key disclaimer phrase stays on one line */
+.clair-status-key { display: inline-block; max-width: 100%; }
+.clair-overlay .overlay-close {
+  color: var(--white);
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.5);
+}
+.clair-overlay .overlay-close:hover { background: rgba(255, 255, 255, 0.12); }
+.clair-overlay .overlay-header :focus-visible,
+.clair-overlay .overlay-title:focus-visible { outline: 3px solid var(--white); outline-offset: 3px; }
+
+/* Body: scrolling conversation above a composer that never leaves the panel */
+.clair-overlay .overlay-body {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+  background: var(--grey-bg);
+}
+.clair-scroll {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--space-4) var(--space-5) var(--space-5);
+}
+
+/* Current context */
+.clair-context {
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+.clair-context-label {
+  font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--muted);
+}
+.clair-chip {
+  background: var(--blue-tint);
+  border-color: #c3d1ff;
+  color: var(--navy);
+  font-weight: 600;
+  line-height: 1.3;
+  min-height: 34px;
+}
+.clair-chip:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.clair-chip--general { padding-right: 12px; font-weight: 500; background: var(--white); border-color: var(--line); }
+.clair-chip-remove { color: var(--blue-text); }
+.clair-chip-remove:hover { background: #dce6ff; }
+
+/* Conversation */
+.clair-log { display: flex; flex-direction: column; gap: var(--space-3); }
+.clair-msg { min-width: 0; max-width: 100%; overflow-wrap: break-word; font-size: 0.9375rem; }
+.clair-msg-text { margin: 0; }
+.clair-msg--user {
+  align-self: flex-end;
+  max-width: 88%;
+  padding: 10px 14px;
+  border-radius: 16px 16px 4px 16px;
+  background: var(--navy);
+  color: var(--white);
+  font-weight: 500;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.clair-msg--clair {
+  align-self: stretch;
+  padding: 14px 16px;
+  border-radius: 4px 14px 14px 14px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--blue);
+  box-shadow: var(--shadow);
+  color: var(--text);
+  line-height: 1.5;
+}
+.clair-msg--greeting { border-left-color: var(--navy); }
+
+.clair-fact {
+  display: flex; flex-direction: column; gap: 2px;
+  margin-top: var(--space-3);
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--grey-bg);
+  font-size: var(--fs-small);
+  line-height: 1.45;
+}
+.clair-fact-label {
+  font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+  color: var(--muted);
+}
+.clair-fact-text { color: var(--text-2); font-variant-numeric: tabular-nums; }
+
+.clair-actions {
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: var(--space-1) var(--space-3);
+  margin-top: var(--space-2);
+}
+.clair-actions .btn { min-width: 0; }
+.clair-actions--split { margin-top: var(--space-3); padding-top: var(--space-3); border-top: 1px solid var(--grey-2); }
+.clair-source { font-size: var(--fs-small); min-height: 40px; }
+.clair-source .btn-label { overflow-wrap: break-word; }
+.clair-source .icon-after { display: inline-block; vertical-align: -4px; }
+.clair-nowrap { white-space: nowrap; }
+.clair-ask { min-height: 36px; }
+
+.clair-lang { display: block; margin-top: 6px; font-size: 0.75rem; font-weight: 500; color: var(--muted); }
+.clair-msg--user .clair-lang { color: #c9d3dc; }
+
+/* Suggested questions */
+.clair-suggest { margin-top: var(--space-5); }
+.clair-suggest-title {
+  margin: 0 0 var(--space-2);
+  font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--muted);
+}
+.clair-chips {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-wrap: wrap; gap: var(--space-2);
+}
+.clair-chips li { min-width: 0; max-width: 100%; }
+.clair-chips li + li { margin-top: 0; }
+.clair-chips--inline { margin-top: var(--space-3); }
+.btn-chip.clair-chip-btn {
+  justify-content: flex-start;
+  text-align: left;
+  white-space: normal;
+  line-height: 1.3;
+  padding: 8px 14px;
+  border-radius: 18px;
+  font-weight: 600;
+}
+
+/* Composer */
+.clair-form {
+  flex: 0 0 auto;
+  background: var(--white);
+  border-top: 1px solid var(--line);
+  padding: var(--space-3) var(--space-4) calc(var(--space-3) + env(safe-area-inset-bottom, 0px));
+  box-shadow: 0 -6px 18px rgba(24, 44, 61, 0.06);
+}
+.clair-input-row { display: flex; gap: var(--space-2); align-items: stretch; }
+.clair-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border-radius: var(--radius-pill);
+  padding: 10px 16px;
+  text-overflow: ellipsis;
+}
+/* The placeholder is the visible prompt (the label is visually hidden): keep it readable */
+.clair-input::placeholder { color: var(--muted); opacity: 1; }
+.clair-send { flex: 0 0 auto; padding: 10px 18px; }
+.clair-error { margin: 6px 0 0; }
+.clair-form-meta { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-2); margin-top: 6px; }
+.clair-hint { margin: 0; font-size: 0.75rem; line-height: 1.35; color: var(--muted); min-width: 0; }
+.clair-counter { margin: 0; font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+
+@media (max-width: 599.98px) {
+  .clair-overlay .overlay-header { padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4); row-gap: var(--space-2); }
+  .clair-avatar { width: 36px; height: 36px; }
+  .clair-title-name { font-size: 1.125rem; }
+  .clair-title-desc { font-size: 0.8125rem; }
+  .clair-overlay .overlay-close { padding: 6px 12px 6px 10px; }
+  .clair-status { font-size: 0.75rem; padding-top: var(--space-2); }
+  .clair-scroll { padding: var(--space-4) var(--space-4) var(--space-4); }
+  .clair-msg--user { max-width: 92%; }
+}
+@media (max-width: 359.98px) {
+  .clair-avatar { display: none; }
+  /* Icon-only Send keeps the input wide enough for its prompt; the label stays as its accessible name */
+  .clair-send { width: 48px; min-width: 48px; padding: 0; }
+  .clair-send .btn-label {
+    position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+  .clair-send .icon-after { width: 22px; height: 22px; }
+}
+/* Short viewports (on-screen keyboard open): keep the conversation visible */
+@media (max-height: 520px) {
+  .clair-overlay .overlay-header { padding-top: var(--space-2); padding-bottom: var(--space-2); row-gap: var(--space-1); }
+  .clair-avatar { display: none; }
+  .clair-status { padding-top: var(--space-1); }
+  .clair-hint { display: none; }
+  .clair-scroll { padding-top: var(--space-3); }
+  .clair-form { padding-top: var(--space-2); }
+}

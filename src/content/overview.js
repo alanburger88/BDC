@@ -21,6 +21,7 @@ App.i18n.register('overview', {
       intro: 'Each card leads to the month-by-month detail behind the figure.',
       seeDetail: 'See the detail',
       seeDetailAria: 'See the detail: {item}',
+      explainAria: 'Explain with AI: {item}',
     },
     cards: {
       'next-payment': {
@@ -48,7 +49,7 @@ App.i18n.register('overview', {
     },
     beside: {
       title: 'Keep in mind',
-      maturityTitle: 'Final payment date ([[maturity|maturity]])',
+      maturityTitle: '[[maturity|Maturity date]]',
       maturityText: 'Your final payment moves from {from} to {to}.',
       owingTitle: '[[principal|Principal]] still owing',
       owingText: 'The {amount} of postponed principal remains owing. This is temporary cash-flow relief, not a reduction in what you owe.',
@@ -59,11 +60,12 @@ App.i18n.register('overview', {
       step1Text: 'Check the revised dates and amounts, starting with the payment due {date}.',
       step1Link: 'Open the revised schedule',
       step2Title: 'Update your internal [[cashFlow|cash-flow]] planning',
-      step2Text: 'Plan for interest-only payments of {interest} from {from} to {to}, then a payment of {resumed} on {resumeDate}, when principal payments resume.',
+      step2Text: 'Plan for interest-only payments of {interest} a month from {from} to {to}, then a payment of {resumed} on {resumeDate}, when principal payments resume.',
       noAcceptance: 'No acceptance is required through this notice. The amendment is already approved and complete.',
       markReviewed: 'Mark as reviewed',
       markHint: 'Optional. Keeps a note in this browser tab only.',
-      reviewedStatus: 'Marked as reviewed in this demo. This is a local note only — not acceptance, consent or proof of understanding.',
+      reviewedTitle: 'Marked as reviewed in this demo.',
+      reviewedNote: 'This is a local note only — not acceptance, consent or proof of understanding.',
     },
     same: {
       title: 'What stays the same',
@@ -78,17 +80,17 @@ App.i18n.register('overview', {
     },
     media: {
       title: 'Your personalised explanation',
-      meta: 'About one minute · Captions and transcript included · Nothing plays until you press Play',
+      meta: 'About one minute · Captions and transcript included · No autoplay',
       text: 'A short animated walkthrough of this notice, narrated for you in English or French.',
       unavailableTitle: 'Explanation player unavailable',
-      unavailableText: 'The explanation player is not included in this build. The same information is on this page and in “What changed”.',
+      unavailableText: 'The explanation player is not included in this build. The same information is on this page and in “{section}”.',
     },
   },
   'fr-CA': {
     greeting: 'Bonjour {name}. Faisons le point sur la modification de votre financement.',
     overline: 'Avis de modification · en vigueur le {date}',
     title: 'Vos remboursements de capital sont reportés de trois mois.',
-    intro: 'Dans cet exemple fictif, le [[postponement|report temporaire des remboursements de capital]] demandé pour {company} a été approuvé, et la modification est finalisée. Voici ce que cela change pour vos versements, et ce qui demeure inchangé.',
+    intro: 'Dans cet exemple fictif, le [[postponement|report temporaire]] des remboursements de capital demandé pour {company} a été approuvé, et la modification est finalisée. Voici ce que cela change pour vos versements, et ce qui demeure inchangé.',
     cta: {
       changes: 'Voir ce qui change',
       watch: 'Voir votre explication personnalisée',
@@ -99,9 +101,10 @@ App.i18n.register('overview', {
     },
     summary: {
       title: 'Votre modification en un coup d’œil',
-      intro: 'Chaque carte mène au détail mois par mois derrière le montant.',
+      intro: 'Chaque carte donne accès au détail, mois par mois, du montant affiché.',
       seeDetail: 'Voir le détail',
-      seeDetailAria: 'Voir le détail : {item}',
+      seeDetailAria: 'Voir le détail\u00a0: {item}',
+      explainAria: 'Expliquer avec l’IA\u00a0: {item}',
     },
     cards: {
       'next-payment': {
@@ -111,7 +114,7 @@ App.i18n.register('overview', {
       },
       resume: {
         label: 'Reprise des remboursements de capital',
-        note: 'Premier versement après le report : {total} ({principal} de capital + {interest} d’intérêts).',
+        note: 'Premier versement après le report\u00a0: {total} ({principal} de capital + {interest} d’intérêts).',
       },
       relief: {
         label: 'Effet sur la trésorerie',
@@ -123,13 +126,13 @@ App.i18n.register('overview', {
       'extra-interest': {
         label: 'Intérêts additionnels',
         sub: 'sur la durée restante du calendrier',
-        original: 'Total des intérêts initial',
-        revised: 'Total des intérêts révisé',
+        original: 'Total initial des intérêts',
+        revised: 'Total révisé des intérêts',
       },
     },
     beside: {
       title: 'À retenir',
-      maturityTitle: 'Date du dernier versement ([[maturity|échéance]])',
+      maturityTitle: '[[maturity|Date d’échéance]]',
       maturityText: 'Votre dernier versement passe du {from} au {to}.',
       owingTitle: '[[principal|Capital]] toujours dû',
       owingText: 'Les {amount} de capital reportés restent dus. Il s’agit d’un allègement temporaire de trésorerie, et non d’une réduction de ce que vous devez.',
@@ -140,11 +143,12 @@ App.i18n.register('overview', {
       step1Text: 'Vérifiez les dates et les montants révisés, à commencer par le versement payable le {date}.',
       step1Link: 'Ouvrir le calendrier révisé',
       step2Title: 'Mettez à jour la planification interne de votre [[cashFlow|trésorerie]]',
-      step2Text: 'Prévoyez des versements d’intérêts seulement de {interest} de {from} à {to}, puis un versement de {resumed} le {resumeDate}, à la reprise des remboursements de capital.',
-      noAcceptance: 'Aucune acceptation n’est requise dans cet avis. La modification est déjà approuvée et finalisée.',
+      step2Text: 'Prévoyez des versements d’intérêts seulement de {interest} par mois de {from} à {to}, puis un versement de {resumed} le {resumeDate}, à la reprise des remboursements de capital.',
+      noAcceptance: 'Aucune acceptation de votre part n’est requise dans le cadre de cet avis. La modification est déjà approuvée et finalisée.',
       markReviewed: 'Marquer comme consulté',
       markHint: 'Facultatif. Conserve une note dans cet onglet seulement.',
-      reviewedStatus: 'Marqué comme consulté dans cette démo. Il s’agit uniquement d’une note locale, et non d’une acceptation, d’un consentement ni d’une preuve de compréhension.',
+      reviewedTitle: 'Marqué comme consulté dans cette démo.',
+      reviewedNote: 'Il s’agit uniquement d’une note locale, et non d’une acceptation, d’un consentement ni d’une preuve de compréhension.',
     },
     same: {
       title: 'Ce qui ne change pas',
@@ -159,10 +163,10 @@ App.i18n.register('overview', {
     },
     media: {
       title: 'Votre explication personnalisée',
-      meta: 'Environ une minute · Sous-titres et transcription inclus · Rien ne joue avant que vous appuyiez sur Lecture',
+      meta: 'Environ une minute · Sous-titres et transcription inclus · Aucune lecture automatique',
       text: 'Une courte présentation animée de cet avis, narrée pour vous en français ou en anglais.',
       unavailableTitle: 'Lecteur d’explication non disponible',
-      unavailableText: 'Le lecteur d’explication n’est pas inclus dans cette version. La même information se trouve sur cette page et dans la section « Ce qui change ».',
+      unavailableText: 'Le lecteur d’explication n’est pas inclus dans cette version. La même information se trouve sur cette page et dans la section «\u00a0{section}\u00a0».',
     },
   },
 });

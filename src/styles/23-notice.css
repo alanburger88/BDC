@@ -1,0 +1,369 @@
+/* Your notice (ntc-): formal document card with a metadata/actions rail
+   (beside it on desktop, above it on smaller screens), numbered clauses,
+   schedules that switch from data tables to stacked labelled rows by the
+   width actually available (container query), and the print layout. */
+.ntc-view { min-width: 0; }
+.ntc-view .section-header { margin-bottom: var(--space-5); }
+
+/* Demo status line under the intro */
+.ntc-status {
+  display: inline-flex; align-items: flex-start; gap: var(--space-2);
+  max-width: 100%; margin: var(--space-4) 0 0; padding: 8px 14px;
+  background: var(--white); border: 1px dashed var(--line-strong); border-radius: 12px;
+  font-size: var(--fs-small); color: var(--text-2); line-height: 1.4;
+}
+.ntc-status .icon { flex: 0 0 auto; margin-top: 1px; color: var(--navy); }
+.ntc-status-text { min-width: 0; }
+.ntc-status-label { font-weight: 700; color: var(--navy); }
+.ntc-status-label::after { content: " ·"; color: var(--muted); font-weight: 400; }
+
+/* Layout: rail + document */
+.ntc-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-5); align-items: start; }
+.ntc-layout > * { min-width: 0; }
+.ntc-rail { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-4); align-content: start; }
+.ntc-rail > * { min-width: 0; }
+@media (min-width: 680px) and (max-width: 959.98px) {
+  .ntc-rail { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ntc-toc { grid-column: 1 / -1; }
+  .ntc-toc-list:not([hidden]) { columns: 2; column-gap: var(--space-5); }
+  .ntc-toc-list li { break-inside: avoid; }
+}
+@media (min-width: 960px) {
+  .ntc-layout { grid-template-columns: 264px minmax(0, 784px); gap: 32px; align-items: stretch; }
+  /* flex column (not grid) so the contents card can stay in view while the notice scrolls */
+  .ntc-rail { display: flex; flex-direction: column; gap: var(--space-4); }
+  .ntc-toc { position: sticky; top: var(--space-4); max-height: calc(100vh - 32px); overflow-y: auto; }
+}
+@media (min-width: 1080px) {
+  .ntc-layout { grid-template-columns: 296px minmax(0, 784px); gap: 40px; }
+}
+
+/* Rail cards */
+.ntc-card { padding: var(--space-5); }
+.ntc-card-title { font-size: 1.0625rem; letter-spacing: -0.01em; margin: 0 0 var(--space-3); }
+.ntc-card-intro { font-size: var(--fs-small); color: var(--muted); margin-bottom: var(--space-4); }
+@media (max-width: 599.98px) { .ntc-card { padding: var(--space-4); } }
+
+.ntc-meta-list { margin: 0; }
+.ntc-meta-row { padding: 8px 0; border-top: 1px solid var(--grey-2); min-width: 0; }
+.ntc-meta-row:first-child { border-top: 0; padding-top: 0; }
+.ntc-meta-row:last-child { padding-bottom: 0; }
+.ntc-meta-row dt { font-size: 0.8125rem; color: var(--muted); line-height: 1.35; }
+.ntc-meta-row dd { margin: 2px 0 0; font-weight: 600; color: var(--navy); font-size: 0.9375rem; line-height: 1.35; overflow-wrap: anywhere; }
+.ntc-id { letter-spacing: 0; }
+/* Phones and small tablets: short items sit in pairs so the notice starts sooner. */
+@media (min-width: 360px) and (max-width: 679.98px) {
+  .ntc-meta-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--space-4); }
+  .ntc-meta-row.is-wide { grid-column: 1 / -1; }
+}
+
+.ntc-print-btn { width: 100%; }
+.ntc-dl-list { list-style: none; margin: var(--space-3) 0 0; padding: 0; display: grid; gap: var(--space-2); }
+.ntc-dl-list li + li { margin-top: 0; }
+.ntc-dl {
+  width: 100%; display: flex; align-items: center; gap: var(--space-3);
+  min-height: 56px; padding: 10px 14px 10px 10px;
+  background: var(--white); color: var(--navy); text-align: left;
+  border: 1px solid var(--line); border-radius: 12px;
+  transition: border-color .15s ease, background-color .15s ease;
+}
+.ntc-dl:hover { border-color: var(--navy); background: var(--grey-bg); }
+.ntc-dl-icon {
+  flex: 0 0 36px; width: 36px; height: 36px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--grey-bg); color: var(--navy);
+}
+.ntc-dl:hover .ntc-dl-icon { background: var(--white); }
+.ntc-dl-text { display: flex; flex-direction: column; min-width: 0; }
+.ntc-dl-label { font-weight: 600; font-size: 0.9375rem; line-height: 1.3; overflow-wrap: anywhere; }
+.ntc-dl-sub { font-size: 0.8125rem; color: var(--muted); line-height: 1.35; }
+.ntc-dl-status { margin: var(--space-3) 0 0; font-size: 0.8125rem; font-weight: 600; color: var(--green-ok); overflow-wrap: anywhere; }
+.ntc-dl-status:empty { display: none; }
+.ntc-pdf-note { display: flex; gap: var(--space-2); align-items: flex-start; margin: var(--space-4) 0 0; font-size: 0.8125rem; color: var(--muted); line-height: 1.4; }
+.ntc-pdf-note .icon { flex: 0 0 auto; margin-top: 1px; }
+
+/* Contents */
+.ntc-toc { padding-top: var(--space-3); padding-bottom: var(--space-3); }
+.ntc-toc-title { margin: 0; }
+.ntc-toc-toggle {
+  width: 100%; display: flex; align-items: center; justify-content: space-between; gap: var(--space-3);
+  min-height: 44px; padding: 4px 0; border: 0; background: none; text-align: left;
+  font: inherit; font-weight: 600; color: var(--navy);
+}
+.ntc-toc-chevron { flex: 0 0 auto; transition: transform .15s ease; }
+.ntc-toc-toggle[aria-expanded="true"] .ntc-toc-chevron { transform: rotate(180deg); }
+.ntc-toc-list { list-style: none; margin: var(--space-2) 0 var(--space-1); padding: 0; }
+.ntc-toc-list li + li { margin-top: 2px; }
+.ntc-toc-link {
+  display: grid; grid-template-columns: 1.75rem minmax(0, 1fr); align-items: baseline;
+  min-height: 40px; padding: 8px 10px; border-radius: var(--radius-sm);
+  color: var(--text); text-decoration: none; font-size: 0.9375rem; line-height: 1.35;
+}
+.ntc-toc-link:hover { background: var(--grey-bg); color: var(--navy); }
+.ntc-toc-link.is-current { background: var(--blue-tint); color: var(--navy); font-weight: 600; box-shadow: inset 3px 0 0 var(--blue); }
+.ntc-toc-num { color: var(--muted); font-weight: 600; font-variant-numeric: tabular-nums; }
+.ntc-toc-name { min-width: 0; overflow-wrap: break-word; }
+
+/* Document card */
+.ntc-doc {
+  position: relative; min-width: 0;
+  background: var(--white); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow);
+  padding: var(--space-5) var(--space-4) var(--space-5);
+  --ntc-indent: 0px;
+  --ntc-pad: 12px;
+}
+.ntc-doc::before {
+  content: ""; position: absolute; top: -1px; left: var(--space-4);
+  width: 48px; height: 4px; border-radius: 0 0 3px 3px; background: var(--red);
+}
+@media (min-width: 600px) {
+  .ntc-doc { padding: var(--space-6); --ntc-indent: 2.75rem; --ntc-pad: 16px; }
+  .ntc-doc::before { left: var(--space-6); }
+}
+@media (min-width: 900px) {
+  .ntc-doc { padding: 48px 56px 40px; --ntc-pad: 20px; }
+  .ntc-doc::before { left: 56px; }
+}
+@media (min-width: 960px) and (max-width: 1179.98px) {
+  .ntc-doc { padding: 40px 40px 32px; }
+  .ntc-doc::before { left: 40px; }
+}
+
+.ntc-lh { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-3) var(--space-5); padding-bottom: var(--space-4); border-bottom: 2px solid var(--navy); }
+.ntc-logo { display: block; flex: 0 0 auto; height: 40px; width: auto; max-width: none; }
+.ntc-lh-text { flex: 1 1 200px; min-width: 0; }
+.ntc-lh-title { margin: 0; font-weight: 700; color: var(--navy); font-size: 1.0625rem; line-height: 1.3; letter-spacing: -0.01em; }
+.ntc-lh-sub { margin: 2px 0 0; font-size: var(--fs-small); color: var(--muted); }
+@media (min-width: 600px) { .ntc-logo { height: 48px; } .ntc-lh-text { text-align: right; } }
+
+.ntc-letter-meta { display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-6); margin: var(--space-4) 0 var(--space-5); }
+.ntc-letter-meta .ntc-pair { min-width: 0; }
+.ntc-letter-meta dt, .ntc-addr-label {
+  font-size: 0.75rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted);
+}
+.ntc-letter-meta dd { margin: 0; font-weight: 600; color: var(--text); font-size: 0.9375rem; overflow-wrap: anywhere; }
+.ntc-addressee { display: flex; flex-direction: column; margin-bottom: var(--space-5); line-height: 1.45; }
+.ntc-addr-name { font-weight: 600; color: var(--text); }
+
+.ntc-re {
+  font-size: clamp(1.125rem, 1rem + 0.55vw, 1.375rem); line-height: 1.3;
+  margin: 0 0 var(--space-4); padding: var(--space-4) 0;
+  border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+}
+
+/* Clauses */
+.ntc-clause {
+  margin: 0 calc(-1 * var(--ntc-pad));
+  padding: var(--space-4) var(--ntc-pad);
+  border-radius: 12px;
+  scroll-margin-top: var(--space-4);
+}
+.ntc-clause + .ntc-clause { margin-top: var(--space-1); }
+.ntc-clause:focus-visible { outline: 3px solid var(--focus); outline-offset: 0; }
+.ntc-clause-title {
+  display: grid; grid-template-columns: var(--ntc-indent) minmax(0, 1fr); align-items: baseline;
+  font-size: var(--fs-h3); margin: 0 0 var(--space-3);
+}
+.ntc-num { color: var(--red-deep); font-weight: 700; font-variant-numeric: tabular-nums; }
+.ntc-clause-name { min-width: 0; }
+@media (max-width: 599.98px) {
+  .ntc-clause-title { display: block; }
+  .ntc-num { margin-right: 0.35em; }
+}
+.ntc-clause-body { padding-left: var(--ntc-indent); min-width: 0; }
+.ntc-clause-body > p, .ntc-list > li { line-height: 1.6; }
+.ntc-clause-body > p { margin-bottom: var(--space-3); }
+.ntc-list { padding-left: 1.25rem; margin: 0 0 var(--space-3); }
+.ntc-list > li { padding-left: 2px; }
+.ntc-list > li + li { margin-top: var(--space-2); }
+.ntc-list > li::marker { color: var(--navy); font-weight: 600; }
+.ntc-emph { font-weight: 600; color: var(--navy); }
+.ntc-small { font-size: var(--fs-small); color: var(--muted); }
+/* Identifiers never break at hyphens; punctuation stays with the glossary trigger it touches. */
+.ntc-nobr, .ntc-glue { white-space: nowrap; }
+.ntc-glue > .term { white-space: normal; }
+
+.ntc-terms { margin: var(--space-4) 0 var(--space-2); padding: 2px var(--space-4); background: var(--grey-bg); border: 1px solid var(--line); border-radius: 12px; }
+.ntc-terms-list { margin: 0; }
+.ntc-term { padding: 10px 0; border-top: 1px solid var(--line); min-width: 0; }
+.ntc-term:first-child { border-top: 0; }
+.ntc-term dt { font-size: var(--fs-small); color: var(--muted); }
+.ntc-term dd { margin: 0; font-weight: 600; color: var(--navy); }
+@media (min-width: 600px) {
+  .ntc-term { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-4); align-items: baseline; }
+}
+
+/* Clause tools: explain / ask / plain-language link */
+.ntc-tools {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4);
+  margin: var(--space-4) 0 0 var(--ntc-indent); padding-top: var(--space-3);
+  border-top: 1px dashed var(--line);
+}
+.ntc-tools-ai { display: flex; flex-wrap: wrap; gap: var(--space-2); min-width: 0; }
+.ntc-tools-links { display: flex; flex-wrap: wrap; gap: 0 var(--space-4); min-width: 0; }
+.ntc-tools-links:empty { display: none; }
+.ntc-tools .btn-link { min-height: 40px; font-size: 0.9375rem; }
+@media (max-width: 599.98px) {
+  .ntc-tools { gap: var(--space-2); }
+  .ntc-tools .btn-chip { padding: 6px 12px; font-size: 0.8125rem; justify-content: flex-start; text-align: left; }
+  .ntc-tools .btn-link { justify-content: flex-start; }
+}
+
+/* Target highlight (route #/documents/<clause>) */
+@keyframes ntc-flash {
+  0%, 55% { background-color: var(--blue-tint); box-shadow: inset 4px 0 0 var(--blue); }
+  100% { background-color: rgba(234, 240, 255, 0); box-shadow: inset 4px 0 0 rgba(43, 89, 255, 0); }
+}
+.ntc-clause--flash { animation: ntc-flash 2.4s ease-out 1; }
+.ntc-clause--static { animation: none !important; background-color: var(--blue-tint); box-shadow: inset 4px 0 0 var(--blue); }
+@media (prefers-reduced-motion: reduce) {
+  .ntc-clause--flash { animation: none !important; background-color: var(--blue-tint); box-shadow: inset 4px 0 0 var(--blue); }
+}
+
+/* Clause 10: schedules. The whole clause is the query container, and the data
+   blocks use the full document width (outdented from the clause indent). */
+.ntc-clause--schedule { container-type: inline-size; container-name: ntc; }
+.ntc-clause--schedule .ntc-clause-body > :not(p) { margin-left: calc(-1 * var(--ntc-indent)); }
+.ntc-wide { display: none; }
+@container ntc (min-width: 560px) {
+  .ntc-wide { display: block; }
+  .ntc-narrow { display: none; }
+}
+/* The six-amount comparison needs a little more room than the schedule table. */
+@container ntc (max-width: 659.98px) {
+  .ntc-first4 .ntc-wide { display: none; }
+  .ntc-first4 .ntc-narrow { display: block; }
+}
+.ntc-demo-note { margin: 0 0 var(--space-4); }
+.ntc-sub { font-size: 1rem; letter-spacing: 0; margin: var(--space-5) 0 var(--space-3); color: var(--navy); }
+.ntc-sub-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2) var(--space-3); margin: var(--space-5) 0 var(--space-2); }
+.ntc-sub-row .ntc-sub { margin: 0; }
+.ntc-years-toggle .icon { transition: transform .15s ease; }
+.ntc-years-toggle[data-all="open"] .icon { transform: rotate(180deg); }
+
+.ntc-table { font-size: 0.875rem; }
+.ntc-table th, .ntc-table td { padding: 8px 6px; }
+.ntc-table thead th { font-size: 0.8125rem; line-height: 1.25; vertical-align: bottom; }
+.ntc-table tbody th { font-weight: 600; color: var(--navy); white-space: nowrap; }
+.ntc-table .num { text-align: right; white-space: nowrap; }
+.ntc-table .ntc-strong { font-weight: 700; color: var(--navy); }
+.ntc-table tr.is-postponed > * { background: #f6f8ff; }
+.ntc-col-no { color: var(--muted); width: 2.5rem; }
+.ntc-date-text { display: block; }
+.ntc-tag { display: inline-block; margin-top: 2px; font-size: 0.75rem; font-weight: 600; color: var(--amber); white-space: normal; line-height: 1.3; }
+/* The opening principal column needs ~630 px; below that the closing column carries the balance. */
+@container ntc (max-width: 639.98px) { .ntc-col-opening { display: none; } }
+
+.ntc-first4-table { font-size: 0.8125rem; }
+.ntc-first4-table th, .ntc-first4-table td { padding: 7px 5px; }
+.ntc-first4-table thead th { font-size: 0.75rem; }
+.ntc-first4-table thead th.num { white-space: normal; }
+.ntc-first4-table .ntc-group { text-align: center; border-bottom: 1px solid var(--line-strong); }
+.ntc-first4-table .ntc-group--rev, .ntc-first4-table td.ntc-col-split ~ td, .ntc-first4-table td.ntc-col-split { background: #f6f8ff; }
+.ntc-first4-table thead tr:last-child th.ntc-col-split ~ th, .ntc-first4-table thead th.ntc-col-split { background: #e8eeff; }
+.ntc-first4-table .ntc-col-split { border-left: 2px solid var(--line-strong); }
+.ntc-first4-table .ntc-th-date { vertical-align: bottom; }
+
+.ntc-f4-cards { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); grid-template-columns: minmax(0, 1fr); }
+.ntc-f4-cards li + li { margin-top: 0; }
+.ntc-f4-card { padding: var(--space-3) var(--space-4); border: 1px solid var(--line); border-radius: 12px; background: var(--white); }
+@container ntc (min-width: 460px) {
+  .ntc-f4-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.ntc-mini { font-size: 0.875rem; font-variant-numeric: tabular-nums; table-layout: fixed; width: 100%; }
+.ntc-mini col.ntc-mini-label { width: 31%; }
+.ntc-mini caption { text-align: left; font-weight: 700; color: var(--navy); padding-bottom: var(--space-2); font-size: 0.9375rem; }
+.ntc-mini th, .ntc-mini td { padding: 5px 0; vertical-align: baseline; }
+.ntc-mini thead th { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+.ntc-mini tbody th { font-weight: 500; color: var(--text-2); padding-right: var(--space-2); }
+.ntc-mini .num { text-align: right; white-space: nowrap; padding-left: var(--space-2); }
+@container ntc (max-width: 299.98px) {
+  .ntc-f4-card { padding: var(--space-3); }
+  .ntc-mini { font-size: 0.8125rem; }
+}
+.ntc-mini .ntc-rev { color: var(--navy); font-weight: 600; }
+.ntc-mini td.ntc-rev, .ntc-mini thead th:last-child { background: #f3f6ff; padding-right: 6px; }
+.ntc-mini tr.is-total > * { border-top: 1px solid var(--line); font-weight: 700; color: var(--navy); }
+
+.ntc-years { border-bottom: 1px solid var(--line); }
+.ntc-year-disc .disclosure-toggle { padding: var(--space-3) var(--space-1); }
+.ntc-year-disc .disclosure-toggle:hover { background: var(--grey-bg); }
+.ntc-year-disc .disclosure-summary { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px var(--space-3); min-width: 0; }
+.ntc-year { font-size: 1.0625rem; font-weight: 700; color: var(--navy); font-variant-numeric: tabular-nums; }
+.ntc-year-meta { font-size: var(--fs-small); font-weight: 500; color: var(--muted); }
+.ntc-year-disc .disclosure-content { padding: 0 0 var(--space-4); }
+
+.ntc-rows { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
+.ntc-rows li + li { margin-top: 0; }
+.ntc-row { padding: var(--space-3) var(--space-4); border: 1px solid var(--line); border-radius: 12px; background: var(--white); min-width: 0; }
+@container ntc (max-width: 299.98px) { .ntc-row { padding: var(--space-3); } }
+.ntc-row.is-postponed { background: #f6f8ff; border-color: #c9d6ff; }
+.ntc-row-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px var(--space-3); margin: 0 0 var(--space-2); }
+.ntc-row-date { font-weight: 700; color: var(--navy); }
+.ntc-row-no { font-size: 0.8125rem; color: var(--muted); }
+.ntc-row-head .ntc-tag { margin-top: 0; }
+.ntc-row-dl { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2) var(--space-3); }
+.ntc-pair { min-width: 0; }
+.ntc-row-dl dt { font-size: 0.8125rem; color: var(--muted); line-height: 1.3; }
+.ntc-row-dl dd { margin: 0; font-weight: 600; font-size: 0.9375rem; font-variant-numeric: tabular-nums; color: var(--text); white-space: nowrap; }
+.ntc-row-dl .is-total dd { color: var(--navy); font-weight: 700; }
+
+.ntc-totals-table th[scope="row"] { font-weight: 500; color: var(--text-2); white-space: normal; }
+.ntc-tot-list { margin: 0; }
+.ntc-tot-row { padding: var(--space-3) 0; border-top: 1px solid var(--grey-2); min-width: 0; }
+.ntc-tot-row:first-child { border-top: 0; padding-top: 0; }
+.ntc-tot-row dt { font-weight: 600; color: var(--navy); margin-bottom: 4px; }
+.ntc-tot-row dd { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+.ntc-tot-val { min-width: 0; }
+.ntc-tot-k { display: block; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+.ntc-tot-v { display: block; font-size: 0.9375rem; font-variant-numeric: tabular-nums; overflow-wrap: break-word; }
+.ntc-tot-val--rev .ntc-tot-v { font-weight: 700; color: var(--navy); }
+
+.ntc-inline-dl { margin-top: var(--space-4); }
+
+/* Document footer */
+.ntc-doc-foot { margin-top: var(--space-5); padding-top: var(--space-4); border-top: 2px solid var(--navy); font-size: var(--fs-small); color: var(--muted); }
+.ntc-doc-foot-title { font-weight: 700; color: var(--navy); margin-bottom: var(--space-1); }
+
+/* ---------- Print layout (#print-root; core hides everything else) ----------
+   Every rule is scoped to .print-root. Selectors carry two classes so they win
+   over the core print defaults (e.g. ".print-root table { break-inside: auto }"). */
+@media print {
+  .print-root .ntc-print { font-family: var(--font); color: #000; font-size: 10pt; line-height: 1.45; }
+  .print-root .ntc-print p { margin: 0 0 5pt; }
+  .print-root .ntc-print h2 { font-size: 12.5pt; margin: 14pt 0 6pt; letter-spacing: 0; }
+  .print-root .ntc-print h3 { font-size: 11pt; margin: 12pt 0 4pt; letter-spacing: 0; break-after: avoid; }
+  .print-root .ntc-print h4 { font-size: 10pt; margin: 9pt 0 4pt; letter-spacing: 0; color: #000; break-after: avoid; }
+  .print-root .ntc-print p, .print-root .ntc-print li { orphans: 3; widows: 3; }
+  .print-root .ntc-print ul, .print-root .ntc-print ol { margin: 0 0 6pt; padding-left: 14pt; }
+  .print-root .ntc-print li + li { margin-top: 2pt; }
+  .print-root .ntc-p-head { display: flex; align-items: center; gap: 14pt; padding-bottom: 8pt; margin-bottom: 8pt; border-bottom: 1.5pt solid #000; }
+  .print-root .ntc-p-logo { height: 30pt; width: auto; max-width: none; display: block; }
+  .print-root .ntc-p-title { font-size: 16pt; margin: 0; letter-spacing: 0; }
+  .print-root .ntc-p-subtitle { margin: 0; font-size: 10.5pt; }
+  .print-root .ntc-p-banner { margin: 6pt 0 8pt; padding: 5pt 8pt; border: 1pt solid #000; font-size: 9pt; font-weight: 700; }
+  .print-root .ntc-p-address { margin: 4pt 0 2pt; }
+  .print-root .ntc-p-re { border-top: 0.75pt solid #000; border-bottom: 0.75pt solid #000; padding: 5pt 0; }
+  .print-root .ntc-p-small { font-size: 8.5pt; }
+  .print-root .ntc-p-table { width: 100%; border-collapse: collapse; font-size: 8.5pt; font-variant-numeric: tabular-nums; margin: 2pt 0 8pt; }
+  .print-root .ntc-p-table caption { text-align: left; font-weight: 700; padding: 0 0 3pt; }
+  .print-root .ntc-p-table th, .print-root .ntc-p-table td { padding: 2.5pt 4pt; border-bottom: 0.5pt solid #9a9a9a; text-align: left; vertical-align: top; color: #000; background: none; }
+  .print-root .ntc-p-table thead th { border-bottom: 1pt solid #000; font-weight: 700; vertical-align: bottom; }
+  .print-root .ntc-p-table .num { text-align: right; white-space: nowrap; }
+  .print-root .ntc-p-table tbody th { font-weight: 600; white-space: nowrap; }
+  .print-root .ntc-p-kv { font-variant-numeric: normal; }
+  .print-root .ntc-p-kv th { width: 42%; font-weight: 600; white-space: normal; }
+  .print-root .ntc-print .ntc-num, .print-root .ntc-print .ntc-emph { color: #000; }
+  /* small tables never split; the long schedule flows row by row (header repeats on each page) */
+  .print-root .ntc-p-kv, .print-root .ntc-p-first4, .print-root .ntc-p-totals { break-inside: avoid; }
+  .print-root .ntc-p-sched tbody { break-inside: auto; }
+  .print-root .ntc-p-sched tr.ntc-p-yearrow { break-after: avoid; }
+  .print-root .ntc-p-first4 .ntc-group { text-align: center; }
+  .print-root .ntc-p-sched .ntc-p-yearrow th { padding-top: 5pt; border-bottom: 0.75pt solid #000; font-weight: 700; background: #ececec; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .print-root .ntc-p-sched .ntc-col-no { width: 22pt; color: #000; }
+  .print-root .ntc-p-sched .ntc-date-text { display: inline; }
+  .print-root .ntc-p-tag { font-weight: 400; font-style: italic; }
+  .print-root .ntc-p-end { margin-top: 12pt; padding-top: 6pt; border-top: 0.75pt solid #000; }
+  .print-root .ntc-p-note { font-style: italic; }
+  .print-root .ntc-p-foot { margin-top: 10pt; padding-top: 4pt; border-top: 0.5pt solid #000; font-size: 8pt; }
+}

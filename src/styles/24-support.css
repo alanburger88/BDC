@@ -1,0 +1,167 @@
+/* Support for you (sup-): calm, optional resource cards. Navy, white and cool
+   grey surfaces; red only for the link arrow accent. Three equal columns from
+   1024px, an icon-beside-content layout on tablets, one column on phones.
+   Every grid/flex child has min-width: 0 so long French labels wrap. */
+.sup-view { min-width: 0; }
+.sup-view .section-header { margin-bottom: var(--space-5); }
+
+/* Basis strip: the single fixture fact used to choose suggestions */
+.sup-basis {
+  display: flex; align-items: flex-start; gap: var(--space-3);
+  max-width: 820px; margin: 0 0 var(--space-5);
+  padding: var(--space-3) var(--space-4);
+  background: var(--white); border: 1px solid var(--line); border-radius: 12px;
+}
+.sup-basis-icon {
+  flex: 0 0 32px; width: 32px; height: 32px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--grey-bg); color: var(--navy);
+}
+.sup-basis-body { min-width: 0; }
+.sup-basis-fact { margin: 0 0 2px; color: var(--text); line-height: 1.4; }
+.sup-basis-label { color: var(--muted); }
+.sup-basis-fact strong { color: var(--navy); font-weight: 700; }
+.sup-basis-never { margin: 0; font-size: var(--fs-small); color: var(--muted); line-height: 1.45; }
+
+/* Responsible demo rule note (hardship / arrears simulation) */
+.sup-rule { max-width: 820px; margin: 0 0 var(--space-5); }
+.sup-rule-body { min-width: 0; }
+.sup-rule-title { font-weight: 700; color: var(--navy); margin-bottom: 2px; }
+.sup-rule-body p:last-child { font-size: 0.9375rem; color: var(--text-2); }
+
+/* "Show hidden suggestions (n)" */
+.sup-hiddenbar { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0 0 var(--space-4); }
+.sup-show-hidden .icon { color: var(--muted); }
+
+/* Card grid */
+.sup-grid {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; gap: var(--space-4);
+  grid-template-columns: minmax(0, 1fr);
+}
+.sup-item { min-width: 0; margin: 0; display: flex; }
+.sup-item + .sup-item { margin-top: 0; }
+
+.sup-card {
+  width: 100%; min-width: 0;
+  display: flex; flex-direction: column; gap: var(--space-4);
+  padding: var(--space-5);
+  scroll-margin-top: var(--space-5);
+  transition: box-shadow .2s ease, border-color .2s ease;
+}
+/* Routed card (#/support/<id>): a calm 2px ring; the focus outline stays distinct */
+.sup-card.is-target { border-color: var(--blue); box-shadow: 0 0 0 1px var(--blue), var(--shadow-lift); }
+.sup-card:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; border-radius: var(--radius-card); }
+/* Help-first accent drawn inside the card so it never shifts the content */
+.sup-card--help { box-shadow: inset 0 4px 0 var(--navy), var(--shadow); }
+.sup-card--help.is-target { box-shadow: inset 0 4px 0 var(--navy), 0 0 0 1px var(--blue), var(--shadow-lift); }
+
+/* Illustration tile */
+.sup-icon {
+  flex: 0 0 auto; width: 56px; height: 56px; border-radius: 14px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--grey-bg); color: var(--navy);
+}
+.sup-icon-svg { width: 44px; height: 44px; display: block; }
+.sup-i-fill { fill: var(--white); stroke: var(--navy); stroke-width: 1.8; stroke-linejoin: round; }
+.sup-i-line { fill: none; stroke: var(--navy); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.sup-i-soft { stroke: var(--series-original); }
+.sup-i-accent { stroke: var(--blue); }
+.sup-i-dot { fill: var(--blue); }
+
+/* Card body: content first, then actions + hide pinned to the card foot */
+.sup-body { min-width: 0; flex: 1 1 auto; display: flex; flex-direction: column; }
+.sup-kicker {
+  font-size: var(--fs-overline); font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
+  color: var(--muted); margin: 0 0 var(--space-1);
+}
+.sup-card-title { font-size: var(--fs-h3); margin: 0 0 var(--space-3); outline: none; }
+.sup-card-title:focus-visible { outline: 3px solid var(--focus); outline-offset: 4px; }
+.sup-summary { color: var(--text-2); margin: 0 0 var(--space-3); }
+
+.sup-statement, .sup-tag, .sup-help-note {
+  display: flex; align-items: flex-start; gap: var(--space-2);
+  margin: 0 0 var(--space-3); font-size: 0.9375rem; line-height: 1.45;
+}
+.sup-statement .icon, .sup-tag .icon, .sup-help-note .icon { flex: 0 0 auto; margin-top: 2px; }
+.sup-statement span, .sup-tag span, .sup-help-note span { min-width: 0; }
+.sup-statement { font-weight: 600; color: var(--navy); }
+.sup-statement .icon { color: var(--navy); }
+.sup-tag { color: #3e4a54; font-weight: 600; }
+.sup-tag .icon { color: var(--green-ok); }
+.sup-help-note { color: var(--muted); font-size: var(--fs-small); margin: var(--space-2) 0 var(--space-1); }
+
+/* Why this may be relevant (stays with the card content) */
+.sup-why {
+  margin: var(--space-1) 0 0;
+  padding: var(--space-3) var(--space-4);
+  background: var(--grey-bg); border-radius: 10px;
+  border-left: 3px solid var(--navy-3);
+}
+.sup-why-title {
+  font-size: var(--fs-overline); font-weight: 700; letter-spacing: 0.02em;
+  color: var(--navy); margin: 0 0 var(--space-1);
+}
+.sup-why-text { margin: 0; font-size: 0.9375rem; line-height: 1.45; color: var(--text-2); }
+
+/* Bottom group (actions, hide) sits at the foot of equal-height cards, so any
+   spare height falls above the actions rather than in the middle of the card */
+.sup-bottom { margin-top: auto; min-width: 0; }
+
+/* Actions: local inquiry (secondary) + external text link with arrow */
+.sup-actions {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4);
+  padding-top: var(--space-4);
+}
+.sup-actions > * { min-width: 0; }
+.sup-ask { text-align: left; justify-content: flex-start; border-radius: 22px; }
+.sup-ext .icon-after { width: 18px; height: 18px; }
+.sup-ext:hover .icon-after { transform: translate(2px, -2px); }
+
+/* Hide control */
+.sup-card-foot { margin-top: var(--space-4); padding-top: var(--space-2); border-top: 1px solid var(--grey-2); }
+.sup-hide {
+  min-height: 40px; padding: 6px 10px 6px 6px; margin-left: -6px;
+  font-size: var(--fs-small); font-weight: 600; color: var(--muted);
+  border-radius: var(--radius-pill); text-align: left; justify-content: flex-start;
+}
+.sup-hide .icon { width: 16px; height: 16px; }
+.sup-hide:hover { color: var(--navy); background: var(--grey-bg); }
+
+/* All hidden */
+.sup-empty { max-width: 820px; }
+.sup-empty-title { font-size: var(--fs-h3); margin-bottom: var(--space-2); }
+.sup-empty p { color: var(--text-2); }
+
+/* Section footer note */
+.sup-footer {
+  display: flex; align-items: flex-start; gap: var(--space-2);
+  max-width: 820px; margin-top: var(--space-6); padding-top: var(--space-4);
+  border-top: 1px solid var(--line);
+  font-size: var(--fs-small); color: var(--muted);
+}
+.sup-footer .icon { flex: 0 0 auto; margin-top: 2px; }
+.sup-footer-body { min-width: 0; }
+.sup-footer-body p { margin: 0 0 var(--space-1); }
+
+@media (max-width: 599.98px) {
+  .sup-card { padding: var(--space-4); gap: var(--space-3); }
+  .sup-icon { width: 48px; height: 48px; border-radius: 12px; }
+  .sup-icon-svg { width: 38px; height: 38px; }
+  .sup-basis { padding: var(--space-3); }
+  .sup-actions { gap: var(--space-2) var(--space-3); }
+  .sup-actions .sup-ask { width: 100%; padding-left: 18px; padding-right: 18px; }
+}
+
+/* Tablet: icon beside the content, one card per row */
+@media (min-width: 600px) and (max-width: 1023.98px) {
+  .sup-card { flex-direction: row; align-items: flex-start; gap: var(--space-5); padding: var(--space-5) var(--space-6) var(--space-5) var(--space-5); }
+  .sup-body { max-width: 640px; }
+}
+
+/* Desktop: three equal columns, actions aligned at the bottom of each card */
+@media (min-width: 1024px) {
+  .sup-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-5); }
+  .sup-card { padding: var(--space-5) var(--space-5) var(--space-4); }
+  .sup-card-title { min-height: 2.3em; }
+}

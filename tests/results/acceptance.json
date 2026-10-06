@@ -1,0 +1,61 @@
+{
+  "file": "/tmp/claude-0/-home-user-BDC/7eb034b6-7b0f-5b64-96c3-7386ec91b7c5/scratchpad/query/full/index.html",
+  "ranAt": "2026-10-06T15:11:16.832Z",
+  "browser": "Chromium (Playwright)",
+  "results": [
+    {
+      "id": "AC-08",
+      "title": "No horizontal scrolling at 320px (sections, dialogs, French)",
+      "status": "PASS",
+      "notes": [
+        "all routes + Clair + query dialogs fit at 320px in EN and FR"
+      ],
+      "ms": 8106
+    },
+    {
+      "id": "AC-09",
+      "title": "Reflow at 400% zoom; on-screen keyboard does not hide controls",
+      "status": "PARTIAL",
+      "notes": [
+        "Clair send and query textarea reachable in a keyboard-reduced viewport (390×420); real-device keyboard test is MANUAL"
+      ],
+      "ms": 1621
+    },
+    {
+      "id": "AC-15",
+      "title": "Query review precedes local confirmation; context retained; says nothing sent",
+      "status": "PASS",
+      "notes": [
+        "draft → review → local confirmation with DEMO- reference; no free text in events/storage"
+      ],
+      "ms": 1368
+    },
+    {
+      "id": "AC-18",
+      "title": "No missing keys / untranslated system messages; amounts unchanged across languages",
+      "status": "PASS",
+      "notes": [
+        "build-time dictionary parity check passes; no ⟦missing⟧ keys at runtime"
+      ],
+      "ms": 2415
+    },
+    {
+      "id": "AC-21",
+      "title": "Automated accessibility scan (axe-core) + keyboard/focus basics",
+      "status": "PARTIAL",
+      "notes": [
+        "axe-core: 0 WCAG 2.x A/AA violations on all sections in EN and FR; screen-reader review is MANUAL"
+      ],
+      "ms": 10208
+    },
+    {
+      "id": "AC-23",
+      "title": "No real data, credentials, browser synthesis or persistent free-text storage",
+      "status": "PASS",
+      "notes": [
+        "localStorage keys: (none); fixture status: fictional demonstration"
+      ],
+      "ms": 503
+    }
+  ]
+}
