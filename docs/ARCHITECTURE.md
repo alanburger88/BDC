@@ -110,3 +110,35 @@ Cross-module calls must be guarded (`if (App.media) …`) so an isolated build s
 
 ### Session slices in use
 `backStack` (router), `review` (overview: `{reviewed}`), `survey` (help), `query` (query), `clair` (clair), `media` (media), `payments` (payments: range, page, expanded years), `support` (dismissed cards), `presenter` (insights: `simulateHardship`). `App.session.onReset(fn)` to clear module caches.
+
+## Contract additions from the QA rounds
+
+### Navigation and history
+- Every history entry the app creates carries `history.state.bdcIdx`. `App.router.historyIndex()` returns the current index.
+- `App.router.back()` (the in-app "Back to…" control) steps browser history back to the origin entry with `history.go(-n)` and restores scroll and focus. It pushes a new entry only when the index is unknown. Browser Back/Forward keep the return context; popped entries move to the `forwardStack` session slice.
+- `App.router.start({ beforeRender(route) })` runs once the first route is resolved, before it renders. Boot logs `notice_opened` there, so it is always the first event.
+- If an item is not in the known lists (cards, months, clauses, resources, FAQ ids, terms…), the router does not log a `detail_opened` event for it. Help deep links log `help:faq:<id>` / `help:glossary:<id>`.
+
+### Overlays
+- `App.overlay.open()` pushes a same-URL history entry, so browser/hardware Back closes the overlay and stays on the page. A normal close removes that entry.
+- A module that closes an overlay and then navigates (Clair source links) must do both in the same task, so the router can reuse the entry (`App.overlay.takeHistoryEntry`). `App.overlay.close(reason, { keepHistory })`.
+- Backdrop clicks within 350 ms of opening are ignored (double-click protection).
+- On phones, full-width panels keep `--a11y-launcher-space` (72px) free at the bottom left for the vendor accessibility launcher. Each panel's pinned footer must stay the last child of `.overlay-body`.
+- The media player pauses whenever `#app` becomes `inert`, i.e. whenever any overlay opens.
+
+### Shared UI
+- Item controls (`explainButton`, `askButton`, `noticeLink`, `routeLink` with return) carry `data-ctx="kind:id"`. `App.ui.enclosingCtx(el)` and `App.ui.routeCtx(route)` resolve the reader's place. `App.ui.backPlace(top)` builds the "Back to …" place label used by every back control.
+- `App.ui.monthPhrase(id)` returns "December 2026", or in fr-CA "de décembre 2026" / "d’octobre 2031" (elision-aware).
+- Labels with an item use `t('common.labelWithItem', {label, item})`, which renders "Label: item" in English and « Libellé : élément » (with a no-break space) in French.
+- Glossary terms are inline `span[role=button]` elements, so multi-word terms can wrap. Hover previews on desktop. Click/tap/Enter pins. Below 600px, keyboard focus alone does not open them. A popover closes when focus moves to another control. Escape is handled only when focus is on the term or inside the popover.
+- `App.fmt.date()` writes fr-CA ordinals (`1er novembre 2026`). Modules join day and month with a no-break space for narrow cells. `App.fmt.clock(isoTs)` formats event times.
+- `App.util.copyText()` returns focus to the calling control after the fallback path.
+
+### Exports
+- `App.notice.csv(kind)` (`'revised' | 'original'`, aliases `'-full'`) returns `{ filename, content, mime }`: UTF-8 BOM, CRLF, metadata block (Notice, Record version, Status, Loan, Company, Schedule, Issue date, Effective date, Currency, Number of payments, Source, disclaimer), header, rows, Totals. The Payments tab reuses it for full schedules. Its selection CSV uses the same labels.
+
+### Events
+- `App.events.log(type, { id, detail, section })`: `section` is optional, for events logged before the first render. `glossary_opened` counts deliberate opens only, not hover previews. `query_drafted` is logged once per draft by the query module. Reset logs `notice_opened` for the new demo session.
+
+### Build gates
+- fr-CA strings must not contain an ordinary space (U+0020) before `: ; ? ! »` or after `«`. Use U+00A0 before `:` and inside `« »`, and no space before `; ? !`. The build fails otherwise.

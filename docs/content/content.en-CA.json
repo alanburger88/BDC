@@ -214,7 +214,7 @@
     },
     "groups": {
       "changed": {
-        "title": "What changes",
+        "title": "Terms that change",
         "intro": "Each card compares a term before and after the change."
       },
       "owing": {
@@ -231,7 +231,6 @@
       "revised": "Revised schedule"
     },
     "badges": {
-      "noFee": "No fee",
       "notReduced": "Debt not reduced"
     },
     "cards": {
@@ -540,6 +539,17 @@
     "seeInNotice": "See in your notice: {title}",
     "seeIn": "See in “{section}”: {item}",
     "seeInSection": "Go to “{section}”",
+    "viewing": {
+      "clause": "You’re viewing this clause in your notice.",
+      "term": "You’re viewing this entry in the glossary.",
+      "resource": "You’re viewing this resource in “{section}”.",
+      "place": "You’re viewing “{section}”."
+    },
+    "places": {
+      "relief": "Lower payments during the postponement",
+      "cost": "Total additional interest",
+      "schedule": "Payment schedule, month by month"
+    },
     "askPerson": "Ask a person",
     "inLanguage": "In {language}",
     "announce": "Clair: {text}",
@@ -575,6 +585,7 @@
       "purposeSeasonal": "This notice explains an approved change to your loan. In this fictional scenario, you asked to postpone principal payments to manage a planned seasonal inventory build. It shows what changes, what stays the same and what to do next.",
       "effectiveDate": "The change takes effect on {effective}. The first payment under the revised schedule is due on {nextDate}.",
       "nextPayment": "Your next payment is {revNext} on {nextDate}. It covers interest only, because principal is postponed that month.",
+      "lastPostponement": "Your last payment in the postponement is {lastPost} on {lastPostDate}, interest only. Principal payments resume on {resumeDate}, when your payment is {firstResumed}.",
       "postponementPeriod": "Your principal payments for {months} are postponed. You still pay {postInterest} of interest in each of those months, and principal payments of {monthlyPrincipal} restart on {resumeDate}.",
       "principalMeaning": "Principal is the amount borrowed that remains to be repaid, not including interest. Here, {deferred} of principal is moved later in the schedule; it is still owed.",
       "continuingInterest": "Interest continues during the postponement at the same {rate} fixed rate. Because no principal is repaid in those months, you pay {postInterest} of interest each month; only principal is postponed.",
@@ -582,6 +593,11 @@
       "relief": "From {from} to {to}, your payments total {revNear} instead of {origNear}: {reduction} lower. This is temporary cash-flow relief, not a reduction in what you owe. The postponed principal is still owed, and over the whole remaining term you pay {extraLife} more interest.",
       "totalCost": "The revised schedule adds {extraLife} of interest over the remaining term. The {extra3} of extra interest from {from} to {to} is already included in that amount, so it isn’t added again. There is no change fee.",
       "maturity": "Your final payment moves from {origMat} to {revMat}, because the postponed principal is repaid at the end of the schedule.",
+      "totalPayments": "Over the whole schedule, your payments total {revTotalFull} in the revised schedule, compared with {origTotalFull} in the original schedule. The difference is the {extraLife} of additional interest, which already includes the {extra3} of extra interest from {from} to {to}; the principal you repay is the same.",
+      "paymentCount": "The revised schedule has {revCount} monthly payments, from {nextDate} to {revMat}. The original schedule had {origCount}, ending on {origMat}. The extra payments repay the postponed principal.",
+      "issueDate": "This notice was issued on {issue}. The change takes effect on {effective}, and the first payment under the revised schedule is due on {nextDate}.",
+      "loanAmount": "Both illustrated schedules start from {principalStartFull} of principal on {effective}. This sample notice covers that principal only; it doesn’t show your original loan amount or a live account balance.",
+      "yearPayments": "Your payments for {year} are listed month by month in “{payments}”, which groups the schedule by year and shows the original and revised totals for each year.",
       "resume": "Principal payments resume on {resumeDate}. That payment is {firstResumed}: {monthlyPrincipal} of principal plus {firstResumedInterest} of interest.",
       "rate": "Your fixed rate stays at {rate}; it doesn’t change. Total interest rises only because principal is repaid later.",
       "fees": "There is no fee for this change in this fictional scenario. The cost of the postponement is the additional interest of {extraLife} over the remaining term.",
@@ -613,6 +629,7 @@
       "limitEligibility": "I can’t assess eligibility or offer financing. The “{supportSection}” section describes optional BDC resources, and any financing is subject to assessment and approval. You can also prepare a question for a person.",
       "limitEligibilitySuppressed": "I can’t assess eligibility or offer financing. If you’re facing difficulties, you can prepare a question for a person to discuss help that fits your situation.",
       "limitPay": "I can’t process payments, and this demo has no payment function. Under the revised schedule, your next payment is {revNext} on {nextDate}.",
+      "hardship": "I can’t change your payments or tell you what happens if a payment is missed; this sample notice doesn’t cover that. If you’re having trouble making a payment, it’s best to talk to someone about your situation: you can prepare a question for a person.",
       "unrelated": "I can only help with this sample notice. Here are some things I can answer:",
       "fallback": "I can only answer questions about this sample notice — here are things I can help with:"
     },
@@ -650,7 +667,9 @@
       "startPrincipal": "Principal at the start of both illustrated schedules ({effective}): {principalStartFull}.",
       "scheduleTotals": "Original schedule: {origCount} payments totalling {origTotalFull}. Revised schedule: {revCount} payments totalling {revTotalFull}.",
       "assumptions": "Both schedules start from {principalStartFull} of principal on {effective}; the original ends on {origMat}, the revised on {revMat}.",
-      "firstMonthPayment": "Payment for {firstMonth}: {origNextFull} in the original schedule, {revNextFull} in the revised schedule."
+      "firstMonthPayment": "Payment for {firstMonth}: {origNextFull} in the original schedule, {revNextFull} in the revised schedule.",
+      "lastPost": "Payment for {postEnd}: {origLastFull} in the original schedule, {revLastFull} in the revised schedule.",
+      "yearCounts": "Number of payments in {year}: {origN} in the original schedule, {revN} in the revised schedule."
     },
     "month": {
       "post": "{month} is in the postponement period, so your revised payment is {rTotal}, interest only, instead of {oTotal}. The {oPrincipal} of principal isn’t skipped: it’s repaid later. Interest is {rInterest} rather than {oInterest} because the principal hasn’t been reduced.",
@@ -695,6 +714,7 @@
       "noneBody": "Try a shorter or different word, such as “interest” or “payment”. You can also ask Clair, the demo assistant, or prepare a question.",
       "noneBodyNoClair": "Try a shorter or different word, such as “interest” or “payment”. You can also prepare a question about this notice.",
       "foundInAnswer": "Found in the answer",
+      "otherLanguage": "Search written in {language}. Results include matches in both languages.",
       "showingFaq": "Showing {n} of {total} questions",
       "showingTerms": "Showing {n} of {total} terms"
     },
@@ -857,6 +877,7 @@
       "recorded": "Thank you. Answer recorded in this demo: {answer}.",
       "updated": "Answer changed to: {answer}.",
       "commentLabel": "What was unclear? (optional)",
+      "commentLang": "Written in {language}",
       "commentHint": "Kept only in this tab’s memory until you reset the demo or close the tab. It is never sent or added to the demo log.",
       "offerTitle": "Would you like help with what was unclear?",
       "offerClair": "Ask Clair",
@@ -1019,6 +1040,8 @@
       "showAnswer": "Expected answer",
       "goTo": "Go to {place}",
       "done": "Completed by participant",
+      "doneLabel": "Completed by participant: {task}",
+      "answerLabel": "Expected answer: {task}",
       "progress": {
         "one": "{n} of {total} tasks completed",
         "other": "{n} of {total} tasks completed"
@@ -1067,6 +1090,7 @@
     "elapsed": "{current} / {total}",
     "chapterLabel": "Chapter {n} of {total} · {title}",
     "chapters": "Chapters",
+    "moreControls": "More controls",
     "chapterListLabel": "Video chapters",
     "chapterItem": "Chapter {n}: {title}, starts at {time}",
     "current": "Current",
@@ -1271,7 +1295,7 @@
         "p1": "The schedules in this notice are an illustration based on the following simulation assumptions. They are not actual BDC servicing conventions."
       },
       "contact": {
-        "p1": "For questions about this notice, use Help & questions in this demonstration to read answers to common questions, look up terms in the glossary or prepare a question about a specific clause. You can also ask Clair, the demonstration assistant, to explain any clause.",
+        "p1": "For questions about this notice, use Help & questions in this demonstration to read answers to common questions, look up terms in the glossary or prepare a question about a specific clause. You can also ask Clair, the demo assistant, to explain any clause.",
         "p2": "In this concept demonstration, nothing is sent to BDC and no BDC contact details are provided. In an actual notice, this section would explain how to reach your BDC account manager."
       }
     },
@@ -1321,10 +1345,10 @@
       "fallbackNote": "Shown as written in the demonstration record (English)."
     },
     "csv": {
-      "noticeId": "Notice identifier",
+      "noticeId": "Notice",
       "recordVersion": "Record version",
       "status": "Status",
-      "loanId": "Loan identifier",
+      "loanId": "Loan",
       "company": "Company",
       "schedule": "Schedule",
       "revised": "Revised repayment schedule",
@@ -1520,7 +1544,7 @@
       "labelOriginal": "Original",
       "labelRevised": "Revised",
       "repaid": "repaid {date}",
-      "summary": "Both schedules start with {start} of principal. Under the revised schedule, the outstanding principal stays at {start} until the end of {lastPostponed}, then goes down by {monthly} a month, {period} behind the original. The original schedule is repaid on {origMaturity}; the revised schedule on {revMaturity}.",
+      "summary": "Both schedules start with {start} of principal. Under the revised schedule, the outstanding principal stays at {start} until the end of {lastPostponed}, then goes down by {monthly} a month, {period} behind the original. Under the original schedule, the loan is fully repaid on {origMaturity}; under the revised schedule, on {revMaturity}.",
       "tableCaption": "Principal still owing at key dates",
       "date": "Date",
       "start": "{date} (start of the schedule)",
@@ -1541,10 +1565,14 @@
     "list": {
       "title": "Month by month",
       "intro": "Select a month to compare its opening principal, principal, interest, total payment and closing principal under both schedules.",
-      "totalsTitle": "Totals for the months shown: {range}",
+      "totalsTitle": "Total payments for the months shown: {range}",
+      "sumTitle": "Sum of the payments shown: {range}",
+      "sumNote": "Added up from the monthly payments listed below; this sum is not a figure from your notice.",
+      "sumWhy": "From {from} to {to}, principal payments have resumed and each revised payment is higher than the original, so this difference is smaller than the {relief} of lower payments from {reliefFrom} to {reliefTo}.",
       "totalsOriginal": "Original schedule",
       "totalsRevised": "Revised schedule",
       "totalsDiff": "Difference",
+      "sumDiff": "Difference between the sums",
       "payments": {
         "one": "{n} payment",
         "other": "{n} payments"
@@ -1556,14 +1584,12 @@
       "noPayment": "No payment",
       "selected": "Selected",
       "showing": "Showing {range}: {count}.",
-      "yearOriginal": "Original {amount}",
-      "yearRevised": "Revised {amount}",
-      "yearOriginalNone": "Original: no payment",
-      "yearMonths": {
-        "one": "{n} month",
-        "other": "{n} months"
+      "yearSchedule": {
+        "one": "{schedule}: {n} payment of {amount}",
+        "other": "{schedule}: {n} payments totalling {amount}"
       },
-      "yearsHint": "Open a year to see its months.",
+      "yearNone": "{schedule}: no payments",
+      "yearsHint": "Open a year to see its months. The amount beside each schedule is the sum of its payments in that year.",
       "outside": "{month} is selected but is not among the months shown.",
       "seeBreakdown": "See the breakdown",
       "tags": {
@@ -1590,24 +1616,30 @@
         "postponedHigher": "The interest is {diff} more than under the original schedule because the principal has not been reduced.",
         "resumes": "Principal payments of {principal} resume this month.",
         "higherInterest": "The interest is {diff} more than under the original schedule because the outstanding principal is {revOpening} instead of {origOpening}: the postponed principal is still owing.",
-        "added": "The original schedule was fully repaid on {origMaturity}. This payment is part of the {period} added to the end of the revised schedule to repay the postponed principal.",
+        "added": "Under the original schedule, the loan was fully repaid on {origMaturity}. This payment is part of the {period} added to the end of the revised schedule to repay the postponed principal.",
         "finalOriginal": "This is the last payment of the original schedule. The revised schedule continues until {revMaturity}.",
         "finalRevised": "This is the last payment of the revised schedule. After it, no principal remains owing."
       }
     },
     "csv": {
-      "noticeId": "Notice identifier",
+      "noticeId": "Notice",
       "recordVersion": "Record version",
-      "loanId": "Loan identifier",
       "status": "Status",
-      "statusValue": "Fictional demonstration – not a BDC offer or agreement",
+      "statusValue": "Fictional demonstration — not a BDC offer or actual agreement",
+      "loanId": "Loan",
+      "company": "Company",
+      "schedule": "Schedule",
+      "scheduleSelection": "Original and revised payments compared – {range}",
+      "scheduleRevised": "Revised repayment schedule",
+      "scheduleOriginal": "Original repayment schedule",
+      "issueDate": "Issue date",
+      "effectiveDate": "Effective date",
       "currency": "Currency",
-      "content": "Content",
-      "contentSelection": "Original and revised payments – {range}",
-      "contentRevised": "Full revised schedule",
-      "contentOriginal": "Full original schedule",
-      "generated": "Generated",
-      "generatedValue": "Created locally in this browser from the demonstration record",
+      "months": "Number of months",
+      "payments": "Number of payments",
+      "source": "Source",
+      "sourceValue": "Generated locally in this browser from the demonstration record",
+      "note": "Illustrative financing schedule, not a BDC offer.",
       "date": "Payment date",
       "number": "Payment number",
       "opening": "Opening principal",
@@ -1618,7 +1650,8 @@
       "original": "Original – {column}",
       "revised": "Revised – {column}",
       "difference": "Difference in total payment (revised minus original)",
-      "totals": "Total"
+      "totals": "Totals",
+      "totalsSum": "Sum of the rows above"
     },
     "downloads": {
       "title": "Download the schedule",

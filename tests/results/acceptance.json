@@ -1,6 +1,6 @@
 {
   "file": "/home/user/BDC/dist/index.html",
-  "ranAt": "2026-10-06T19:59:10.219Z",
+  "ranAt": "2026-10-06T20:07:35.019Z",
   "browser": "Chromium (Playwright)",
   "results": [
     {
@@ -12,7 +12,7 @@
         "file: 6 sections rendered, no console errors",
         "http: 6 sections rendered, no console errors"
       ],
-      "ms": 2764
+      "ms": 2771
     },
     {
       "id": "AC-02",
@@ -30,7 +30,7 @@
       "notes": [
         "audio offline: {\"en-CA\":\"ok 60.2s\",\"fr-CA\":\"ok 62.6s\"}"
       ],
-      "ms": 5717
+      "ms": 5641
     },
     {
       "id": "AC-04",
@@ -39,7 +39,7 @@
       "notes": [
         "60/63 rows, totals 48,800/53,600 and 288,800/293,600, half-up rounding, zero end; key figures shown in both locales"
       ],
-      "ms": 653
+      "ms": 690
     },
     {
       "id": "AC-05",
@@ -48,7 +48,7 @@
       "notes": [
         "visible on first screen render at 390px without opening disclosures"
       ],
-      "ms": 375
+      "ms": 413
     },
     {
       "id": "AC-06",
@@ -56,9 +56,9 @@
       "status": "PASS",
       "notes": [
         "clause reached: #/documents/postponement, focus on #clause-postponement",
-        "back to #/payments/2026-12, focus explain-month-2026-12, scroll 2667 (was 2667)"
+        "back to #/payments/2026-12, focus explain-month-2026-12, scroll 2916 (was 2916)"
       ],
-      "ms": 2661
+      "ms": 2910
     },
     {
       "id": "AC-07",
@@ -67,7 +67,7 @@
       "notes": [
         "compact at 390 (EN+FR), tabs at 1280; selector closes after choice"
       ],
-      "ms": 1976
+      "ms": 1992
     },
     {
       "id": "AC-08",
@@ -76,7 +76,7 @@
       "notes": [
         "all routes + Clair + query dialogs fit at 320px in EN and FR"
       ],
-      "ms": 7833
+      "ms": 7843
     },
     {
       "id": "AC-09",
@@ -85,7 +85,7 @@
       "notes": [
         "Clair send and query textarea reachable in a keyboard-reduced viewport (390×420); real-device keyboard test is MANUAL"
       ],
-      "ms": 1575
+      "ms": 1579
     },
     {
       "id": "AC-10",
@@ -96,7 +96,7 @@
         "reduce: handshake animation on first view = none",
         "plays once per session (not on revisit or language switch); static under reduced motion; icon aria-hidden"
       ],
-      "ms": 1642
+      "ms": 1617
     },
     {
       "id": "AC-11",
@@ -117,7 +117,7 @@
       "notes": [
         "no autoplay; play/pause clock stable; chapter + seek-bar seeks; captions match cues at 1×/1.5×; replay; EN \"difference\" → FR chapter start 14.056s, paused"
       ],
-      "ms": 6714
+      "ms": 6772
     },
     {
       "id": "AC-13",
@@ -127,7 +127,7 @@
         "1280px: right-anchored width 420, context ok, focus returned",
         "390px: right-anchored width 390, context ok, focus returned"
       ],
-      "ms": 2180
+      "ms": 2158
     },
     {
       "id": "AC-14",
@@ -156,7 +156,7 @@
         "unrelated: \"who won the hockey game\" → unrelated",
         "Human review of answer wording and wider paraphrase coverage is MANUAL"
       ],
-      "ms": 478
+      "ms": 525
     },
     {
       "id": "AC-15",
@@ -165,7 +165,7 @@
       "notes": [
         "draft → review → local confirmation with DEMO- reference; no free text in events/storage"
       ],
-      "ms": 1365
+      "ms": 1211
     },
     {
       "id": "AC-16",
@@ -174,7 +174,7 @@
       "notes": [
         "3 labelled faces, keyboard + tap, change allowed"
       ],
-      "ms": 783
+      "ms": 801
     },
     {
       "id": "AC-17",
@@ -183,7 +183,7 @@
       "notes": [
         "hover shows, click pins, Escape closes and returns focus"
       ],
-      "ms": 1419
+      "ms": 1425
     },
     {
       "id": "AC-18",
@@ -192,7 +192,7 @@
       "notes": [
         "build-time dictionary parity check passes; no ⟦missing⟧ keys at runtime"
       ],
-      "ms": 2325
+      "ms": 2452
     },
     {
       "id": "AC-19",
@@ -201,7 +201,7 @@
       "notes": [
         "snippet present once; Clair launcher bottom-right; vendor launcher position depends on account config and could not be loaded here (egress blocked) → MANUAL"
       ],
-      "ms": 416
+      "ms": 433
     },
     {
       "id": "AC-20",
@@ -210,7 +210,7 @@
       "notes": [
         "3 BDC links, new tab + noopener; hardship rule hides loan card"
       ],
-      "ms": 576
+      "ms": 585
     },
     {
       "id": "AC-21",
@@ -219,7 +219,7 @@
       "notes": [
         "axe-core: 0 WCAG 2.x A/AA violations on all sections in EN and FR; screen-reader review is MANUAL"
       ],
-      "ms": 8711
+      "ms": 8824
     },
     {
       "id": "AC-22",
@@ -228,7 +228,7 @@
       "notes": [
         "CSV: 63 dated rows + notice id (DEMO-BDC-CHANGE-2026-001_revised-schedule_en-CA.csv); print view rendered to /home/user/BDC/tests/results/notice-print.pdf"
       ],
-      "ms": 564
+      "ms": 648
     },
     {
       "id": "AC-23",
@@ -237,7 +237,7 @@
       "notes": [
         "localStorage keys: (none); fixture status: fictional demonstration"
       ],
-      "ms": 420
+      "ms": 536
     },
     {
       "id": "AC-24",
@@ -246,7 +246,7 @@
       "notes": [
         "logo 1280×680 rendered 64×34 (aspect preserved); no remote fonts"
       ],
-      "ms": 401
+      "ms": 474
     }
   ]
 }
