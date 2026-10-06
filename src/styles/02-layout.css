@@ -170,8 +170,17 @@ main { padding: var(--space-5) 0 var(--space-7); outline: none; }
 .clair-launcher-name { font-weight: 700; }
 .clair-launcher-sub { font-size: 0.75rem; color: #d3dbe2; }
 @media (max-width: 599.98px) {
-  .clair-launcher { padding: 8px 16px 8px 14px; min-height: 52px; }
-  .clair-launcher-sub { display: none; }
+  /* Compact labelled circle on phones to minimise the area it covers */
+  .launcher-wrap { right: max(12px, env(safe-area-inset-right, 0px)); bottom: calc(12px + var(--safe-bottom)); }
+  .clair-launcher {
+    flex-direction: column; justify-content: center; gap: 0;
+    width: 58px; height: 58px; min-height: 0; padding: 0; border-radius: 50%;
+    box-shadow: 0 0 0 2px var(--white), var(--shadow-lift);
+  }
+  .clair-launcher .icon { width: 22px; height: 22px; }
+  .clair-launcher-text { align-items: center; }
+  .clair-launcher-name { font-size: 0.6875rem; line-height: 1.1; }
+  .clair-launcher-sub { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
 
 /* Generic grids */
