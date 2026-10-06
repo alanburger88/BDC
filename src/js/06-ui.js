@@ -125,8 +125,10 @@ App.ui = (() => {
     return { kind: key.slice(0, i), id: key.slice(i + 1) };
   }
 
-  /** The item a control sits inside: the nearest ancestor holding item controls for exactly
-   * one item (popover controls and `exclude` aside); null when that is ambiguous. */
+  /** The item a control sits inside, from the nearest ancestor holding item controls
+   * (popover controls and `exclude` aside): that item when they all name one, null when
+   * they name several (the control is not inside a single item), undefined when the
+   * view has no item controls at all. */
   function enclosingCtx(el, exclude) {
     const stop = document.getElementById('view');
     for (let a = el && el.parentElement; a && a !== document.body; a = a.parentElement) {
@@ -136,9 +138,10 @@ App.ui = (() => {
         if (k && k !== exclude && !c.closest('.popover')) keys.add(k);
       });
       if (keys.size === 1) return ctxFromKey([...keys][0]);
-      if (keys.size > 1 || a === stop) return null;
+      if (keys.size > 1) return null;
+      if (a === stop) break;
     }
-    return null;
+    return undefined;
   }
 
   /** The item a route names (#/changes/<card>, #/payments/<month>, #/documents/<clause>…). */
@@ -231,7 +234,6 @@ App.ui = (() => {
     });
   }
 
-  /** Back control shown when the current place was reached from elsewhere. */
   /** Localised name of the place a back-stack entry returns to: "Section: item". */
   function backPlace(top) {
     const fromRoute = App.router.parse(top.from);
@@ -241,6 +243,7 @@ App.ui = (() => {
     return place;
   }
 
+  /** Back control shown when the current place was reached from elsewhere. */
   function backControl() {
     const top = App.router.backTop();
     if (!top) return null;
@@ -299,7 +302,8 @@ App.ui = (() => {
             e.preventDefault();
             // "Back to…" names the place the term sits in (its card, month, clause or FAQ,
             // else the section), never the glossary entry being opened.
-            const ctx = enclosingCtx(btn, `term:${id}`) || routeCtx(App.router.current());
+            const found = enclosingCtx(btn, `term:${id}`);
+            const ctx = found === undefined ? routeCtx(App.router.current()) : found;
             api.close();
             App.router.go(App.router.href('help', 'glossary', id), { origin: { fid: btn.getAttribute('data-fid'), ctx }, focus: 'item' });
           },

@@ -163,15 +163,15 @@
     const from = App.router.parse(top.from);
     let label;
     let ariaLabel;
-    if (from.section === NS && from.item === 'faq' && FAQ_IDS.includes(from.sub)) {
+    const faqFromRoute = from.section === NS && from.item === 'faq' && FAQ_IDS.includes(from.sub) ? from.sub : null;
+    const faqFromCtx = from.section === NS && top.ctx && top.ctx.kind === 'faq' && FAQ_IDS.includes(top.ctx.id) ? top.ctx.id : null;
+    const faqId = faqFromRoute || faqFromCtx;
+    if (faqId) {
       // Came from a term inside an answer on this page: name that question.
       label = k('backToQuestion');
-      ariaLabel = `${label}: ${k(`faq.items.${from.sub}.q`, p)}`;
+      ariaLabel = t('common.labelWithItem', { label, item: k(`faq.items.${faqId}.q`, p) });
     } else {
-      let place = t(`nav.${from.section}`);
-      if (top.ctx) place = `${place}: ${App.ui.itemLabel(top.ctx)}`;
-      else if (from.item && App.rec.isMonthId(from.item)) place = `${place}: ${App.ui.itemLabel({ kind: 'month', id: from.item })}`;
-      label = t('common.backTo', { place });
+      label = t('common.backTo', { place: App.ui.backPlace(top) });
     }
     return App.ui.button({
       label,

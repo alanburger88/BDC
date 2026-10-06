@@ -164,9 +164,9 @@ if (shots) await page.locator('.media-player').screenshot({ path: `${shots}/en-C
 
 // Play from the poster
 await clickFid(page, 'media-poster-play');
-await page.waitForFunction(() => window.BDCNotice.media.state().time > 1.2, null, { timeout: 8000 }).catch(() => {});
+await page.waitForFunction(() => window.BDCNotice.media.state().time > 1.5, null, { timeout: 8000 }).catch(() => {});
 s = await state(page);
-ok('Play starts playback and currentTime advances', s.playing && s.time > 1.2, s);
+ok('Play starts playback and currentTime advances', s.playing && s.time > 1.5, s);
 ok('audio decoded lazily for en-CA only', s.decoded.join() === 'en-CA' && s.audioReady, s.decoded);
 ok('focus moves from poster to the Play/Pause control', (await page.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-fid'))) === 'media-play');
 ok('Play/Pause control now reads "Pause"', (await page.getAttribute('[data-fid="media-play"]', 'aria-label')) === 'Pause');
@@ -220,8 +220,13 @@ let sn = await snapshot(page);
 ok('trade-off: scene 4 and its first caption are shown', sn.active[0] === 'tradeoff' && sn.st.time >= enCh.tradeoff.start && sn.st.time < enCh.tradeoff.start + 1.5 && 'There is a trade-off.'.includes(sn.caption), sn);
 ok('current chapter is indicated (aria-current + label)', (await page.getAttribute('[data-fid="media-chapter-tradeoff"]', 'aria-current')) === 'true' && sn.chapterLabel === 'Chapter 4 of 6 · The trade-off', sn.chapterLabel);
 ev = await events(page);
-ok('event video_chapter_viewed en-CA:tradeoff', ev.includes('video_chapter_viewed:en-CA:tradeoff'));
+ok('S-20: a chapter played for under 1 s is not logged as viewed yet', !ev.includes('video_chapter_viewed:en-CA:tradeoff') && !ev.includes('video_chapter_viewed:en-CA:difference'), ev);
 if (shots) await page.locator('.media-player').screenshot({ path: `${shots}/en-CA-1280-tradeoff-chapters.png` });
+await clickFid(page, 'media-play');
+await page.waitForFunction((st) => window.BDCNotice.media.state().time > st + 1.3, enCh.tradeoff.start, { timeout: 6000 }).catch(() => {});
+await clickFid(page, 'media-play');
+ev = await events(page);
+ok('event video_chapter_viewed en-CA:tradeoff once the chapter has played for about 1 s', ev.includes('video_chapter_viewed:en-CA:tradeoff'), ev);
 await clickFid(page, 'media-chapters-toggle');
 
 // Exact chapter start (paused) shows that chapter's first caption, not the previous chapter's last one
@@ -312,6 +317,32 @@ if (await page.locator('[data-fid="media-fullscreen"]').count()) {
   ok('fullscreen: normal view restored with the "Full screen" label', !(await page.evaluate(() => !!document.fullscreenElement)) && (await page.getAttribute('[data-fid="media-fullscreen"]', 'aria-label')) === 'Full screen');
 }
 
+// S-16: any modal overlay (a dialog, Clair, the query form) makes the page
+// behind it inert, so the narration pauses - and stays paused once it closes.
+for (const how of ['dialog', 'clair-launcher', 'overview-cta-ask']) {
+  const avail = how === 'dialog' || await page.evaluate((f) => { const el = document.querySelector(`[data-fid="${f}"]`); return !!(el && el.getClientRects().length); }, how);
+  if (!avail) { console.log(`  (${how} not in this build)`); continue; }
+  if (!(await state(page)).playing) await clickFid(page, 'media-play');
+  await page.waitForFunction(() => window.BDCNotice.media.state().playing, null, { timeout: 4000 }).catch(() => {});
+  await wait(page, 300);
+  const p0 = await state(page);
+  if (how === 'dialog') {
+    await page.evaluate(() => window.BDCNotice.overlay.open({ id: 'media-qa-dialog', variant: 'dialog', title: 'QA', render(body) { body.append(document.createTextNode('QA')); } }));
+  } else {
+    await page.locator(`[data-fid="${how}"]`).click();
+  }
+  await wait(page, 250);
+  const a = await page.evaluate(() => ({ ...window.BDCNotice.media.state(), inert: document.getElementById('app').hasAttribute('inert') }));
+  await wait(page, 600);
+  const b = await state(page);
+  await page.keyboard.press('Escape');
+  await wait(page, 500);
+  const c = await page.evaluate(() => ({ ...window.BDCNotice.media.state(), inert: document.getElementById('app').hasAttribute('inert') }));
+  ok(`S-16: opening ${how === 'dialog' ? 'a dialog' : how} pauses the narration; it stays paused after the overlay closes`,
+    p0.playing && a.inert && !a.playing && Math.abs(b.time - a.time) < 0.01 && !c.inert && !c.playing && Math.abs(c.time - a.time) < 0.01,
+    { before: p0.playing, open: [a.inert, a.playing, a.time], later: b.time, closed: [c.inert, c.playing, c.time] });
+}
+
 // Mute and volume
 await clickFid(page, 'media-mute');
 s = await state(page);
@@ -397,7 +428,7 @@ await wait(page, 120);
 ok('end of the explanation is announced politely to screen readers', (await page.evaluate(() => document.getElementById('live-polite').textContent)) === 'The explanation has ended. Your next-step options are shown in the player.');
 ok('end card: Review the revised schedule (+ Clair / question when present), Watch again', end.buttons.includes('Review the revised schedule') && end.buttons.includes('Watch again') && end.text.includes('No acceptance is required through this notice.'), end.buttons);
 ev = await events(page);
-ok('event video_completed en-CA', ev.includes('video_completed:en-CA'));
+ok('S-20: reaching the end after skipping most of the narration is not logged as video_completed', !ev.includes('video_completed:en-CA'), ev);
 const endScene = await page.evaluate(() => document.querySelector('.media-player .media-scene.is-active').innerText);
 ok('next-step scene is a depiction only (no controls inside scenes)', (await page.locator('.media-player .media-scene button, .media-player .media-scene a').count()) === 0 && endScene.includes('Review the revised schedule'));
 // The scene-6 options are pictures, not look-alike controls: no box, fill,
@@ -491,7 +522,7 @@ for (const locale of ['en-CA', 'fr-CA']) {
     });
     if (geo.width >= 640 && Math.abs(geo.ratio - 9 / 16) > 0.02) problems.push(`stage not 16:9 at ${w}px (${geo.ratio.toFixed(3)})`);
     if (geo.width >= 640 && !geo.capInside) problems.push('captions not inside the stage on desktop');
-    if (geo.width < 640 && (geo.ratio <= 9 / 16 + 0.1 || geo.fs < 15 || geo.capInside)) problems.push(`narrow stage not reflowed (ratio ${geo.ratio.toFixed(2)}, ${geo.fs}px, caption inside ${geo.capInside})`);
+    if (geo.width < 640 && (geo.ratio <= 9 / 16 + 0.1 || geo.fs < 13 || geo.capInside)) problems.push(`narrow stage not reflowed (ratio ${geo.ratio.toFixed(2)}, ${geo.fs}px, caption inside ${geo.capInside})`);
     ok(`${locale} ${w}px: no overflow; ${geo.width >= 640 ? '16:9 stage, captions in stage' : 'reflowed stage, captions below'}`, problems.length === 0, problems.join(' | '));
     if (shots && ((locale === 'fr-CA' && (w === 320 || w === 390)) || w === 1280)) {
       await setRange(page, '.media-seek', (c.chapters[3].start + 12).toFixed(1));
@@ -780,6 +811,8 @@ for (const w of [320, 390]) {
     });
     ok('missing audio: the message sits inside the player, between the stage and the controls', place.inFrame && place.between, place);
     ok('missing audio: no orphaned caption fragments (caption bar hidden; transcript instead)', place.captionHidden, place);
+    // Narrow frame: the secondary controls open from "More controls"
+    if (await e.page.locator('[data-fid="media-more"]').isVisible()) await clickFid(e.page, 'media-more');
     await clickFid(e.page, 'media-chapters-toggle');
     await clickFid(e.page, 'media-chapter-resume');
     await wait(e.page, 100);
@@ -877,6 +910,214 @@ for (const w of [320, 390]) {
     await context.close();
   }
   await decoder.context().close();
+}
+
+/* ======================================================================
+ * 7. S-20: viewing events follow what was actually played
+ *    - jumping to the end while playing is not a completed viewing, and the
+ *      chapters crossed by the jump are not "viewed";
+ *    - a full viewing logs video_completed and every chapter. The narration
+ *      is played at 4x the selected speed here (test-only patch of the media
+ *      element's playbackRate setter) to keep the run short.
+ * ==================================================================== */
+{
+  const vids = (pg) => pg.evaluate(() => window.BDCNotice.events.all().filter((e) => e.type.startsWith('video')).map((e) => `${e.type}:${e.id}`));
+  const jp = await newPage(browser, { width: 1280, height: 900 });
+  await gotoApp(jp.page, '#/overview', file);
+  await ensurePlayer(jp.page);
+  await clickFid(jp.page, 'media-poster-play');
+  await jp.page.waitForFunction(() => window.BDCNotice.media.state().time > 1.4, null, { timeout: 8000 }).catch(() => {});
+  await jp.page.locator('.media-player .media-seek').focus();
+  await jp.page.keyboard.press('End');
+  await jp.page.waitForFunction(() => window.BDCNotice.media.state().ended, null, { timeout: 4000 }).catch(() => {});
+  await wait(jp.page, 300);
+  let ve = await vids(jp.page);
+  const jst = await state(jp.page);
+  ok('S-20: End on the seek bar while playing shows the end card but logs no video_completed and no viewed chapter it skipped',
+    jst.ended && ve.includes('video_chapter_viewed:en-CA:welcome') && !ve.includes('video_completed:en-CA') && !ve.some((x) => /:(relief|difference|tradeoff|resume|next-step)$/.test(x)), ve);
+  // Seeking across chapters while playing: only the chapter that then plays for ~1 s counts
+  await setRange(jp.page, '.media-seek', (enCh.difference.start + 1).toFixed(1));
+  await clickFid(jp.page, 'media-play');
+  await wait(jp.page, 400);
+  await setRange(jp.page, '.media-seek', (enCh.resume.start + 0.5).toFixed(1));
+  await jp.page.waitForFunction((st) => window.BDCNotice.media.state().time > st + 1.3, enCh.resume.start + 0.5, { timeout: 6000 }).catch(() => {});
+  await clickFid(jp.page, 'media-play');
+  ve = await vids(jp.page);
+  ok('S-20: a chapter passed through for under 1 s is not viewed; one played for 1 s is', !ve.includes('video_chapter_viewed:en-CA:difference') && ve.includes('video_chapter_viewed:en-CA:resume'), ve);
+  await jp.context.close();
+
+  const fw = await newPage(browser, { width: 1280, height: 900 });
+  await gotoApp(fw.page, '#/overview', file);
+  await fw.page.evaluate(() => {
+    const P = HTMLMediaElement.prototype;
+    for (const k of ['playbackRate', 'defaultPlaybackRate']) {
+      const d = Object.getOwnPropertyDescriptor(P, k);
+      Object.defineProperty(P, k, { configurable: true, get() { return d.get.call(this); }, set(v) { d.set.call(this, v * 4); } });
+    }
+  });
+  await ensurePlayer(fw.page);
+  await clickFid(fw.page, 'media-poster-play');
+  await fw.page.waitForFunction(() => window.BDCNotice.media.state().ended, null, { timeout: 40000 }).catch(() => {});
+  await wait(fw.page, 200);
+  ve = await vids(fw.page);
+  const chapters = enCues.chapters.map((c) => `video_chapter_viewed:en-CA:${c.id}`);
+  ok('S-20: watching the whole narration logs video_completed and all six chapters, in order', (await state(fw.page)).ended && ve.includes('video_completed:en-CA')
+    && chapters.every((c) => ve.includes(c)) && chapters.every((c, i) => i === 0 || ve.indexOf(c) > ve.indexOf(chapters[i - 1])) && ve.indexOf('video_completed:en-CA') > ve.indexOf(chapters[5]), ve);
+  ok('S-20: full viewing has no console errors', fw.consoleMsgs.length === 0, fw.consoleMsgs.slice(0, 4));
+  await fw.context.close();
+}
+
+/* ======================================================================
+ * 8. S-01: scene 2 month rows - the label and the value never overlap
+ *    (the value wraps below the label when both don't fit), at any width.
+ * ==================================================================== */
+{
+  const rw = await newPage(browser, { width: 320, height: 900, reducedMotion: 'reduce' });
+  await gotoApp(rw.page, '#/overview', file);
+  await ensurePlayer(rw.page);
+  for (const locale of ['en-CA', 'fr-CA']) {
+    await rw.page.evaluate((l) => window.BDCNotice.i18n.setLocale(l), locale);
+    await wait(rw.page, 150);
+    await ensurePlayer(rw.page);
+    const c = locale === 'en-CA' ? enCues : frCues;
+    const bad = [];
+    for (let w = 300; w <= 1300; w += (w < 700 ? 10 : 50)) {
+      await rw.page.setViewportSize({ width: w, height: 900 });
+      await wait(rw.page, 40);
+      await setRange(rw.page, '.media-seek', (c.chapters[1].end - 0.5).toFixed(1));
+      const r = await rw.page.evaluate(() => {
+        const out = [];
+        const rectsOf = (el) => { const rg = document.createRange(); rg.selectNodeContents(el); return [...rg.getClientRects()].filter((q) => q.width > 0); };
+        document.querySelectorAll('.media-player .media-scene[data-scene="relief"] .media-row').forEach((row, i) => {
+          const lab = row.querySelector('.media-row-label');
+          const vals = [...row.querySelectorAll('.media-row-value span')].filter((sp) => !sp.children.length && Number(getComputedStyle(sp).opacity) >= 0.5);
+          const lr = rectsOf(lab);
+          const rr = row.getBoundingClientRect();
+          for (const v of vals) {
+            for (const b of rectsOf(v)) {
+              if (b.right > rr.right + 0.5 || b.left < rr.left - 0.5) out.push(`row ${i} value outside the row`);
+              for (const a of lr) {
+                const vo = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
+                const ho = Math.min(a.right, b.right) - Math.max(a.left, b.left);
+                if (vo > 1 && ho > -2) out.push(`row ${i} "${lab.textContent}"/"${v.textContent}" overlap ${ho.toFixed(1)}px`);
+              }
+            }
+          }
+        });
+        return out;
+      });
+      if (r.length) bad.push(`${w}px: ${r[0]}`);
+    }
+    ok(`S-01 ${locale}: scene 2 row labels and values never overlap (300-1300 px)`, bad.length === 0, bad.slice(0, 4));
+  }
+  await rw.context.close();
+}
+
+/* ======================================================================
+ * 9. S-02: on phones the stage, the captions and the controls fit on one
+ *    screen, in every chapter, on the poster and on the end card; text stays
+ *    at least 12 px; the secondary controls open from "More controls".
+ * ==================================================================== */
+for (const [w, hgt] of [[320, 568], [320, 640], [360, 640], [375, 667], [390, 844]]) {
+  for (const locale of ['en-CA', 'fr-CA']) {
+    const ph = await newPage(browser, { width: w, height: hgt });
+    await gotoApp(ph.page, '#/overview', file);
+    await ph.page.evaluate((l) => { if (window.BDCNotice.i18n.locale !== l) window.BDCNotice.i18n.setLocale(l); }, locale);
+    await wait(ph.page, 150);
+    await ensurePlayer(ph.page);
+    const c = locale === 'en-CA' ? enCues : frCues;
+    const measure = () => ph.page.evaluate(() => {
+      const frame = document.querySelector('.media-player .media-frame');
+      const canvas = document.querySelector('.media-player .media-canvas');
+      const parts = ['.media-canvas', '.media-caption', '.media-controls'].map((q) => document.querySelector(`.media-player ${q}`).getBoundingClientRect());
+      const scene = document.querySelector('.media-player .media-scene.is-active');
+      let minFs = 99;
+      let minEl = '';
+      const roots = [scene, document.querySelector('.media-player .media-caption'), document.querySelector('.media-player .media-controls')];
+      for (const root of roots) {
+        if (!root) continue;
+        root.querySelectorAll('*').forEach((el) => {
+          const own = [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim());
+          if (!own || !el.getClientRects().length || getComputedStyle(el).visibility === 'hidden') return;
+          if (el.closest('.sr-only') || (el.classList.contains('media-btn-text') && getComputedStyle(el).position === 'absolute')) return;
+          const fs = parseFloat(getComputedStyle(el).fontSize);
+          if (fs < minFs) { minFs = fs; minEl = el.className || el.tagName; }
+        });
+      }
+      // overlap: stage parts stacked without overlapping each other
+      const stacked = parts[0].bottom <= parts[1].top + 0.5 && parts[1].bottom <= parts[2].top + 0.5;
+      return {
+        vh: window.innerHeight,
+        frame: Math.round(frame.getBoundingClientRect().height),
+        overflow: scene ? scene.scrollHeight > canvas.clientHeight + 1 : false,
+        minFs, minEl, stacked, scene: scene ? scene.dataset.scene : '',
+      };
+    });
+    const problems = [];
+    let maxFrame = 0;
+    for (const ch of c.chapters) {
+      for (const tm of [ch.start + 1.5, ch.end - 0.4]) {
+        await setRange(ph.page, '.media-seek', tm.toFixed(1));
+        const m = await measure();
+        maxFrame = Math.max(maxFrame, m.frame);
+        if (m.frame > m.vh) problems.push(`${ch.id}@${tm.toFixed(1)}: frame ${m.frame} > ${m.vh}`);
+        if (m.overflow) problems.push(`${ch.id}: scene overflows the stage`);
+        if (m.minFs < 12) problems.push(`${ch.id}: ${m.minEl} at ${m.minFs}px`);
+        if (!m.stacked) problems.push(`${ch.id}: stage, captions and controls overlap`);
+      }
+    }
+    // poster (fresh player state) and end card
+    await ph.page.evaluate(() => window.BDCNotice.shell.resetDemo());
+    await wait(ph.page, 200);
+    await ensurePlayer(ph.page);
+    const posterFrame = (await measure()).frame;
+    if (posterFrame > hgt) problems.push(`poster frame ${posterFrame} > ${hgt}`);
+    await setRange(ph.page, '.media-seek', (c.duration - 0.5).toFixed(1));
+    await clickFid(ph.page, 'media-play');
+    await ph.page.waitForFunction(() => window.BDCNotice.media.state().ended, null, { timeout: 6000 }).catch(() => {});
+    const endFrame = (await measure()).frame;
+    if (endFrame > hgt) problems.push(`end card frame ${endFrame} > ${hgt}`);
+    ok(`S-02 ${locale} ${w}x${hgt}: stage + captions + controls fit on one screen (max ${maxFrame}px), text ≥ 12px, no overlap`, problems.length === 0, problems.slice(0, 4));
+
+    // "More controls": one row of buttons; the secondary controls open on demand
+    const more = await ph.page.evaluate(() => {
+      const btn = document.querySelector('.media-player [data-fid="media-more"]');
+      const vis = (f) => { const el = document.querySelector(`.media-player [data-fid="${f}"]`); return !!(el && el.getClientRects().length); };
+      const rowTops = new Set([...document.querySelectorAll('.media-player .media-ctl-row button, .media-player .media-ctl-row select, .media-player .media-ctl-row input')]
+        .filter((el) => el.getClientRects().length).map((el) => { const q = el.getBoundingClientRect(); return Math.round((q.top + q.bottom) / 2 / 12); }));
+      return { shown: vis('media-more'), expanded: btn.getAttribute('aria-expanded'), controls: btn.getAttribute('aria-controls'), name: btn.getAttribute('aria-label'), secondary: ['media-chapters-toggle', 'media-speed', 'media-captions', 'media-transcript-toggle'].map(vis), rows: rowTops.size };
+    });
+    await clickFid(ph.page, 'media-more');
+    const opened = await ph.page.evaluate(() => {
+      const btn = document.querySelector('.media-player [data-fid="media-more"]');
+      const vis = (f) => { const el = document.querySelector(`.media-player [data-fid="${f}"]`); return !!(el && el.getClientRects().length); };
+      return { expanded: btn.getAttribute('aria-expanded'), target: !!document.getElementById(btn.getAttribute('aria-controls')), secondary: ['media-chapters-toggle', 'media-speed', 'media-captions', 'media-transcript-toggle'].map(vis), frame: Math.round(document.querySelector('.media-player .media-frame').getBoundingClientRect().height) };
+    });
+    await clickFid(ph.page, 'media-captions');
+    const capOff = (await state(ph.page)).captions === false;
+    await clickFid(ph.page, 'media-captions');
+    const moreName = locale === 'en-CA' ? 'More controls' : 'Autres commandes';
+    ok(`S-02 ${locale} ${w}px: one row of buttons; "${moreName}" (aria-expanded) reveals chapters, speed, captions and transcript`,
+      more.shown && more.expanded === 'false' && more.name === moreName && more.secondary.every((v) => !v) && more.rows === 1
+      && opened.expanded === 'true' && opened.target && opened.secondary.every(Boolean) && capOff, { more, opened, capOff });
+    const of = await mediaOverflow(ph.page, mode);
+    ok(`S-02 ${locale} ${w}px: no horizontal overflow with the secondary controls open`, of.media.length === 0 && !of.doc, of);
+    if (shots && (w === 320 || w === 375)) await ph.page.locator('.media-player .media-frame').screenshot({ path: `${shots}/${locale}-${w}x${hgt}-more.png` });
+    ok(`S-02 ${locale} ${w}px: no console errors`, ph.consoleMsgs.length === 0, ph.consoleMsgs.slice(0, 3));
+    await ph.context.close();
+  }
+}
+// Wider frames show every control and no "More controls" toggle
+{
+  const wd = await newPage(browser, { width: 768, height: 900 });
+  await gotoApp(wd.page, '#/overview', file);
+  await ensurePlayer(wd.page);
+  const r = await wd.page.evaluate(() => {
+    const vis = (f) => { const el = document.querySelector(`.media-player [data-fid="${f}"]`); return !!(el && el.getClientRects().length); };
+    return { more: vis('media-more'), all: ['media-chapters-toggle', 'media-speed', 'media-captions', 'media-transcript-toggle', 'media-volume'].map(vis) };
+  });
+  ok('768px: every control shown directly; no "More controls" toggle', !r.more && r.all.every(Boolean), r);
+  await wd.context.close();
 }
 
 await browser.close();

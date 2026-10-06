@@ -38,6 +38,7 @@ App.media = (() => {
       muted: prefs.get('muted') === true,
       transcriptOpen: false,
       chaptersOpen: false,
+      moreOpen: false, // narrow frames: secondary controls row shown
       engaged: false, // poster dismissed
       ended: false,
       errors: {}, // per locale
@@ -200,8 +201,49 @@ App.media = (() => {
   const urls = {};
   let raf = 0;
   let ui = null;
-  let loggedChapter = null;
   let resizeObs = null;
+
+  /* ---------- Watch tracking (for DemoEvents only) ----------
+   * Only narration that actually plays counts: the audio clock's forward
+   * progress between two renders while playing. A seek (setTime) breaks the
+   * chain, so chapters crossed or skipped by seeking never count, and
+   * jumping to the end is not a completed viewing.
+   * - video_chapter_viewed: once a chapter has played for CHAPTER_VIEW s.
+   * - video_completed: playback reached the end on its own AND at least
+   *   COMPLETE_SHARE of the narration (distinct positions) has been played. */
+  const CHAPTER_VIEW = 1;
+  const COMPLETE_SHARE = 0.8;
+  const COVER_STEP = 0.1;  // coverage resolution, seconds of narration
+  const MAX_TICK = 3;      // larger forward jumps are never counted as played
+  let watch = {};          // per locale: { cover: Set, chapters: {id: s}, playedTo }
+  let viewed = new Set();  // `${locale}:${chapter}` already logged
+  let lastTick = null;     // { locale, tm } previous position while playing
+
+  function watchFor(locale) {
+    if (!watch[locale]) watch[locale] = { cover: new Set(), chapters: {}, playedTo: -1 };
+    return watch[locale];
+  }
+
+  // Credits the narration played since the previous tick (if it was played,
+  // not jumped to) and remembers this position for the next tick.
+  function trackPlayback(locale, tm, chapterId) {
+    if (lastTick && lastTick.locale === locale) {
+      const d = tm - lastTick.tm;
+      if (d > 0 && d <= MAX_TICK) {
+        const w = watchFor(locale);
+        for (let i = Math.ceil(lastTick.tm / COVER_STEP - 1e-6); i * COVER_STEP < tm; i += 1) w.cover.add(i);
+        if (chapterId) w.chapters[chapterId] = (w.chapters[chapterId] || 0) + d;
+        w.playedTo = tm;
+      }
+    }
+    lastTick = { locale, tm };
+  }
+
+  function resetWatch() {
+    watch = {};
+    viewed = new Set();
+    lastTick = null;
+  }
 
   function decode(locale) {
     if (urls[locale] !== undefined) return urls[locale];
@@ -288,7 +330,6 @@ App.media = (() => {
     st.ended = false;
     st.engaged = true;
     App.events.log('video_started', { id: st.locale });
-    loggedChapter = null;
     startLoop();
     render();
   }
@@ -304,11 +345,17 @@ App.media = (() => {
   function onEnded() {
     if (!audioActive()) return;
     const st = S();
+    const dur = duration();
+    // Credit the last stretch before the end (only if it was played, not jumped over)
+    trackPlayback(st.locale, dur, (chapterAt(dur) || {}).id);
+    lastTick = null;
     st.playing = false;
     st.ended = true;
-    st.time = duration();
+    st.time = dur;
     stopLoop();
-    App.events.log('video_completed', { id: st.locale });
+    const w = watchFor(st.locale);
+    const reachedByPlayback = w.playedTo >= dur - 0.5;
+    if (reachedByPlayback && w.cover.size * COVER_STEP >= COMPLETE_SHARE * dur) App.events.log('video_completed', { id: st.locale });
     render();
     App.announce(t('media.endedAnnounce'));
   }
@@ -340,6 +387,7 @@ App.media = (() => {
     const st = S();
     const v = Math.max(0, Math.min(duration(), Number(tm) || 0));
     st.time = v;
+    lastTick = null; // a jump, not playback
     if (audioActive()) {
       try { audio.currentTime = v; } catch (e) { /* applied on loadedmetadata */ }
     }
@@ -406,7 +454,7 @@ App.media = (() => {
     st.ended = false;
     st.time = target ? target.start : 0;
     st.chapter = target ? target.id : 'welcome';
-    loggedChapter = null;
+    lastTick = null;
     // The person has already used the player: prepare this track now
     // (decoded lazily, once per locale) so it is ready at the mapped chapter.
     if (used && !st.errors[next]) ensureAudio();
@@ -639,16 +687,22 @@ App.media = (() => {
   const SCENES = { welcome: sceneWelcome, relief: sceneRelief, difference: sceneDifference, tradeoff: sceneTradeoff, resume: sceneResume, 'next-step': sceneNext };
 
   /* ---------- Player chrome ---------- */
-  function ctlBtn({ fid, iconName, label, text, onClick, attrs }) {
+  function ctlBtn({ fid, iconName, iconEl, label, text, onClick, attrs, className }) {
     return h('button', {
       type: 'button',
-      class: ['media-btn', text ? 'media-btn--text' : null],
+      class: ['media-btn', text ? 'media-btn--text' : null, className],
       fid,
       title: label,
       'aria-label': text ? null : label,
       ...(attrs || {}),
       on: { click: onClick },
-    }, App.ui.icon(iconName, { size: 20 }), text ? h('span', { class: 'media-btn-text' }, label) : null);
+    }, iconEl || App.ui.icon(iconName, { size: 20 }), text ? h('span', { class: 'media-btn-text' }, label) : null);
+  }
+
+  // Three dots ("more"): not part of the core icon set
+  function moreIcon() {
+    return svg('svg', { class: 'icon', viewBox: '0 0 24 24', width: 20, height: 20, 'aria-hidden': 'true', focusable: 'false' },
+      [5, 12, 19].map((cx) => svg('circle', { cx, cy: 12, r: 2, fill: 'currentColor' })));
   }
 
   function focusPlay() {
@@ -743,6 +797,7 @@ App.media = (() => {
     const txId = App.util.uid('media-tx');
     const txHeadId = App.util.uid('media-txh');
     const chId = App.util.uid('media-ch');
+    const viewId = App.util.uid('media-view');
     const u = { container, opts, scenes: [], last: {}, chapterBtns: {}, txChapters: {}, txJumps: {}, txCaps: [], capMetrics: null, lastWidth: -1, dragging: false };
     ui = u;
 
@@ -884,13 +939,25 @@ App.media = (() => {
       },
     });
     u.fsBtn = fullscreenSupported() ? ctlBtn({ fid: 'media-fullscreen', iconName: 'fullscreen', label: t('media.fullscreen'), onClick: toggleFullscreen }) : null;
+    // Narrow frames (phones) show the secondary controls (chapters, speed,
+    // captions, transcript) on demand, so the control bar keeps one row of
+    // buttons and the whole player fits on the screen. Wider frames always
+    // show them and hide this toggle.
+    u.moreBtn = ctlBtn({
+      fid: 'media-more',
+      iconEl: moreIcon(),
+      label: t('media.moreControls'),
+      className: 'media-more',
+      attrs: { 'aria-expanded': 'false', 'aria-controls': viewId },
+      onClick: () => { const s2 = S(); s2.moreOpen = !s2.moreOpen; render(true); },
+    });
 
     u.controls = h('div', { class: 'media-controls' },
       h('div', { class: 'media-ctl-top' }, u.chapterLabel, u.time),
       h('div', { class: 'media-seek-wrap' }, u.seek, ticks),
       h('div', { class: 'media-ctl-row' },
-        h('div', { class: 'media-ctl-group media-ctl-group--main' }, u.playBtn, u.replayBtn),
-        h('div', { class: 'media-ctl-group media-ctl-group--view' }, u.chaptersBtn,
+        h('div', { class: 'media-ctl-group media-ctl-group--main' }, u.playBtn, u.replayBtn, u.moreBtn),
+        h('div', { class: 'media-ctl-group media-ctl-group--view', id: viewId }, u.chaptersBtn,
           h('span', { class: 'media-select-wrap' }, u.speed, App.ui.icon('chevronDown', { size: 16, class: 'media-select-chevron' })),
           u.ccBtn, u.txBtn),
         h('div', { class: 'media-ctl-group media-ctl-group--sound' }, u.muteBtn, u.volume, u.fsBtn)));
@@ -906,7 +973,8 @@ App.media = (() => {
           e.stopPropagation();
           S().chaptersOpen = false;
           render(true);
-          u.chaptersBtn.focus();
+          // On a narrow frame the Chapters button may be folded away under "More controls"
+          (u.chaptersBtn.getClientRects().length ? u.chaptersBtn : u.moreBtn).focus();
         },
       },
     },
@@ -1075,10 +1143,13 @@ App.media = (() => {
       Object.entries(u.txJumps).forEach(([id, b]) => { if (id === ch.id) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current'); });
       Object.entries(u.txChapters).forEach(([id, el]) => el.classList.toggle('is-current', id === ch.id));
     }
-    if (playing && loggedChapter !== `${st.locale}:${ch.id}`) {
-      loggedChapter = `${st.locale}:${ch.id}`;
+    // Watch tracking from the audio clock (identifiers only in the events)
+    if (playing) trackPlayback(st.locale, tm, ch.id); else lastTick = null;
+    const viewKey = `${st.locale}:${ch.id}`;
+    if (playing && !viewed.has(viewKey) && (watchFor(st.locale).chapters[ch.id] || 0) >= CHAPTER_VIEW) {
+      viewed.add(viewKey);
       App.events.log('video_started', { id: st.locale }); // deduplicated per locale; keeps the order started → chapter
-      App.events.log('video_chapter_viewed', { id: loggedChapter });
+      App.events.log('video_chapter_viewed', { id: viewKey });
     }
 
     // Scene beats (reveals) and continuous progress, keyed to the clock.
@@ -1134,8 +1205,9 @@ App.media = (() => {
       setIcon(u.playBtn, playing ? 'pause' : 'play');
     }
 
-    if (force || L.state !== `${poster}|${ended}|${err}|${st.transcriptOpen}|${st.chaptersOpen}|${st.captions}|${st.muted}|${st.volume}|${st.rate}|${!!document.fullscreenElement}`) {
-      L.state = `${poster}|${ended}|${err}|${st.transcriptOpen}|${st.chaptersOpen}|${st.captions}|${st.muted}|${st.volume}|${st.rate}|${!!document.fullscreenElement}`;
+    const stateKey = `${poster}|${ended}|${err}|${st.transcriptOpen}|${st.chaptersOpen}|${st.moreOpen}|${st.captions}|${st.muted}|${st.volume}|${st.rate}|${!!document.fullscreenElement}`;
+    if (force || L.state !== stateKey) {
+      L.state = stateKey;
       u.poster.hidden = !poster;
       u.endcard.hidden = !ended;
       u.root.classList.toggle('is-poster', poster);
@@ -1147,6 +1219,8 @@ App.media = (() => {
       u.txBtn.setAttribute('aria-expanded', String(!!st.transcriptOpen));
       u.chaptersPanel.hidden = !st.chaptersOpen;
       u.chaptersBtn.setAttribute('aria-expanded', String(!!st.chaptersOpen));
+      u.root.classList.toggle('is-more-open', !!st.moreOpen);
+      u.moreBtn.setAttribute('aria-expanded', String(!!st.moreOpen));
       u.ccBtn.setAttribute('aria-pressed', String(!!st.captions));
       u.muteBtn.setAttribute('aria-pressed', String(!!st.muted));
       setIcon(u.muteBtn, st.muted || st.volume === 0 ? 'mute' : 'volume');
@@ -1184,9 +1258,25 @@ App.media = (() => {
       applyAudioSettings();
     }
     stopLoop();
-    loggedChapter = null;
+    resetWatch();
     if (ui && ui.container && ui.container.isConnected) build(ui.container, ui.opts);
   });
+
+  // A modal overlay (Clair, the query form, any dialog) makes #app inert, so
+  // the player's controls can't be reached: pause the narration so it never
+  // keeps speaking behind the overlay. It stays paused after the overlay
+  // closes (no automatic resume).
+  let inertObs = null;
+  function watchOverlays() {
+    if (inertObs || typeof MutationObserver !== 'function') return;
+    const app = document.getElementById('app');
+    if (!app) return;
+    inertObs = new MutationObserver(() => {
+      if (app.hasAttribute('inert') && audio && !audio.paused) pause();
+    });
+    inertObs.observe(app, { attributes: true, attributeFilter: ['inert'] });
+  }
+  watchOverlays();
 
   document.addEventListener('fullscreenchange', () => render(true));
   if (window.matchMedia) {
@@ -1198,6 +1288,7 @@ App.media = (() => {
   /* ---------- Public API ---------- */
   function mount(container, opts) {
     if (!container) return null;
+    watchOverlays();
     syncLocale();
     return build(container, opts || {});
   }
@@ -1227,6 +1318,7 @@ App.media = (() => {
       captions: st.captions,
       transcriptOpen: st.transcriptOpen,
       chaptersOpen: st.chaptersOpen,
+      moreOpen: st.moreOpen,
       engaged: st.engaged,
       ended: st.ended,
       error: !!st.errors[st.locale],

@@ -214,7 +214,8 @@ const allMsgs = [];
     await p.goBack(); await wait(p, 500);
     const b1 = await p.evaluate(() => ({ hash: location.hash, y: Math.round(scrollY), f: document.activeElement.getAttribute('data-fid') }));
     await p.goForward(); await wait(p, 500);
-    const fw = await p.evaluate(() => ({ hash: location.hash, back: (document.querySelector('[data-fid="back-control"]') || {}).textContent || null }));
+    // The control is rendered by the documents view; an isolated build without it still keeps the entry
+    const fw = await p.evaluate(() => { const A = window.BDCNotice; const top = A.router.backTop(); return { hash: location.hash, back: (document.querySelector('[data-fid="back-control"]') || {}).textContent || (!A.notice && top ? A.ui.backPlace(top) : null) }; });
     await p.goBack(); await wait(p, 500);
     const b2 = await p.evaluate(() => ({ hash: location.hash, y: Math.round(scrollY), f: document.activeElement.getAttribute('data-fid') }));
     ok('R-11 first browser Back restores scroll and focus', b1.hash === '#/payments/2026-12' && Math.abs(b1.y - y0) <= 2 && b1.f === fid, { y0, b1 });
@@ -380,6 +381,242 @@ const allMsgs = [];
     await p.keyboard.press('Escape'); await wait(p, 300);
   }
   ok('R-02 short viewport: Clair send control stays in view', short.every((s) => !s.missing && s.bottom <= s.vh), short);
+  allMsgs.push(...cm);
+  await context.close();
+}
+
+/* ------------------------------------------------------------------ */
+/* QA round 2 (core)                                                    */
+/* ------------------------------------------------------------------ */
+const st = (p) => p.evaluate(() => ({ hash: location.hash, len: history.length, idx: window.BDCNotice.router.historyIndex(), ov: window.BDCNotice.overlay.current(), focus: (document.activeElement.closest('[data-fid]') || document.activeElement).getAttribute('data-fid') }));
+const has = (p, name) => p.evaluate((n) => !!window.BDCNotice[n], name);
+
+// S-11: in-app "Back to…" steps history back instead of adding entries
+{
+  const { page: p, context, consoleMsgs: cm } = await fresh('#/support');
+  await p.evaluate(() => window.BDCNotice.router.go('#/overview', { focus: 'heading' })); await wait(p, 250);
+  const base = await st(p);
+  await p.evaluate(() => { const el = document.querySelector('[data-fid="footer-insights"]'); el.scrollIntoView({ block: 'center' }); el.focus(); });
+  const y0 = await p.evaluate(() => Math.round(scrollY));
+  await p.evaluate(() => window.BDCNotice.ui.goWithReturn('#/payments/relief', { kind: 'summary', id: 'relief' }, 'footer-insights')); await wait(p, 300);
+  await p.evaluate(() => window.BDCNotice.router.go('#/payments/2026-12', { focus: 'heading' })); await wait(p, 300);
+  await p.evaluate(() => window.BDCNotice.ui.goWithReturn('#/documents/postponement', { kind: 'month', id: '2026-12' }, null)); await wait(p, 300);
+  const deep = await st(p);
+  await p.evaluate(() => window.BDCNotice.router.back()); await wait(p, 400);
+  const b1 = await st(p);
+  await p.evaluate(() => window.BDCNotice.router.back()); await wait(p, 400);
+  const b2 = { ...(await st(p)), y: await p.evaluate(() => Math.round(scrollY)) };
+  ok('S-11 in-app Back steps back through history (no new entries)', deep.len === base.len + 3 && b1.hash === '#/payments/2026-12' && b1.len === deep.len && b2.hash === '#/overview' && b2.len === deep.len && b2.idx === base.idx, { base, deep, b1, b2 });
+  ok('S-11 in-app Back still restores the origin focus and scroll', b2.focus === 'footer-insights' && Math.abs(b2.y - y0) <= 2, { y0, b2 });
+  await p.goBack(); await wait(p, 400);
+  ok('S-11 browser Back after in-app Back goes to the page before the origin', (await st(p)).hash === '#/support');
+  await p.goForward(); await wait(p, 300);
+  await p.goForward(); await wait(p, 400);
+  const fw = await p.evaluate(() => ({ hash: location.hash, top: (window.BDCNotice.router.backTop() || {}).from || null }));
+  ok('S-11 browser Forward over the stepped-back entries keeps their "Back to…"', fw.hash === '#/payments/relief' && fw.top === '#/overview', fw);
+  allMsgs.push(...cm);
+  await context.close();
+}
+
+// S-17, S-18 (dialog): Back closes the dialog and stays; early backdrop clicks are ignored
+{
+  const { page: p, context, consoleMsgs: cm } = await fresh('#/support');
+  await p.evaluate(() => window.BDCNotice.router.go('#/documents', { focus: 'heading' })); await wait(p, 250);
+  const s0 = await st(p);
+  await p.locator('[data-fid="footer-reset"]').click(); await wait(p, 300);
+  const s1 = await st(p);
+  await p.goBack(); await wait(p, 400);
+  const s2 = await st(p);
+  ok('S-18 browser Back closes the dialog and stays on the page', s1.ov === 'reset' && s1.len === s0.len + 1 && !s2.ov && s2.hash === '#/documents' && s2.focus === 'footer-reset' && (await p.locator('#app[inert]').count()) === 0, { s0, s1, s2 });
+  await p.goBack(); await wait(p, 400);
+  ok('S-18 the next browser Back navigates as usual', (await st(p)).hash === '#/support');
+  await p.goForward(); await wait(p, 400);
+  // Escape removes the dialog's history entry again
+  await p.locator('[data-fid="footer-reset"]').click(); await wait(p, 300);
+  await p.keyboard.press('Escape'); await wait(p, 400);
+  const s3 = await st(p);
+  ok('S-18 closing normally removes the overlay history entry', !s3.ov && s3.hash === '#/documents' && s3.idx === s0.idx && !(await p.evaluate(() => !!(history.state && history.state.bdcOverlay))), s3);
+  // S-17: a second click 150 ms after opening lands on the backdrop and is ignored
+  const box = await p.locator('[data-fid="footer-reset"]').boundingBox();
+  await p.mouse.click(box.x + box.width / 2, box.y + box.height / 2); await wait(p, 150);
+  await p.mouse.click(4, 4); await wait(p, 300);
+  const early = await st(p);
+  await wait(p, 300);
+  await p.mouse.click(4, 4); await wait(p, 300);
+  const later = await st(p);
+  ok('S-17 a backdrop click right after opening (double click) keeps the dialog open', early.ov === 'reset', early);
+  ok('S-17 a later backdrop click closes it', !later.ov && later.focus === 'footer-reset', later);
+  // S-15: Reset demo starts a new session that opens the notice again
+  await p.locator('[data-fid="footer-reset"]').click(); await wait(p, 300);
+  await p.locator('[data-fid="reset-confirm"]').click(); await wait(p, 400);
+  const ev = await p.evaluate(() => window.BDCNotice.events.all().map((e) => `${e.type}:${e.id}:${e.section}`));
+  ok('S-15 after Reset demo the log starts with notice_opened (identifier only), then the overview', ev.length === 2 && ev[0] === 'notice_opened:DEMO-BDC-CHANGE-2026-001:overview' && ev[1] === 'section_viewed:overview:overview', ev);
+  const s4 = await st(p);
+  ok('S-18 Reset from another page reuses the dialog entry (one entry, no stray Back)', s4.hash === '#/overview' && !s4.ov && !(await p.evaluate(() => !!(history.state && history.state.bdcOverlay))), s4);
+  await p.goBack(); await wait(p, 400);
+  ok('S-18 browser Back after Reset returns to the page it was started from', (await st(p)).hash === '#/documents');
+  allMsgs.push(...cm);
+  await context.close();
+}
+
+// S-18 (panels): Back closes Clair/the query panel; switching, source links, router navigation
+{
+  const { page: p, context, consoleMsgs: cm } = await fresh('#/overview', 390, 844);
+  await p.evaluate(() => window.BDCNotice.router.go('#/payments/2026-12', { focus: 'heading' })); await wait(p, 400);
+  const base = await st(p);
+  const explain = '[data-fid="explain-month-2026-12"]';
+  if (await has(p, 'clair') && await p.locator(explain).count()) {
+    await p.locator(explain).scrollIntoViewIfNeeded();
+    await p.locator(explain).click(); await wait(p, 400);
+    await p.goBack(); await wait(p, 400);
+    const a = await st(p);
+    ok('S-18 hardware Back closes Clair, keeps the page and returns focus to its trigger', !a.ov && a.hash === base.hash && a.idx === base.idx && a.focus === 'explain-month-2026-12', { base, a });
+    if (await has(p, 'query')) {
+      await p.locator(explain).click(); await wait(p, 400);
+      await p.evaluate(() => window.BDCNotice.query.open({ kind: 'month', id: '2026-12' }, document.querySelector('.overlay .overlay-close')));
+      await wait(p, 400);
+      const sw = await st(p);
+      await p.fill('#qry-question', 'draft'); await wait(p, 100);
+      await p.goBack(); await wait(p, 400);
+      const q = await st(p);
+      ok('S-18 switching Clair → query keeps one history entry; Back closes the query panel', sw.ov === 'query' && sw.len === base.len + 1 && !q.ov && q.hash === base.hash && q.idx === base.idx, { sw, q });
+      await p.locator('[data-fid="ask-month-2026-12"]').click(); await wait(p, 400);
+      ok('S-18 the query draft survives closing with Back', (await p.inputValue('#qry-question')) === 'draft');
+      await p.keyboard.press('Escape'); await wait(p, 400);
+    }
+    // Clair source link: closes, navigates and reuses the entry; in-app Back steps back to it
+    await p.locator(explain).click(); await wait(p, 400);
+    const src = p.locator('.overlay .clair-source').last();
+    if (await src.count()) {
+      await src.click(); await wait(p, 500);
+      const s = await st(p);
+      await p.evaluate(() => window.BDCNotice.router.back()); await wait(p, 500);
+      const b = await st(p);
+      ok('S-18 Clair source link still navigates (overlay entry reused for the destination)', /^#\/documents\//.test(s.hash) && !s.ov && s.idx === base.idx + 1, s);
+      ok('S-18/S-11 Back from the source returns to the month with focus on Explain', b.hash === base.hash && b.idx === base.idx && b.focus === 'explain-month-2026-12', b);
+    }
+    // A route change while a panel is open (typed URL / router) never leaves it over another page
+    await p.locator(explain).click(); await wait(p, 400);
+    await p.evaluate(() => { location.hash = '#/support'; }); await wait(p, 500);
+    const ty = await st(p);
+    ok('S-18 a typed URL while Clair is open closes it', ty.hash === '#/support' && !ty.ov && (await p.locator('#app[inert]').count()) === 0, ty);
+    await p.goBack(); await wait(p, 600);
+    ok('S-18 Back after that returns to the page beneath the panel', (await st(p)).hash === base.hash && !(await st(p)).ov);
+  } else {
+    ok('S-18 panels (clair/payments not in this build: skipped)', true);
+  }
+  allMsgs.push(...cm);
+  await context.close();
+}
+
+// S-13: "See in glossary" Back names the place the term sits in, never the term
+{
+  const { page: p, context, consoleMsgs: cm } = await fresh('#/changes/principal');
+  const viaGlossary = async () => {
+    const tf = await p.evaluate(() => { const t = document.querySelector('#view .term:not(.popover *)'); return t ? t.getAttribute('data-fid') : null; });
+    if (!tf) return null;
+    await p.locator(`[data-fid="${tf}"]`).click(); await wait(p, 200);
+    await p.locator('.popover [data-fid^="glossary-link-"]').click(); await wait(p, 400);
+    return p.evaluate(() => {
+      const top = window.BDCNotice.router.backTop();
+      return { hash: location.hash, ctx: top && top.ctx, label: top ? window.BDCNotice.ui.backPlace(top) : null };
+    });
+  };
+  const card = await viaGlossary();
+  if (card) ok('S-13 from a card detail: Back names the card', card.hash.startsWith('#/help/glossary/') && card.ctx && card.ctx.kind === 'card' && card.ctx.id === 'principal' && card.label === 'What changed: Principal payments', card);
+  if (await has(p, 'survey') && await p.evaluate(() => window.BDCNotice.i18n.has('help.faq.items'))) {
+    await p.evaluate(() => window.BDCNotice.router.go('#/help', { focus: 'heading' })); await wait(p, 300);
+    const faqBtn = p.locator('[data-fid="faq-btn-next-payment"]');
+    if (await faqBtn.count()) {
+      await faqBtn.click(); await wait(p, 200);
+      const tf = await p.evaluate(() => { const t = document.querySelector('#faq-next-payment .term'); return t ? t.getAttribute('data-fid') : null; });
+      if (tf) {
+        for (const loc of ['en-CA', 'fr-CA']) {
+          if (loc === 'fr-CA') { await p.evaluate(() => window.BDCNotice.i18n.setLocale('fr-CA')); await wait(p, 300); }
+          await p.evaluate((f) => document.querySelector(`[data-fid="${f}"]`).scrollIntoView({ block: 'center' }), tf);
+          await p.locator(`[data-fid="${tf}"]`).click(); await wait(p, 200);
+          await p.locator('.popover [data-fid^="glossary-link-"]').click(); await wait(p, 400);
+          const r = await p.evaluate(() => ({ ctx: (window.BDCNotice.router.backTop() || {}).ctx, back: (document.querySelector('[data-fid="back-control"]') || {}).textContent || '' }));
+          const want = loc === 'en-CA' ? 'Back to Help & questions: What is my next payment?' : 'Retour à Aide et questions : Quel est mon prochain versement?';
+          ok(`S-13 ${loc} from an FAQ answer opened in place: Back names the question`, r.ctx && r.ctx.kind === 'faq' && r.ctx.id === 'next-payment' && r.back.trim() === want && !/Glossary term|Terme du glossaire/.test(r.back), r);
+          await p.evaluate(() => window.BDCNotice.router.back()); await wait(p, 400);
+          ok(`S-13 ${loc} Back returns focus to the term in the answer`, await p.evaluate((f) => document.activeElement.getAttribute('data-fid') === f, tf));
+        }
+      }
+    }
+  }
+  // A term outside any single item falls back to the section only
+  await p.evaluate(() => window.BDCNotice.router.go('#/changes', { focus: false })); await wait(p, 300);
+  const fallback = await p.evaluate(() => {
+    const el = document.createElement('p');
+    document.getElementById('view').prepend(el);
+    const ctx = window.BDCNotice.ui.enclosingCtx(el, 'term:principal');
+    el.remove();
+    return ctx;
+  });
+  ok('S-13 a term outside one item gives no item context (Back names the section)', fallback === null || fallback === undefined, fallback);
+  allMsgs.push(...cm);
+  await context.close();
+}
+
+// S-09: the Clair launcher steps aside while the compact section list is open
+{
+  const { page: p, context, consoleMsgs: cm } = await fresh('#/overview', 320, 568);
+  const vis = () => p.evaluate(() => getComputedStyle(document.querySelector('.launcher-wrap')).visibility);
+  await p.locator('.section-select-btn').click(); await wait(p, 150);
+  const open = await vis();
+  const covered = await p.evaluate(() => [...document.querySelectorAll('#section-list a')].some((a) => { a.scrollIntoView({ block: 'nearest' }); const b = a.getBoundingClientRect(); const e = document.elementFromPoint(b.right - 10, b.top + b.height / 2); return e && !a.contains(e); }));
+  await p.keyboard.press('Escape'); await wait(p, 150);
+  const closed = await vis();
+  ok('S-09 launcher hidden while the section list is open, back when it closes', open === 'hidden' && !covered && closed === 'visible', { open, covered, closed });
+  await p.locator('.section-select-btn').click(); await wait(p, 150);
+  await p.locator('#section-list a').nth(2).click(); await wait(p, 300);
+  ok('S-09 launcher visible again after choosing a section', (await vis()) === 'visible');
+  allMsgs.push(...cm);
+  await context.close();
+}
+
+// S-03, S-06, S-05: launcher ring on desktop, narrow French dialog title, money never split
+{
+  const { page: p, context, consoleMsgs: cm } = await fresh('#/support', 1280, 900);
+  const ring = await p.evaluate(() => getComputedStyle(document.querySelector('.clair-launcher')).boxShadow);
+  ok('S-03 desktop launcher has the white ring (visible over the navy footer)', /rgb\(255, 255, 255\) 0px 0px 0px 2px/.test(ring), ring);
+  await p.evaluate(() => window.BDCNotice.i18n.setLocale('fr-CA')); await wait(p, 200);
+  await p.setViewportSize({ width: 320, height: 640 }); await wait(p, 200);
+  await p.locator('[data-fid="footer-reset"]').click(); await wait(p, 350);
+  const title = await p.evaluate(() => {
+    const t = document.querySelector('.overlay--dialog .overlay-title');
+    const rg = document.createRange(); rg.selectNodeContents(t);
+    const tops = [...new Set([...rg.getClientRects()].filter((r) => r.width > 0).map((r) => Math.round(r.top)))];
+    const rects = [...rg.getClientRects()].filter((r) => r.width > 0);
+    const btn = document.querySelector('.overlay--dialog .overlay-close');
+    return { lines: tops.length, lastWidth: Math.round(rects[rects.length - 1].width), btnName: btn.getAttribute('aria-label'), btnWidth: Math.round(btn.getBoundingClientRect().width) };
+  });
+  ok('S-06 fr-CA reset title at 320px: no line holding only the "?"', title.lines <= 3 && title.lastWidth > 40 && title.btnName === 'Fermer', title);
+  await p.keyboard.press('Escape'); await wait(p, 300);
+  const split = [];
+  for (const [hsh, w] of [['#/changes', 360], ['#/changes/debt', 360], ['#/changes', 320], ['#/overview', 320], ['#/overview', 360], ['#/payments/cost', 360]]) {
+    await p.setViewportSize({ width: w, height: 800 });
+    await p.evaluate((x) => window.BDCNotice.router.go(x, { focus: false }), hsh); await wait(p, 300);
+    split.push(...(await p.evaluate(([x, ww]) => {
+      const out = [];
+      const re = /(\$\s?\d[\d,]*(\.\d\d)?|\d{1,3}(?:[   ]\d{3})*(?:,\d\d)?[   ]\$)/g;
+      const walker = document.createTreeWalker(document.querySelector('main'), NodeFilter.SHOW_TEXT);
+      const rg = document.createRange();
+      let n;
+      while ((n = walker.nextNode())) {
+        const el = n.parentElement;
+        if (!el || el.closest('.sr-only,svg') || !el.getClientRects().length) continue;
+        let m; re.lastIndex = 0;
+        while ((m = re.exec(n.textContent))) {
+          rg.setStart(n, m.index); rg.setEnd(n, m.index + m[0].length);
+          if (new Set([...rg.getClientRects()].filter((r) => r.width > 0).map((r) => Math.round(r.top))).size > 1) out.push(`${x}@${ww}: ${m[0]}`);
+        }
+      }
+      return out;
+    }, [hsh, w])));
+  }
+  ok('S-05 fr-CA amounts never split from "$" (#/changes, #/overview, cost at 320/360)', split.length === 0, split);
   allMsgs.push(...cm);
   await context.close();
 }

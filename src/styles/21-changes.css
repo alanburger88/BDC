@@ -70,7 +70,7 @@
 .chg-value {
   display: block; margin-top: 2px;
   font-size: 1.25rem; font-weight: 700; line-height: 1.25; letter-spacing: -0.01em;
-  color: var(--navy); font-variant-numeric: tabular-nums; overflow-wrap: anywhere;
+  color: var(--navy); font-variant-numeric: tabular-nums; overflow-wrap: break-word;
 }
 .chg-value--text { font-size: 1.0625rem; line-height: 1.35; letter-spacing: 0; }
 .chg-sub { display: block; margin-top: 2px; font-size: var(--fs-small); color: var(--muted); line-height: 1.4; }
@@ -245,7 +245,7 @@
 .chg-totals { display: grid; gap: var(--space-3); grid-template-columns: minmax(0, 1fr); margin: 0 0 var(--space-4); }
 .chg-total { min-width: 0; padding: var(--space-3); border-radius: var(--radius-sm); }
 .chg-total dt { font-size: var(--fs-small); color: var(--muted); font-weight: 600; }
-.chg-total dd { margin: 2px 0 0; font-size: 1.375rem; font-weight: 700; color: var(--navy); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.chg-total dd { margin: 2px 0 0; font-size: 1.375rem; font-weight: 700; color: var(--navy); font-variant-numeric: tabular-nums; overflow-wrap: break-word; }
 .chg-total--orig { background: var(--grey-bg); border: 1px dashed var(--line-strong); }
 .chg-total--rev { background: var(--blue-tint); border: 1px solid #b9c8ff; }
 .chg-total--diff { background: var(--white); border: 1.5px solid var(--navy); }
@@ -302,7 +302,7 @@
   background: var(--grey-bg); border: 1px solid var(--line);
   font-weight: 600; color: var(--navy); overflow-wrap: anywhere;
 }
-.chg-calc { display: block; margin-top: 4px; font-weight: 700; color: var(--navy); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.chg-calc { display: block; margin-top: 4px; font-weight: 700; color: var(--navy); font-variant-numeric: tabular-nums; overflow-wrap: break-word; }
 
 /* Fees key-values */
 .chg-kv { padding: var(--space-4); background: var(--white); border: 1px solid var(--line); border-radius: var(--radius-card); column-gap: 0; row-gap: 0; }

@@ -117,9 +117,11 @@
 .media-month-year { color: var(--media-ink-3); font-size: 0.85em; }
 .media-month-body { display: grid; gap: 0.45em; min-width: 0; }
 .media-rows { display: grid; gap: 0.15em; font-size: 0.9em; }
-.media-row { display: flex; justify-content: space-between; align-items: baseline; gap: 0.6em; min-width: 0; }
-.media-row-label { display: inline-flex; align-items: center; gap: 0.45em; color: var(--media-ink-2); min-width: 0; }
-.media-row-value { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; text-align: right; }
+/* The value never paints over the label: when both don't fit on one line the
+   value wraps below, still right-aligned */
+.media-row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; column-gap: 0.6em; min-width: 0; }
+.media-row-label { flex: 1 1 auto; display: inline-flex; align-items: center; gap: 0.45em; color: var(--media-ink-2); min-width: 0; }
+.media-row-value { flex: 0 0 auto; margin-left: auto; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; text-align: right; }
 .media-swap { display: inline-grid; justify-items: end; }
 .media-swap > span { grid-area: 1 / 1; }
 .media-swap-a { opacity: calc(1 - var(--b, 0)); }
@@ -308,6 +310,8 @@
 .media-btn[data-fid="media-play"] { background: rgba(255, 255, 255, 0.12); }
 .media-btn[data-fid="media-play"]:hover { background: rgba(255, 255, 255, 0.2); }
 .media-btn-text { white-space: nowrap; }
+/* "More controls" exists for narrow frames only */
+.media-btn.media-more { display: none; }
 
 .media-select-wrap { position: relative; display: inline-flex; align-items: center; }
 .media-select {
@@ -378,17 +382,66 @@
 .media-note { display: flex; align-items: flex-start; gap: var(--space-2); margin: 0; font-size: var(--fs-small); color: var(--muted); }
 .media-note .icon { flex: 0 0 auto; margin-top: 2px; }
 
-/* ---------- Narrow frames: tighter chrome ---------- */
+/* ---------- Narrow frames (phones): the stage, captions and controls fit
+   on one screen. The scene type scales with the frame width and the small
+   viewport height (never below 13px; small print never below 12px), the
+   stacked scenes are tighter, and the control bar keeps a single row of
+   buttons: the secondary controls open on demand ("More controls"). ---------- */
 @container mediaframe (max-width: 479.98px) {
   /* Narrow: the chapter title gets the full width; the time sits beside the seek bar */
-  .media-controls { grid-template-areas: "label label" "seek time" "row row"; column-gap: 6px; }
-  .media-time { align-self: center; }
+  .media-controls { grid-template-areas: "label label" "seek time" "row row"; column-gap: 6px; row-gap: 0; padding: 6px 10px 4px; }
+  .media-chapter-label { font-size: 0.8125rem; line-height: 1.3; }
+  .media-time { align-self: center; font-size: 0.8125rem; }
+  .media-seek-wrap { min-height: 28px; }
   .media-end-actions .btn { flex: 1 1 100%; }
   .media-btn--text .media-btn-text {
     position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
   }
   .media-btn--text { padding: 8px; }
   .media-volume { width: 72px; }
+  .media-btn.media-more { display: inline-flex; }
+  .media-player:not(.is-more-open) .media-ctl-group--view { display: none; }
+
+  .media-caption { min-height: calc(2 * 1.3em + 12px); padding: 6px 14px; font-size: 0.9375rem; line-height: 1.3; }
+
+  .media-canvas { min-height: 220px; font-size: clamp(13px, min(4.9cqi, 2.35svh), 15px); line-height: 1.3; }
+  .media-scene { padding: 14px 14px 16px; gap: 0.75em; }
+  .media-scene-title { font-size: 1.25em; }
+  .media-overline, .media-month-year, .media-block-sub, .media-tl-year, .media-tl-shift,
+  .media-cost-note, .media-date-full, .media-eq-note, .media-poster-tag, .media-poster-meta { font-size: max(12px, 0.85em); }
+  .media-rows, .media-legend, .media-date-month { font-size: max(12px, 0.9em); }
+
+  /* Scene 2: tighter month cards */
+  .media-months { gap: 0.45em; }
+  .media-month { grid-template-columns: 5.8em minmax(0, 1fr); gap: 0.3em 0.55em; padding: 0.5em 0.65em; }
+  .media-month-name { font-size: 1em; }
+  .media-month-body { gap: 0.35em; }
+  .media-highlight { padding: 0.3em 0.7em; }
+
+  /* Scene 3: the − and = signs sit beside the blocks instead of between them */
+  .media-eq3 { grid-template-columns: 0.9em minmax(0, 1fr); column-gap: 0.45em; row-gap: 0.45em; }
+  .media-eq3 > .media-block { grid-column: 2; padding: 0.5em 0.75em; }
+  .media-eq3 > .media-op { grid-column: 1; font-size: 1.3em; }
+  .media-callout { padding: 0.55em 0.8em; }
+
+  /* Scene 4 */
+  .media-s4-grid { gap: 0.75em; }
+  .media-tl { gap: 0.6em; }
+  .media-cost { padding: 0.65em 0.9em; }
+  .media-cost-value { font-size: 1.9em; }
+
+  /* Scene 5 */
+  .media-s5-grid { gap: 0.75em; }
+  .media-eq-total { font-size: 2em; }
+
+  /* Poster */
+  .media-poster { padding: 16px 14px; }
+  .media-poster-body { gap: 0.45em; }
+}
+@container mediaframe (max-width: 339.98px) {
+  /* The smallest phones: no room for the volume slider (Mute stays; phones
+     set the volume with their own buttons) */
+  .media-volume { display: none; }
 }
 @container mediaframe (min-width: 480px) {
   .media-canvas { font-size: 16px; }
