@@ -45,6 +45,9 @@ App.shell = (() => {
   function tabs() {
     const cur = App.router.current().section;
     const list = h('div', { class: 'tabs', role: 'tablist', 'aria-label': t('shell.sectionsLabel') });
+    // On a route outside the six tabs (#/insights) none is selected; the first tab
+    // then keeps the roving tabindex so the tablist stays reachable with Tab.
+    const entry = App.SECTIONS.includes(cur) ? cur : App.SECTIONS[0];
     App.SECTIONS.forEach((s) => {
       const selected = s === cur;
       list.appendChild(h('button', {
@@ -55,7 +58,7 @@ App.shell = (() => {
         fid: `tab-${s}`,
         'aria-selected': String(selected),
         'aria-controls': 'view',
-        tabindex: selected ? '0' : '-1',
+        tabindex: s === entry ? '0' : '-1',
         on: {
           click: () => App.router.go(App.router.href(s), { focus: `tab-${s}` }),
           keydown: onTabKey,
@@ -135,7 +138,9 @@ App.shell = (() => {
 
   function checkFit() {
     if (!els.nav) return;
-    const available = els.navWrap.clientWidth;
+    // The nav's own width is the container's content box (navWrap.clientWidth would
+    // include the container's side padding and let the last tab run into the gutter).
+    const available = els.nav.clientWidth;
     const needed = els.measure.scrollWidth;
     const next = needed > available - 4;
     if (next !== compact) {
@@ -162,6 +167,7 @@ App.shell = (() => {
 
   function renderNav() {
     App.util.clear(els.nav);
+    els.nav.setAttribute('aria-label', t('shell.sectionsLabel'));
     els.tabs = tabs();
     els.selector = selector();
     els.measure = measurer();
@@ -245,7 +251,7 @@ App.shell = (() => {
     els.skip = h('a', { class: 'skip-link', href: '#main', on: { click: (e) => { e.preventDefault(); App.util.focusEl(document.getElementById('main')); } } });
     els.banner = h('div', { class: 'demo-banner', role: 'note' });
     els.headerBar = h('div', { class: 'container header-bar' });
-    els.nav = h('nav', { class: 'section-nav', 'aria-label': 'Notice sections / Sections de l’avis' });
+    els.nav = h('nav', { class: 'section-nav', 'aria-label': t('shell.sectionsLabel') });
     els.navWrap = h('div', { class: 'container nav-wrap' }, els.nav);
     els.header = h('header', { class: 'site-header' }, els.banner, els.headerBar, els.navWrap);
     els.view = h('div', { id: 'view', class: 'view' });

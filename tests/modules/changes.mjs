@@ -6,6 +6,7 @@
 // language switching on a detail, keyboard activation and 320/390 px reflow
 // (AC-08) in en-CA and fr-CA. Only depends on core + the changes module.
 // Usage: node tests/modules/changes.mjs [path/to/index.html]
+import { existsSync, readFileSync } from 'node:fs';
 import { launch, newPage, gotoApp, overflowReport, missingKeys, DEFAULT_FILE } from '../lib/browser.mjs';
 
 const file = process.argv[2] && !process.argv[2].startsWith('--') ? process.argv[2] : DEFAULT_FILE;
@@ -42,6 +43,20 @@ const structure = (page) => page.evaluate(() => {
   };
 });
 
+// The "Why 11,920 and not 12,000?" card: Explain, Ask, notice clause 7 and the month-by-month link (R-15).
+const reconActions = (page, sfx = '') => page.evaluate((x) => {
+  const r = document.querySelector('#view .chg-recon');
+  if (!r) return null;
+  return {
+    explain: !!r.querySelector(`[data-fid="chg-explain-relief${x}"]`),
+    ask: !!r.querySelector(`[data-fid="chg-ask-relief${x}"]`),
+    notice: r.querySelector(`a.btn-notice-link[data-fid="chg-notice-recon${x}"]`)?.getAttribute('href') || null,
+    relief: r.querySelector(`a[data-fid="chg-relief-recon${x}"]`)?.getAttribute('href') || null,
+  };
+}, sfx);
+// French elision: never « de » before a vowel-initial month (d’avril, d’août, d’octobre) (R-21/R-27).
+const MISSING_ELISION = /\bde (avril|août|octobre)\b/i;
+
 const CARDS = ['principal', 'interest', 'next-payment', 'maturity', 'fees', 'rate', 'debt'];
 const CLAUSE = { principal: 'postponement', interest: 'interest', 'next-payment': 'postponement', maturity: 'maturity', fees: 'unchanged', rate: 'unchanged', debt: 'cost' };
 const TEXT = {
@@ -50,6 +65,8 @@ const TEXT = {
     before: 'Before',
     after: 'After',
     seeDetail: 'See the detail',
+    unchanged: 'Unchanged',
+    octLink: 'See the October 2031 payment',
     banned: /forgiv|interest-free|interest free|holiday|saving/i,
     debtDetailTitle: 'Lower payments do not reduce what you owe',
   },
@@ -58,6 +75,8 @@ const TEXT = {
     before: 'Avant',
     after: 'Après',
     seeDetail: 'Voir le détail',
+    unchanged: 'Inchangé',
+    octLink: 'Voir le versement d’octobre 2031',
     banned: /remise de dette|sans intérêt|congé|économi|annulation de la dette/i,
     debtDetailTitle: 'Des versements moins élevés ne réduisent pas votre dette',
   },
@@ -144,6 +163,11 @@ for (const locale of ['en-CA', 'fr-CA']) {
   const maturity = info.cards.find((c) => c.id === 'maturity');
   check(`${locale}: interest card links to the total-cost comparison`, interest && interest.links.includes('#/payments/cost'));
   check(`${locale}: maturity card links to the full schedule`, maturity && maturity.links.includes('#/payments/schedule'));
+  const ra = await reconActions(page);
+  check(`${locale}: reconciliation card has Explain, Ask about this, View this in your notice (clause 7) and the month-by-month link`, ra && ra.explain && ra.ask && ra.notice === '#/documents/cost' && ra.relief === '#/payments/relief', ra);
+  const fees = info.cards.find((c) => c.id === 'fees');
+  const rate = info.cards.find((c) => c.id === 'rate');
+  check(`${locale}: change-fee badge is the standard “${T.unchanged}”, like the rate card and the Overview`, fees && rate && JSON.stringify(fees.badges) === JSON.stringify([T.unchanged]) && JSON.stringify(rate.badges) === JSON.stringify([T.unchanged]), { fees: fees && fees.badges, rate: rate && rate.badges });
   const reconMissing = exp.recon.filter((v) => !N(info.recon).includes(N(v)));
   check(`${locale}: reconciliation shows 12,000 − 80 = 11,920 and 16,720 vs 4,800`, reconMissing.length === 0, { missing: reconMissing });
   const unchMissing = exp.unchanged.filter((v) => !N(info.unchanged).includes(N(v)));
@@ -293,6 +317,51 @@ d = await page.evaluate(() => ({ months: document.querySelectorAll('#view .chg-m
 check('next-payment detail shows the payment breakdown and upcoming payments', d.months === 1 && d.steps === 4, d);
 await go(page, '#/changes/fees');
 check('fees detail shows the fee, additional interest and total payments', await page.evaluate(() => document.querySelectorAll('#view .chg-kv dt').length === 4));
+d = await page.evaluate(() => [...document.querySelectorAll('#view .chg-detail-badges .badge')].map((b) => b.textContent.trim()));
+check('fees detail badge is the standard “Unchanged”', JSON.stringify(d) === JSON.stringify([TEXT['en-CA'].unchanged]), d);
+
+// Reconciliation on the principal and debt details carries the same routes (unique -detail focus ids)
+for (const id of ['principal', 'debt']) {
+  await go(page, `#/changes/${id}`);
+  const rd = await reconActions(page, '-detail');
+  check(`${id} detail reconciliation has Explain, Ask, notice clause 7 and month-by-month link`, rd && rd.explain && rd.ask && rd.notice === '#/documents/cost' && rd.relief === '#/payments/relief', rd);
+}
+
+// Reconciliation notice link opens clause 7 and Back returns focus to it
+await go(page, '#/changes');
+if (await page.$('[data-fid="chg-notice-recon"]')) {
+  await page.click('[data-fid="chg-notice-recon"]');
+  await wait(page, 400);
+  check('reconciliation “View this in your notice” opens #/documents/cost', (await hash(page)) === '#/documents/cost', await hash(page));
+  await page.evaluate(() => window.BDCNotice.router.back());
+  await wait(page, 450);
+  check('returning from clause 7 restores focus to the reconciliation notice link', (await hash(page)) === '#/changes' && (await activeFid(page)) === 'chg-notice-recon', { hash: await hash(page), fid: await activeFid(page) });
+} else {
+  check('reconciliation “View this in your notice” link exists', false);
+}
+if (e.hasQuery && (await page.$('[data-fid="chg-ask-relief"]'))) {
+  await page.click('[data-fid="chg-ask-relief"]');
+  await wait(page, 350);
+  check('reconciliation Ask about this opens the query form', await page.evaluate(() => !!document.querySelector('.overlay.is-open')));
+  await page.keyboard.press('Escape');
+  await wait(page, 300);
+}
+
+// Month links: plain month in English, elided month phrase in French (d’octobre, de novembre)
+for (const locale of ['en-CA', 'fr-CA']) {
+  await setLocale(page, locale);
+  await go(page, '#/changes/maturity');
+  d = await page.evaluate(() => {
+    const n2 = (x) => String(x || '').replace(/\s+/g, ' ').trim();
+    return {
+      oct: n2(document.querySelector('#view a[data-fid="chg-mlink-maturity-2031-10"]')?.textContent),
+      links: [...document.querySelectorAll('#view .chg-month-link a, #view a[data-fid="chg-month-maturity"]')].map((a) => n2(a.textContent)),
+    };
+  });
+  check(`${locale}: October 2031 month link reads “${TEXT[locale].octLink}”`, d.oct === TEXT[locale].octLink, d);
+  if (locale === 'fr-CA') check('fr-CA: month links use « de » / « d’ » correctly (no « de octobre »)', d.links.length === 5 && d.links.every((x) => /^Voir le versement (d’|de )/.test(x) && !MISSING_ELISION.test(x)), d.links);
+}
+await setLocale(page, 'en-CA');
 
 // Unknown item falls back to the list
 await go(page, '#/changes/not-a-card');
@@ -308,6 +377,18 @@ check('fr-CA detail uses Canadian French formatting', /240\s000\s\$/.test(frText
 await setLocale(page, 'en-CA');
 
 /* ---------- 3. Reflow, keys and wording on every route at narrow widths ---------- */
+// Accessible names of #view (when it is a region) and every named section landmark inside it; returns duplicated names.
+const landmarkNameClashes = (page) => page.evaluate(() => {
+  const v = document.querySelector('#view');
+  const name = (el) => {
+    const by = el.getAttribute('aria-labelledby');
+    const txt = by ? by.split(' ').map((id) => document.getElementById(id)?.textContent || '').join(' ') : (el.getAttribute('aria-label') || '');
+    return txt.replace(/\s+/g, ' ').trim().toLowerCase();
+  };
+  const names = [...v.querySelectorAll('section[aria-labelledby], section[aria-label], [role="region"]')].map(name).filter(Boolean);
+  if (v.getAttribute('role') === 'region') names.push(name(v));
+  return names.filter((x, i) => names.indexOf(x) !== i);
+});
 const routes = ['#/changes', ...CARDS.map((c) => `#/changes/${c}`)];
 for (const locale of ['en-CA', 'fr-CA']) {
   await setLocale(page, locale);
@@ -327,11 +408,47 @@ for (const locale of ['en-CA', 'fr-CA']) {
       if (of.overflow || of.offenders.length) problems.push(`${r} overflow ${JSON.stringify(of.offenders.slice(0, 3))}`);
       if (mk.length) problems.push(`${r} missing ${mk.slice(0, 3).join(',')}`);
       if (TEXT[locale].banned.test(txt)) problems.push(`${r} banned wording`);
+      if (locale === 'fr-CA' && MISSING_ELISION.test(txt)) problems.push(`${r} missing elision: ${txt.match(MISSING_ELISION)[0]}`);
       if (h1s !== 1) problems.push(`${r} has ${h1s} h1`);
+      // #view is a named region in compact mode: no region inside it may share its name (axe landmark-unique, R-49)
+      const dupLandmarks = await landmarkNameClashes(page);
+      if (dupLandmarks.length) problems.push(`${r} landmark name clash ${JSON.stringify(dupLandmarks)}`);
     }
     check(`${locale} ${w}px: all changes routes reflow with one h1, no missing keys${w === 390 ? ', unique ids/focus ids, named groups, no heading skips' : ''}`, problems.length === 0, problems);
   }
 }
+
+// axe-core landmark-unique on the list at 320 px (compact navigation) in both languages, when axe-core is installed
+const axePath = new URL('../../node_modules/axe-core/axe.min.js', import.meta.url).pathname;
+if (existsSync(axePath)) {
+  const axeSrc = readFileSync(axePath, 'utf8');
+  await page.setViewportSize({ width: 320, height: 800 });
+  for (const locale of ['en-CA', 'fr-CA']) {
+    await setLocale(page, locale);
+    await go(page, '#/changes');
+    if (!(await page.evaluate(() => !!window.axe))) await page.addScriptTag({ content: axeSrc });
+    const res = await page.evaluate(async () => {
+      const r = await window.axe.run(document, { runOnly: { type: 'rule', values: ['landmark-unique', 'region', 'landmark-no-duplicate-main'] }, resultTypes: ['violations'] });
+      return { compact: document.documentElement.classList.contains('nav-compact'), v: r.violations.map((x) => `${x.id}: ${x.nodes.map((n) => n.target.join(' ')).join(' | ')}`) };
+    });
+    check(`${locale} 320px: axe landmark-unique passes on #/changes (compact nav)`, res.v.length === 0, res);
+  }
+} else {
+  console.log('- axe-core not installed: landmark-unique scan skipped');
+}
+
+// French typography in the changes namespace: U+00A0 before « : » and inside « », no space before ; ? ! (R-33)
+const frSpacing = await page.evaluate(() => {
+  const bad = [];
+  const walk = (o, path) => {
+    if (typeof o === 'string') {
+      if (/ [:;?!]/.test(o) || /[\u00a0\u202f][;?!]/.test(o) || /[^\u00a0\u202f]:\s/.test(o) || /«[^\u00a0\u202f]/.test(o) || /[^\u00a0\u202f]»/.test(o)) bad.push(path);
+    } else if (o && typeof o === 'object') Object.entries(o).forEach(([k2, v]) => walk(v, `${path}.${k2}`));
+  };
+  walk(window.BDCNotice.i18n._dicts['fr-CA'].changes, 'changes');
+  return bad;
+});
+check('fr-CA changes dictionary uses no-break spaces before “:” and inside « », none before ; ? !', frSpacing.length === 0, frSpacing);
 
 check('no console errors', consoleMsgs.length === 0, [...new Set(consoleMsgs)].slice(0, 5));
 check('no unexpected network requests', requests.filter((u) => !u.startsWith('https://accessibilityserver.org/')).length === 0, requests);

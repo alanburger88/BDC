@@ -621,15 +621,17 @@ App.media = (() => {
     const askAt = markOr(c, 'askClair', ch.speechStart + 3);
     const questionAt = markOr(c, 'prepareQuestion', askAt + 3);
     const noAccAt = markOr(c, 'noAcceptance', questionAt + 2);
-    const tile = (key, iconName) => h('div', { class: 'media-tile' },
-      h('span', { class: 'media-tile-icon' }, App.ui.icon(iconName, { size: 22 })),
-      h('span', { class: 'media-tile-text' }, t(`media.s6.${key}`)));
+    // A picture of the options, not controls: plain icon-and-label items with
+    // no button chrome. The working actions are on the end card.
+    const option = (key, iconName) => h('div', { class: 'media-option' },
+      h('span', { class: 'media-option-icon' }, App.ui.icon(iconName, { size: 22 })),
+      h('span', { class: 'media-option-text' }, t(`media.s6.${key}`)));
     s.el.append(
       h('div', { class: 'media-scene-head' }, title(t('media.s6.title'))),
-      h('div', { class: 'media-tiles' },
-        tile('schedule', 'calendar'),
-        beat(s, tile('explain', 'sparkle'), askAt - 0.3),
-        beat(s, tile('ask', 'chat'), questionAt - 0.3)),
+      h('div', { class: 'media-options' },
+        option('schedule', 'calendar'),
+        beat(s, option('explain', 'sparkle'), askAt - 0.3),
+        beat(s, option('ask', 'chat'), questionAt - 0.3)),
       beat(s, h('p', { class: 'media-s6-note' }, App.ui.icon('check', { size: 20 }), h('span', null, t('media.s6.noAcceptance'))), noAccAt - 0.2));
     return s;
   }
@@ -1113,13 +1115,15 @@ App.media = (() => {
       if (u.seek.value !== v) u.seek.value = v;
     }
     u.seek.style.setProperty('--pct', `${dur ? ((tm / dur) * 100).toFixed(2) : 0}%`);
-    const cur = App.fmt.time(tm);
-    const totalT = App.fmt.time(dur);
-    const vt = t('media.seekValue', { current: cur, total: totalT });
-    if (force || L.vt !== vt) {
+    // Visible clock in m:ss; the seek bar's value text in the spoken form
+    // ("0 min 5 s of 1 min 0 s"), like the Play button's duration.
+    const elapsed = t('media.elapsed', { current: App.fmt.time(tm), total: App.fmt.time(dur) });
+    const vt = t('media.seekValue', { current: App.fmt.timeLong(tm), total: App.fmt.timeLong(dur) });
+    if (force || L.vt !== vt || L.elapsed !== elapsed) {
       L.vt = vt;
+      L.elapsed = elapsed;
       u.seek.setAttribute('aria-valuetext', vt);
-      u.time.textContent = t('media.elapsed', { current: cur, total: totalT });
+      u.time.textContent = elapsed;
     }
 
     if (force || L.playing !== playing) {

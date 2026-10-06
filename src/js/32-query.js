@@ -94,7 +94,7 @@
   const itemOf = (ctx) => (ctx && ctx.kind !== 'general' ? { kind: ctx.kind, id: ctx.id, period: ctx.period || null } : null);
   const sameItem = (a, b) => !!a && !!b && a.kind === b.kind && a.id === b.id;
   const itemText = (item) => (item ? App.ui.itemLabel(item) : null);
-  // In-sentence language name ("Written in English" / "Rédigé en anglais")...
+  // In-sentence language name ("Written in English" / "Rédigée en anglais", agreeing with « question »)...
   const langName = (l) => (App.i18n.has(`${NS}.languages.${l}`) ? T(`languages.${l}`) : l);
   // ...and the standalone value shown after a label ("Preferred language: Français").
   const langValue = (l) => (App.i18n.has(`${NS}.languageValues.${l}`) ? T(`languageValues.${l}`) : langName(l));
@@ -133,9 +133,20 @@
           if (tp) d.topic = tp;
         }
       }
-    } else if (ctx.topic && !d.topicTouched) {
-      // An explicit topic (e.g. Clair's "Ask a person") wins over an inferred one the user never changed.
-      d.topic = ctx.topic;
+    } else {
+      // A general "Ask a question" never silently carries an item from an earlier
+      // contextual open. With no typed text the draft starts as a general question;
+      // with typed text the old item is offered back ("Add it back"), not attached.
+      const typed = !!(d.text || '').trim();
+      if (d.item) d.removedItem = typed ? d.item : null;
+      else if (!typed) d.removedItem = null;
+      d.item = null;
+      // An explicit topic (e.g. Clair's "Ask a person") wins over one the user never chose;
+      // an untouched topic inferred from the dropped item is cleared on an empty draft.
+      if (!d.topicTouched) {
+        if (ctx.topic) d.topic = ctx.topic;
+        else if (!typed) d.topic = '';
+      }
     }
     d.showErrors = false;
   }
@@ -345,9 +356,11 @@
         })));
   }
 
+  // Neutral info icons for local-only/privacy notes: a padlock would suggest a
+  // secure or encrypted channel, which this static demo is not (PRD section 16).
   function privacyNote() {
     return h('div', { class: 'callout callout--neutral qry-privacy' },
-      App.ui.icon('lock'),
+      App.ui.icon('info'),
       h('div', null, h('p', { class: 'qry-privacy-title' }, T('privacy.title')), h('p', null, T('privacy.body'))));
   }
 
@@ -522,7 +535,8 @@
         reviewRow(T('review.item'), d.item ? itemText(d.item) : T('review.none')),
         reviewRow(T('review.topic'), topicLabel(d.topic)),
         reviewRow(T('review.language'), langValue(App.i18n.locale)),
-        reviewRow(T('review.questionLanguage'), T('question.writtenIn', { language: langName(qLang) })),
+        // Standalone value after its label, as in the plain-text summary ("Language of your question: French").
+        reviewRow(T('review.questionLanguage'), langValue(qLang)),
         reviewRow(T('review.contact'), contactLabel(d.contact)),
         reviewRow(T('review.question'), h('div', { class: 'qry-question-text', lang: qLang }, (d.text || '').trim()), 'qry-review-row--question')),
       h('div', { class: 'callout callout--neutral qry-note' }, App.ui.icon('info'), h('p', null, T('review.note'))));
@@ -668,8 +682,16 @@
             kind: 'secondary',
             iconName: 'copy',
             fid: 'qry-copy',
-            onClick: async () => {
+            onClick: async (e) => {
+              const btn = e.currentTarget;
               const ok = await App.util.copyText(summaryText(req));
+              // The fallback copy selects (then removes) a temporary textarea, which
+              // drops focus to <body>: put it back on this button first, then
+              // update the role=status message so the result is announced after it.
+              const a = document.activeElement;
+              if (btn && btn.isConnected && (!a || a === document.body || a === document.documentElement || !refs || !refs.api.el.contains(a))) {
+                App.util.focusEl(btn, { preventScroll: true });
+              }
               setStatus(ok ? T('confirm.copied') : T('confirm.copyFailed'), ok);
             },
           }))),
@@ -745,7 +767,7 @@
       variant: 'panel',
       className: 'qry-overlay',
       title: T('title'),
-      titleExtra: h('p', { class: 'qry-subtitle' }, App.ui.icon('lock', { size: 14 }), subtitleText),
+      titleExtra: h('p', { class: 'qry-subtitle' }, App.ui.icon('info', { size: 14 }), subtitleText),
       trigger: trig,
       render: (body, api) => build(body, api, subtitleText),
       onClose: () => {

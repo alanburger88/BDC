@@ -101,6 +101,9 @@ App.i18n.register('insights', {
       showAnswer: 'Expected answer',
       goTo: 'Go to {place}',
       done: 'Completed by participant',
+      // Accessible names: the visible label first, then the task it belongs to.
+      doneLabel: 'Completed by participant: {task}',
+      answerLabel: 'Expected answer: {task}',
       progress: { one: '{n} of {total} tasks completed', other: '{n} of {total} tasks completed' },
       pilot: 'A pilot could compare task completion and contact reasons with BDC’s own baseline. This demo does not estimate business results.',
       items: {
@@ -125,8 +128,8 @@ App.i18n.register('insights', {
     languages: { 'en-CA': 'English', 'fr-CA': 'French' },
   },
   'fr-CA': {
-    overline: 'Vue de présentation',
-    title: 'Aperçu de la démo',
+    overline: 'Mode présentateur',
+    title: 'Statistiques de la démo',
     intro: 'Événements d’interaction enregistrés localement dans cet onglet, pour aider la personne qui présente à expliquer le concept. Rien sur cette page n’est transmis.',
     actions: {
       label: 'Actions de présentation',
@@ -221,6 +224,8 @@ App.i18n.register('insights', {
       showAnswer: 'Réponse attendue',
       goTo: 'Ouvrir la section « {place} »',
       done: 'Réussie par la personne participante',
+      doneLabel: 'Réussie par la personne participante : {task}',
+      answerLabel: 'Réponse attendue : {task}',
       progress: { one: '{n} tâche réussie sur {total}', other: '{n} tâches réussies sur {total}' },
       pilot: 'Un projet pilote pourrait comparer la réussite des tâches et les motifs de communication avec les données de référence de BDC. Cette démo n’estime aucun résultat d’affaires.',
       items: {

@@ -160,7 +160,7 @@ App.i18n.register('query', {
     question: {
       label: 'Votre question',
       hint: 'Utilisez vos propres mots. Jusqu’à {max} caractères.',
-      writtenIn: 'Rédigé en {language}',
+      writtenIn: 'Rédigée en {language}',
       keptAsWritten: 'Votre question reste dans la langue dans laquelle vous l’avez rédigée. Elle n’est jamais traduite.',
     },
     counter: {

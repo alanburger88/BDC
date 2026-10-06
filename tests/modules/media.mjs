@@ -4,8 +4,9 @@
 // captions, seeking, chapters, speed, captions/transcript toggles, keyboard,
 // mute/volume, replay, chapter-mapped language switching, pausing on leaving
 // the overview, end card actions, session reset, reduced motion, offline
-// playback, network isolation, layout at 320-1280 px in both languages, and
-// the missing-audio error path (built here with --silent-audio).
+// playback, network isolation, layout at 320-1280 px in both languages,
+// forced colours (Windows High Contrast), and the missing-audio error path
+// (built here with --silent-audio).
 //
 // Usage: node tests/modules/media.mjs [path/to/index.html] [--shots dir]
 import { spawnSync } from 'node:child_process';
@@ -102,6 +103,8 @@ const snapshot = (page) => page.evaluate(() => {
   };
 });
 const inSync = (s) => s.active.length === 1 && s.active[0] === s.expectedChapter && s.st.chapter === s.expectedChapter && !!s.caption && s.expectedCaption.includes(s.caption);
+// "0:41 / 1:00" (visible clock) -> "0 min 41 s of 1 min 0 s" (seek bar value text)
+const spokenOf = (timeText, word) => timeText.split(' / ').map((x) => { const [m, sec] = x.split(':'); return `${Number(m)} min ${Number(sec)} s`; }).join(` ${word} `);
 const cueData = (page, locale) => page.evaluate((l) => window.BDCNotice.readEmbeddedJSON('data-cues')[l], locale);
 const events = (page) => page.evaluate(() => window.BDCNotice.events.all().map((e) => `${e.type}:${e.id}`));
 
@@ -153,7 +156,7 @@ const names = await page.evaluate(() => [...document.querySelectorAll('.media-pl
   .filter((el) => el.getClientRects().length)
   .map((el) => ({ fid: el.getAttribute('data-fid'), name: (el.getAttribute('aria-label') || el.textContent || '').trim() })));
 ok('every visible control has an accessible name', names.length >= 10 && names.every((n) => n.name.length > 1), names.filter((n) => n.name.length <= 1));
-ok('seek bar has aria-valuetext "0:00 of 1:00"', (await page.getAttribute('.media-player .media-seek', 'aria-valuetext')) === '0:00 of 1:00');
+ok('seek bar aria-valuetext uses the spoken form "0 min 0 s of 1 min 0 s" (not clock digits)', (await page.getAttribute('.media-player .media-seek', 'aria-valuetext')) === '0 min 0 s of 1 min 0 s');
 ok('captions on by default', (await page.getAttribute('[data-fid="media-captions"]', 'aria-pressed')) === 'true');
 const hasFs = await page.evaluate(() => !!document.querySelector('[data-fid="media-fullscreen"]') === !!(document.fullscreenEnabled && Element.prototype.requestFullscreen));
 ok('fullscreen button shown only when supported', hasFs);
@@ -185,9 +188,9 @@ const bad = [];
 for (const tm of seekTimes) {
   await setRange(page, '.media-seek', tm.toFixed(1));
   const sn = await snapshot(page);
-  if (!inSync(sn) || !/^\d:\d\d of 1:00$/.test(sn.valuetext) || !sn.timeText.endsWith('/ 1:00')) { allSync = false; bad.push(sn); }
+  if (!inSync(sn) || sn.valuetext !== spokenOf(sn.timeText, 'of') || !sn.timeText.endsWith('/ 1:00')) { allSync = false; bad.push(sn); }
 }
-ok('seek bar: each chapter shows its scene and caption', allSync, bad[0]);
+ok('seek bar: each chapter shows its scene and caption; value text is the visible m:ss clock in spoken form', allSync, bad[0]);
 const ticks = await page.locator('.media-player .media-tick').count();
 ok('seek bar marks the 5 chapter boundaries', ticks === 5);
 
@@ -346,7 +349,7 @@ const fr = await page.evaluate(() => ({
   speed: [...document.querySelectorAll('[data-fid="media-speed"] option')].map((o) => o.textContent),
   note: document.querySelector('.media-player .media-note').textContent,
 }));
-ok('fr-CA labels: controls, chapter, seek value', fr.play === 'Lecture' && fr.label === 'Chapitre 3 sur 6 · D’où vient l’écart' && / sur 1:02$/.test(fr.vt), fr);
+ok('fr-CA labels: controls, chapter, spoken seek value', fr.play === 'Lecture' && fr.label === 'Chapitre 3 sur 6 · D’où vient l’écart' && /^\d+ min \d+ s sur 1 min 2 s$/.test(fr.vt), fr);
 ok('fr-CA transcript (still open) shows the French narration', frCues.captions.every((c) => fr.tx.includes(c.text)) && fr.tx.includes('Transcription'));
 ok('fr-CA speed labels use the French decimal comma (no-break space before ×)', fr.speed.join('|') === '0,75\u00a0×|1\u00a0×|1,25\u00a0×|1,5\u00a0×', fr.speed);
 ok('fr-CA note: offline, never contacts ElevenLabs', fr.note.includes('ne communique jamais avec ElevenLabs'));
@@ -397,6 +400,29 @@ ev = await events(page);
 ok('event video_completed en-CA', ev.includes('video_completed:en-CA'));
 const endScene = await page.evaluate(() => document.querySelector('.media-player .media-scene.is-active').innerText);
 ok('next-step scene is a depiction only (no controls inside scenes)', (await page.locator('.media-player .media-scene button, .media-player .media-scene a').count()) === 0 && endScene.includes('Review the revised schedule'));
+// The scene-6 options are pictures, not look-alike controls: no box, fill,
+// shadow or rounded button shape, nothing focusable, and the whole scene is hidden
+// from assistive technology (the narration is in captions and transcript).
+const s6 = await page.evaluate(() => {
+  const sc = document.querySelector('.media-player .media-scene[data-scene="next-step"]');
+  const items = [...sc.querySelectorAll('.media-option')];
+  const boxed = (el) => {
+    const cs = getComputedStyle(el);
+    const bg = cs.backgroundColor;
+    const sides = ['Top', 'Right', 'Bottom', 'Left'].filter((sd) => parseFloat(cs[`border${sd}Width`]) > 0 && cs[`border${sd}Style`] !== 'none');
+    return { bgTransparent: bg === 'rgba(0, 0, 0, 0)' || bg === 'transparent', bgImage: cs.backgroundImage, shadow: cs.boxShadow, sides: sides.length, radius: parseFloat(cs.borderTopLeftRadius) || 0 };
+  };
+  return {
+    hidden: sc.getAttribute('aria-hidden'),
+    texts: items.map((el) => el.textContent.trim()),
+    looks: items.map(boxed),
+    focusable: sc.querySelectorAll('button, a, input, select, textarea, [tabindex], [role="button"], [role="link"]').length,
+    tiles: document.querySelectorAll('.media-player .media-tile').length,
+  };
+});
+ok('scene 6: "Review the revised schedule", "Explain with AI", "Ask a question" shown as plain picture items (no box, fill, shadow or rounded button shape)',
+  s6.hidden === 'true' && s6.texts.join('|') === 'Review the revised schedule|Explain with AI|Ask a question' && s6.focusable === 0 && s6.tiles === 0
+  && s6.looks.every((l) => l.bgTransparent && l.bgImage === 'none' && l.shadow === 'none' && l.sides <= 1 && l.radius === 0), s6);
 if (shots) await page.locator('.media-player').screenshot({ path: `${shots}/en-CA-1280-endcard.png` });
 
 // Cross-module end-card actions (only when Clair / the query form are in this build)
@@ -551,8 +577,9 @@ await page.setViewportSize({ width: 1280, height: 900 });
 
 /* ---------- Copy, amounts and accessible names in both languages ---------- */
 const EXPECT = {
-  'en-CA': { relief: ['$1,600'], difference: ['$12,000', '$80', '$11,920'], tradeoff: ['+$4,800', 'October 31, 2031', 'January 31, 2032', '$80'], resume: ['$5,600', '$4,000', '$1,600', 'February 28, 2027'], welcome: ['Camille Roy', 'Atelier Boréal Inc.', 'Effective November 1, 2026'] },
-  'fr-CA': { relief: ['1 600 $'], difference: ['12 000 $', '80 $', '11 920 $'], tradeoff: ['+4 800 $', '31 octobre 2031', '31 janvier 2032', '80 $'], resume: ['5 600 $', '4 000 $', '1 600 $', '28 février 2027'], welcome: ['Camille Roy', 'Atelier Boréal Inc.', 'En vigueur le 1er novembre 2026'] },
+  'en-CA': { relief: ['$1,600'], difference: ['$12,000', '$80', '$11,920'], tradeoff: ['+$4,800', 'Original final payment', 'October 31, 2031', 'Revised final payment', 'January 31, 2032', '$80'], resume: ['$5,600', '$4,000', '$1,600', 'February 28, 2027'], welcome: ['Camille Roy', 'Atelier Boréal Inc.', 'Effective November 1, 2026'] },
+  // Same terms as the rest of the app (changes / payments): « Dernier versement initial / révisé »
+  'fr-CA': { relief: ['1 600 $'], difference: ['12 000 $', '80 $', '11 920 $'], tradeoff: ['+4 800 $', 'Dernier versement initial', '31 octobre 2031', 'Dernier versement révisé', '31 janvier 2032', '80 $'], resume: ['5 600 $', '4 000 $', '1 600 $', '28 février 2027'], welcome: ['Camille Roy', 'Atelier Boréal Inc.', 'En vigueur le 1er novembre 2026'] },
 };
 for (const locale of ['en-CA', 'fr-CA']) {
   await page.evaluate((l) => window.BDCNotice.i18n.setLocale(l), locale);
@@ -570,6 +597,14 @@ for (const locale of ['en-CA', 'fr-CA']) {
       relief1600: (scenes.relief.match(/1,600|1 600/g) || []).length,
       all: norm(document.querySelector('.media-player').textContent),
       dict: JSON.stringify(App.i18n._dicts[App.i18n.locale].media) + JSON.stringify(cues.captions),
+      frSpacing: (() => {
+        const out = [];
+        const walk = (v, k) => {
+          if (typeof v === 'string') { if (/ [:»]|« |[ \u00a0\u202f][;!?]/.test(v)) out.push(`${k}: ${v}`); } else if (v && typeof v === 'object') Object.entries(v).forEach(([kk, vv]) => walk(vv, `${k}.${kk}`));
+        };
+        walk(App.i18n._dicts['fr-CA'].media, 'media');
+        return out;
+      })(),
       bigName: big.getAttribute('aria-label'),
       bigText: big.textContent.trim(),
       current: document.querySelector('.media-player .media-ch-now').textContent,
@@ -584,6 +619,10 @@ for (const locale of ['en-CA', 'fr-CA']) {
   ok(`${locale}: no savings/holiday/interest-free wording; forgiveness only ever negated`, !banned && forg);
   ok(`${locale}: big Play button's accessible name contains its visible text (label in name)`, info.bigName.toLowerCase().includes(info.bigText.toLowerCase()), [info.bigName, info.bigText]);
   ok(`${locale}: current-chapter tag does not claim "now playing" while paused`, info.current === (locale === 'en-CA' ? 'Current' : 'En cours'), info.current);
+  if (locale === 'fr-CA') {
+    ok('fr-CA: final payment never called « échéance d’origine / révisée » in the video', !/échéance d’origine|échéance révisée|Dernière échéance/.test(info.dict), info.scenes.tradeoff);
+    ok('fr-CA: media dictionary uses U+00A0 before : and inside « » (never a breaking space) and no space before ; ! ?', info.frSpacing.length === 0, info.frSpacing);
+  }
 }
 await page.evaluate(() => window.BDCNotice.i18n.setLocale('en-CA'));
 await wait(page, 150);
@@ -761,6 +800,83 @@ for (const w of [320, 390]) {
     await e.context.close();
   }
   rmSync(dir, { recursive: true, force: true });
+}
+
+/* ======================================================================
+ * 6. Forced colours (Windows High Contrast): the seek bar, chapter ticks,
+ *    volume slider, pressed/expanded state, poster and end card stay visible.
+ *    Forced colours drop gradients, shadows and author colours, so this is
+ *    checked on rendered pixels, in dark and light high-contrast themes.
+ * ==================================================================== */
+{
+  // Pixel statistics of an element screenshot, decoded in a blank page
+  const decoder = await (await browser.newContext()).newPage();
+  const pixels = async (loc) => {
+    const b64 = (await loc.screenshot()).toString('base64');
+    return decoder.evaluate(async (data) => {
+      const img = new Image();
+      img.src = `data:image/png;base64,${data}`;
+      await img.decode();
+      const c = document.createElement('canvas');
+      c.width = img.width; c.height = img.height;
+      const x = c.getContext('2d');
+      x.drawImage(img, 0, 0);
+      const d = x.getImageData(0, 0, c.width, c.height).data;
+      const counts = new Map();
+      for (let i = 0; i < d.length; i += 4) { const k = `${d[i]},${d[i + 1]},${d[i + 2]}`; counts.set(k, (counts.get(k) || 0) + 1); }
+      const sorted = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+      const total = d.length / 4;
+      return { dominant: sorted[0][0], other: 1 - sorted[0][1] / total, colours: sorted.length };
+    }, b64);
+  };
+  // Forced colours keep the alpha of the author colour (transparent stays transparent)
+  const opaque = (bg) => { const m = /rgba?\(([^)]+)\)/.exec(bg || ''); if (!m) return false; const a = m[1].split(',')[3]; return a === undefined || Number(a) >= 0.99; };
+  for (const scheme of ['dark', 'light']) {
+    const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, forcedColors: 'active', colorScheme: scheme });
+    const fc = await context.newPage();
+    const errs = [];
+    fc.on('pageerror', (e) => errs.push(e.message));
+    await gotoApp(fc, '#/overview', file);
+    await ensurePlayer(fc);
+    ok(`forced colours (${scheme}): media query active`, await fc.evaluate(() => matchMedia('(forced-colors: active)').matches));
+    const poster = await fc.evaluate(() => getComputedStyle(document.querySelector('.media-player .media-poster')).backgroundColor);
+    ok(`forced colours (${scheme}): poster keeps an opaque background (scene 1 does not show through)`, opaque(poster), poster);
+    await setRange(fc, '.media-seek', 25);
+    await fc.evaluate(() => { document.querySelector('[data-fid="media-chapters-toggle"]').click(); });
+    await wait(fc, 200);
+    const seekPx = await pixels(fc.locator('.media-player .media-seek-wrap'));
+    // the track spans the full width: border, progress fill, ticks and thumb
+    ok(`forced colours (${scheme}): seek track, progress, thumb and chapter ticks are drawn`, seekPx.other > 0.12 && seekPx.colours >= 3, seekPx);
+    const ticksPx = await fc.evaluate(() => [...document.querySelectorAll('.media-player .media-tick')].map((el) => { const cs = getComputedStyle(el); return { bg: cs.backgroundColor, h: el.getBoundingClientRect().height, fca: cs.forcedColorAdjust }; }));
+    ok(`forced colours (${scheme}): chapter ticks use a system colour that crosses the track`, ticksPx.length === 5 && ticksPx.every((tk) => tk.fca === 'none' && tk.h > 8 && opaque(tk.bg)), ticksPx);
+    const volPx = await pixels(fc.locator('.media-player .media-volume'));
+    ok(`forced colours (${scheme}): volume slider is drawn`, volPx.other > 0.12, volPx);
+    // Captions (pressed) and Chapters (expanded) vs Transcript (collapsed)
+    const cc = await pixels(fc.locator('[data-fid="media-captions"]'));
+    const chp = await pixels(fc.locator('[data-fid="media-chapters-toggle"]'));
+    const txb = await pixels(fc.locator('[data-fid="media-transcript-toggle"]'));
+    ok(`forced colours (${scheme}): pressed Captions and expanded Chapters are visibly marked (system selection colour)`, cc.dominant !== txb.dominant && chp.dominant !== txb.dominant && cc.dominant === chp.dominant, { cc, chp, txb });
+    await fc.locator('[data-fid="media-captions"]').focus();
+    await fc.keyboard.press('Shift+Tab');
+    await fc.keyboard.press('Tab');
+    const ring = await fc.evaluate(() => { const cs = getComputedStyle(document.activeElement); return { fid: document.activeElement.getAttribute('data-fid'), style: cs.outlineStyle, width: parseFloat(cs.outlineWidth), color: cs.outlineColor, bg: cs.backgroundColor }; });
+    ok(`forced colours (${scheme}): focus ring on a pressed button differs from its fill`, ring.fid === 'media-captions' && ring.style === 'solid' && ring.width >= 2 && ring.color !== ring.bg, ring);
+    // Scene data graphics: the principal/interest bar of scene 5 stays drawn
+    await setRange(fc, '.media-seek', (enCh.resume.end - 0.5).toFixed(1));
+    await wait(fc, 500);
+    const barPx = await pixels(fc.locator('.media-player .media-scene--resume .media-bar'));
+    ok(`forced colours (${scheme}): scene payment bar (hatched principal + interest) is drawn`, barPx.other > 0.3 && barPx.colours >= 3, barPx);
+    // End card (real actions) is opaque over scene 6
+    await setRange(fc, '.media-seek', (enCues.duration - 0.6).toFixed(1));
+    await clickFid(fc, 'media-play');
+    await fc.waitForFunction(() => window.BDCNotice.media.state().ended, null, { timeout: 6000 }).catch(() => {});
+    const endBg = await fc.evaluate(() => { const el = document.querySelector('.media-player .media-endcard'); return { hidden: el.hidden, bg: getComputedStyle(el).backgroundColor }; });
+    ok(`forced colours (${scheme}): end card is opaque over scene 6`, !endBg.hidden && opaque(endBg.bg), endBg);
+    if (shots) await fc.locator('.media-player .media-frame').screenshot({ path: `${shots}/fc-${scheme}-1280-endcard.png` });
+    ok(`forced colours (${scheme}): no page errors`, errs.length === 0, errs);
+    await context.close();
+  }
+  await decoder.context().close();
 }
 
 await browser.close();

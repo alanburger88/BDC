@@ -65,7 +65,8 @@ App.events = (() => {
       seq: log.length + 1,
       type,
       id: id || null,
-      section: (App.router && App.router.current().section) || null,
+      // data.section: explicit section for events logged before the first route renders
+      section: (data.section && ID_RE.test(String(data.section)) ? String(data.section) : null) || (App.router && App.router.current().section) || null,
       locale: App.i18n.locale,
       ts: new Date().toISOString(),
     };

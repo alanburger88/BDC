@@ -42,7 +42,7 @@
   // Canadian French writes the first day of a month as "1er" (Intl gives "1").
   function longDate(iso) {
     const s = App.fmt.date(iso, 'long');
-    return App.i18n.locale === 'fr-CA' ? s.replace(/^1 /, '1er ') : s;
+    return App.i18n.locale === 'fr-CA' ? s.replace(/^1([ \u00a0])/, '1er$1') : s;
   }
 
   function allGroups() {
@@ -325,12 +325,16 @@
     const list = h('ol', { class: 'ins-tasks' }, TASKS.map((key, i) => {
       const v = vals[key];
       const cbId = `ins-task-${key}`;
+      const taskName = T(`tasks.items.${key}.task`);
       const item = h('li', { class: ['ins-task', p.tasks[key] ? 'is-done' : null] });
+      // The same visible labels repeat for every task, so each control's
+      // accessible name also names its task (WCAG 2.4.6), visible label first (2.5.3).
       const cb = h('input', {
         type: 'checkbox',
         id: cbId,
         fid: cbId,
         checked: !!p.tasks[key],
+        'aria-label': T('tasks.doneLabel', { task: taskName }),
         'aria-describedby': 'ins-task-progress',
         on: {
           change: (e) => {
@@ -341,17 +345,20 @@
           },
         },
       });
+      const answer = App.ui.disclosure({
+        summary: T('tasks.showAnswer'),
+        fid: `ins-answer-${key}`,
+        className: 'ins-answer',
+        content: () => h('p', { class: 'ins-answer-text' }, T(`tasks.items.${key}.answer`, v.params)),
+      });
+      const toggle = answer.querySelector('.disclosure-toggle');
+      if (toggle) toggle.setAttribute('aria-label', T('tasks.answerLabel', { task: taskName }));
       item.append(
         h('div', { class: 'ins-task-head' },
           h('span', { class: 'ins-task-num', 'aria-hidden': 'true' }, num(i + 1)),
-          h('h3', { class: 'ins-task-title' }, T(`tasks.items.${key}.task`))),
+          h('h3', { class: 'ins-task-title' }, taskName)),
         h('div', { class: 'choice ins-task-check' }, cb, h('label', { for: cbId }, T('tasks.done'))),
-        App.ui.disclosure({
-          summary: T('tasks.showAnswer'),
-          fid: `ins-answer-${key}`,
-          className: 'ins-answer',
-          content: () => h('p', { class: 'ins-answer-text' }, T(`tasks.items.${key}.answer`, v.params)),
-        }),
+        answer,
         App.ui.routeLink({ label: T('tasks.goTo', { place: v.place }), target: v.target, fid: `ins-task-link-${key}`, originCtx: null, focus: 'heading' }));
       return item;
     }));

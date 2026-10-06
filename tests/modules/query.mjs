@@ -118,6 +118,26 @@ check('"No contact details are collected in this demo"', opened.contactHint === 
 check('panel on the right at 420px, modal', Math.round(opened.rect.width) === 420 && Math.round(opened.rect.right) === 1280 && opened.modal === 'true', opened.rect);
 check('16px text input (no iOS zoom)', opened.fontSize === '16px', opened.fontSize);
 check('opening the form logs nothing', (await events()).length === evBefore);
+// R-08: local-only and privacy notes use a neutral icon, never a "secure" padlock.
+const iconsQ = await page.evaluate((s) => {
+  const p = document.querySelector(s);
+  const { lock, info } = window.BDCNotice.ui.ICONS;
+  const d = (el) => [...(el ? el.querySelectorAll('svg path') : [])].map((x) => x.getAttribute('d'));
+  return { anyLock: d(p).includes(lock), subtitle: d(p.querySelector('.qry-subtitle')).includes(info), privacy: d(p.querySelector('.qry-privacy')).includes(info) };
+}, PANEL);
+check('no padlock icon in the query panel; subtitle and privacy note use the info icon', !iconsQ.anyLock && iconsQ.subtitle && iconsQ.privacy, iconsQ);
+// R-33: French dictionaries of this area use a no-break space (U+00A0) before ":" and
+// inside « », and no space before ; ! ? (Canadian convention).
+const frSpacing = await page.evaluate(() => {
+  const bad = [];
+  const walk = (o, path) => {
+    if (typeof o === 'string') { if (/ [:»]|« |[   ][;!?]/.test(o)) bad.push(`${path}: ${o}`); return; }
+    if (o && typeof o === 'object') Object.entries(o).forEach(([k, x]) => walk(x, `${path}.${k}`));
+  };
+  for (const ns of ['query', 'insights']) walk(window.BDCNotice.i18n._dicts['fr-CA'][ns], ns);
+  return bad;
+});
+check('fr-CA query + insights dictionaries: normalised French spacing', frSpacing.length === 0, frSpacing);
 await shot(page, 'query-en-1280-draft');
 
 // Topic inference without ctx.topic
@@ -237,7 +257,7 @@ let rv = await page.evaluate(() => {
 });
 check('review step precedes creation (Step 2 of 3)', rv.step === 'review' && /Step 2 of 3/.test(rv.heading) && rv.focus, rv);
 check('review lists notice, item, topic, language, contact and question', rv.rows.Notice === 'DEMO-BDC-CHANGE-2026-001' && rv.rows['Selected item'] === 'December 2026 payment' && rv.rows.Topic === 'Interest' && rv.rows['Preferred language'] === 'English' && rv.rows['Preferred contact method'] === 'Email' && rv.rows['Your question'] === Q1, rv.rows);
-check('question rendered as text in its own language', rv.qLang === 'en-CA' && rv.rows['Language of your question'] === 'Written in English');
+check('question rendered as text in its own language; review row shows just the language', rv.qLang === 'en-CA' && rv.rows['Language of your question'] === 'English', rv.rows['Language of your question']);
 check('review buttons: Edit + Create demo request', rv.buttons.join('|') === 'Edit|Create demo request', rv.buttons);
 await axeCheck('axe: no WCAG A/AA violations on the review step', PANEL);
 await shot(page, 'query-en-1280-review');
@@ -296,6 +316,25 @@ check('Copy gives status feedback', ['Summary copied to the clipboard.', 'Copyin
 let clip = null;
 try { clip = await page.evaluate(() => navigator.clipboard.readText()); } catch (e) { clip = null; }
 if (clip !== null && copyStatus.startsWith('Summary copied')) check('clipboard holds the plain-text summary', clip.includes('DEMO-Q-0001') && clip.includes(Q1), clip.slice(0, 120));
+// R-46: when the Clipboard API is unavailable, the fallback copy (temporary textarea)
+// must not drop focus to <body>: focus stays on "Copy summary" and the result is announced.
+await page.evaluate(() => {
+  window.__qryWriteText = navigator.clipboard && navigator.clipboard.writeText;
+  if (navigator.clipboard) Object.defineProperty(navigator.clipboard, 'writeText', { configurable: true, value: () => Promise.reject(new Error('denied')) });
+  document.querySelector('.qry-status').textContent = '';
+});
+await page.focus('[data-fid="qry-copy"]');
+await page.keyboard.press('Enter');
+await page.waitForTimeout(250);
+v = await page.evaluate(() => {
+  const s = document.querySelector('.qry-status');
+  return { fid: document.activeElement?.getAttribute('data-fid') || document.activeElement?.tagName, status: s?.textContent || '', role: s?.getAttribute('role') };
+});
+check('fallback copy keeps focus on "Copy summary"', v.fid === 'qry-copy', v);
+check('fallback copy result shown in the role=status message', v.role === 'status' && ['Summary copied to the clipboard.', 'Copying is not available in this browser. Select the summary text and copy it manually.'].includes(v.status), v);
+await page.keyboard.press('Tab');
+check('…and Tab continues to the next control (Download JSON), not the dialog start', (await activeInfo()).fid === 'qry-download-json', await activeInfo());
+await page.evaluate(() => { if (navigator.clipboard) delete navigator.clipboard.writeText; });
 
 // Downloads
 let [dl] = await Promise.all([page.waitForEvent('download', { timeout: 5000 }), page.click('[data-fid="qry-download-json"]')]);
@@ -328,6 +367,30 @@ check('Close closes the panel and returns focus to the trigger', (await activeIn
 /* ------------------------------------------------------------------ */
 await openQuery({ kind: 'general' });
 check('after creation a fresh draft starts (empty, general)', await page.evaluate(() => document.querySelector('#qry-question').value === '' && /^None/.test(document.querySelector('.qry-item-text').textContent) && document.querySelector('#qry-topic').value === ''));
+// R-00: a general "Ask a question" after an untyped contextual open starts as a general question.
+const generalState = () => page.evaluate(() => ({
+  item: document.querySelector('.qry-item-text').textContent,
+  restore: !!document.querySelector('[data-fid="qry-item-restore"]'),
+  topic: document.querySelector('#qry-topic').value,
+  draftItem: window.BDCNotice.query.state().draft.item,
+}));
+await page.keyboard.press('Escape');
+await panelClosed();
+await openQuery({ kind: 'card', id: 'interest', section: 'changes' });
+check('contextual open (card: Interest) captures the item and topic', (await generalState()).item === 'Interest' && (await generalState()).topic === 'interest');
+await page.keyboard.press('Escape');
+await panelClosed();
+await openQuery({ kind: 'general', section: 'help' });
+v = await generalState();
+check('then a general open with no typed text: no leftover item, topic not set', /^None/.test(v.item) && !v.restore && v.topic === '' && v.draftItem === null, v);
+await page.keyboard.press('Escape');
+await panelClosed();
+await openQuery({ kind: 'month', id: '2026-12', topic: 'payment' }); // e.g. Clair's "Ask a person"
+await page.keyboard.press('Escape');
+await panelClosed();
+await openQuery({ kind: 'general', section: 'overview' });
+v = await generalState();
+check('…also after a month + topic open (Clair "Ask a person")', /^None/.test(v.item) && !v.restore && v.topic === '', v);
 await page.fill('#qry-question', Q_DRAFT);
 await page.keyboard.press('Escape');
 await panelClosed();
@@ -338,12 +401,19 @@ check('reopening with a new ctx keeps the typed question', v.text === Q_DRAFT, v
 check('…and updates the selected item and untouched topic', v.item === 'Final payment date (maturity)' && v.topic === 'maturity', v);
 await page.evaluate(() => window.BDCNotice.query.open({ kind: 'general', topic: 'interest' }));
 await page.waitForTimeout(120);
-v = await page.evaluate(() => ({ text: document.querySelector('#qry-question').value, item: document.querySelector('.qry-item-text').textContent, topic: document.querySelector('#qry-topic').value }));
-check('an explicit topic on a general reopen replaces an untouched inferred topic', v.topic === 'interest' && v.text === Q_DRAFT && v.item === 'Final payment date (maturity)', v);
+v = await page.evaluate(() => ({ text: document.querySelector('#qry-question').value, item: document.querySelector('.qry-item-text').textContent, topic: document.querySelector('#qry-topic').value, restore: document.querySelector('[data-fid="qry-item-restore"]')?.getAttribute('aria-label') }));
+check('an explicit topic on a general reopen replaces an untouched inferred topic', v.topic === 'interest' && v.text === Q_DRAFT, v);
+check('a general reopen with typed text keeps the text but does not attach the old item (offers "Add it back")', /^None/.test(v.item) && v.restore === 'Add it back: Final payment date (maturity)', v);
+await page.click('[data-fid="qry-item-restore"]');
+await page.waitForTimeout(120);
+check('"Add it back" re-attaches the earlier item', await page.evaluate(() => document.querySelector('.qry-item-text').textContent === 'Final payment date (maturity)'));
 await page.selectOption('#qry-topic', 'maturity');
 await page.evaluate(() => window.BDCNotice.query.open({ kind: 'general', topic: 'payment' }));
 await page.waitForTimeout(120);
 check('…but never overrides a topic the user chose', await page.evaluate(() => document.querySelector('#qry-topic').value === 'maturity'));
+// Put the item back (the general reopen offered it again) for the locale checks below.
+await page.click('[data-fid="qry-item-restore"]');
+await page.waitForTimeout(120);
 
 // Locale switch while open
 await page.focus('#qry-question');
@@ -371,7 +441,7 @@ v = await page.evaluate(() => {
 check('locale switch relabels the open panel in French', v.title === 'Poser une question' && /Étape 1 sur 3/.test(v.step) && v.close === 'Fermer' && v.topic === 'Échéance' && v.langRow === 'Français', v);
 check('French panel uses no-break spaces before ":" and inside « »', badFrenchSpacing(await page.evaluate((s) => document.querySelector(s).textContent, PANEL)) === 0);
 check('typed question preserved, never translated, lang stays en-CA', v.text === Q_DRAFT && v.lang === 'en-CA', v);
-check('"Rédigé en anglais" + kept-as-written note', v.tag === 'Rédigé en anglais' && v.kept, v);
+check('"Rédigée en anglais" (agrees with « question ») + kept-as-written note', v.tag === 'Rédigée en anglais' && v.kept, v);
 check('focus and caret preserved in the textarea', v.focus && v.caret === 5, v);
 check('item relabelled in French', v.item === 'Date du dernier versement (échéance)', v.item);
 check('no missing keys in French panel', (await missingKeys(page)).length === 0, await missingKeys(page));
@@ -406,7 +476,7 @@ await page.click('[data-fid="qry-continue"]');
 await page.waitForTimeout(150);
 await shot(page, 'query-fr-390-review');
 v = await page.evaluate(() => Object.fromEntries([...document.querySelectorAll('.qry-review-row')].map((r) => [r.querySelector('dt').textContent, r.querySelector('dd').textContent])));
-check('French review: standalone language capitalised, in-sentence lowercase', v['Langue préférée'] === 'Français' && v['Langue de votre question'] === 'Rédigé en français', v);
+check('French review: language values shown standalone and capitalised (as in the summary)', v['Langue préférée'] === 'Français' && v['Langue de votre question'] === 'Français', v);
 await page.click('[data-fid="qry-create"]');
 await page.waitForTimeout(200);
 cf = await page.evaluate(() => ({ text: document.querySelector('.qry-confirm-text')?.textContent, ref: document.querySelector('.qry-ref-value')?.textContent }));
@@ -545,6 +615,22 @@ await page.click('[data-fid="ins-answer-interest"]');
 await page.waitForTimeout(60);
 check('additional-interest answer keeps the $80 inside the $4,800', await page.evaluate(() => /\$4,800 more interest/.test(document.body.innerText) && /\$80 of additional interest during the postponement is part of this \$4,800, not added to it/.test(document.body.innerText)));
 
+// R-48: repeated task controls carry their task in the accessible name (visible label first).
+const taskControlNames = () => page.evaluate(() => [...document.querySelectorAll('.ins-task')].map((li) => {
+  const cb = li.querySelector('input[type="checkbox"]');
+  const btn = li.querySelector('.disclosure-toggle');
+  return {
+    title: li.querySelector('.ins-task-title').textContent,
+    cbName: cb.getAttribute('aria-label') || '', cbVisible: cb.labels[0]?.textContent || '',
+    btnName: btn.getAttribute('aria-label') || '', btnVisible: btn.querySelector('.disclosure-summary')?.textContent || '',
+  };
+}));
+const namesOk = (rows) => rows.length === 4
+  && rows.every((r) => r.cbName.startsWith(r.cbVisible) && r.cbName.includes(r.title) && r.btnName.startsWith(r.btnVisible) && r.btnName.includes(r.title))
+  && new Set(rows.map((r) => r.cbName)).size === 4 && new Set(rows.map((r) => r.btnName)).size === 4;
+let tn = await taskControlNames();
+check('task checkboxes and "Expected answer" buttons have unique names that include the task', namesOk(tn) && tn[0].cbName === 'Completed by participant: Find the next payment' && tn[0].btnName === 'Expected answer: Find the next payment', tn.slice(0, 2));
+
 // Export
 [dl] = await Promise.all([page.waitForEvent('download', { timeout: 5000 }), page.click('[data-fid="ins-export"]')]);
 content = readFileSync(await dl.path(), 'utf8');
@@ -557,8 +643,10 @@ await shot(page, 'insights-en-1280', true);
 // French + 320
 await page.evaluate(() => window.BDCNotice.i18n.setLocale('fr-CA'));
 await page.waitForTimeout(250);
-v = await page.evaluate(() => ({ h1: document.querySelector('#view h1').textContent, text: document.querySelector('#view').innerText }));
-check('French insights view', v.h1 === 'Aperçu de la démo' && /Nombre d’interactions/.test(v.text) && /Simuler un indicateur de difficultés financières/.test(v.text), v.h1);
+v = await page.evaluate(() => ({ h1: document.querySelector('#view h1').textContent, overline: document.querySelector('#view .section-header .overline')?.textContent || '', text: document.querySelector('#view').innerText }));
+check('French insights view: « Statistiques de la démo » (distinct from the « Aperçu » tab), overline « Mode présentateur »', v.h1 === 'Statistiques de la démo' && v.overline === 'Mode présentateur' && !/Aperçu de la démo|Vue de présentation/.test(v.text) && /Nombre d’interactions/.test(v.text) && /Simuler un indicateur de difficultés financières/.test(v.text), { h1: v.h1, overline: v.overline });
+tn = await taskControlNames();
+check('French task controls: unique names that include the task', namesOk(tn) && tn[0].cbName === 'Réussie par la personne participante\u00a0: Trouver le prochain versement' && tn[0].btnName === 'Réponse attendue\u00a0: Trouver le prochain versement', tn.slice(0, 1));
 check('no missing keys on insights (FR)', (await missingKeys(page)).length === 0, await missingKeys(page));
 check('no banned framing on insights (FR)', !BANNED.test(v.text), v.text.match(BANNED));
 check('French insights uses no-break spaces before ":" and inside « »', badFrenchSpacing(await page.evaluate(() => document.querySelector('#view').textContent)) === 0);

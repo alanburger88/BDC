@@ -47,6 +47,9 @@ const TEXT = {
     banned: /forgiv|interest-free|interest free|holiday|saving/i, assumptionWord: 'capitalised', csvHeader: 'Payment date,Payment number,Opening principal,Principal,Interest,Total payment,Closing principal',
     printTitle: 'Important financing notice', collapse: 'Collapse all years', expand: 'Expand all years', back: 'Back to',
     toolsLabel: 'Help with this clause: Revised maturity date', sameAmount: 'happen to be the same amount', fictional: /synthetic notice/,
+    rounding: 'rounded half-up to the nearest cent', clair: 'Clair, the demo assistant',
+    csvMeta: ['Notice,DEMO-BDC-CHANGE-2026-001', 'Record version,1.0', 'Status,Fictional demonstration — not a BDC offer or actual agreement', 'Loan,DEMO-4821', 'Source,Generated locally in this browser from the demonstration record'],
+    csvTotals: 'Totals',
   },
   'fr-CA': {
     title: 'Votre avis', overline: 'Référence officielle', status: 'Démonstration fictive — ni une offre de BDC ni une entente réelle',
@@ -55,6 +58,9 @@ const TEXT = {
     banned: /remise de dette|sans intérêt|congé|économi|épargn|annulation de la dette/i, assumptionWord: 'capitalisé', csvHeader: 'Date du versement,Numéro du versement,Capital au début,Capital,Intérêts,Versement total,Capital à la fin',
     printTitle: 'Avis important concernant votre financement', collapse: 'Masquer toutes les années', expand: 'Afficher toutes les années', back: 'Retour à',
     toolsLabel: 'Aide sur cette clause\u00a0: Date d’échéance révisée', sameAmount: 'correspondent par hasard au même montant', fictional: /avis fictif/,
+    rounding: 'ils sont arrondis au cent le plus proche', clair: 'Clair, l’assistant de démonstration',
+    csvMeta: ['Avis,DEMO-BDC-CHANGE-2026-001', 'Version du dossier,1.0', 'État,Démonstration fictive — ni une offre de BDC ni une entente réelle', 'Prêt,DEMO-4821', 'Source,Généré localement dans ce navigateur à partir du dossier de démonstration'],
+    csvTotals: 'Totaux',
   },
 };
 
@@ -178,6 +184,12 @@ for (const locale of ['en-CA', 'fr-CA']) {
   check(`${locale}: cost clause also links to the lower-payments breakdown`, sec.cost.links.includes('#/payments/relief'), sec.cost.links);
   check(`${locale}: contact clause points to Help & questions`, sec.contact.links.includes('#/help'), sec.contact.links);
   check(`${locale}: assumptions are the approved wording, 1:1 with record.assumptions`, info.assumptions.length === E.assumptionsCount && info.assumptionSource === 'approved' && info.assumptions.some((a) => a.includes(T.assumptionWord)), info.assumptions);
+  // R-31: the monthly interest (plural in fr-CA) is what gets rounded, not the rate.
+  check(`${locale}: rounding assumption says the interest is rounded ("${T.rounding}")`, N(info.assumptions[0]).includes(N(T.rounding)), info.assumptions[0]);
+  // R-24 / R-33: Canadian French convention, no space before ; ? ! in the rendered assumptions.
+  check(`${locale}: assumptions have no space before ; ? !`, !info.assumptions.some((a) => /[\s\u00a0\u202f][;?!]/.test(a)), info.assumptions.filter((a) => /[\s\u00a0\u202f][;?!]/.test(a)));
+  // R-37: Clair is the demo assistant everywhere.
+  check(`${locale}: contact clause names "${T.clair}"`, N(sec.contact.text).includes(N(T.clair)), sec.contact.text);
   check(`${locale}: letterhead uses the embedded logo (alt BDC, aspect ratio preserved)`, info.logo && info.logo.alt === 'BDC' && info.logo.natural > 0 && Math.abs(info.logo.ratio - 1280 / 680) < 0.04 && info.logo.src.startsWith('data:image/webp'), info.logo);
   check(`${locale}: re line names loan DEMO-4821; addressee Camille Roy, Atelier Boréal Inc.`, info.re.includes('DEMO-4821') && info.addressee.includes('Camille Roy') && info.addressee.includes('Atelier Boréal Inc.'));
   check(`${locale}: illustrative schedule note beside the numbers`, info.demoNote);
@@ -230,16 +242,29 @@ check('AC-22 locator: a button named "…revised schedule…CSV" exists', ac22 >
 let f = await download('ntc-dl-revised');
 check('revised CSV filename carries notice id and locale', f.name === 'DEMO-BDC-CHANGE-2026-001_revised-schedule_en-CA.csv', f.name);
 check('revised CSV starts with a UTF-8 BOM and uses CRLF', f.body.charCodeAt(0) === 0xfeff && f.body.includes('\r\n'));
-check('revised CSV preamble: notice id, record version, status', f.body.includes('Notice identifier,DEMO-BDC-CHANGE-2026-001') && f.body.includes('Record version,1.0') && f.body.includes(`Status,${TEXT['en-CA'].status}`), f.body.slice(0, 400));
+check('revised CSV preamble: Notice, Record version, Status, Loan, Source labels', TEXT['en-CA'].csvMeta.every((l) => f.body.replace(/^\ufeff/, '').split('\r\n').includes(l)), f.body.slice(0, 500));
 check('revised CSV has the localized header row', f.body.split(/\r\n/).includes(TEXT['en-CA'].csvHeader));
 let rows = csvRows(f.body);
 check('revised CSV has 63 ISO-dated rows with decimal amounts', rows.length === 63 && rows[0] === '2026-11-30,1,240000.00,0.00,1600.00,1600.00,240000.00' && rows[3] === '2027-02-28,4,240000.00,4000.00,1600.00,5600.00,236000.00' && rows[62] === '2032-01-31,63,4000.00,4000.00,26.67,4026.67,0.00', [rows.length, rows[0], rows[3], rows[62]]);
 check('revised CSV totals row: 240000.00 / 53600.00 / 293600.00', f.body.includes('Totals,,,240000.00,53600.00,293600.00,'));
 const status1 = await page.locator('.ntc-dl-status').textContent();
 check('download shows a visible local-generation status', status1.includes(f.name), status1);
+// R-23: App.notice.csv(kind) is the exact file the download buttons produce, for Payments to reuse.
+const shared = await page.evaluate(() => {
+  const n = window.BDCNotice.notice;
+  if (!n || typeof n.csv !== 'function') return null;
+  let threw = false;
+  try { n.csv('selection-3'); } catch (e) { threw = true; }
+  const a = n.csv('revised');
+  const b = n.csv('revised-full');
+  return { a, o: n.csv('original'), aliasSame: a.content === b.content && a.filename === b.filename, threw };
+});
+check('App.notice.csv("revised") returns { filename, content, mime } identical to the download', shared && shared.a.filename === f.name && shared.a.content === f.body && shared.a.mime === 'text/csv;charset=utf-8', shared && [shared.a.filename, shared.a.mime]);
+check('App.notice.csv accepts the "-full" kind alias and rejects unknown kinds', shared && shared.aliasSame && shared.threw, shared && { alias: shared.aliasSame, threw: shared.threw });
 f = await download('ntc-dl-original');
 rows = csvRows(f.body);
 check('original CSV: 60 rows ending 2031-10-31 at zero, totals 48800.00 / 288800.00', f.name.includes('original-schedule') && rows.length === 60 && rows[59].startsWith('2031-10-31,60,') && rows[59].endsWith(',0.00') && f.body.includes('Totals,,,240000.00,48800.00,288800.00,'), [rows.length, rows[59]]);
+check('App.notice.csv("original") is identical to the original download', shared && shared.o.filename === f.name && shared.o.content === f.body, shared && shared.o.filename);
 f = await download('ntc-dl-json');
 let json = null;
 try { json = JSON.parse(f.body); } catch (e) { json = null; }
@@ -249,7 +274,10 @@ check('exports log schedule_exported with identifier ids only', JSON.stringify(e
 await setLocale(page, 'fr-CA');
 f = await download('ntc-dl-revised');
 rows = csvRows(f.body);
-check('fr-CA CSV: French header and preamble, ISO dates and decimal amounts unchanged', f.name.endsWith('_fr-CA.csv') && f.body.split(/\r\n/).includes(TEXT['fr-CA'].csvHeader) && f.body.includes('Numéro de l’avis,DEMO-BDC-CHANGE-2026-001') && rows.length === 63 && rows[0] === '2026-11-30,1,240000.00,0.00,1600.00,1600.00,240000.00', [f.name, rows[0]]);
+check('fr-CA CSV: French header and preamble, ISO dates and decimal amounts unchanged', f.name.endsWith('_fr-CA.csv') && f.body.split(/\r\n/).includes(TEXT['fr-CA'].csvHeader) && f.body.includes('Avis,DEMO-BDC-CHANGE-2026-001') && rows.length === 63 && rows[0] === '2026-11-30,1,240000.00,0.00,1600.00,1600.00,240000.00', [f.name, rows[0]]);
+check('fr-CA CSV preamble: « Avis », « Version du dossier », « État », « Prêt », « Source »; totals « Totaux »', TEXT['fr-CA'].csvMeta.every((l) => f.body.replace(/^\ufeff/, '').split('\r\n').includes(l)) && f.body.includes('Totaux,,,240000.00,53600.00,293600.00,'), f.body.slice(0, 500));
+const sharedFr = await page.evaluate(() => window.BDCNotice.notice && window.BDCNotice.notice.csv('revised'));
+check('fr-CA App.notice.csv("revised") is identical to the French download', sharedFr && sharedFr.filename === f.name && sharedFr.content === f.body, sharedFr && sharedFr.filename);
 f = await download('ntc-dl-inline');
 check('inline "Download this schedule" in clause 10 produces the revised CSV', csvRows(f.body).length === 63);
 await setLocale(page, 'en-CA');
@@ -491,6 +519,19 @@ if (E.hasClair) {
 }
 
 /* ---------- 11. Hygiene ---------- */
+// R-33: Canadian French typography across the whole notice namespace: no-break space before « : »
+// and inside « », and no space at all before ; ? !
+const frTypo = await page.evaluate((ns) => {
+  const bad = [];
+  const walk = (o, p) => {
+    if (typeof o === 'string') {
+      if (/[\s\u00a0\u202f][;?!]/.test(o) || / :/.test(o) || /« | »/.test(o)) bad.push(`${p}: ${o.slice(0, 90)}`);
+    } else if (o && typeof o === 'object') Object.keys(o).forEach((key) => walk(o[key], `${p}.${key}`));
+  };
+  walk(window.BDCNotice.i18n._dicts['fr-CA'][ns], ns);
+  return bad;
+}, 'notice');
+check('fr-CA notice dictionary: no-break space before « : » and inside « », no space before ; ? !', frTypo.length === 0, frTypo);
 const errs = consoleMsgs.filter((m) => !/download/i.test(m));
 check('no console errors or warnings', errs.length === 0, errs);
 const ext = requests.filter((u) => !u.startsWith('https://accessibilityserver.org/'));

@@ -172,6 +172,25 @@ const hostile = '<img src=x onerror="window.__pwned=1">';
 await typeAsk(hostile);
 check('user text is rendered as text, never HTML', await page.evaluate((h) => !window.__pwned && [...document.querySelectorAll('.clair-msg--user .clair-msg-text')].some((e) => e.textContent === h) && !document.querySelector('.clair-log img'), hostile));
 
+// R-12: a contextual open scrolls its "Explain" bubble to the top; the current-context chip
+// (and its remove control) must stay visible above the conversation, not scroll away with it.
+const chipInView = () => page.evaluate(() => {
+  const c = document.querySelector('.clair-chip');
+  const r = c.getBoundingClientRect();
+  const x = document.querySelector('.clair-chip-remove');
+  const xr = x ? x.getBoundingClientRect() : null;
+  const hitAt = (rr) => { const el = document.elementFromPoint(rr.left + rr.width / 2, rr.top + rr.height / 2); return !!el && !!el.closest('.clair-chip'); };
+  return { label: c.querySelector('.chip-text').textContent, inScroll: !!c.closest('.clair-scroll'), scrollTop: Math.round(document.querySelector('.clair-scroll').scrollTop), visible: r.top >= 0 && r.bottom <= innerHeight && hitAt(r), removeVisible: !!xr && hitAt(xr) };
+});
+await page.evaluate(() => window.BDCNotice.clair.open({ kind: 'month', id: '2026-12', fid: 'explain-month-2026-12' }));
+await page.waitForTimeout(400);
+const chipA = await chipInView();
+check('R-12: context opened on a long conversation → chip "December 2026 payment" + remove control visible (not inside the scrolling log)', chipA.label === 'December 2026 payment' && chipA.visible && chipA.removeVisible && !chipA.inScroll && chipA.scrollTop > 0, chipA);
+await page.evaluate(() => window.BDCNotice.clair.open({ kind: 'summary', id: 'relief' }));
+await page.waitForTimeout(400);
+const chipB = await chipInView();
+check('R-12: a second context while open → chip updates and stays visible', chipB.label === 'Lower payments, November to January' && chipB.visible && chipB.removeVisible && !chipB.inScroll, chipB);
+
 await page.keyboard.press('Escape');
 await closedPanel();
 check('Escape closes the contextual panel; focus returns to its trigger', await page.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-fid') === 'clair-launcher'));
@@ -218,6 +237,84 @@ const intentsCovered = new Set(engine.filter((r) => r.got === r.exp).map((r) => 
 check(`intent engine: ${engine.length - missed.length}/${engine.length} paraphrases (EN + FR) classified`, missed.length === 0, missed);
 check(`≥12 intents verified in both languages (${intentsCovered.size})`, intentsCovered.size >= 12);
 
+// QA regressions: paraphrases that used to get the wrong payment, a description of the current
+// change instead of Clair's limits, or the off-topic / generic fallback (R-13, R-18, R-19, R-25, R-26)
+const qa = await page.evaluate(() => {
+  const A = window.BDCNotice;
+  const run = (loc, q, ctx) => { A.i18n.setLocale(loc); const a = A.clair.answer(q, ctx || { kind: 'general' }); return { loc, q, intent: a.intent, text: a.text, monthId: a.monthId, src: a.source && a.source.target, ask: a.askPerson }; };
+  const E = (q, ctx) => run('en-CA', q, ctx);
+  const F = (q, ctx) => run('fr-CA', q, ctx);
+  const out = {
+    limits: [
+      [E('I need another deferral'), 'limitApprove'], [F('Puis-je reporter d’autres mois?'), 'limitApprove'], [E('Can I postpone more months?'), 'limitApprove'],
+      [E('Please defer February too'), 'limitApprove'], [F('Reportez aussi février'), 'limitApprove'],
+      [F('Je veux changer mon paiement'), 'limitChange'], [E('Change my payment'), 'limitChange'], [F('Pouvez-vous modifier mon versement?'), 'limitChange'],
+      [E('Lower my interest rate'), 'limitChange'], [F('Pouvez-vous baisser mon taux?'), 'limitChange'],
+      [F('Pouvez-vous augmenter mon prêt?'), 'limitEligibility'], [E('Can you increase my loan?'), 'limitEligibility'],
+      [F('Est-ce que je dois moins?'), 'debtReduced'], [E('Do I owe less now?'), 'debtReduced'],
+      [E('What happens if I miss a payment?'), 'hardship'], [E('I can’t afford the February payment'), 'hardship'], [F('Je ne peux pas payer le versement de février'), 'hardship'],
+      [E('I am having trouble paying'), 'hardship'], [F('J’ai de la difficulté à payer'), 'hardship'], [F('Que se passe-t-il si je manque un versement?'), 'hardship'],
+    ],
+    // Questions (not requests) keep their factual answers
+    questions: [
+      [E('Is February postponed too?'), 'month'], [F('Est-ce que février est reporté aussi?'), null, 'limitApprove'], [E('Will my payment change?'), null, 'limitChange'],
+      [E('Can you explain why my payment is lower?'), null, 'limitChange'], [E('Why can’t I pay online?'), 'limitPay'],
+      [F('Mon taux va-t-il changer?'), 'rate'], [F('Est-ce que mon taux va changer?'), 'rate'], [F('Est-ce que le taux va changer avec le report?'), 'rate'],
+      [E('Will my rate change?'), 'rate'], [F('Est-ce que mon taux change?'), 'rate'], [F('Je veux changer mon taux'), 'limitChange'],
+      [E('What do I owe after the postponement?'), 'balanceAfter'], [F('Combien me restera-t-il à rembourser après le report?'), 'balanceAfter'],
+      [E('Why was this notice issued?'), 'purpose'], [E('What is the total interest?'), 'totalCost'], [E('How many months are postponed?'), 'postponementPeriod'],
+      [E('When is my next payment?'), 'nextPayment'], [E('When is my final payment now?'), 'maturity'], [F('Quand se termine le prêt?'), 'maturity'],
+      [F('Est-ce que ça touche mon hypothèque?'), 'unrelated'], [E('I have an issue with the schedule'), null, 'issueDate'],
+    ],
+    resume: [E('What is my first payment after the postponement?'), F('Quel est mon premier versement après le report?'), F('Quand est mon premier versement complet?'),
+      E('When is my first full payment?'), E('What is my first principal payment?'), E('How much is my payment after the postponement?'), E('When is my next payment after the postponement?')],
+    lastPost: [E('When is the last payment of the postponement?'), E('What is the last payment before principal resumes?'), F('Quand est mon dernier versement d’intérêts seulement?'), F('Quel est le dernier versement du report?')],
+    after: [E('What is the payment after January?'), F('Quel est le versement après janvier?'), E('What is the payment before February?'), E('What about after the December payment?')],
+    totals: [E('What are my total payments?'), E('What is the total of all payments?'), E('How much will I pay overall?'), E('What is the total amount repaid?'), F('Quel est le total de tous les versements?')],
+    counts: [E('How many payments are left?'), E('How many payments?'), F('Combien de versements reste-t-il?')],
+    issued: [E('When was this notice issued?'), F('Quand cet avis a-t-il été émis?')],
+    loan: [E('What is the loan amount?'), F('Quel est le montant du prêt?')],
+    misconception: [E('Do I pay $4,880 extra?'), F('Est-ce que je paie 4 880 $ de plus?'), E('Is the $80 added on top of the $4,800?')],
+    year: [E('How much will I pay in 2027?'), F('Combien vais-je payer en 2027?')],
+    yearOutside: E('How much will I pay in 2035?'),
+    assumptionsFr: [F('Que signifient ces hypothèses?', { kind: 'clause', id: 'assumptions' }), F('Expliquez les hypothèses', { kind: 'clause', id: 'assumptions' }), F('Quelles sont les hypothèses?'), F('hypothèses'), F('Quelles hypothèses ont été utilisées pour le calcul?')],
+    assumptionsEn: [E('What do these assumptions mean?', { kind: 'clause', id: 'assumptions' }), E('What are the assumptions?')],
+  };
+  A.i18n.setLocale('en-CA');
+  return out;
+});
+const wrongLimits = qa.limits.filter(([r, exp]) => r.intent !== exp).map(([r, exp]) => `${r.q} → ${r.intent} (want ${exp})`);
+check(`R-13: request paraphrases explain Clair's limits; hardship routes to a person (${qa.limits.length}, EN + FR)`, wrongLimits.length === 0, wrongLimits);
+check('R-13: limit and hardship answers offer "Ask a person" and quote no payment figure for hardship', qa.limits.every(([r]) => r.ask) && qa.limits.filter(([r]) => r.intent === 'hardship').every(([r]) => !/\d/.test(r.text) && /person|personne/.test(r.text)), qa.limits.filter(([r]) => r.intent === 'hardship').map(([r]) => r.text));
+const wrongQ = qa.questions.filter(([r, exp, not]) => (exp && r.intent !== exp) || (not && r.intent === not)).map(([r, exp, not]) => `${r.q} → ${r.intent} (want ${exp || `not ${not}`})`);
+check(`questions (not requests) keep factual answers; "hypothèque" stays off-topic (${qa.questions.length})`, wrongQ.length === 0, wrongQ);
+check('R-18: first payment after the postponement → resume ($5,600 on February 28, 2027), both locales', qa.resume.every((r) => r.intent === 'resume' && (/\$5,600/.test(r.text) && /February 28, 2027/.test(r.text) || /5\s600\s\$/.test(r.text) && /28\sfévrier\s2027/.test(r.text))), qa.resume.map((r) => `${r.q} → ${r.intent}`));
+check('R-18: last payment of the postponement → $1,600 interest only on January 31, 2027 (not the 2032 maturity)', qa.lastPost.every((r) => r.intent === 'lastPostponement' && !/2032/.test(r.text) && (/\$1,600 on January 31, 2027, interest only/.test(r.text) || /1\s600\s\$, le 31\sjanvier\s2027/.test(r.text))), qa.lastPost.map((r) => `${r.q} → ${r.intent}: ${r.text.slice(0, 80)}`));
+check('R-18: "after January" → February 2027 row; "before February" → January 2027 row', qa.after[0].monthId === '2027-02' && /\$5,600\.00/.test(qa.after[0].text) && qa.after[1].monthId === '2027-02' && qa.after[2].monthId === '2027-01' && qa.after[3].monthId === '2027-01', qa.after.map((r) => `${r.q} → ${r.intent} ${r.monthId}`));
+check('R-19: total payments → $293,600.00 revised vs $288,800.00 original (both locales)', qa.totals.every((r) => r.intent === 'totalPayments' && (/\$293,600\.00/.test(r.text) && /\$288,800\.00/.test(r.text) || /293\s600,00\s\$/.test(r.text) && /288\s800,00\s\$/.test(r.text))), qa.totals.map((r) => `${r.q} → ${r.intent}`));
+check('R-19: payment counts → 63 revised vs 60 original', qa.counts.every((r) => r.intent === 'paymentCount' && /63/.test(r.text) && /60/.test(r.text)), qa.counts.map((r) => `${r.q} → ${r.intent}`));
+check('R-19: issue date → October 6, 2026 / 6 octobre 2026', qa.issued[0].intent === 'issueDate' && /October 6, 2026/.test(qa.issued[0].text) && qa.issued[1].intent === 'issueDate' && /6\soctobre\s2026/.test(qa.issued[1].text), qa.issued.map((r) => `${r.q} → ${r.intent}`));
+check('R-19: loan amount → $240,000.00 starting principal, no invented balance', qa.loan.every((r) => r.intent === 'loanAmount' && /240[,\s]000,?\.?00/.test(r.text)), qa.loan.map((r) => `${r.q} → ${r.intent}: ${r.text.slice(0, 60)}`));
+check('R-19: "$4,880 extra?" is corrected: the $80 is already inside the $4,800 (never added again)', qa.misconception.every((r) => r.intent === 'totalCost' && !/4[,\s]?880/.test(r.text) && (/already included/.test(r.text) || /déjà compris/.test(r.text))), qa.misconception.map((r) => `${r.q} → ${r.intent}`));
+check('R-19: a calendar year → Payments year view with that year\'s payment counts (no computed sum); outside years say so', qa.year.every((r) => r.intent === 'year' && r.src === '#/payments' && /2027/.test(r.text)) && qa.yearOutside.intent === 'year' && /2035/.test(qa.yearOutside.text) && /no payment/.test(qa.yearOutside.text), [...qa.year, qa.yearOutside].map((r) => `${r.q} → ${r.intent} ${r.src}`));
+const noFallback = [...qa.resume, ...qa.totals, ...qa.counts, ...qa.issued, ...qa.loan, ...qa.misconception, ...qa.year].filter((r) => ['fallback', 'unrelated'].includes(r.intent));
+check('R-19: none of these in-scope questions gets the "only this sample notice" fallback', noFallback.length === 0, noFallback.map((r) => r.q));
+check('R-25: French "hypothèses" questions → assumptions answer (also in the clause context), like English', [...qa.assumptionsFr, ...qa.assumptionsEn].every((r) => r.intent === 'assumptions' && r.src === '#/documents/assumptions'), [...qa.assumptionsFr, ...qa.assumptionsEn].map((r) => `${r.q} → ${r.intent}`));
+
+// R-33: French spacing in the clair namespace - U+00A0 before ":" and "»" and after "«", no space before ; ? !
+const frSpacing = await page.evaluate(() => {
+  const bad = [];
+  (function walk(v, path) {
+    if (typeof v === 'string') {
+      if (/[  ][:»]|«[  ]|[^\s ][:»]|«[^ ]|[\s ][;?!]/.test(v)) bad.push(`${path}: ${v.slice(0, 60)}`);
+    } else if (v && typeof v === 'object') Object.keys(v).forEach((k) => walk(v[k], `${path}.${k}`));
+  }(window.BDCNotice.i18n._dicts['fr-CA'].clair, 'clair'));
+  return bad;
+});
+check('R-33: clair fr-CA strings use U+00A0 before ":" / "»" and after "«", and no space before ; ? !', frSpacing.length === 0, frSpacing.slice(0, 5));
+const demoFr = await page.evaluate(() => { const A = window.BDCNotice; A.i18n.setLocale('fr-CA'); const t = A.clair.answer(null, { kind: 'section', id: 'insights' }).text; A.i18n.setLocale('en-CA'); return t; });
+check('French Clair calls the Demo insights page « Statistiques de la démo »', demoFr.includes('« Statistiques de la démo »') && !/Aperçu/i.test(demoFr), demoFr);
+
 // Words that must not be read as off-topic: French "stocks" (inventory) and "new" (not "news")
 const notUnrelated = await page.evaluate(() => ['pourquoi le report pour mes stocks saisonniers', 'what is the new maturity date', 'quelles sont les nouvelles dates', 'does the schedule match the notice']
   .map((q) => [q, window.BDCNotice.clair.answer(q, { kind: 'general' }).intent]).filter(([, i]) => i === 'unrelated'));
@@ -252,7 +349,8 @@ const audit = await page.evaluate((forbiddenSrc) => {
   const A = window.BDCNotice;
   const re = new RegExp(forbiddenSrc, 'i');
   const problems = [];
-  const intents = ['whatChanged', 'purpose', 'effectiveDate', 'nextPayment', 'postponementPeriod', 'principalMeaning', 'continuingInterest', 'whyRelief', 'relief', 'totalCost', 'maturity', 'resume', 'rate', 'fees', 'unchanged', 'acceptance', 'printExport', 'queryPrep', 'support', 'debtReduced', 'capitalisedInterest', 'balanceAfter', 'accountant', 'aboutClair', 'greeting', 'thanks', 'limitChange', 'limitApprove', 'limitEligibility', 'limitPay', 'unrelated', 'fallback'];
+  const intents = ['whatChanged', 'purpose', 'effectiveDate', 'nextPayment', 'postponementPeriod', 'principalMeaning', 'continuingInterest', 'whyRelief', 'relief', 'totalCost', 'maturity', 'resume', 'rate', 'fees', 'unchanged', 'acceptance', 'printExport', 'queryPrep', 'support', 'debtReduced', 'capitalisedInterest', 'balanceAfter', 'accountant', 'aboutClair', 'greeting', 'thanks', 'limitChange', 'limitApprove', 'limitEligibility', 'limitPay', 'unrelated', 'fallback',
+    'lastPostponement', 'totalPayments', 'paymentCount', 'issueDate', 'loanAmount', 'hardship', 'assumptions'];
   const ctxs = [];
   A.CHANGE_CARDS.forEach((id) => ctxs.push({ kind: 'card', id }));
   A.SUMMARY_CARDS.forEach((id) => ctxs.push({ kind: 'summary', id }));
@@ -268,7 +366,8 @@ const audit = await page.evaluate((forbiddenSrc) => {
   let n = 0;
   for (const loc of ['en-CA', 'fr-CA']) {
     A.i18n.setLocale(loc);
-    const all = intents.map((i) => A.clair.answer({ intent: i }, { kind: 'general' })).concat(ctxs.map((c) => A.clair.answer(null, c)));
+    const all = intents.map((i) => A.clair.answer({ intent: i }, { kind: 'general' })).concat(ctxs.map((c) => A.clair.answer(null, c)))
+      .concat(A.rec.years.map((year) => A.clair.answer({ intent: 'year', year }, { kind: 'general' })));
     for (const ans of all) {
       n += 1;
       const txt = `${ans.text} ${ans.fact || ''} ${ans.source ? ans.source.text : ''}`;
@@ -392,6 +491,8 @@ for (const [w, h] of [[390, 844], [320, 640], [390, 420]]) {
   });
   check(`${w}×${h}: panel is a full-width dialog`, Math.round(m.pw) === m.vw && Math.round(m.pl) === 0, m);
   check(`${w}×${h}: send button and input visible`, m.sendVisible && m.inputW >= 120, m);
+  const chipM = await chipInView();
+  check(`${w}×${h}: current-context chip and its remove control stay in view (R-12)`, chipM.label === 'February 2027 payment' && chipM.visible && chipM.removeVisible && !chipM.inScroll, chipM);
   if (w < 360) {
     const send = await page.evaluate(() => { const b = document.querySelector('.clair-send'); return { w: b.getBoundingClientRect().width, name: b.textContent.trim(), input: document.querySelector('#clair-input').getBoundingClientRect().width }; });
     check(`${w}px: Send is icon-only but keeps its accessible name; input ≥ 200px`, send.w <= 52 && send.name === 'Send' && send.input >= 200, send);

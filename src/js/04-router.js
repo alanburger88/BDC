@@ -13,6 +13,8 @@ App.router = (() => {
   let rendered = false;
 
   const backStack = () => App.session.slice('backStack', () => []);
+  // Entries popped by browser Back, so browser Forward can show "Back to…" again
+  const forwardStack = () => App.session.slice('forwardStack', () => []);
 
   function href(section, item, sub) {
     return `#/${[section, item, sub].filter(Boolean).join('/')}`;
@@ -41,13 +43,38 @@ App.router = (() => {
 
   function sectionOf(hash) { return parse(hash).section; }
 
+  function remember() {
+    scrollMap[current.hash] = window.scrollY;
+    focusMap[current.hash] = activeFid();
+  }
+
+  /** Identifier logged as detail_opened, or null when the route names no real item.
+   * Help deep links keep their sub-identifier (help:faq:relief, help:glossary:interest). */
+  function detailId(r, itemEl) {
+    const { section, item, sub } = r;
+    if (!item) return null;
+    const known = {
+      changes: () => App.CHANGE_CARDS.includes(item),
+      payments: () => App.rec.isMonthId(item) || ['relief', 'cost', 'schedule'].includes(item),
+      documents: () => App.CLAUSES.includes(item),
+      support: () => App.RESOURCES.includes(item),
+      help: () => (item === 'faq' ? App.i18n.has('help.faq.items') && Object.keys(App.i18n.tv('help.faq.items') || {}).includes(sub)
+        : item === 'glossary' ? App.TERMS.includes(sub)
+          : ['survey', 'ask'].includes(item)),
+    }[section];
+    // A view returning its target element also counts (e.g. #/support/help); in-view month
+    // selection returns no element, so known identifiers are checked as well.
+    if (!itemEl && !(known && known())) return null;
+    return section === 'help' && sub && (item === 'faq' || item === 'glossary') ? `${section}:${item}:${sub}` : `${section}:${item}`;
+  }
+
   /** Navigate. target: hash string or {section,item,sub}.
    * opts.origin: { fid, ctx } - pushes a "Back to…" entry pointing at the current place.
    * opts.focus: 'heading' | 'item' | <fid> | false. opts.replace, opts.keepScroll. */
   function go(target, opts = {}) {
     const hash = typeof target === 'string' ? parse(target).hash : href(target.section, target.item, target.sub);
-    scrollMap[current.hash] = window.scrollY;
-    focusMap[current.hash] = activeFid();
+    remember();
+    forwardStack().length = 0;
     if (opts.origin) {
       backStack().push({
         from: current.hash,
@@ -67,6 +94,8 @@ App.router = (() => {
     const stack = backStack();
     const top = stack.pop();
     if (!top) return go('#/overview', { focus: 'heading' });
+    remember();
+    forwardStack().length = 0;
     pending = { hash: top.from, opts: { restore: { scroll: top.scroll, fid: top.fid }, isBack: true } };
     if (location.hash === top.from) handle();
     else location.hash = top.from;
@@ -91,14 +120,19 @@ App.router = (() => {
     if (pending && pending.hash === r.hash) {
       opts = pending.opts;
     } else {
-      // Browser Back/Forward or a typed URL: restore what we know about that place.
+      // Browser Back/Forward or a typed URL: remember the place being left, then
+      // restore what we know about the place being shown.
+      if (rendered && r.hash !== current.hash) remember();
       const stack = backStack();
+      const fwd = forwardStack();
       const top = stack[stack.length - 1];
+      const ftop = fwd[fwd.length - 1];
       if (top && top.from === r.hash) {
         opts.restore = { scroll: top.scroll, fid: top.fid };
-        stack.pop();
-      } else if (scrollMap[r.hash] !== undefined) {
-        opts.restore = { scroll: scrollMap[r.hash], fid: focusMap[r.hash] };
+        fwd.push(stack.pop());
+      } else {
+        if (ftop && ftop.from === current.hash && sectionOf(ftop.to) === r.section) stack.push(fwd.pop());
+        if (scrollMap[r.hash] !== undefined) opts.restore = { scroll: scrollMap[r.hash], fid: focusMap[r.hash] };
       }
       opts.browser = true;
     }
@@ -147,7 +181,8 @@ App.router = (() => {
 
     if (!opts.rerender) {
       App.events.log('section_viewed', { id: r.section });
-      if (r.item) App.events.log('detail_opened', { id: `${r.section}:${r.item}` });
+      const did = detailId(r, itemEl);
+      if (did) App.events.log('detail_opened', { id: did });
     }
 
     // Focus and scroll management
@@ -156,7 +191,7 @@ App.router = (() => {
         window.scrollTo(0, opts.restore.scroll || 0);
         const el = App.util.findByFid(opts.restore.fid);
         if (el) App.util.focusEl(el, { preventScroll: true });
-        else if (!opts.rerender) focusHeading();
+        else if (!opts.rerender) focusHeading({ preventScroll: true }); // keep the restored scroll
         if (opts.rerender) window.scrollTo(0, opts.restore.scroll || 0);
         return;
       }
@@ -178,9 +213,9 @@ App.router = (() => {
     changeListeners.forEach((fn) => fn(r, prev, opts));
   }
 
-  function focusHeading() {
+  function focusHeading({ preventScroll = false } = {}) {
     const hd = viewEl && viewEl.querySelector('[data-view-heading]');
-    if (hd) App.util.focusEl(hd, { preventScroll: false });
+    if (hd) App.util.focusEl(hd, { preventScroll });
   }
 
   function rerender(override = {}) {
@@ -189,14 +224,19 @@ App.router = (() => {
     render(current, { rerender: true, restore: { scroll, fid } });
   }
 
-  function start() {
+  /** opts.beforeRender(route): runs once the first route is resolved, before it renders
+   * (boot logs notice_opened there so it precedes the first section_viewed). */
+  function start(opts = {}) {
     started = true;
     window.addEventListener('hashchange', handle);
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
     const r = parse(location.hash);
-    if (!location.hash.startsWith('#/') || !isKnown(r.section)) {
+    const valid = location.hash.startsWith('#/') && isKnown(r.section);
+    const first = valid ? r : parse('#/overview');
+    if (typeof opts.beforeRender === 'function') opts.beforeRender(first);
+    if (!valid) {
       location.replace('#/overview');
-      render(parse('#/overview'), { initial: true, focus: false });
+      render(first, { initial: true, focus: false });
     } else {
       render(r, { initial: true, focus: r.item ? 'item' : false });
     }

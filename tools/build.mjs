@@ -121,6 +121,19 @@ shapeDiff(dicts['en-CA'], dicts['fr-CA'], 'content', langDiff);
 if (langDiff.length) errors.push(`language completeness:\n   ${langDiff.join('\n   ')}`);
 else log(`✓ language dictionaries complete (${Object.keys(dicts['en-CA']).length} namespaces, en-CA = fr-CA shape)`);
 
+// 5b. Canadian French spacing (warning only): a space before « : » or inside « » must be
+// non-breaking (U+00A0) so a line wrap never strands the sign; ; ? ! take no space at all.
+const frSpacing = [];
+(function walkFr(v, path) {
+  if (typeof v === 'string') {
+    const m = v.match(/.{0,12}(?: [:;?!»]|« ).{0,12}/g);
+    if (m) frSpacing.push(`${path}: ${m.map((x) => JSON.stringify(x)).join(', ')}`);
+  } else if (v && typeof v === 'object') {
+    for (const k of Object.keys(v)) walkFr(v[k], Array.isArray(v) ? `${path}[${k}]` : `${path}.${k}`);
+  }
+}(dicts['fr-CA'], 'fr-CA'));
+if (frSpacing.length) console.warn(`! fr-CA spacing: ordinary space (U+0020) before : ; ? ! » or after « in ${frSpacing.length} string(s); use U+00A0 (none before ; ? !):\n   ${frSpacing.join('\n   ')}`);
+
 // 6. Runtime isolation and privacy lint on the application code
 const forbidden = [
   [/api\.elevenlabs\.io|elevenlabs\.io\/v1|xi-api-key/i, 'ElevenLabs endpoint or key header'],

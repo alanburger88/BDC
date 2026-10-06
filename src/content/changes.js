@@ -15,12 +15,12 @@ App.i18n.register('changes', {
       owing: { label: 'Still owing', text: 'The {deferred} of postponed principal remains owing. It is repaid later in the schedule.' },
     },
     groups: {
-      changed: { title: 'What changes', intro: 'Each card compares a term before and after the change.' },
+      changed: { title: 'Terms that change', intro: 'Each card compares a term before and after the change.' },
       owing: { title: 'What it means for what you owe', intro: 'Lower payments for {period} are temporary cash-flow relief. They do not reduce your debt.' },
       same: { title: 'What stays the same', intro: 'These terms are not affected by the postponement.' },
     },
     schedule: { original: 'Original schedule', revised: 'Revised schedule' },
-    badges: { noFee: 'No fee', notReduced: 'Debt not reduced' },
+    badges: { notReduced: 'Debt not reduced' },
     cards: {
       principal: {
         kicker: 'Principal payments',
@@ -285,12 +285,12 @@ App.i18n.register('changes', {
       owing: { label: 'Toujours dû', text: 'Les {deferred} de capital reporté restent dus. Ils seront remboursés plus tard dans le calendrier.' },
     },
     groups: {
-      changed: { title: 'Ce qui change', intro: 'Chaque carte compare une modalité avant et après la modification.' },
+      changed: { title: 'Les modalités qui changent', intro: 'Chaque carte compare une modalité avant et après la modification.' },
       owing: { title: 'Ce que cela signifie pour votre dette', intro: 'Des versements moins élevés pendant {period} constituent un allègement temporaire de trésorerie. Ils ne réduisent pas votre dette.' },
       same: { title: 'Ce qui ne change pas', intro: 'Ces modalités ne sont pas touchées par le report.' },
     },
     schedule: { original: 'Calendrier initial', revised: 'Calendrier révisé' },
-    badges: { noFee: 'Aucuns frais', notReduced: 'Dette non réduite' },
+    badges: { notReduced: 'Dette non réduite' },
     cards: {
       principal: {
         kicker: 'Remboursements de capital',
@@ -353,7 +353,8 @@ App.i18n.register('changes', {
     },
     actions: {
       seeDetailAria: 'Voir le détail : {item}',
-      seeMonth: 'Voir le versement de {month}',
+      // {month} comes from App.ui.monthPhrase and already carries « de » / « d’ » (d’octobre 2031).
+      seeMonth: 'Voir le versement {month}',
       allChanges: 'Voir tous les changements',
       otherTitle: 'Explorer les autres éléments',
     },

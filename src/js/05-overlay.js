@@ -31,8 +31,9 @@ App.overlay = (() => {
   function onKeydown(e) {
     if (!currentOv) return;
     if (e.key === 'Escape') {
-      // Let an open popover inside the overlay close first
-      if (App.popover && App.popover.isOpen()) return;
+      // A glossary popover that owns this Escape (focus in it or on its term, or a hover
+      // preview) closes first and stops the event before it gets here.
+      if (e.defaultPrevented) return;
       e.preventDefault();
       close('escape');
       return;
@@ -159,9 +160,14 @@ App.overlay = (() => {
 })();
 
 /* Non-modal popover used for glossary definitions. Opens on hover/focus
- * (transient) or click/tap (pinned). Escape closes and returns focus to the
- * term. The popover is inserted directly after its trigger so keyboard
- * order flows from the term into the popover's controls. */
+ * (transient) or click/tap (pinned); below 600px it is a bottom sheet that
+ * opens on click/tap/Enter only (App.ui.term). It closes when keyboard focus
+ * moves to anything outside the term and the popover, even when pinned, so it
+ * never covers the focused element. Escape closes it and returns focus to the
+ * term only when focus is on the term or inside the popover; elsewhere Escape
+ * belongs to whatever has focus (a hover preview is still dismissed). The
+ * popover is inserted directly after its trigger so keyboard order flows from
+ * the term into the popover's controls. */
 App.popover = (() => {
   let cur = null; // { trigger, el, pinned }
   let hideTimer = null;
@@ -207,8 +213,16 @@ App.popover = (() => {
     el.addEventListener('mouseleave', () => scheduleHide());
     el.addEventListener('focusout', onFocusOut);
     position();
-    requestAnimationFrame(position);
+    requestAnimationFrame(() => { position(); revealTrigger(); });
     return cur;
+  }
+
+  // Bottom sheet: scroll the page so the term stays visible above the sheet.
+  function revealTrigger() {
+    if (!cur || !cur.el.classList.contains('popover--sheet')) return;
+    if (document.documentElement.classList.contains('overlay-open')) return; // page scroll is locked
+    const overlap = cur.trigger.getBoundingClientRect().bottom + 8 - cur.el.getBoundingClientRect().top;
+    if (overlap > 0) window.scrollBy(0, Math.ceil(overlap));
   }
 
   function scheduleHide() {
@@ -221,7 +235,9 @@ App.popover = (() => {
     if (!cur) return;
     const next = e.relatedTarget;
     if (next && (cur.el.contains(next) || cur.trigger === next)) return;
-    if (!cur.pinned) close({ restoreFocus: false });
+    // Focus moved to another control: close, pinned or not. No new target (a click on
+    // the popover's text, or the window losing focus) keeps a pinned definition open.
+    if (next || !cur.pinned) close({ restoreFocus: false });
   }
 
   function close({ restoreFocus = false } = {}) {
@@ -241,11 +257,15 @@ App.popover = (() => {
   }
 
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && cur) {
-      e.preventDefault();
-      e.stopPropagation();
-      close({ restoreFocus: true });
-    }
+    if (e.key !== 'Escape' || !cur) return;
+    const a = document.activeElement;
+    const inside = !!a && (a === cur.trigger || cur.el.contains(a));
+    // Focus elsewhere: leave Escape to the focused control (chapter list, section
+    // selector, dialog), except for a hover preview, which Escape dismisses in place.
+    if (!inside && cur.pinned) return;
+    e.preventDefault();
+    e.stopPropagation();
+    close({ restoreFocus: inside });
   }, true);
   document.addEventListener('pointerdown', (e) => {
     if (!cur) return;

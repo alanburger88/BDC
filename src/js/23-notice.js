@@ -654,23 +654,30 @@
     return JSON.stringify({ note: k('json.note'), statusText: statusPhrase(), exportLocale: loc(), generatedLocally: true, record }, null, 2);
   }
 
+  /** Full-schedule CSV for kind "revised" | "original" (the "-full" suffix is accepted too),
+   * in the current locale: { filename, content, mime }. The notice's own download buttons use
+   * exactly this file, and other modules (Payments) reuse it so both tabs export the same CSV. */
+  function csvFile(kind) {
+    const which = String(kind || '').replace(/-full$/, '');
+    if (which !== 'revised' && which !== 'original') throw new Error(`Unknown schedule CSV kind ${kind}`);
+    return {
+      filename: `${App.record.noticeId}_${which}-schedule_${loc()}.csv`,
+      content: scheduleCsv(which === 'revised'),
+      mime: 'text/csv;charset=utf-8',
+    };
+  }
+
   function exportSpec(kind) {
     const R = App.record;
-    if (kind === 'json') return { name: `${R.noticeId}_record.json`, mime: 'application/json', content: recordJson(), id: 'record-json' };
-    const revised = kind === 'revised';
-    return {
-      name: `${R.noticeId}_${revised ? 'revised' : 'original'}-schedule_${loc()}.csv`,
-      mime: 'text/csv;charset=utf-8',
-      content: scheduleCsv(revised),
-      id: revised ? 'revised-full' : 'original-full',
-    };
+    if (kind === 'json') return { filename: `${R.noticeId}_record.json`, mime: 'application/json', content: recordJson(), id: 'record-json' };
+    return { ...csvFile(kind), id: kind === 'revised' ? 'revised-full' : 'original-full' };
   }
 
   function doExport(kind) {
     const spec = exportSpec(kind);
-    App.util.downloadBlob(spec.name, spec.mime, spec.content);
+    App.util.downloadBlob(spec.filename, spec.mime, spec.content);
     App.events.log('schedule_exported', { id: spec.id });
-    const msg = k('actions.downloaded', { file: spec.name });
+    const msg = k('actions.downloaded', { file: spec.filename });
     if (statusEl && statusEl.isConnected) statusEl.textContent = msg;
     App.announce(msg);
   }
@@ -782,5 +789,6 @@
     clauses: App.CLAUSES,
     href: (id) => App.router.href('documents', id),
     plainTarget: (id) => (LINKED[id] && LINKED[id].plain ? App.router.href(...plainParts(LINKED[id])) : null),
+    csv: csvFile,
   };
 })();

@@ -222,7 +222,7 @@ App.ui = (() => {
     return h('p', { class: ['demo-note', opts.className] }, icon('info', { size: 16 }), h('span', null, t('common.illustrativeNote'), ' ', t('common.amountsInCAD')));
   }
 
-  /** Glossary term trigger: hover/focus shows, click/tap pins, Escape closes. */
+  /** Glossary term trigger: hover/focus shows (focus only from 600px), click/tap/Enter pins, Escape closes. */
   function term(id, text) {
     const label = text || t(`glossary.${id}.term`);
     let pointerType = 'mouse';
@@ -257,17 +257,23 @@ App.ui = (() => {
         }),
         h('button', { type: 'button', class: 'btn btn-icon popover-close', 'aria-label': t('common.closeDefinition'), on: { click: () => api.close() } }, icon('close', { size: 16 }))));
     };
-    const show = (pinned) => {
-      const wasOpen = App.popover.isOpen() && App.popover.current().trigger === btn;
-      App.popover.open(btn, { render, pinned, label: t(`glossary.${id}.term`) });
-      if (!wasOpen) App.events.log('glossary_opened', { id });
+    // deliberate: keyboard focus. Hover previews are not counted as opened definitions;
+    // click/tap/Enter (pinned) and keyboard focus are, once per opening.
+    const show = (pinned, deliberate = false) => {
+      const cur = App.popover.open(btn, { render, pinned, label: t(`glossary.${id}.term`) });
+      if ((pinned || deliberate) && cur && !cur.logged) {
+        cur.logged = true;
+        App.events.log('glossary_opened', { id });
+      }
     };
     btn.addEventListener('pointerdown', (e) => { pointerType = e.pointerType || 'mouse'; });
     btn.addEventListener('mouseenter', () => { if (pointerType !== 'touch') show(false); });
     btn.addEventListener('mouseleave', () => App.popover.scheduleHide());
     btn.addEventListener('focus', () => {
       if (btn.dataset.suppressFocusOpen) return;
-      if (btn.matches(':focus-visible')) show(false);
+      // Below 600px the definition is a bottom sheet that could cover the focused
+      // term or later focus targets: there it opens on click/tap/Enter only.
+      if (btn.matches(':focus-visible') && !App.util.isNarrow()) show(false, true);
     });
     btn.addEventListener('blur', (e) => App.popover.onFocusOut(e));
     btn.addEventListener('keydown', (e) => {

@@ -319,6 +319,39 @@ await wait(page, 150);
 sv = await survey();
 check('survey: Tab + Space changes to "neutral"; comment stays available', sv.pressed.join() === 'false,true,false' && sv.follow && sv.events.join() === 'unhappy,neutral', sv);
 if (shots) { await page.setViewportSize({ width: 390, height: 900 }); await setLocale(page, 'fr-CA'); await page.evaluate(() => document.getElementById('help-survey').scrollIntoView()); await shot(page, 'fr-CA-390-survey-neutral'); await setLocale(page, 'en-CA'); await page.setViewportSize({ width: 1280, height: 900 }); }
+// R-01 (PRD §15): the comment keeps the language it was typed in, with lang on the field and a
+// "Written in …" tag (read with the field) once the interface language differs.
+const commentLang = () => page.evaluate(() => {
+  const ta = document.querySelector('#help-survey .hlp-sv-comment');
+  const tag = document.querySelector('#help-survey .hlp-sv-lang');
+  const described = (ta.getAttribute('aria-describedby') || '').split(/\s+/);
+  return {
+    value: ta.value, lang: ta.getAttribute('lang'), tag: tag ? tag.textContent.trim() : null, tagLang: tag ? tag.getAttribute('lang') : null,
+    describedByTag: !!tag && described.includes(tag.id), slotHidden: getComputedStyle(document.querySelector('#help-survey .hlp-sv-lang-slot')).display === 'none',
+    stored: window.BDCNotice.session.slice('survey').commentLang,
+  };
+});
+let cl = await commentLang();
+check('survey comment: lang="en-CA" once typed in English; no tag while the interface is English', cl.value === COMMENT && cl.lang === 'en-CA' && cl.tag === null && cl.slotHidden, cl);
+await setLocale(page, 'fr-CA');
+cl = await commentLang();
+check('survey comment after switching to French: kept as typed, lang="en-CA", tagged « Rédigé en anglais » (fr-CA tag, described-by)', cl.value === COMMENT && cl.lang === 'en-CA' && cl.tag === 'Rédigé en anglais' && cl.tagLang === 'fr-CA' && cl.describedByTag, cl);
+if (shots) { await page.setViewportSize({ width: 320, height: 800 }); await page.evaluate(() => document.querySelector('#help-survey .hlp-sv-field').scrollIntoView()); await shot(page, 'fr-CA-320-survey-comment-lang'); await page.setViewportSize({ width: 1280, height: 900 }); }
+await page.type('#help-survey .hlp-sv-comment', ' more');
+cl = await commentLang();
+check('survey comment: continuing to type in French keeps the original language label', cl.lang === 'en-CA' && cl.tag === 'Rédigé en anglais' && cl.value.endsWith(' more'), cl);
+await page.fill('#help-survey .hlp-sv-comment', '');
+cl = await commentLang();
+check('survey comment: clearing the field drops its language and tag', cl.lang === null && cl.tag === null && !cl.stored, cl);
+await page.fill('#help-survey .hlp-sv-comment', 'La date de reprise');
+await setLocale(page, 'en-CA');
+cl = await commentLang();
+check('survey comment typed in French then switched to English: lang="fr-CA", tagged "Written in French"', cl.value === 'La date de reprise' && cl.lang === 'fr-CA' && cl.tag === 'Written in French' && cl.tagLang === 'en-CA' && cl.describedByTag, cl);
+if (shots) { await page.setViewportSize({ width: 320, height: 800 }); await page.evaluate(() => document.querySelector('#help-survey .hlp-sv-field').scrollIntoView()); await shot(page, 'en-CA-320-survey-comment-lang'); await page.setViewportSize({ width: 1280, height: 900 }); }
+await page.fill('#help-survey .hlp-sv-comment', '');
+await page.fill('#help-survey .hlp-sv-comment', COMMENT);
+cl = await commentLang();
+check('survey comment retyped in English: no tag, lang="en-CA"', cl.lang === 'en-CA' && cl.tag === null, cl);
 await page.click('[data-fid="hlp-sv-happy"]');
 await wait(page, 150);
 sv = await survey();
@@ -533,6 +566,20 @@ for (const locale of ['fr-CA', 'en-CA']) {
 }
 await page.setViewportSize({ width: 1280, height: 900 });
 
+// R-37 / R-33: Clair is « l’assistant de démonstration »; Canadian French typography in the help namespace.
+{
+  const dict = await page.evaluate(() => window.BDCNotice.i18n._dicts['fr-CA'].help);
+  const all = [];
+  const walk = (o, p) => {
+    if (typeof o === 'string') all.push([p, o]);
+    else if (o && typeof o === 'object') Object.keys(o).forEach((key) => walk(o[key], `${p}.${key}`));
+  };
+  walk(dict, 'help');
+  const clairStrings = all.filter(([, v]) => /Clair,|Clair est/.test(v));
+  check('fr-CA help: Clair is always « l’assistant de démonstration », never « guide »', clairStrings.length >= 3 && clairStrings.every(([, v]) => v.includes('l’assistant de démonstration')) && !all.some(([, v]) => /guide de démonstration/.test(v)), clairStrings);
+  const bad = all.filter(([, v]) => /[\s\u00a0\u202f][;?!]/.test(v) || / :/.test(v) || /« | »/.test(v));
+  check('fr-CA help dictionary: no-break space before « : » and inside « », no space before ; ? !', bad.length === 0, bad);
+}
 check('no console errors', consoleMsgs.length === 0, consoleMsgs.slice(0, 5));
 check('no unexpected network requests', requests.filter((u) => !u.startsWith('https://accessibilityserver.org/')).length === 0, requests);
 

@@ -121,8 +121,9 @@
   const costLink = (ctx, fid) => link(k('cards.interest.costLink'), App.router.href('payments', 'cost'), ctx, fid);
   const scheduleLink = (ctx, fid) => link(k('cards.maturity.scheduleLink'), App.router.href('payments', 'schedule'), ctx, fid);
   const reliefLink = (ctx, fid) => link(k('recon.reliefLink'), App.router.href('payments', 'relief'), ctx, fid);
+  // {month} is App.ui.monthPhrase: "October 2031" in en-CA, "d’octobre 2031" / "de novembre 2031" in fr-CA.
   function monthLink(mid, ctx, fid) {
-    return link(k('actions.seeMonth', { month: date(mid, 'monthYear') }), App.router.href('payments', mid), ctx, fid);
+    return link(k('actions.seeMonth', { month: App.ui.monthPhrase(mid).replace(/ (\d{4})$/, '\u00a0$1') }), App.router.href('payments', mid), ctx, fid);
   }
 
   function detailLink(id) {
@@ -211,7 +212,7 @@
     },
     fees(p) {
       return {
-        badges: [App.ui.badge('unchanged', k('badges.noFee'))],
+        badges: [App.ui.badge('unchanged')],
         title: k('cards.fees.title'),
         body: compare(
           cell('before', t('common.before'), value(k('cards.fees.before'), 'chg-value--text'), sub(k('cards.fees.beforeSub'))),
@@ -307,6 +308,7 @@
     const titleId = `chg-recon-title${sfx}`;
     const capId = `chg-recon-cap${sfx}`;
     const range = { from: p.from, to: p.to };
+    const ctx = { kind: 'summary', id: 'relief', period: '3', topic: 'payment' };
     return h('section', { class: ['card', 'chg-recon'], 'aria-labelledby': titleId },
       h('div', { class: 'chg-card-head' }, h('p', { class: 'card-kicker' }, k('recon.kicker'))),
       h('h3', { class: 'card-title chg-card-title', id: titleId }, k('recon.title', { relief: p.relief, deferred: p.deferred })),
@@ -323,8 +325,12 @@
       h('div', { class: 'callout callout--neutral chg-recon-note' }, App.ui.icon('info'), h('p', null, k('recon.note', { extra3: p.extra3, extra: p.extra }))),
       h('p', { class: 'chg-fine' }, k('recon.sameAmount', { ...range, revised: p.revNear, extra: p.extra })),
       h('div', { class: 'chg-card-foot' },
-        h('div', { class: 'chg-actions' }, App.ui.explainButton({ kind: 'summary', id: 'relief', period: '3' }, { fid: `chg-explain-relief${sfx}` })),
-        h('div', { class: 'chg-links' }, reliefLink(opts.originCtx || null, `chg-relief-recon${sfx}`))));
+        h('div', { class: 'chg-actions' },
+          App.ui.explainButton(ctx, { fid: `chg-explain-relief${sfx}` }),
+          App.ui.askButton(ctx, { fid: `chg-ask-relief${sfx}` })),
+        h('div', { class: 'chg-links' },
+          App.ui.noticeLink('cost', ctx, { fid: `chg-notice-recon${sfx}` }),
+          reliefLink(opts.originCtx || null, `chg-relief-recon${sfx}`))));
   }
 
   function unchangedTerms(p, f) {
@@ -596,7 +602,7 @@
     },
     fees(p, f, ctx) {
       return {
-        badges: [App.ui.badge('unchanged', k('badges.noFee'))],
+        badges: [App.ui.badge('unchanged')],
         title: {},
         intro: { fee: p.fee },
         breakdown: feesBreakdown(p, f),

@@ -97,6 +97,10 @@
       origNextFull: mf(o[0].totalCents),
       origNextP: mf(o[0].principalCents),
       origNextI: mf(o[0].interestCents),
+      lastPost: mc(last.totalCents),
+      lastPostDate: dl(last.date),
+      origLastFull: mf(o[lastIdx].totalCents),
+      revLastFull: mf(last.totalCents),
       origPostClose: mc(o[lastIdx].closingPrincipalCents),
       origPostCloseFull: mf(o[lastIdx].closingPrincipalCents),
       revPostClose: mc(r[lastIdx].closingPrincipalCents),
@@ -131,13 +135,18 @@
     purpose: { fact: 'issued', src: C('purpose'), topic: 'understanding' },
     effectiveDate: { fact: 'firstDue', src: C('amendment'), topic: 'understanding' },
     nextPayment: { fact: 'nextPayment', src: C('interest'), topic: 'payment' },
+    lastPostponement: { fact: 'lastPost', src: C('postponement'), topic: 'payment' },
     postponementPeriod: { fact: 'nearTerm', src: C('postponement'), topic: 'payment' },
     principalMeaning: { fact: 'principalOwing', src: C('postponement'), topic: 'understanding' },
     continuingInterest: { fact: 'interestMonth', src: C('interest'), topic: 'interest' },
     whyRelief: { fact: 'nearTermDiff', src: C('cost'), topic: 'payment' },
     relief: { fact: 'firstMonthPayment', src: C('cost'), topic: 'payment' },
     totalCost: { fact: 'totals', src: C('cost'), topic: 'interest' },
+    totalPayments: { fact: 'totals', src: C('cost'), topic: 'interest' },
     maturity: { fact: 'counts', src: C('maturity'), topic: 'maturity' },
+    paymentCount: { fact: 'counts', src: C('schedule'), topic: 'maturity' },
+    issueDate: { fact: 'issued', src: C('purpose'), topic: 'understanding' },
+    loanAmount: { fact: 'startPrincipal', src: C('schedule'), topic: 'understanding' },
     resume: { fact: 'resume', src: C('resumption'), topic: 'payment' },
     rate: { fact: 'rate', src: C('unchanged'), topic: 'interest' },
     fees: { fact: 'fees', src: C('unchanged'), topic: 'other' },
@@ -162,7 +171,9 @@
     limitApprove: { src: C('contact'), topic: 'other' },
     limitEligibility: { src: P('support'), topic: 'other' },
     limitPay: { fact: 'nextPayment', src: C('action'), topic: 'payment' },
+    hardship: { src: C('contact'), topic: 'payment' },
     month: { topic: 'payment' },
+    year: { topic: 'payment' },
     term: { topic: 'understanding' },
     resource: { topic: 'other' },
     unrelated: { ask: false, sugg: true },
@@ -278,6 +289,19 @@
     return compose('month', v, { intent: 'month', text: T(`month.${textKey}`, p), factText: T(o ? 'month.fact' : 'month.factExtension', p), src, topic: 'payment', monthId });
   }
 
+  /* A calendar year: point to the Payments view, which groups the schedule by year with
+   * its totals, and state how many payments fall in that year (a count, not a sum). */
+  function yearAnswer(year, v) {
+    const rows = App.rec.monthsInYear(year);
+    const origN = rows.filter((r) => r.original).length;
+    const revN = rows.filter((r) => r.revised).length;
+    if (!revN && !origN) {
+      return compose('year', v, { intent: 'year', text: T('month.outside', { ...v, month: year }), factText: T('month.factOutside', v), src: C('schedule'), topic: 'payment' });
+    }
+    const p = { ...v, year, origN: App.fmt.number(origN), revN: App.fmt.number(revN) };
+    return compose('year', v, { intent: 'year', text: T('answers.yearPayments', p), factText: T('facts.yearCounts', p), src: P('payments'), topic: 'payment' });
+  }
+
   function termAnswer(id, v) {
     if (!App.TERMS.includes(id)) return null;
     const key = id === 'cashFlow' && seasonal() ? 'cashFlowSeasonal' : id;
@@ -327,6 +351,7 @@
 
   function fromDetection(det, v, ctx) {
     if (det.intent === 'month') return monthAnswer(det.monthId, v, det.monthLabel);
+    if (det.intent === 'year') return yearAnswer(det.year, v);
     if (det.intent === 'term') return termAnswer(det.termId, v);
     if (det.intent === 'context') return contextAnswer(ctx, v) || intentAnswer('fallback', v);
     return intentAnswer(det.intent, v);
@@ -339,34 +364,63 @@
    * become spaces; "12 000" becomes "12000"). Syntax: "word" (plurals and
    * light typos tolerated), "pre*" (prefix), "two words" (consecutive),
    * "a+b c" (all parts anywhere), or a RegExp on the whole string. */
+
+  /* Requests ("please defer February too", "je veux changer mon paiement",
+   * "lower my interest rate") outrank a description of the current change:
+   * a request cue plus an action verb (and, for changes, a loan object) scores
+   * high for the limit intents - unless the question asks for an explanation. */
+  const REQ = String.raw`(?:\b(?:please|pls|plz|svp|stp|veuillez|s il vous plait|s il te plait)\b|\b(?:can|could|would|will) (?:you|u|bdc|clair)\b|\b(?:can|could|may) (?:i|we)\b|\bi (?:want|wanna|need|would like|d like|wish)\b|\b(?:let|allow|help) me\b|^(?:lower|reduce|decrease|cut|change|modify|adjust|skip|waive|cancel|defer|postpone|delay|extend|pause|stop)\b|\b(?:pouvez|pourriez|peux|pourrais|puis|pourrait) (?:vous|tu|je|on)\b|\best ce que (?:je|vous|tu|on) (?:peux|pouvez|peut|pourrais|pourriez|pourrait)\b|\bje (?:veux|voudrais|souhaite|souhaiterais|demande)\b|\bj (?:aimerais|ai besoin)\b|\baidez moi\b|\b(?:baissez|reduisez|diminuez|changez|modifiez|ajustez|sautez|annulez|reportez|prolongez|retardez|differez|decalez|suspendez)\b)`;
+  const EXPLAIN = String.raw`\b(?:explain\w*|tell|show|describe|understand\w*|mean|means|meaning|why|expliqu\w*|dire|montrer|comprendre|signifi\w*|pourquoi)\b`;
+  const CHANGE_VERB = String.raw`\b(?:lower\w*|reduc\w*|decreas\w*|cut|chang\w*|modif\w*|adjust\w*|skip\w*|waiv\w*|cancel\w*|baiss\w*|redui\w*|diminu\w*|ajust\w*|saut\w*|annul\w*)\b`;
+  const CHANGE_OBJ = String.raw`\b(?:payments?|rate|terms?|loan|interest|amounts?|schedule|instal+ments?|versements?|paiements?|taux|pret|modalit\w*|interets?|montants?|calendrier|mensualit\w*)\b`;
+  const DEFER_VERB = String.raw`\b(?:defer|deferring|postpone|postponing|delay|delaying|extend|extending|push back|reporter|reportez|prolonger|prolongez|retarder|retardez|differer|differez|decaler|decalez)\b`;
+  const gated = (...parts) => new RegExp(`^${parts.map((p) => `(?=.*${p})`).join('')}(?!.*${EXPLAIN})`);
+
   const INTENTS = {
     limitPay: [['pay now', 5], ['pay+now', 4], ['make a payment', 5], ['make+payment', 4], ['pay+online', 4], ['pay+today', 4], ['pay+early', 3.5], ['prepay*', 4], ['pay+here', 3.5], ['pay+bill', 3.5], ['process+payment', 4], ['payment method', 3], ['credit card', 3], ['lump sum', 4], ['extra payment', 3.5], ['pay+off+now', 2],
       ['payer maintenant', 5], ['payer+maintenant', 4], ['faire un paiement', 5], ['faire+paiement', 4], ['faire+versement', 4], ['effectuer+paiement', 4], ['effectuer+versement', 4], ['payer+en ligne', 4], ['payer+aujourd', 4], ['payer+ici', 3.5], ['rembourser+maintenant', 4], ['paiement anticipe', 4], ['remboursement anticipe', 4], ['versement supplementaire', 3.5], ['somme forfaitaire', 4], ['carte de credit', 3], ['virement', 3]],
     limitChange: [['change my payment', 5], ['change+my+payment', 4], ['change+my+loan', 4], ['change+my+term', 4], ['change+terms', 3.5], ['modify+payment', 4], ['modify', 1.5], ['adjust+payment', 4], ['lower+my+payment', 4], ['reduce+my+payment', 4], ['increase+my+payment', 4], ['skip+payment', 4], ['can+you+change', 4], ['can+i+change', 4], ['want+to+change', 4], ['cancel+postpon*', 4], ['undo', 3], ['switch+variable', 4], ['change my rate', 4], ['can+change+rate', 3], ['renegotiat*', 4], ['restructur*', 3],
-      ['modifier+versement', 4], ['changer+versement', 4], ['modifier+pret', 4], ['modifier+modalit*', 4], ['changer+modalit*', 4], ['reduire+versement', 4], ['diminuer+mon+versement', 4], ['augmenter+versement', 4], ['sauter+versement', 4], ['puis je modifier', 4], ['puis je changer', 4], ['pouvez vous modifier', 4], ['pouvez vous changer', 4], ['annuler+report', 4], ['renegoci*', 4], ['changer+taux', 3]],
-    limitApprove: [['another postponement', 5], ['another+postpon*', 4], ['more+postpon*', 3], ['extend*+postpon*', 4.5], ['postpon*+longer', 4], ['more months', 3], ['extra months', 3], ['extend*', 2.5], ['extension', 2.5], ['approve', 2.5], ['approve+request', 4], ['grant', 2], ['second+postpon*', 4], ['again+postpon*', 3], ['defer+again', 3], ['additional+postpon*', 4],
-      ['autre report', 5], ['autre+report', 4], ['nouveau report', 5], ['nouveau+report', 4], ['prolong*', 3.5], ['plus+longtemps', 2.5], ['approuver', 3], ['accorder', 2.5], ['deuxieme+report', 4], ['reporter+encore', 3.5], ['encore+report*', 3], ['mois supplementaire', 3], ['mois de plus', 3]],
+      ['modifier+versement', 4], ['changer+versement', 4], ['modifier+pret', 4], ['modifier+modalit*', 4], ['changer+modalit*', 4], ['reduire+versement', 4], ['diminuer+mon+versement', 4], ['augmenter+versement', 4], ['sauter+versement', 4], ['puis je modifier', 4], ['puis je changer', 4], ['pouvez vous modifier', 4], ['pouvez vous changer', 4], ['annuler+report', 4], ['renegoci*', 4], ['changer+paiement', 4], ['modifier+paiement', 4], ['je veux changer', 4], ['je veux modifier', 4],
+      [gated(REQ, CHANGE_VERB, CHANGE_OBJ), 10]],
+    limitApprove: [['another postponement', 5], ['another+postpon*', 4], ['more+postpon*', 3], ['extend*+postpon*', 4.5], ['postpon*+longer', 4], ['more months', 3], ['extra months', 3], ['extend*', 2.5], ['extension', 2.5], ['approve', 2.5], ['approve+request', 4], ['grant', 2], ['second+postpon*', 4], ['again+postpon*', 3], ['defer+again', 3], ['additional+postpon*', 4], ['another+defer*', 4.5], ['more+defer*', 3], ['additional+defer*', 4],
+      ['autre report', 5], ['autre+report', 4], ['nouveau report', 5], ['nouveau+report', 4], ['prolong*', 3.5], ['plus+longtemps', 2.5], ['approuver', 3], ['accorder', 2.5], ['deuxieme+report', 4], ['reporter+encore', 3.5], ['encore+report*', 3], ['mois supplementaire', 3], ['mois de plus', 3], ['d autres mois', 3.5], ['plus de mois', 3],
+      [gated(REQ, DEFER_VERB), 10]],
     limitEligibility: [['eligib*', 4], ['qualify', 4], ['qualif*', 3.5], ['more funding', 5], ['more+funding', 4], ['more+financing', 4], ['more+money', 3.5], ['borrow*', 3], ['new loan', 4.5], ['another loan', 4.5], ['additional+loan', 4], ['line of credit', 4], ['credit line', 4], ['credit+increase', 4], ['increase+loan', 4], ['top up', 3], ['pre approv*', 4], ['preapprov*', 4], ['get+loan', 3.5], ['apply+for', 2.5], ['apply+loan', 4], ['working capital loan', 3],
-      ['admissib*', 4], ['plus de financement', 5], ['financement+supplementaire', 4], ['financement+additionnel', 4], ['emprunt*', 3], ['nouveau pret', 4.5], ['autre pret', 4.5], ['marge de credit', 4], ['ligne de credit', 4], ['preapprob*', 4], ['pre approb*', 4], ['obtenir+pret', 3.5], ['demander+pret', 3.5], ['plus+argent', 3]],
+      ['admissib*', 4], ['plus de financement', 5], ['financement+supplementaire', 4], ['financement+additionnel', 4], ['emprunt*', 3], ['nouveau pret', 4.5], ['autre pret', 4.5], ['marge de credit', 4], ['ligne de credit', 4], ['preapprob*', 4], ['pre approb*', 4], ['obtenir+pret', 3.5], ['demander+pret', 3.5], ['plus+argent', 3], ['augment*+pret', 4], ['augment*+financement', 4], ['hausse*+pret', 4]],
+    // Hardship and missed payments: Clair can't arrange help, so it routes to a person (no figures, no borrowing)
+    hardship: [['can t afford', 6], ['cannot afford', 6], ['afford', 3], ['unable to pay', 6], ['can t pay', 5], ['cannot pay', 5], ['trouble+pay*', 5], ['difficult*+pay*', 5], ['struggl*', 4], ['hardship', 5], ['miss+payment', 5], ['missed+payment', 5], ['late+payment', 5], ['pay+late', 4], ['behind+payment*', 4], ['arrears', 5], ['in default', 4], ['not enough money', 4], ['short on cash', 4], ['bankrupt*', 4],
+      ['ne peux pas payer', 6], ['n arrive pas+payer', 6], ['pas les moyens', 6], ['incapable+payer', 6], ['difficult*+payer', 5], ['difficult*+versement*', 5], ['difficult* financiere*', 5], ['manque*+versement', 5], ['versement manque', 5], ['retard+versement', 5], ['retard+paiement', 5], ['en retard', 3.5], ['arrerage*', 5], ['defaut de paiement', 5], ['pas assez d argent', 4], ['faillite', 4]],
     unrelated: [['weather', 4], ['forecast', 3], ['temperature', 3], ['rain*', 3], ['snow*', 3], ['hockey', 4], ['football', 4], ['soccer', 4], ['basketball', 4], ['baseball', 4], ['sport*', 4], ['game', 2], ['stock market', 4], ['stock price', 4], ['share price', 4], ['invest*', 3], ['crypto*', 4], ['bitcoin', 4], ['rbc', 4], ['td', 3], ['desjardins', 4], ['bmo', 4], ['scotia*', 4], ['cibc', 4], ['national bank', 4], ['other bank', 4], ['mortgage', 3.5], ['tax', 3], ['taxes', 3], ['rrsp', 4], ['tfsa', 4], ['retirement', 3.5], ['recipe', 4], ['joke', 4], ['movie', 4], ['music', 3], [/\bnews\b/, 3], ['nhl', 4], ['nba', 4], ['stanley cup', 4], ['credit score', 4], ['politic*', 4], ['election', 4], ['capital of', 4], ['president', 3], ['prime minister', 4], ['horoscope', 4], ['lottery', 4], ['restaurant', 3], ['travel', 3], ['vacation', 3],
-      ['meteo', 4], ['quel temps', 4], ['temps+fera', 4], ['pluie', 3], ['neige', 3], ['match de', 3], ['bourse', 4], ['placement*', 3], ['banque nationale', 4], ['autre+banque', 4], ['hypothe*', 3.5], ['impot*', 3.5], ['reer', 4], ['celi', 4], ['retraite', 3.5], ['recette de', 3], ['blague', 4], ['film', 3], ['musique', 3], ['actualit*', 3], ['cote de credit', 4], ['pointage de credit', 4], ['politique', 4], ['capitale', 4], ['premier ministre', 4], ['loterie', 4], ['voyage', 3], ['vacances', 3]],
+      ['meteo', 4], ['quel temps', 4], ['temps+fera', 4], ['pluie', 3], ['neige', 3], ['match de', 3], ['bourse', 4], ['placement*', 3], ['banque nationale', 4], ['autre+banque', 4], ['hypothequ*', 3.5], ['hypothecaire*', 3.5], ['impot*', 3.5], ['reer', 4], ['celi', 4], ['retraite', 3.5], ['recette de', 3], ['blague', 4], ['film', 3], ['musique', 3], ['actualit*', 3], ['cote de credit', 4], ['pointage de credit', 4], ['politique', 4], ['capitale', 4], ['premier ministre', 4], ['loterie', 4], ['voyage', 3], ['vacances', 3]],
     whyRelief: [['12000', 3], ['11920', 3], ['80', 2.5], ['why+not', 1], ['why+only', 1.5], ['why+less', 1.5], ['why+relief', 2], ['not+12000', 2], ['instead+12000', 2], ['relief', 1.5], ['why', 0.5], ['difference+12000', 1], ['where+80', 2], ['80+come', 2], ['come from', 1], ['80+extra', 1.5], ['80+more', 1.5], ['80+dollars', 1],
       ['pourquoi+pas', 1], ['pourquoi+seulement', 1.5], ['pourquoi+allegement', 2], ['pourquoi+ecart', 2], ['pas+12000', 2], ['ecart', 1.5], ['allegement', 1.5], ['pourquoi', 0.5], ['d ou+80', 2], ['d ou vient', 1]],
-    totalCost: [['how much more', 4], ['total+cost', 3.5], ['extra+cost', 3.5], ['additional+cost', 3.5], ['cost+more', 3], ['more+expensive', 3], ['extra+interest', 3], ['additional+interest', 3], ['more+interest', 2.5], ['total+interest', 3], ['cost', 2], ['4800', 3], ['48800', 3], ['53600', 3], ['288800', 3], ['293600', 3], ['trade off', 3], ['tradeoff', 3], ['downside', 3], ['catch', 2], ['lifetime', 2], ['overall', 1.5], ['in total', 2], ['total', 1], ['pay+more', 2],
+    totalCost: [['how much more', 4], ['total+cost', 3.5], ['extra+cost', 3.5], ['additional+cost', 3.5], ['cost+more', 3], ['more+expensive', 3], ['extra+interest', 3], ['additional+interest', 3], ['more+interest', 2.5], ['total+interest', 3], ['cost', 2], ['4800', 3], ['4880', 6], ['80+4800', 3], ['48800', 3], ['53600', 3], ['288800', 3], ['293600', 3], ['trade off', 3], ['tradeoff', 3], ['downside', 3], ['catch', 2], ['lifetime', 2], ['overall', 1.5], ['in total', 2], ['total', 1], ['pay+more', 2],
       ['combien de plus', 4], ['cout*', 2], ['cout total', 4], ['cout*+supplementaire*', 4], ['interet*+supplementaire*', 3.5], ['interet*+additionnel*', 3.5], ['plus+interet*', 2], ['total+interet*', 3], ['combien+coute', 3], ['contrepartie', 3], ['au total', 2], ['plus cher', 3], ['payer+plus', 2]],
+    // The sum of all payments, revised vs original (that interest is the difference)
+    totalPayments: [['total+payments', 4.5], ['pay+overall', 4], ['pay+in total', 4], ['pay+altogether', 4], ['total amount', 3], ['total+repaid', 4], ['total+repay*', 4], ['total+paid', 4], ['sum+payments', 4],
+      ['total+versements', 4.5], ['total+paiements', 4.5], ['somme+versements', 4], ['payer+au total', 4], ['payer+en tout', 4], ['montant total', 3], ['total+rembours*', 4]],
     relief: [['how much less', 4], ['how much lower', 4], ['how much+save*', 4], ['save*', 2], ['saving*', 2], ['lower+payment', 2.5], ['reduc*+payment', 2], ['cash+relief', 2], ['breathing room', 3], ['16720', 3], ['pay less', 3],
       ['combien de moins', 4], ['combien+economis*', 4], ['economi*', 2], ['epargn*', 2], ['versements reduits', 3], ['reduction+versement', 2.5], ['payer moins', 3], ['diminu*+versement', 2.5], ['repit', 3]],
     nextPayment: [['next payment', 4], ['next+pay*', 3], ['upcoming+pay*', 3], ['next instalment', 4], ['next installment', 4], ['first payment', 3], ['when+next', 2], ['next+due', 2], ['what do i pay', 2], ['how much is my payment', 3], ['next', 1], ['nxt', 2],
       ['prochain versement', 4], ['prochain paiement', 4], ['prochain*+versement', 3], ['prochain*+paiement', 3], ['prochaine+echeance', 3], ['premier versement', 3], ['quand+prochain*', 2], ['combien+payer', 2], ['combien+dois+payer', 2.5], ['prochain*', 1]],
-    resume: [[/\bresume\b(?! (de|du|des|l|la|le|les|ce|cet|cette|moi|nous|avis)\b)/, 3], ['resumption', 3], ['restart*', 3], ['start again', 4], ['start*+again', 3], ['begin+again', 3], ['back to normal', 3], ['principal+again', 2], ['postpon*+end*', 4], ['after+postpon*', 2.5], ['5600', 3], ['when+resume', 1],
-      ['reprise', 3], ['repren*', 3], ['recommenc*', 3], ['fin+report', 4], ['report+termin*', 4.5], ['report+fini*', 4.5], ['apres+report', 2.5], ['retour+normal', 3]],
+    resume: [[/\bresume\b(?! (de|du|des|l|la|le|les|ce|cet|cette|moi|nous|avis)\b)/, 3], ['resumption', 3], ['restart*', 3], ['start again', 4], ['start*+again', 3], ['begin+again', 3], ['back to normal', 3], ['principal+again', 2], ['postpon*+end*', 4], ['after+postpon*', 2.5], ['after+defer*', 2.5], ['first+after', 2.5], ['payment+after', 2], ['full payment', 4], ['first+full', 2], ['first principal', 4], ['5600', 3], ['when+resume', 1],
+      ['reprise', 3], ['repren*', 3], ['recommenc*', 3], ['fin+report', 4], ['report+termin*', 4.5], ['report+fini*', 4.5], ['apres+report', 2.5], ['premier*+apres', 2.5], ['versement+apres', 2], ['versement complet', 4], ['premier*+complet', 2], ['premier*+capital', 4], ['premier*+remboursement*', 4], ['retour+normal', 3]],
+    // The last payment of the postponement (interest only), not the loan's final payment
+    lastPostponement: [['last+of the postpon*', 8], ['final+of the postpon*', 8], ['last+in the postpon*', 8], ['last+during the postpon*', 8], ['last+postponement period', 8], ['last postponed', 8], ['last+before+resum*', 8], ['last+before+principal', 8], ['final+before+principal', 8], ['last+interest only', 8], ['final+interest only', 8],
+      ['dernier*+du report', 8], ['dernier*+periode de report', 8], ['dernier*+pendant le report', 8], ['dernier*+avant+reprise', 8], ['dernier*+avant+capital', 8], ['dernier*+interet* seulement', 8]],
     maturity: [['maturity', 3.5], ['final payment', 4], ['last payment', 4], ['final+pay*', 3], ['last+pay*', 3], ['when+end', 2], ['loan+end*', 3], ['paid off', 3], ['pay off', 2], ['fully repaid', 3], ['when+finish*', 3], ['finish*', 1.5], ['end date', 3], ['loan+extend*', 3.5], ['term+extend*', 3.5], ['2032', 2], ['2031', 2], ['end', 1],
       ['echeance', 3.5], ['dernier versement', 4], ['dernier paiement', 4], ['dernier+versement', 3], ['quand+termin*', 3], ['pret+termin*', 3], ['fin du pret', 4], ['fin+pret', 3], ['entierement+rembours*', 3], ['date de fin', 3], ['quand+fini*', 3], ['termine', 1], ['fin', 1]],
+    paymentCount: [['how many payments', 5], ['how+many+payments', 4], ['number of payments', 5], ['how+many+instal*', 4], ['payments+left', 4], ['payments+remaining', 4], ['remaining payments', 4],
+      ['combien de versements', 5], ['combien+versements', 4], ['nombre de versements', 5], ['versements+restant*', 4], ['combien+mensualit*', 4]],
+    issueDate: [['issued', 4], ['issue date', 5], ['date+notice', 2.5], ['notice+dated', 4], ['when+notice+sent', 4], ['date of issue', 5],
+      ['emis*', 4], ['date d emission', 5], ['date de l avis', 5], ['avis+date', 2.5], ['avis+envoye', 4]],
+    loanAmount: [['loan amount', 5], ['amount+loan', 4], ['loan+size', 4], ['size+loan', 4], ['principal amount', 3.5], ['starting principal', 4], ['original+principal', 3], ['initial+principal', 3],
+      ['montant du pret', 5], ['montant+pret', 4], ['capital initial', 4], ['capital+depart', 4], ['taille+pret', 4]],
     debtReduced: [['forgiv*', 4], ['still owe', 4], ['still+owe*', 3.5], ['do i owe', 3], ['debt+reduc*', 4], ['debt', 2], ['owe', 1.5], ['cancel*', 2.5], ['written off', 4], ['write off', 4], ['wipe*', 2.5], ['disappear*', 2.5], ['principal+gone', 3], ['12000+gone', 3], ['gone', 1.5], ['still+repay*', 3.5], ['have to repay', 3], ['free money', 3], ['reduc*+principal', 2.5], ['less+debt', 3], ['owing', 1.5],
-      ['remise de dette', 4], ['dette', 2], ['dette+redui*', 4], ['dois+toujours', 3.5], ['dois+encore', 3.5], ['encore+du', 2.5], ['annul*', 2.5], ['efface*', 2.5], ['capital+disparai*', 3], ['redui*+capital', 2.5], ['toujours+du', 2.5], ['moins+dette', 3], ['toujours+rembours*', 3.5], ['encore+rembours*', 3]],
+      ['remise de dette', 4], ['dette', 2], ['dette+redui*', 4], ['dois+toujours', 3.5], ['dois+encore', 3.5], ['encore+du', 2.5], ['annul*', 2.5], ['efface*', 2.5], ['capital+disparai*', 3], ['redui*+capital', 2.5], ['toujours+du', 2.5], ['moins+dette', 3], ['toujours+rembours*', 3.5], ['encore+rembours*', 3], ['je dois moins', 4], ['dois je moins', 4]],
     capitalisedInterest: [['capitaliz*', 4], ['capitalis*', 4], ['added+balance', 3.5], ['added+principal', 3], ['add*+to+balance', 3], ['compound*', 3.5], ['interest on interest', 4], ['roll*+into', 3],
       ['ajout*+solde', 3.5], ['ajout*+capital', 3], ['interets composes', 4], ['compos*+interet*', 3], ['interet*+sur+interet*', 4]],
-    balanceAfter: [['balance', 2.5], ['balance+after', 4], ['owe+after', 4], ['remaining+principal', 3], ['principal+after', 2], ['outstanding', 2.5], ['how much+owe*', 5], ['left+to+pay', 3], ['left+owing', 3], ['current+balance', 3.5], ['principal+left', 3], ['balance+postpon*', 3],
+    balanceAfter: [['balance', 2.5], ['balance+after', 4], ['owe+after', 4], ['remaining+principal', 3], ['principal+after', 2], ['outstanding', 2.5], ['how much+owe*', 5], ['left+to+pay', 3], ['left+owing', 3], ['current+balance', 3.5], ['principal+left', 3], ['balance+postpon*', 3], ['what+owe+after', 2],
       ['solde', 3], ['solde+apres', 4], ['capital restant', 3.5], ['restant+du', 3], ['combien+dois', 2.5], ['dois+apres', 2], ['reste a payer', 3.5], ['reste a rembourser', 3.5], ['restera+rembourser', 3.5], ['solde+report', 3]],
     continuingInterest: [['still+pay+interest', 4], ['still+interest', 3], ['interest+during', 3], ['pay+interest', 2], ['interest+postpon*', 2.5], ['interest+continu*', 3], ['do i pay interest', 4], ['interest only', 3], ['1600', 2.5], ['interest', 1], ['holiday', 3], ['interest free', 4], ['free', 1.5],
       ['encore+interet*', 3], ['toujours+interet*', 3], ['interet*+pendant', 3], ['payer+interet*', 2], ['paie+interet*', 2], ['interet*+report', 2.5], ['interets seulement', 3], ['interet*+continu*', 3], ['interet*', 1], ['conge', 3], ['sans interet*', 4], ['gratuit*', 1.5]],
@@ -380,6 +434,8 @@
       ['frais', 4], ['penalit*', 3], ['coute+quelque chose', 3.5], ['coute+rien', 3], ['cout+modification', 3], ['coute+modification', 3], ['payer+modification', 2]],
     unchanged: [['stay the same', 4], ['stays the same', 4], ['unchanged', 4], ['does not change', 4], ['doesn t change', 4], ['don t change', 4], ['what stays', 4], ['remain*+same', 3], ['still the same', 3], ['same', 1.5], ['what remains', 2.5],
       ['reste pareil', 4], ['restent pareils', 4], ['ne change pas', 4], ['inchange*', 4], ['reste le meme', 4], ['restent les memes', 4], ['demeure', 2], ['qu est ce qui reste', 3], ['meme', 1]],
+    assumptions: [['assumption*', 4], ['assume*', 2.5], ['simulation', 2],
+      ['hypothese*', 4], ['supposition*', 3.5]],
     acceptance: [['accept*', 3], ['sign', 2.5], ['signature', 2.5], ['agree*', 2.5], ['consent', 3], ['do i need to do', 4], ['what do i need to do', 4], ['need to do anything', 4], ['action required', 4], ['required', 1.5], ['next step*', 3], ['what should i do', 3.5], ['have to do', 3], ['respond', 2], ['reply', 2], ['confirm*', 2],
       ['accepter', 3], ['signer', 2.5], ['consentement', 3], ['que dois je faire', 4], ['dois je faire', 3], ['je dois faire', 3.5], ['faire+quelque chose', 3], ['quoi faire', 3], ['prochaine etape', 3], ['confirmer', 2], ['repondre', 2], ['obligatoire', 2], ['requis*', 2]],
     printExport: [['print*', 4], ['pdf', 4], ['download*', 3.5], ['export*', 4], ['csv', 4], ['excel', 3], ['spreadsheet', 3], ['save+copy', 3], ['save', 1.5], ['copy', 1.5],
@@ -394,16 +450,29 @@
       ['qu est ce que le capital', 4], ['capital+signifi*', 3], ['definition+capital', 4], ['definir+capital', 4], ['c est quoi le capital', 4], ['veut dire+capital', 3], ['capital', 1]],
     purpose: [['why+receiv*', 3], ['why+notice', 3], ['why+letter', 3], ['why+issued', 3], ['purpose', 3], ['reason+notice', 3], ['why+postpon*', 2.5], ['why+get+this', 2],
       ['pourquoi+avis', 3], ['pourquoi+recu', 3], ['pourquoi+report', 2.5], ['objet+avis', 3], ['raison+avis', 3], ['but+avis', 2]],
-    whatChanged: [['what+change*', 3], ['what s new', 3], ['summar*', 3], ['overview', 2], ['tl dr', 3], ['tldr', 3], ['in short', 2], ['key points', 3], ['main change*', 3], ['explain+notice', 3], ['what+notice+mean*', 2], ['what+happen*', 2], ['approved', 2], ['status', 2], ['what+different', 2], ['difference+original+revised', 3], ['why+payment+change*', 3], ['changes', 1],
-      ['qu est ce qui change', 4], ['ce qui change', 4], ['quoi+change*', 3], ['qu est ce qui a change', 4], ['changement*', 2], ['en bref', 3], ['en resume', 4], ['resumer', 3], ['resume de', 4], ['resume+avis', 4], ['resume moi', 4], ['sommaire', 3], ['apercu', 2], ['explique*+avis', 3], ['signifie+avis', 3], ['quoi de neuf', 3], ['pourquoi+versement+change*', 3], ['approuvee', 2], ['approuve', 1]],
+    whatChanged: [['what+change*', 3], ['what s new', 3], ['summar*', 3], ['overview', 2], ['tl dr', 3], ['tldr', 3], ['in short', 2], ['key points', 3], ['main change*', 3], ['explain+notice', 3], ['what+notice+mean*', 2], ['what+happen*', 2], ['approved', 2], ['status', 2], ['what+different', 2], ['difference+original+revised', 3], ['why+payment+change*', 3], ['changes', 1], ['will+change*', 2], ['going to change', 2],
+      ['qu est ce qui change', 4], ['ce qui change', 4], ['quoi+change*', 3], ['qu est ce qui a change', 4], ['changement*', 2], ['en bref', 3], ['en resume', 4], ['resumer', 3], ['resume de', 4], ['resume+avis', 4], ['resume moi', 4], ['sommaire', 3], ['apercu', 2], ['explique*+avis', 3], ['signifie+avis', 3], ['quoi de neuf', 3], ['pourquoi+versement+change*', 3], ['approuvee', 2], ['approuve', 1], ['va+changer', 2], ['changera', 2]],
     aboutClair: [['who are you', 4], ['what are you', 4], ['are you+ai', 4], ['is this+ai', 4], ['live ai', 4], ['artificial intelligence', 4], ['chatgpt', 4], ['gpt', 3], ['bot', 3], ['robot', 3], ['chatbot', 4], ['what is clair', 4], ['who is clair', 4], ['are you+real', 4], ['is this live', 3], ['language model', 4], ['llm', 4], ['acorn', 3], ['automated', 2], ['am i talking', 4], ['are you+human', 4], ['are you+person', 4],
       ['qui es tu', 4], ['qui etes vous', 4], ['ia', 3], ['intelligence artificielle', 4], ['qui est clair', 4], ['c est quoi clair', 4], ['es tu+reel*', 4], ['vraie personne', 4], ['es tu+personne', 4], ['etes vous+personne', 4], ['es tu+robot', 4], ['etes vous+robot', 4], ['en direct', 2], ['parle+robot', 2], ['es tu+humain', 4], ['etes vous+humain', 4]],
     thanks: [['thank*', 3], ['thx', 3], ['merci', 3], ['appreciate', 2], ['great', 1], ['perfect', 1], ['parfait', 1], ['super', 1]],
     greeting: [[/^(hi|hello|hey|hiya|bonjour|salut|allo|bonsoir|good (morning|afternoon|evening))\b/, 2.5]],
   };
   // Subtractive patterns: "why did you change my payment" is a question, not a request
-  const NEGATIVE = { limitChange: [['why', 50], ['pourquoi', 50]] };
-  const PRIORITY = ['limitPay', 'limitChange', 'limitApprove', 'limitEligibility', 'unrelated', 'whyRelief', 'totalCost', 'term', 'month', 'relief', 'nextPayment', 'resume', 'maturity', 'balanceAfter', 'debtReduced', 'capitalisedInterest', 'continuingInterest', 'postponementPeriod', 'effectiveDate', 'rate', 'fees', 'unchanged', 'acceptance', 'printExport', 'queryPrep', 'accountant', 'support', 'principalMeaning', 'purpose', 'whatChanged', 'aboutClair', 'thanks', 'greeting'];
+  const NEGATIVE = {
+    // "Why did you change my payment?" / "Mon taux va-t-il changer?" / "Will my payment change?" are questions, not requests
+    limitChange: [['why', 50], ['pourquoi', 50], ['understand*', 50], ['comprendre', 50], [/^(?:will|does|did|do|has|have|is|are|was|were) (?:my|the|it|this|that|they|these|those|payments?|anything|interest)\b/, 50],
+      [/\b(?:va|vont) t (?:il|elle|ils|elles) (?:changer|etre modifi\w*)\b/, 50], [/\bva (?:changer|etre modifi\w*)\b/, 50], [/\b(?:change|changent) t (?:il|elle|ils|elles)\b/, 50], [/\bchanger(?:a|ont)\b/, 50]],
+    // "...after the postponement" is the first resumed payment, not the next one
+    nextPayment: [['after+postpon*', 8], ['after+defer*', 8], ['apres+report', 8]],
+    // "last payment of the postponement / interest only" is not the loan's final payment
+    maturity: [['of the postpon*', 4], ['interest only', 4], ['interet* seulement', 4], ['du report', 4], ['before+resum*', 4], ['avant+reprise', 4]],
+    hardship: [['why', 50], ['pourquoi', 50], ['online', 50], ['en ligne', 50], ['card', 50], ['carte', 50]],
+    paymentCount: [['postpon*', 4], ['defer*', 4], ['report*', 4], ['interest only', 4], ['interets seulement', 4]],
+    totalPayments: [['first three', 4], ['three months', 4], ['postpon*', 3], ['report', 3], ['trois premiers', 4], ['trois mois', 4], [/\b20\d\d\b/, 3]],
+    issueDate: [['why', 50], ['pourquoi', 50]],
+    loanAmount: [['increase', 50], ['augment*', 50], ['more', 50], ['plus de', 50]],
+  };
+  const PRIORITY = ['limitPay', 'limitChange', 'limitApprove', 'limitEligibility', 'hardship', 'unrelated', 'whyRelief', 'totalCost', 'totalPayments', 'term', 'month', 'year', 'relief', 'lastPostponement', 'nextPayment', 'resume', 'maturity', 'paymentCount', 'balanceAfter', 'loanAmount', 'debtReduced', 'capitalisedInterest', 'continuingInterest', 'postponementPeriod', 'effectiveDate', 'issueDate', 'rate', 'fees', 'unchanged', 'assumptions', 'acceptance', 'printExport', 'queryPrep', 'accountant', 'support', 'principalMeaning', 'purpose', 'whatChanged', 'aboutClair', 'thanks', 'greeting'];
 
   /* A question that is only a glossary term ("interest?", "c'est quoi la trésorerie?")
    * gets the approved definition and how it applies here. */
@@ -454,7 +523,7 @@
   const PAY_WORDS = new Set(['payment', 'payments', 'pay', 'paying', 'versement', 'versements', 'paiement', 'paiements', 'payer', 'interest', 'interet', 'interets', 'principal', 'capital', 'owe', 'due', 'combien', 'much', 'total']);
   const DEICTIC = /\b(this|that|it|these|those|here|explain|more|detail|details|why|ceci|cela|ca|celui|celle|explique|expliquer|expliquez|pourquoi|davantage|plus de details)\b/;
   // Frequent words that must never be "typo-corrected" into a keyword
-  const COMMON = ['about', 'after', 'again', 'before', 'being', 'could', 'would', 'should', 'their', 'there', 'these', 'those', 'where', 'which', 'while', 'other', 'under', 'month', 'months', 'money', 'today', 'later', 'still', 'first', 'order', 'great', 'means', 'notice', 'payer', 'avoir', 'faire', 'notre', 'votre', 'vous', 'cette', 'quand', 'quels', 'quelle', 'comment', 'pourrais', 'pouvez', 'charged', 'changed', 'change', 'changes', 'chance', 'please', 'merci', 'answer', 'question', 'questions', 'paid', 'interested', 'dollars', 'repay', 'repaid', 'repayment', 'repaying'];
+  const COMMON = ['about', 'after', 'again', 'before', 'being', 'could', 'would', 'should', 'their', 'there', 'these', 'those', 'where', 'which', 'while', 'other', 'under', 'month', 'months', 'money', 'today', 'later', 'still', 'first', 'order', 'great', 'means', 'notice', 'payer', 'avoir', 'faire', 'notre', 'votre', 'vous', 'cette', 'quand', 'quels', 'quelle', 'comment', 'pourrais', 'pouvez', 'charged', 'changed', 'change', 'changes', 'chance', 'please', 'merci', 'answer', 'question', 'questions', 'paid', 'interested', 'dollars', 'repay', 'repaid', 'repayment', 'repaying', 'issue', 'issues', 'following', 'previous'];
 
   let LEXICON = null;
   let COMPILED = null;
@@ -559,8 +628,40 @@
       const row = App.rec.months.find((r) => Number(r.id.slice(5, 7)) === first.m);
       id = row ? row.id : null;
     }
+    // "the payment after January" is February's; "avant février" is January's
+    if (id && distinct.size === 1) {
+      const shift = monthShift(tokens, first.i);
+      if (shift) id = shiftMonthId(id, shift);
+    }
     const payWord = tokens.some((x) => PAY_WORDS.has(x));
     return { id, multi: distinct.size > 1, score: distinct.size > 1 ? 1.5 : 3.5 + (payWord ? 0.5 : 0) };
+  }
+
+  const SHIFT_WORDS = { after: 1, following: 1, apres: 1, suivant: 1, before: -1, preceding: -1, prior: -1, previous: -1, avant: -1, precedant: -1 };
+  const SHIFT_SKIP = new Set(['the', 'month', 'of', 'payment', 'le', 'la', 'l', 'mois', 'de', 'du', 'd', 'versement', 'paiement', 'to', 'a']);
+
+  // Calendar position only (which month is meant), never an amount
+  function monthShift(tokens, i) {
+    for (let j = i - 1, skipped = 0; j >= 0 && skipped <= 3; j -= 1) {
+      const w = tokens[j];
+      if (SHIFT_WORDS[w]) return SHIFT_WORDS[w];
+      if (!SHIFT_SKIP.has(w)) return 0;
+      skipped += 1;
+    }
+    return 0;
+  }
+
+  function shiftMonthId(id, delta) {
+    const n = Number(id.slice(0, 4)) * 12 + Number(id.slice(5, 7)) - 1 + delta;
+    return `${Math.floor(n / 12)}-${pad2((n % 12) + 1)}`;
+  }
+
+  // "How much will I pay in 2027?" - a calendar year with payment words and no month
+  const YEAR_PAY = new Set(['pay', 'paying', 'payment', 'payments', 'payer', 'paie', 'paierai', 'payerai', 'versement', 'versements', 'paiement', 'paiements', 'total', 'much', 'combien']);
+  function detectYear(tokens) {
+    const yearTok = tokens.find((x) => /^20\d\d$/.test(x));
+    if (!yearTok || !tokens.some((x) => YEAR_PAY.has(x))) return null;
+    return { year: yearTok, score: 4 };
   }
 
   /** Classify a question. Returns { intent, score, monthId?, scores }. */
@@ -578,6 +679,8 @@
     }
     const mo = detectMonth(tokens, ctx);
     if (mo && mo.id) scores.month = mo.score;
+    const yr = mo && mo.id ? null : detectYear(tokens);
+    if (yr) scores.year = yr.score;
     const termId = termOnly(tokens);
     if (termId && TERM_INTENT[termId]) scores[TERM_INTENT[termId]] = Math.max(scores[TERM_INTENT[termId]] || 0, 5);
     else if (termId) scores.term = 5;
@@ -592,6 +695,7 @@
         out.monthLabel = App.fmt.date(mo.id, 'monthYear');
       }
       if (best === 'term') out.termId = termId;
+      if (best === 'year') out.year = yr.year;
       return out;
     }
     if (ctx && ctx.kind !== 'general' && DEICTIC.test(s)) return { intent: 'context', score: 0, scores };
@@ -653,6 +757,7 @@
     const v = vals();
     if (input && typeof input === 'object') {
       if (input.intent === 'month' && input.monthId) return monthAnswer(String(input.monthId), v);
+      if (input.intent === 'year' && /^20\d\d$/.test(String(input.year))) return yearAnswer(String(input.year), v);
       if (input.intent) return intentAnswer(input.intent, v);
     }
     const q = clean(input);
@@ -1045,11 +1150,13 @@
     const header = api.el.querySelector('.overlay-header');
     if (header) header.appendChild(statusEl);
     api.el.setAttribute('aria-describedby', 'clair-status');
+    // The current-context chip sits above the scrolling conversation, so it stays in view
+    // (with its remove control) while a contextual answer is scrolled to the top.
     refs.ctxRow = h('div', { class: 'clair-context' });
     // role="log" for structure; announcements go through App.announce in short form
     refs.log = h('div', { class: 'clair-log', role: 'log', 'aria-live': 'off', 'aria-label': T('logLabel') });
     refs.suggest = h('section', { class: 'clair-suggest' });
-    refs.scroll = h('div', { class: 'clair-scroll' }, refs.ctxRow, refs.log, refs.suggest);
+    refs.scroll = h('div', { class: 'clair-scroll' }, refs.log, refs.suggest);
 
     const inputId = 'clair-input';
     const hintId = 'clair-hint';
@@ -1079,7 +1186,7 @@
       refs.error,
       h('div', { class: 'clair-form-meta' }, refs.hint, refs.counter));
     body.classList.add('clair-body');
-    body.append(refs.scroll, refs.form);
+    body.append(refs.ctxRow, refs.scroll, refs.form);
     renderAll();
   }
 

@@ -139,6 +139,13 @@
 .popover-def { display: block; margin-bottom: var(--space-3); }
 .popover-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; }
 .popover-close { position: absolute; top: 6px; right: 6px; color: var(--muted); }
+/* The popover is inserted next to its term, so a term on a dark surface (.on-dark,
+   .hero) would hand its light-on-dark rules to the popover's white card: restore the
+   light-surface colours and the standard focus ring inside it. */
+.on-dark .popover, .hero .popover { color: var(--text); }
+.on-dark .popover .btn-link, .hero .popover .btn-link,
+.on-dark .popover .btn-link:hover, .hero .popover .btn-link:hover { color: var(--navy); }
+.on-dark .popover :focus-visible, .hero .popover :focus-visible, .media-stage .popover :focus-visible { outline-color: var(--focus); }
 
 /* Disclosure */
 .disclosure { border-top: 1px solid var(--line); }
@@ -193,6 +200,16 @@
   .overlay--panel { width: 100%; border-radius: 0; }
   .overlay-header { padding-left: var(--space-4); }
   .overlay-body { padding-left: var(--space-4); padding-right: var(--space-4); }
+}
+/* Full-width panels on phones (PRD §13, AC-19): the vendor accessibility launcher stays
+   on top of open panels at the bottom left, so the panel's last body block (its pinned
+   footer: the Clair composer, the inquiry actions) ends above that zone. Not applied on
+   short viewports (on-screen keyboard open), where the send/continue controls must
+   keep the space. */
+@media (max-width: 599.98px) and (min-height: 561px) {
+  .overlay.overlay--panel > .overlay-body > :last-child {
+    padding-bottom: calc(var(--a11y-launcher-space) + var(--safe-bottom));
+  }
 }
 
 /* Forms */

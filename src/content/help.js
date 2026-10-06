@@ -192,6 +192,7 @@ App.i18n.register('help', {
       recorded: 'Thank you. Answer recorded in this demo: {answer}.',
       updated: 'Answer changed to: {answer}.',
       commentLabel: 'What was unclear? (optional)',
+      commentLang: 'Written in {language}',
       commentHint: 'Kept only in this tab’s memory until you reset the demo or close the tab. It is never sent or added to the demo log.',
       offerTitle: 'Would you like help with what was unclear?',
       offerClair: 'Ask Clair',
@@ -224,7 +225,7 @@ App.i18n.register('help', {
       count: { one: '{n} résultat pour « {q} »', other: '{n} résultats pour « {q} »' },
       countDetail: '{faq} dans les questions, {terms} dans le glossaire',
       noneTitle: 'Aucun résultat pour « {q} »',
-      noneBody: 'Essayez un mot plus court ou différent, comme « intérêts » ou « versement ». Vous pouvez aussi vous adresser à Clair, le guide de démonstration, ou préparer une question.',
+      noneBody: 'Essayez un mot plus court ou différent, comme « intérêts » ou « versement ». Vous pouvez aussi vous adresser à Clair, l’assistant de démonstration, ou préparer une question.',
       noneBodyNoClair: 'Essayez un mot plus court ou différent, comme « intérêts » ou « versement ». Vous pouvez aussi préparer une question sur cet avis.',
       foundInAnswer: 'Trouvé dans la réponse',
       showingFaq: 'Questions affichées : {n} sur {total}',
@@ -335,7 +336,7 @@ App.i18n.register('help', {
           a: [
             'Utilisez « {askLabel} » sur cette page, ou « {askAbout} » à côté d’une carte, d’un versement ou d’un paragraphe de l’avis. Le formulaire conserve l’élément choisi pour que vous n’ayez pas à réexpliquer le contexte.',
             'Dans cette démonstration, le formulaire crée uniquement une demande de démonstration locale. Rien n’est envoyé à BDC.',
-            'Pour une explication rapide, vous pouvez aussi vous adresser à Clair, le guide de démonstration. Clair répond uniquement à partir de cet avis type, selon des règles locales, sans connexion à une IA en direct.',
+            'Pour une explication rapide, vous pouvez aussi vous adresser à Clair, l’assistant de démonstration. Clair répond uniquement à partir de cet avis type, selon des règles locales, sans connexion à une IA en direct.',
           ],
         },
         accountant: {
@@ -371,7 +372,7 @@ App.i18n.register('help', {
       local: 'Démo seulement : le formulaire crée une demande locale dans ce navigateur. Rien n’est envoyé à BDC.',
       button: 'Poser une question',
       clair: 'Demander à Clair',
-      clairNote: 'Clair est le guide de démonstration. Ses réponses proviennent uniquement de cet avis type, sans connexion à une IA en direct.',
+      clairNote: 'Clair est l’assistant de démonstration. Ses réponses proviennent uniquement de cet avis type, sans connexion à une IA en direct.',
       unavailable: 'Le formulaire de question n’est pas inclus dans cette version de la démonstration.',
     },
     survey: {
@@ -389,6 +390,7 @@ App.i18n.register('help', {
       recorded: 'Merci. Réponse enregistrée dans cette démo : {answer}.',
       updated: 'Réponse modifiée : {answer}.',
       commentLabel: 'Qu’est-ce qui n’était pas clair? (facultatif)',
+      commentLang: 'Rédigé en {language}',
       commentHint: 'Conservé uniquement dans la mémoire de cet onglet jusqu’à ce que vous réinitialisiez la démo ou fermiez l’onglet. Ce texte n’est jamais envoyé ni ajouté au journal de la démo.',
       offerTitle: 'Souhaitez-vous de l’aide pour y voir plus clair?',
       offerClair: 'Demander à Clair',

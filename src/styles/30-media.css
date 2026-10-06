@@ -201,14 +201,14 @@
 .media-eq-sym { font-weight: 700; color: var(--media-ink-2); }
 .media-eq-note { font-size: 0.85em; color: var(--media-ink-3); }
 
-/* Scene 6: next step (a depiction; the real actions are on the end card) */
-.media-tiles { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.6em; }
-.media-tile {
-  display: flex; align-items: center; gap: 0.8em; padding: 0.75em 0.9em; border-radius: 12px;
-  background: var(--media-surface); border: 1px solid var(--media-line); min-width: 0;
-}
-.media-tile-icon { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; width: 2.3em; height: 2.3em; border-radius: 50%; background: #ffffff; color: var(--navy); }
-.media-tile-text { font-weight: 600; min-width: 0; }
+/* Scene 6: next step. A picture of the options, deliberately without button
+   chrome (no box, fill or hover); the working actions are on the end card. */
+.media-options { display: grid; grid-template-columns: minmax(0, 1fr); }
+.media-option { display: flex; align-items: center; gap: 0.7em; padding: 0.6em 0; min-width: 0; }
+.media-option + .media-option { border-top: 1px solid var(--media-line); }
+.media-option-icon { flex: 0 0 auto; display: inline-flex; color: var(--media-interest); }
+.media-option-icon .icon { width: 1.35em; height: 1.35em; }
+.media-option-text { font-weight: 600; min-width: 0; color: var(--media-ink); }
 .media-s6-note { display: flex; align-items: center; gap: 0.5em; color: var(--media-ink-2); }
 .media-s6-note .icon { flex: 0 0 auto; color: #ffffff; }
 
@@ -396,8 +396,10 @@
   .media-months { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .media-month { grid-template-columns: minmax(0, 1fr); align-items: stretch; }
   .media-month-head { flex-direction: row; align-items: baseline; gap: 0.4em; padding-bottom: 0.35em; border-bottom: 1px solid var(--media-line); }
-  .media-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .media-tile { flex-direction: column; align-items: flex-start; }
+  .media-options { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .media-option { flex-direction: column; align-items: flex-start; gap: 0.5em; padding: 0.2em 1.1em; }
+  .media-option:first-child { padding-left: 0; }
+  .media-option + .media-option { border-top: 0; border-left: 1px solid var(--media-line); }
   .media-chapter-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @container mediaframe (min-width: 520px) {
@@ -460,4 +462,48 @@
 
 @media (prefers-reduced-motion: reduce) {
   .media-scene, .media-scene.is-active, .media-tx-cap { transition: none; }
+}
+
+/* ---------- Forced colours (e.g. Windows High Contrast) ----------
+   Forced colours drop background images, box shadows and author colours,
+   which is how the seek and volume tracks, the thumb, the chapter ticks and
+   the pressed/expanded state are drawn above. Redraw them with system colours. */
+@media (forced-colors: active) {
+  .media-range { forced-color-adjust: none; color: CanvasText; background: transparent; }
+  .media-range::-webkit-slider-runnable-track { border: 1px solid CanvasText; background: linear-gradient(to right, Highlight 0 var(--pct, 0%), Canvas var(--pct, 0%) 100%); }
+  .media-range::-webkit-slider-thumb { box-sizing: border-box; margin-top: -5px; background: CanvasText; border: 2px solid Canvas; box-shadow: none; }
+  .media-range::-moz-range-track { border: 1px solid CanvasText; background: Canvas; }
+  .media-range::-moz-range-progress { background: Highlight; }
+  .media-range::-moz-range-thumb { box-sizing: border-box; background: CanvasText; border: 2px solid Canvas; }
+  .media-frame .media-range:focus-visible { outline: 3px solid CanvasText; }
+  .media-volume.is-muted { opacity: 1; }
+  .media-volume.is-muted::-webkit-slider-runnable-track { border-style: dashed; background: Canvas; }
+  .media-volume.is-muted::-moz-range-progress { background: Canvas; }
+  /* Chapter boundaries: marks that cross the track, visible on either side of the progress */
+  .media-tick { forced-color-adjust: none; top: -4px; width: 2px; height: 14px; margin-left: -1px; background: CanvasText; }
+  /* Pressed (Captions, Mute) and expanded (Chapters, Transcript) controls use
+     the system "selected" pair */
+  .media-btn[aria-pressed="true"], .media-btn[aria-expanded="true"] { forced-color-adjust: none; background: Highlight; color: HighlightText; box-shadow: none; }
+  .media-frame .media-btn[aria-pressed="true"]:focus-visible, .media-frame .media-btn[aria-expanded="true"]:focus-visible { outline: 3px solid CanvasText; }
+  /* Icons given an explicit colour keep it in forced colours (SVG preserves
+     its own colour): let them follow the forced text colour */
+  .media-select-chevron, .media-s6-note .icon { color: inherit; }
+  .media-tx-cap.is-current { text-decoration: underline; text-decoration-thickness: 2px; }
+  /* The poster and end card are painted with gradients only, which forced
+     colours remove: give them an opaque system background so the scene
+     underneath never shows through, and drop the decorative poster art */
+  .media-poster, .media-endcard { background: Canvas; }
+  .media-poster-art { display: none; }
+  /* Scene data graphics (payment bars, legend swatches, maturity timeline):
+     principal = hatched text colour, interest/extension = Highlight */
+  .media-bar, .media-swatch, .media-tl-track, .media-key--rev { forced-color-adjust: none; }
+  .media-bar, .media-tl-track { background: Canvas; outline: 1px solid CanvasText; }
+  .media-seg--interest, .media-swatch--interest { background: Highlight; }
+  .media-seg-fill, .media-swatch--principal { background: repeating-linear-gradient(135deg, CanvasText 0 3px, Canvas 3px 5px); }
+  .media-swatch { outline: 1px solid CanvasText; }
+  .media-seg-ghost { border-color: CanvasText; }
+  .media-tl-base { background: CanvasText; }
+  .media-tl-ext { background: repeating-linear-gradient(135deg, Highlight 0 5px, Canvas 5px 9px); }
+  .media-tl-mark-orig { border-left-color: CanvasText; }
+  .media-tl-mark-rev, .media-key--rev { background: Highlight; border-color: CanvasText; }
 }

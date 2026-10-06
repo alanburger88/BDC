@@ -135,7 +135,7 @@ App.i18n.register('overview', {
       maturityTitle: '[[maturity|Date d’échéance]]',
       maturityText: 'Votre dernier versement passe du {from} au {to}.',
       owingTitle: '[[principal|Capital]] toujours dû',
-      owingText: 'Les {amount} de capital reportés restent dus. Il s’agit d’un allègement temporaire de trésorerie, et non d’une réduction de ce que vous devez.',
+      owingText: 'Les {amount} de capital reporté restent dus. Il s’agit d’un allègement temporaire de trésorerie, et non d’une réduction de ce que vous devez.',
     },
     todo: {
       title: 'Ce que vous devez faire',

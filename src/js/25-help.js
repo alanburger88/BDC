@@ -659,7 +659,8 @@
     const COMMENT_MAX = 500;
     const mounts = new Set();
     // Kept separate from acknowledgement ("Mark as reviewed") and never treated as consent.
-    const sv = () => App.session.slice('survey', () => ({ rating: null, comment: '', dismissed: false }));
+    // commentLang: the locale the optional comment was first typed in (kept as written, never translated).
+    const sv = () => App.session.slice('survey', () => ({ rating: null, comment: '', commentLang: null, dismissed: false }));
     const label = (id) => k(`survey.options.${id}`);
 
     function face(opt, m) {
@@ -684,7 +685,7 @@
       const introId = `${m.prefix}-intro`;
       const commentId = `${m.prefix}-comment`;
       const hintId = `${m.prefix}-comment-hint`;
-      m.refs = {};
+      m.refs = { hintId, langId: `${m.prefix}-comment-lang` };
       const r = m.refs;
       r.faces = h('div', { class: 'hlp-sv-faces', role: 'group', 'aria-labelledby': qId, 'aria-describedby': introId }, OPTIONS.map((o) => face(o, m)));
       r.thanksText = h('span', { class: 'hlp-sv-thanks-text' });
@@ -698,10 +699,12 @@
         maxlength: String(COMMENT_MAX),
         fid: `${m.prefix}-comment`,
         'aria-describedby': hintId,
+        lang: s.commentLang || null,
         value: s.comment,
         // Memory only: never logged, never written to storage.
-        on: { input: (e) => { sv().comment = e.target.value.slice(0, COMMENT_MAX); } },
+        on: { input: (e) => onComment(e.target.value) },
       });
+      r.langSlot = h('span', { class: 'hlp-sv-lang-slot' });
       const offer = [];
       if (hasClair()) offer.push(App.ui.button({ label: k('survey.offerClair'), kind: 'chip', iconName: 'sparkle', className: 'btn-explain', fid: `${m.prefix}-clair`, onClick: (e) => openClair(e.currentTarget) }));
       offer.push(App.ui.button({
@@ -723,7 +726,9 @@
       }));
       r.follow = h('div', { class: 'hlp-sv-follow', hidden: true },
         h('div', { class: ['field', 'hlp-sv-field'] },
-          h('label', { class: 'field-label', for: commentId }, k('survey.commentLabel')),
+          h('div', { class: 'hlp-sv-label-row' },
+            h('label', { class: 'field-label', for: commentId }, k('survey.commentLabel')),
+            r.langSlot),
           h('p', { class: 'field-hint', id: hintId }, k('survey.commentHint')),
           r.comment),
         h('div', { class: 'hlp-sv-offer' },
@@ -788,6 +793,32 @@
       r.thanksText.textContent = s.rating ? k('survey.yourAnswer', { answer: label(s.rating) }) : '';
       r.follow.hidden = !FOLLOW_UP.includes(s.rating);
       if (document.activeElement !== r.comment && r.comment.value !== s.comment) r.comment.value = s.comment;
+      commentLangUI(m);
+    }
+
+    // The comment keeps the language it was typed in: lang on the field, and a "Written in …"
+    // tag (also read with the field) once the interface language differs from it.
+    function commentLangUI(m) {
+      const r = m.refs;
+      if (!r || !r.comment) return;
+      const lang = sv().commentLang || null;
+      if (lang) r.comment.setAttribute('lang', lang); else r.comment.removeAttribute('lang');
+      const differs = !!lang && lang !== App.i18n.locale;
+      App.util.clear(r.langSlot);
+      if (differs) {
+        r.langSlot.append(h('span', { class: 'hlp-sv-lang', id: r.langId, lang: App.i18n.locale },
+          App.ui.icon('transcript', { size: 14 }),
+          k('survey.commentLang', { language: App.i18n.languageName(lang) })));
+      }
+      r.comment.setAttribute('aria-describedby', differs ? `${r.hintId} ${r.langId}` : r.hintId);
+    }
+
+    function onComment(value) {
+      const s = sv();
+      s.comment = String(value || '').slice(0, COMMENT_MAX);
+      if (s.comment && !s.commentLang) s.commentLang = App.i18n.locale;
+      if (!s.comment) s.commentLang = null;
+      mounts.forEach((m) => { if (m.container.isConnected) commentLangUI(m); });
     }
 
     function sync(except) {

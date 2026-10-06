@@ -61,7 +61,8 @@ const TEXT = {
     greeting: (n) => `Bonjour ${n}. Faisons le point sur la modification de votre financement.`,
     title: 'Vos remboursements de capital sont reportés de trois mois.',
     effective: '1er novembre 2026',
-    owing: 'restent dus',
+    // R-35: « capital » is singular, so « reporté » (as on Ce qui change).
+    owing: 'de capital reporté restent dus',
     reviewed: 'Marqué comme consulté dans cette démo. Il s’agit uniquement d’une note locale, et non d’une acceptation, d’un consentement ni d’une preuve de compréhension.',
     banned: /remise de dette|annulation|sans intérêt|congé|économie/i,
   },
@@ -327,6 +328,19 @@ try {
     await staticChecks(page, `${loc} ${w}`);
   }
 
+  // R-33: Canadian French typography across the overview namespace.
+  {
+    const bad = await page.evaluate(() => {
+      const out = [];
+      const walk = (o, p) => {
+        if (typeof o === 'string') { if (/[\s\u00a0\u202f][;?!]/.test(o) || / :/.test(o) || /« | »/.test(o) || /reportés restent/.test(o)) out.push(`${p}: ${o.slice(0, 90)}`); }
+        else if (o && typeof o === 'object') Object.keys(o).forEach((key) => walk(o[key], `${p}.${key}`));
+      };
+      walk(window.BDCNotice.i18n._dicts['fr-CA'].overview, 'overview');
+      return out;
+    });
+    check('fr-CA overview dictionary: no-break space before « : » and inside « », no space before ; ? !, « capital reporté »', bad.length === 0, bad);
+  }
   check('no console errors', consoleMsgs.length === 0, consoleMsgs.slice(0, 5));
   check('no external network requests', requests.filter((u) => !u.startsWith('https://accessibilityserver.org/')).length === 0, requests);
   await page.context().close();

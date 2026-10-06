@@ -78,12 +78,17 @@
   padding: var(--space-4) var(--space-5) var(--space-5);
 }
 
-/* Current context */
+/* Current context: a fixed strip above the scrolling conversation, always in view */
 .clair-context {
+  flex: 0 0 auto;
   display: flex; flex-wrap: wrap; align-items: center;
-  gap: var(--space-2);
-  margin-bottom: var(--space-4);
+  gap: var(--space-1) var(--space-2);
+  min-width: 0;
+  padding: var(--space-3) var(--space-5);
+  background: var(--white);
+  border-bottom: 1px solid var(--line);
 }
+.clair-context .clair-chip { min-width: 0; }
 .clair-context-label {
   font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
   color: var(--muted);
@@ -216,6 +221,7 @@
   .clair-overlay .overlay-close { padding: 6px 12px 6px 10px; }
   .clair-status { font-size: 0.75rem; padding-top: var(--space-2); }
   .clair-scroll { padding: var(--space-4) var(--space-4) var(--space-4); }
+  .clair-context { padding: var(--space-2) var(--space-4); }
   .clair-msg--user { max-width: 92%; }
 }
 @media (max-width: 359.98px) {
@@ -235,5 +241,6 @@
   .clair-status { padding-top: var(--space-1); }
   .clair-hint { display: none; }
   .clair-scroll { padding-top: var(--space-3); }
+  .clair-context { padding-top: var(--space-1); padding-bottom: var(--space-1); }
   .clair-form { padding-top: var(--space-2); }
 }

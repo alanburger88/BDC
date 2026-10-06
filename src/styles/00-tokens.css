@@ -63,6 +63,9 @@
   /* Reserved bottom space so the accessibility launcher (bottom left) and the
      Clair launcher (bottom right) never cover content or controls. */
   --launcher-space: 88px;
+  /* Bottom-left zone kept free inside full-width overlay panels on phones: the vendor
+     accessibility launcher (about 56px at a 16px offset) stays above open panels. */
+  --a11y-launcher-space: 72px;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --vvh: 100vh;
   --vv-top: 0px;

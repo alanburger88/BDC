@@ -26,7 +26,8 @@
   }
 
   App.shell.mount();
-  App.router.start();
-  App.events.log('notice_opened', { id: App.record.noticeId });
+  // notice_opened is the first event of a session: log it once the first route is
+  // known (for its section) but before that route logs section_viewed.
+  App.router.start({ beforeRender: (route) => App.events.log('notice_opened', { id: App.record.noticeId, section: route.section }) });
   document.documentElement.classList.add('app-ready');
 })();
