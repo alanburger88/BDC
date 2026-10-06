@@ -1,19 +1,21 @@
-/* Query form: approved copy for the local demo request (PRD section 10, AC-15, AC-23).
- * The form is separate from Clair. It never sends anything, never collects
- * contact details and never stores the question outside this browser tab.
- * French drafts are implementation input pending qualified fr-CA review. */
+/* Query form: approved copy for "Ask a question" (PRD section 10, AC-15, AC-23).
+ * Recipient view: the copy reads as the recipient sees it, without framing words,
+ * and never claims the question was sent to, received by or will be answered by
+ * BDC. The form never collects contact details and keeps the question in memory
+ * for this tab only. French drafts are implementation input pending qualified
+ * fr-CA review. */
 App.i18n.register('query', {
   'en-CA': {
     title: 'Ask a question',
-    subtitle: 'Local demo only. Nothing is sent to BDC.',
+    subtitle: 'Your question will include the details of this notice.',
     stepCount: 'Step {n} of {total}',
     stepSep: ': ',
     steps: {
       draft: 'Write your question',
       review: 'Review your request',
-      confirm: 'Demo request created',
+      confirm: 'Request created',
     },
-    intro: 'Prepare a question about this notice. You will check it before a demo request is created in this browser tab.',
+    intro: 'Prepare a question about this notice. You can review it before you create your request.',
     context: {
       heading: 'Included with your question',
       hint: 'The notice identifier is always included. You can remove the selected item.',
@@ -54,7 +56,7 @@ App.i18n.register('query', {
     },
     contact: {
       legend: 'Preferred contact method (optional)',
-      hint: 'No contact details are collected in this demo.',
+      hint: 'Your preference is saved with your question.',
       options: {
         none: 'No preference',
         phone: 'Phone call',
@@ -64,9 +66,9 @@ App.i18n.register('query', {
     },
     privacy: {
       title: 'Keep it private',
-      body: 'Do not include passwords, bank-account details, government identifiers or real contact information. This demo keeps your question in this browser tab only and sends nothing.',
+      body: 'Do not include passwords, banking details or government identifiers in your question.',
     },
-    draftKept: 'If you close this panel, your draft is kept in this tab until you reset the demo.',
+    draftKept: 'If you close this panel, your draft is kept in this tab until you clear your activity.',
     continue: 'Continue to review',
     errors: {
       title: 'There is a problem',
@@ -76,7 +78,7 @@ App.i18n.register('query', {
       questionTooLong: 'Your question must be {max} characters or fewer',
     },
     review: {
-      intro: 'Check the details below. Nothing is created until you select “Create demo request”.',
+      intro: 'Check the details below. Nothing is created until you select “Create request”.',
       notice: 'Notice',
       item: 'Selected item',
       none: 'None',
@@ -86,16 +88,15 @@ App.i18n.register('query', {
       contact: 'Preferred contact method',
       question: 'Your question',
       edit: 'Edit',
-      create: 'Create demo request',
-      note: 'The demo request stays in this browser tab. It is not sent to BDC and does not start a service request.',
+      create: 'Create request',
+      note: 'Creating the request gives you a reference and a summary you can copy or download.',
     },
     confirm: {
-      heading: 'Kept in this browser tab only',
-      text: 'Demo request created locally. Nothing has been sent to BDC.',
-      refLabel: 'Demo reference',
-      notCase: 'This reference exists only in this demonstration. It is not a case number or an acknowledgement from BDC, and no one will contact you. A real service would confirm receipt separately.',
+      text: 'Your question has been recorded with reference {ref}. Keep this reference for your records.',
+      refLabel: 'Reference',
+      next: 'To discuss your question, contact your BDC account manager. You can copy or download the summary below.',
       summaryHeading: 'Plain-text summary',
-      summaryLabel: 'Summary of demo request {ref}',
+      summaryLabel: 'Summary of request {ref}',
       copy: 'Copy summary',
       copied: 'Summary copied to the clipboard.',
       copyFailed: 'Copying is not available in this browser. Select the summary text and copy it manually.',
@@ -107,11 +108,11 @@ App.i18n.register('query', {
       close: 'Close',
     },
     summary: {
-      title: 'Demo request {ref}',
+      title: 'Request {ref}',
       line: '{label}: {value}',
       created: 'Created',
       questionHeading: 'Question (kept in the language it was written in):',
-      disclaimer: 'Local demonstration record only. It is not a case acknowledgement from BDC.',
+      contact: 'To discuss your question, contact your BDC account manager.',
     },
     languages: { 'en-CA': 'English', 'fr-CA': 'French' },
     languageValues: { 'en-CA': 'English', 'fr-CA': 'French' },
@@ -121,15 +122,15 @@ App.i18n.register('query', {
   },
   'fr-CA': {
     title: 'Poser une question',
-    subtitle: 'Démo locale seulement. Rien n’est envoyé à BDC.',
+    subtitle: 'Votre question comprendra les renseignements de cet avis.',
     stepCount: 'Étape {n} sur {total}',
     stepSep: ' : ',
     steps: {
       draft: 'Rédigez votre question',
       review: 'Vérifiez votre demande',
-      confirm: 'Demande de démonstration créée',
+      confirm: 'Demande créée',
     },
-    intro: 'Préparez une question au sujet de cet avis. Vous pourrez la vérifier avant qu’une demande de démonstration soit créée dans cet onglet.',
+    intro: 'Préparez une question au sujet de cet avis. Vous pourrez la vérifier avant de créer votre demande.',
     context: {
       heading: 'Renseignements joints à votre question',
       hint: 'Le numéro de l’avis est toujours inclus. Vous pouvez retirer l’élément sélectionné.',
@@ -170,7 +171,7 @@ App.i18n.register('query', {
     },
     contact: {
       legend: 'Mode de communication préféré (facultatif)',
-      hint: 'Aucune coordonnée n’est recueillie dans cette démo.',
+      hint: 'Votre préférence est enregistrée avec votre question.',
       options: {
         none: 'Aucune préférence',
         phone: 'Appel téléphonique',
@@ -180,9 +181,9 @@ App.i18n.register('query', {
     },
     privacy: {
       title: 'Protégez vos renseignements',
-      body: 'N’indiquez aucun mot de passe, renseignement bancaire, numéro d’identification gouvernemental ni coordonnée réelle. Cette démo conserve votre question dans cet onglet seulement et n’envoie rien.',
+      body: 'N’indiquez aucun mot de passe, renseignement bancaire ni numéro d’identification gouvernemental dans votre question.',
     },
-    draftKept: 'Si vous fermez ce panneau, votre brouillon reste dans cet onglet jusqu’à la réinitialisation de la démo.',
+    draftKept: 'Si vous fermez ce panneau, votre brouillon reste dans cet onglet jusqu’à ce que vous effaciez votre activité.',
     continue: 'Vérifier ma demande',
     errors: {
       title: 'Veuillez corriger ce qui suit',
@@ -192,7 +193,7 @@ App.i18n.register('query', {
       questionTooLong: 'Votre question doit compter au plus {max} caractères',
     },
     review: {
-      intro: 'Vérifiez les renseignements ci-dessous. Rien n’est créé tant que vous n’avez pas sélectionné « Créer la demande de démonstration ».',
+      intro: 'Vérifiez les renseignements ci-dessous. Rien n’est créé tant que vous n’avez pas sélectionné « Créer la demande ».',
       notice: 'Avis',
       item: 'Élément sélectionné',
       none: 'Aucun',
@@ -202,16 +203,15 @@ App.i18n.register('query', {
       contact: 'Mode de communication préféré',
       question: 'Votre question',
       edit: 'Modifier',
-      create: 'Créer la demande de démonstration',
-      note: 'La demande de démonstration reste dans cet onglet. Elle n’est pas envoyée à BDC et ne crée aucune demande de service.',
+      create: 'Créer la demande',
+      note: 'Une fois la demande créée, vous obtiendrez une référence et un résumé à copier ou à télécharger.',
     },
     confirm: {
-      heading: 'Conservée dans cet onglet seulement',
-      text: 'Demande de démonstration créée localement. Rien n’a été envoyé à BDC.',
-      refLabel: 'Référence de démonstration',
-      notCase: 'Cette référence existe uniquement dans cette démonstration. Il ne s’agit ni d’un numéro de dossier ni d’un accusé de réception de BDC, et personne ne communiquera avec vous. Un service réel confirmerait la réception séparément.',
+      text: 'Votre question a été enregistrée sous la référence {ref}. Conservez cette référence pour vos dossiers.',
+      refLabel: 'Référence',
+      next: 'Pour discuter de votre question, communiquez avec votre directrice ou directeur de comptes chez BDC. Vous pouvez copier ou télécharger le résumé ci-dessous.',
       summaryHeading: 'Résumé en texte brut',
-      summaryLabel: 'Résumé de la demande de démonstration {ref}',
+      summaryLabel: 'Résumé de la demande {ref}',
       copy: 'Copier le résumé',
       copied: 'Résumé copié dans le presse-papiers.',
       copyFailed: 'La copie n’est pas possible dans ce navigateur. Sélectionnez le texte du résumé et copiez-le manuellement.',
@@ -223,11 +223,11 @@ App.i18n.register('query', {
       close: 'Fermer',
     },
     summary: {
-      title: 'Demande de démonstration {ref}',
+      title: 'Demande {ref}',
       line: '{label} : {value}',
       created: 'Date de création',
       questionHeading: 'Question (conservée dans la langue de rédaction) :',
-      disclaimer: 'Document de démonstration local seulement. Il ne s’agit pas d’un accusé de réception de BDC.',
+      contact: 'Pour discuter de votre question, communiquez avec votre directrice ou directeur de comptes chez BDC.',
     },
     languages: { 'en-CA': 'anglais', 'fr-CA': 'français' },
     languageValues: { 'en-CA': 'Anglais', 'fr-CA': 'Français' },

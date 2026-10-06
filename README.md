@@ -21,8 +21,14 @@ The only automatic online request is the supplied accessibility widget (`accessi
 | Your notice | `#/documents` | Formal synthetic notice (12 clauses), record metadata, revised schedule, assumptions, downloads, dedicated print / Save as PDF layout |
 | Support for you | `#/support` | Three optional, relevant BDC resource cards (no eligibility claims; hardship rule) |
 | Help & questions | `#/help` | Searchable FAQ, glossary, local query route, three-face clarity survey |
-| Clair (right panel) | — | Document-scoped demo assistant: local, bilingual, intent-based answers from this notice only; labelled "No live AI connection" |
-| Demo insights | `#/insights` | Presenter view of local interaction events with Reset/Export |
+| Clair (right panel) | — | Document-scoped financing guide: bilingual, intent-based answers from this notice only ("Answers are based on this notice.") |
+| Session insights (presenter) | `#/insights` | Unlinked presenter view of this tab's interaction events with Clear/Export |
+
+## Recipient view
+
+At the product owner's request (2026-10-06), the experience reads as the recipient would see it. The banner, the "DEMO" labels, the notes saying the data is fictional or illustrative, the demo wording in Clair, the question form and the survey, and the `DEMO-` identifiers are all removed. Identifiers are now `BDC-CHG-2026-001` (notice) and `LN-4821` (loan), and the narration no longer says "In this example". The build enforces this (`RECIPIENT_BANNED` in `tools/build.mjs`), and acceptance check RV-01 confirms it.
+
+The honesty guardrails remain. The question form says "Request created … recorded with reference REQ-0001" and never claims BDC received the question. Clair says "Answers are based on this notice." No contacts, rates or policies are invented. The UserWay launcher sits bottom-left (`data-position` 5) so it doesn't collide with Clair at bottom-right. The data is still fictional: a non-visible HTML comment records this, and the page is not for real customer use.
 
 ## Project layout
 

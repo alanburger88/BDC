@@ -1,6 +1,6 @@
 {
   "common": {
-    "docTitle": "Avis important concernant votre financement (démonstration conceptuelle)",
+    "docTitle": "Avis important concernant votre financement",
     "close": "Fermer",
     "cancel": "Annuler",
     "back": "Retour",
@@ -15,7 +15,6 @@
     "definition": "afficher la définition",
     "closeDefinition": "Fermer la définition",
     "opensExternal": "ouvre un site Web externe de BDC dans un nouvel onglet",
-    "illustrativeNote": "Calendrier de financement illustratif, et non une offre de BDC.",
     "amountsInCAD": "Montants en dollars canadiens.",
     "renderError": "Cette section ne peut pas être affichée. Veuillez choisir une autre section.",
     "timeLong": "{m} min {s} s",
@@ -35,7 +34,6 @@
     "copied": "Copié",
     "copyFailed": "Copie non disponible dans ce navigateur",
     "print": "Imprimer / Enregistrer en PDF",
-    "demoLabel": "Démo",
     "languageNames": {
       "en-CA": "anglais",
       "fr-CA": "français"
@@ -45,8 +43,7 @@
       "changed": "Modifié",
       "unchanged": "Inchangé",
       "temporary": "Temporaire",
-      "later": "Date ultérieure",
-      "demo": "Démo"
+      "later": "Date ultérieure"
     },
     "perMonth": "par mois",
     "months": {
@@ -56,10 +53,8 @@
     "labelWithItem": "{label} : {item}"
   },
   "shell": {
-    "banner": "Démonstration conceptuelle • Clientèle et modalités fictives • Aucun lien avec les systèmes de BDC.",
     "descriptor": "Avis important concernant votre financement",
     "descriptorMeta": "Avis {notice}",
-    "demoPill": "Démo",
     "logoPlaceholder": "Espace réservé au logo de BDC",
     "skip": "Passer au contenu principal",
     "sectionsLabel": "Sections de l’avis",
@@ -67,21 +62,14 @@
     "current": "(section actuelle)",
     "languageChanged": "La langue est maintenant le français.",
     "launcherSub": "Votre guide du financement",
-    "demoInsights": "Statistiques de la démo",
-    "resetDemo": "Réinitialiser la démo",
-    "resetTitle": "Réinitialiser cette démonstration?",
-    "resetBody": "Cette action efface les événements locaux de la démo, les demandes de démonstration rédigées ou créées, les réponses au sondage, la conversation avec Clair et la mention « Marquer comme consulté ». L’avis lui-même ne change pas.",
-    "resetConfirm": "Réinitialiser la démo",
-    "resetDone": "La démonstration a été réinitialisée.",
-    "footerData": "Ce fichier unique contient uniquement des données fictives. Aucune information saisie ne quitte ce navigateur, sauf si vous choisissez d’ouvrir un lien externe de BDC. Le module d’accessibilité est le seul service en ligne que cette page charge automatiquement.",
-    "aboutTitle": "À propos de cette démonstration",
-    "aboutBody": [
-      "Prototype conceptuel d’un avis de financement interactif. Camille Roy, Atelier Boréal Inc., le prêt et tous les montants sont fictifs. Rien ici ne constitue une offre, une entente, une politique ou un système de BDC.",
-      "Clair est un nom proposé pour la démo. Dans ce fichier, Clair répond uniquement à partir de cet avis type, selon des règles locales; il n’y a aucune connexion à une IA en direct.",
-      "La narration a été générée avant la distribution avec la synthèse vocale d’ElevenLabs et est intégrée à ce fichier. La lecture ne communique jamais avec ElevenLabs.",
-      "Les demandes de démonstration, les réponses au sondage et la mention « Marquer comme consulté » restent dans cet onglet et sont effacées lorsque vous réinitialisez la démo ou fermez l’onglet."
-    ],
-    "buildInfo": "Version {version} · {date} · Avis {notice} · Version du dossier {record}"
+    "demoInsights": "Statistiques de la séance",
+    "resetDemo": "Effacer mon activité",
+    "resetTitle": "Effacer votre activité?",
+    "resetBody": "Cette action efface ce que vous avez fait dans cet onglet : les questions préparées, vos commentaires, la conversation avec Clair et la mention « Marquer comme consulté ». Votre avis ne change pas.",
+    "resetConfirm": "Effacer l’activité",
+    "resetDone": "Votre activité dans cet onglet a été effacée.",
+    "footerMeta": "Avis {notice} · Prêt {loan} · Version du dossier {record}",
+    "footerPrivacy": "Ce que vous saisissez sur cette page reste dans cet onglet, sauf si vous choisissez de le télécharger, de l’imprimer ou de le communiquer."
   },
   "nav": {
     "overview": "Aperçu",
@@ -90,7 +78,7 @@
     "documents": "Votre avis",
     "support": "Du soutien pour vous",
     "help": "Aide et questions",
-    "insights": "Statistiques de la démo"
+    "insights": "Statistiques de la séance"
   },
   "items": {
     "general": "Cet avis (question générale)",
@@ -139,7 +127,7 @@
     "unchanged": "8. Modalités inchangées",
     "action": "9. Ce que vous devez faire",
     "schedule": "10. Calendrier de remboursement révisé",
-    "assumptions": "11. Hypothèses utilisées dans cette illustration",
+    "assumptions": "11. Base de calcul",
     "contact": "12. Questions et soutien"
   },
   "chapters": {
@@ -190,7 +178,7 @@
     },
     "capitalisedInterest": {
       "term": "Intérêts capitalisés",
-      "definition": "Des intérêts ajoutés au montant dû. Cela ne se produit pas dans cette démonstration."
+      "definition": "Des intérêts ajoutés au montant dû. Cela ne s’applique pas à votre modification."
     }
   },
   "changes": {
@@ -271,8 +259,8 @@
         "title": "Aucuns frais pour cette modification",
         "before": "Aucuns frais de modification",
         "beforeSub": "avant cet avis",
-        "sub": "frais liés à cette modification, dans ce scénario fictif",
-        "explain": "Aucuns frais ne s’appliquent dans cet exemple. La modification a tout de même un coût : les intérêts additionnels présentés dans la carte Intérêts."
+        "sub": "frais liés à cette modification",
+        "explain": "Aucuns frais ne s’appliquent à cette modification. Elle a tout de même un coût : les intérêts additionnels présentés dans la carte Intérêts."
       },
       "rate": {
         "kicker": "Taux d’intérêt",
@@ -322,7 +310,7 @@
       "equals": "égale",
       "payments": "Total des versements, de {from} à {to}",
       "note": "Les {extra3} font déjà partie des {extra} d’intérêts additionnels sur la durée restante. Ils ne s’ajoutent pas à ce montant.",
-      "sameAmount": "Dans cet exemple, les versements révisés de {from} à {to} ({revised}) et les intérêts additionnels sur la durée restante ({extra}) correspondent par hasard au même montant. Ils mesurent des choses différentes.",
+      "sameAmount": "Les versements révisés de {from} à {to} ({revised}) et les intérêts additionnels sur la durée restante ({extra}) correspondent par hasard au même montant. Ils mesurent des choses différentes.",
       "reliefLink": "Voir l’écart mois par mois"
     },
     "unchanged": {
@@ -384,7 +372,7 @@
         "interest": "Pendant le report, vous payez {interest} d’intérêts chaque mois. Comme le capital est remboursé plus tard, le total des intérêts sur la durée restante passe de {original} à {revised}.",
         "next-payment": "Selon le calendrier initial, ce versement aurait été de {original}. Il est moins élevé parce qu’il couvre uniquement les intérêts.",
         "maturity": "Le calendrier initial se terminait le {original}. Le calendrier révisé se termine {period} plus tard et compte {count} versements au lieu de {originalCount}.",
-        "fees": "Les frais de modification dans ce scénario fictif sont de {fee}. La modification a tout de même une incidence sur votre coût total en raison des intérêts additionnels.",
+        "fees": "Les frais liés à cette modification sont de {fee}. La modification a tout de même une incidence sur votre coût total en raison des intérêts additionnels.",
         "rate": "Le même taux fixe s’applique aux deux calendriers. Ce qui change, c’est le capital auquel il s’applique, mois après mois.",
         "debt": "Le report déplace {deferred} de remboursements de capital plus tard dans le calendrier. Ce montant reste dû jusqu’à son remboursement."
       },
@@ -402,7 +390,7 @@
         "interest": "Les [[interest|intérêts]] représentent le coût de l’emprunt. Chaque mois, ils sont calculés sur le [[outstanding|capital restant à rembourser]] au [[fixedRate|taux fixe]]; ils restent donc plus élevés tant que le capital n’est pas remboursé.",
         "next-payment": "Un [[instalment|versement]] est un paiement prévu au calendrier. Pendant le [[postponement|report]], chaque versement couvre uniquement les [[interest|intérêts]]; à la reprise, il couvre le [[principal|capital]] et les intérêts.",
         "maturity": "La [[maturity|date d’échéance]] est la date à laquelle le solde restant du prêt doit être entièrement remboursé. Rembourser le [[principal|capital]] plus tard repousse cette date.",
-        "fees": "Cette modification n’entraîne aucuns frais dans cet exemple, mais elle change le total des [[interest|intérêts]] payés, car le [[outstanding|capital restant à rembourser]] diminue plus lentement.",
+        "fees": "Cette modification n’entraîne aucuns frais, mais elle change le total des [[interest|intérêts]] payés, car le [[outstanding|capital restant à rembourser]] diminue plus lentement.",
         "rate": "Un [[fixedRate|taux fixe]] ne change pas pendant la période à taux fixe. Vos [[interest|intérêts]] mensuels dépendent toutefois du [[outstanding|capital restant à rembourser]] auquel il s’applique.",
         "debt": "Le [[outstanding|capital restant à rembourser]] est le capital toujours dû à une date donnée. Un [[postponement|report]] des remboursements de capital change le moment où vous le remboursez, et non le montant de [[principal|capital]] à rembourser."
       },
@@ -439,7 +427,7 @@
         "fees": {
           "title": "Aucuns frais ne veut pas dire aucun coût",
           "body": [
-            "Aucuns frais ne sont exigés pour cette modification dans ce scénario fictif.",
+            "Aucuns frais ne sont exigés pour cette modification.",
             "Le report augmente tout de même le total des intérêts sur la durée restante de {extra}, et le total des versements restants passe de {originalTotal} à {revisedTotal}."
           ]
         },
@@ -500,7 +488,7 @@
       "rate": {
         "formula": "Intérêts mensuels = capital dû au début du mois × {rate} ÷ 12",
         "example": "{opening} × {rate} ÷ 12 = {interest}",
-        "rounding": "Intérêts arrondis au cent le plus proche (la demie étant arrondie au cent supérieur), selon les hypothèses de cette illustration.",
+        "rounding": "Intérêts arrondis au cent le plus proche (la demie étant arrondie au cent supérieur), selon la base de calcul de votre avis.",
         "why": "Même taux, capital plus élevé : en {month}, les intérêts sont de {revised} au lieu de {original}, car aucun capital n’a été remboursé en {prev}."
       },
       "balance": {
@@ -519,7 +507,7 @@
   },
   "clair": {
     "title": "Clair — Votre guide du financement",
-    "status": "Assistant de démonstration • Réponses tirées de cet avis type • Aucune connexion à une IA en direct.",
+    "status": "Réponses fondées sur le contenu de cet avis.",
     "contextLabel": "Sujet",
     "contextRemove": "Retirer le sujet : {item}",
     "contextRemoved": "Sujet retiré. Clair répondra au sujet de l’avis en entier.",
@@ -527,7 +515,7 @@
     "suggestedTitle": "Questions suggérées",
     "inputLabel": "Votre question pour Clair",
     "placeholder": "Posez votre question…",
-    "hint": "Les réponses proviennent uniquement de cet avis type. N’entrez aucun renseignement personnel ou bancaire.",
+    "hint": "Clair répond uniquement aux questions sur cet avis. N’entrez aucun renseignement personnel ou bancaire.",
     "send": "Envoyer",
     "emptyError": "Saisissez d’abord une question.",
     "counter": "{n} caractères sur {max}",
@@ -554,7 +542,7 @@
     "inLanguage": "En {language}",
     "announce": "Clair : {text}",
     "and": "et",
-    "greeting": "Bonjour! Je suis Clair, l’assistant de démonstration pour cet avis de financement type. Demandez-moi ce qui change, combien vous payez et quand, ou choisissez une question suggérée ci-dessous.",
+    "greeting": "Bonjour! Je suis Clair, votre guide du financement pour cet avis. Demandez-moi ce qui change, combien vous payez et quand, ou choisissez une question suggérée ci-dessous.",
     "suggestions": {
       "whyRelief": "Pourquoi l’allègement n’est-il pas de {deferred}?",
       "nextPayment": "Quand aura lieu mon prochain versement?",
@@ -575,14 +563,14 @@
       "printExport": "Comment imprimer ou exporter cet avis?",
       "queryPrep": "Comment poser une question à une personne?",
       "support": "Quel soutien est offert?",
-      "aboutClair": "Est-ce une IA en direct?",
+      "aboutClair": "Qu’est-ce que Clair?",
       "purpose": "Pourquoi ai-je reçu cet avis?",
       "accountant": "Mon comptable peut-il l’examiner?"
     },
     "answers": {
       "whatChanged": "Vos remboursements de capital de {months} sont reportés. Pendant ces mois, vous payez seulement les intérêts, soit {postInterest} par mois. Les remboursements de capital reprennent le {resumeDate}, votre dernier versement est reporté au {revMat}, et le capital reporté reste dû.",
-      "purpose": "Cet avis explique une modification approuvée de votre prêt : vous avez demandé de reporter vos remboursements de capital et, dans ce scénario fictif, la modification est approuvée et finalisée. Il présente ce qui change, ce qui reste pareil et les prochaines étapes.",
-      "purposeSeasonal": "Cet avis explique une modification approuvée de votre prêt. Dans ce scénario fictif, vous avez demandé de reporter vos remboursements de capital pour gérer une constitution de stocks saisonnière prévue. Il présente ce qui change, ce qui reste pareil et les prochaines étapes.",
+      "purpose": "Cet avis explique une modification approuvée de votre prêt : vous avez demandé de reporter vos remboursements de capital, et la modification a été approuvée et finalisée. Il présente ce qui change, ce qui reste pareil et les prochaines étapes.",
+      "purposeSeasonal": "Cet avis explique une modification approuvée de votre prêt. Vous avez demandé de reporter vos remboursements de capital pour gérer une constitution de stocks saisonnière prévue, et la modification a été approuvée et finalisée. Il présente ce qui change, ce qui reste pareil et les prochaines étapes.",
       "effectiveDate": "La modification entre en vigueur le {effective}. Le premier versement selon le calendrier révisé est dû le {nextDate}.",
       "nextPayment": "Votre prochain versement est de {revNext}, le {nextDate}. Il ne comprend que les intérêts, puisque le remboursement du capital est reporté ce mois-là.",
       "lastPostponement": "Votre dernier versement de la période de report est de {lastPost}, le {lastPostDate}; il ne comprend que les intérêts. Les remboursements de capital reprennent le {resumeDate}, avec un versement de {firstResumed}.",
@@ -596,27 +584,26 @@
       "totalPayments": "Sur l’ensemble du calendrier, vos versements totalisent {revTotalFull} selon le calendrier révisé, contre {origTotalFull} selon le calendrier initial. L’écart correspond aux {extraLife} d’intérêts additionnels, qui comprennent déjà les {extra3} d’intérêts supplémentaires de {from} à {to}; le capital remboursé est le même.",
       "paymentCount": "Le calendrier révisé compte {revCount} versements mensuels, du {nextDate} au {revMat}. Le calendrier initial en comptait {origCount}, jusqu’au {origMat}. Les versements supplémentaires remboursent le capital reporté.",
       "issueDate": "Cet avis a été émis le {issue}. La modification entre en vigueur le {effective}, et le premier versement selon le calendrier révisé est dû le {nextDate}.",
-      "loanAmount": "Les deux calendriers illustrés commencent avec {principalStartFull} de capital le {effective}. Cet avis type porte uniquement sur ce capital; il n’indique ni le montant initial de votre prêt ni un solde de compte réel.",
+      "loanAmount": "Les deux calendriers commencent avec {principalStartFull} de capital le {effective}. Cet avis porte uniquement sur ce capital; il n’indique ni le montant initial de votre prêt ni le solde actuel de votre compte.",
       "yearPayments": "Vos versements de {year} sont présentés mois par mois dans « {payments} », où le calendrier est regroupé par année avec les totaux initial et révisé de chaque année.",
       "resume": "Les remboursements de capital reprennent le {resumeDate}. Ce versement est de {firstResumed}, soit {monthlyPrincipal} de capital et {firstResumedInterest} d’intérêts.",
       "rate": "Votre taux fixe demeure à {rate}; il ne change pas. Le total des intérêts augmente seulement parce que le capital est remboursé plus tard.",
-      "fees": "Il n’y a pas de frais pour cette modification dans ce scénario fictif. Le coût du report correspond aux intérêts additionnels de {extraLife} sur la durée restante.",
+      "fees": "Il n’y a pas de frais pour cette modification. Le coût du report correspond aux intérêts additionnels de {extraLife} sur la durée restante.",
       "unchanged": "Votre taux fixe de {rate}, le versement mensuel de capital de {monthlyPrincipal} une fois les remboursements repris et toutes les autres modalités du prêt {loanId} restent les mêmes. Il n’y a pas de frais de modification.",
-      "acceptance": "Vous n’avez rien à accepter ni à signer, et aucune réponse n’est requise dans le cadre de cet avis; la modification est déjà approuvée et finalisée dans ce scénario fictif. Il est conseillé de consulter le calendrier révisé et de mettre à jour votre planification de trésorerie.",
+      "acceptance": "Vous n’avez rien à accepter ni à signer, et aucune réponse n’est requise dans le cadre de cet avis; la modification est déjà approuvée et finalisée. Il est conseillé de consulter le calendrier révisé et de mettre à jour votre planification de trésorerie.",
       "printExport": "Dans « {notice} », choisissez « {print} » pour obtenir une copie imprimable, ou téléchargez le calendrier initial ou révisé en format CSV. Dans « {payments} », vous pouvez aussi télécharger la sélection affichée.",
-      "queryPrep": "Choisissez « {askItem} » à côté d’un élément, ou « {askGeneral} » dans « {help} ». Vous rédigez votre question, la vérifiez, puis créez une demande de démonstration locale. Rien n’est envoyé à BDC dans cette démo.",
+      "queryPrep": "Choisissez « {askItem} » à côté d’un élément, ou « {askGeneral} » dans « {help} ». Vous rédigez votre question, la vérifiez, puis créez la demande. Une référence s’affiche pour que vous puissiez la conserver dans vos dossiers.",
       "support": "La section « {supportSection} » présente des ressources facultatives de BDC, comme la consultation en gestion financière pour planifier votre trésorerie. Elles sont distinctes de cet avis et n’impliquent aucune admissibilité ni approbation.",
       "supportSuppressed": "La section « {supportSection} » met l’accent sur l’aide et les ressources d’apprentissage, comme la planification de la trésorerie. Elles sont distinctes de cet avis et n’impliquent aucune admissibilité ni approbation.",
       "debtReduced": "Le report retarde le remboursement de {deferred} de capital; il ne réduit pas votre dette et ne l’annule pas. Vous devez toujours le même capital, qui sera remboursé plus tard dans le calendrier.",
       "capitalisedInterest": "Aucun intérêt n’est capitalisé. Les intérêts sont payés chaque mois pendant le report; ils ne s’ajoutent donc pas au montant dû.",
-      "balanceAfter": "À la fin du report ({postEnd}), le calendrier révisé indique {revPostClose} de capital restant dû, contre {origPostClose} selon le calendrier initial. Cette démo n’affiche aucun solde de compte réel.",
-      "accountant": "Vous pouvez remettre une copie imprimée ou le calendrier CSV à votre comptable. Dans un service réel, un utilisateur autorisé pourrait obtenir un accès contrôlé; cette démo ne peut accorder d’accès à personne.",
-      "aboutClair": "Je suis Clair, un assistant de démonstration. Je réponds à partir de cet avis type selon des règles locales : il n’y a aucune connexion à une IA en direct, et ce que vous saisissez reste dans ce navigateur. Je n’ai accès à aucun dossier réel de BDC.",
-      "aboutDemo": "La page « Statistiques de la démo » présente seulement les interactions locales de cet onglet. Ce ne sont pas des résultats mesurés par BDC, et rien n’est transmis.",
-      "greeting": "Bonjour! Posez-moi une question sur cet avis type, par exemple sur ce qui change ou sur la date de votre prochain versement.",
+      "balanceAfter": "À la fin du report ({postEnd}), le calendrier révisé indique {revPostClose} de capital restant dû, contre {origPostClose} selon le calendrier initial. Cet avis n’indique pas le solde actuel de votre compte.",
+      "accountant": "Vous pouvez remettre une copie imprimée ou le calendrier CSV à votre comptable. L’Espace client de BDC prévoit aussi un accès partagé contrôlé pour les personnes que vous autorisez; je ne peux accorder d’accès à personne.",
+      "aboutClair": "Je suis Clair, un guide automatisé pour cet avis, et non une personne. Mes réponses proviennent de l’information contenue dans cet avis, comme votre calendrier révisé et ses modalités. Je n’ai pas accès à vos autres comptes et je ne peux apporter aucune modification à votre prêt.",
+      "greeting": "Bonjour! Posez-moi une question sur cet avis, par exemple sur ce qui change ou sur la date de votre prochain versement.",
       "thanks": "Avec plaisir. Y a-t-il autre chose dans cet avis que je peux vous expliquer?",
       "scheduleClause": "Ce calendrier présente les {revCount} versements révisés, du {nextDate} au {revMat}. Les premiers versements ne comprennent que les intérêts; les suivants comprennent {monthlyPrincipal} de capital chaque mois.",
-      "assumptions": "L’illustration suppose des versements en fin de mois, un taux fixe de {rate}, aucune nouvelle avance ni aucun remboursement supplémentaire, et aucun intérêt capitalisé. Ce sont des hypothèses de simulation, et non des règles de gestion des prêts de BDC.",
+      "assumptions": "Les calendriers sont calculés selon cette base : versements en fin de mois, taux fixe de {rate}, aucune nouvelle avance ni aucun remboursement supplémentaire, et aucun intérêt capitalisé.",
       "chartPayments": "Le graphique compare les versements mensuels de {from} à {sixth}. Selon le calendrier révisé, les versements de {from} à {to} ne comprennent que les intérêts ({postInterest}); à partir de {resumeMonth}, ils comprennent de nouveau {monthlyPrincipal} de capital.",
       "chartBalance": "Selon le calendrier révisé, le capital reste à {principalStart} jusqu’à la fin de {postEnd}, puis diminue de {monthlyPrincipal} par mois jusqu’au {revMat}. Selon le calendrier initial, il atteint zéro le {origMat}.",
       "resourceFinancialManagement": "La consultation en gestion financière peut aider à prévoir la trésorerie et à planifier le fonds de roulement. Il s’agit d’un soutien facultatif, distinct de cet avis, qui n’implique aucune admissibilité.",
@@ -624,14 +611,14 @@
       "resourceWorkingCapital": "Le Prêt de fonds de roulement est un produit de financement distinct de BDC, présenté à titre informatif dans « {supportSection} ». Il ne fait pas partie de cet avis, tout financement est assujetti à une évaluation et à une approbation, et je ne peux pas évaluer votre admissibilité.",
       "resourceWorkingCapitalSuppressed": "L’emprunt supplémentaire n’est pas mis de l’avant dans cette situation. Si vous éprouvez des difficultés, vous pouvez préparer une question pour une personne afin de discuter de l’aide possible.",
       "resourceLearning": "Les ressources d’apprentissage de BDC sur la trésorerie sont éducatives. Elles peuvent vous aider à planifier en fonction de versements réduits de {from} à {to}, sans aucun engagement de crédit.",
-      "limitChange": "Je ne peux pas modifier vos versements ni les modalités de votre prêt; je peux seulement expliquer cet avis type. Si vous souhaitez discuter d’une modification, vous pouvez préparer une question pour une personne.",
-      "limitApprove": "Je ne peux pas approuver un autre report ni aucune autre demande. Vous pouvez plutôt préparer une question pour une personne; dans cette démo, rien n’est envoyé à BDC.",
+      "limitChange": "Je ne peux pas modifier vos versements ni les modalités de votre prêt; je peux seulement expliquer cet avis. Si vous souhaitez discuter d’une modification, vous pouvez préparer une question pour une personne.",
+      "limitApprove": "Je ne peux pas approuver un autre report ni aucune autre demande. Vous pouvez plutôt préparer une question pour une personne.",
       "limitEligibility": "Je ne peux pas évaluer votre admissibilité ni offrir du financement. La section « {supportSection} » décrit des ressources facultatives de BDC, et tout financement est assujetti à une évaluation et à une approbation. Vous pouvez aussi préparer une question pour une personne.",
       "limitEligibilitySuppressed": "Je ne peux pas évaluer votre admissibilité ni offrir du financement. Si vous éprouvez des difficultés, vous pouvez préparer une question pour une personne afin de discuter de l’aide adaptée à votre situation.",
-      "limitPay": "Je ne peux pas traiter de paiements, et cette démo n’offre aucune fonction de paiement. Selon le calendrier révisé, votre prochain versement est de {revNext}, le {nextDate}.",
-      "hardship": "Je ne peux pas modifier vos versements ni vous dire ce qui arrive si un versement est manqué; cet avis type ne traite pas de cette question. Si vous avez de la difficulté à faire un versement, il vaut mieux en parler avec quelqu’un : vous pouvez préparer une question pour une personne au sujet de votre situation.",
-      "unrelated": "Je peux seulement vous aider avec cet avis type. Voici des questions auxquelles je peux répondre :",
-      "fallback": "Je peux seulement répondre aux questions sur cet avis type — voici des sujets sur lesquels je peux vous aider :"
+      "limitPay": "Je ne peux pas traiter de paiements. Selon le calendrier révisé, votre prochain versement est de {revNext}, le {nextDate}.",
+      "hardship": "Je ne peux pas modifier vos versements ni vous dire ce qui arrive si un versement est manqué; cet avis ne traite pas de cette question. Si vous avez de la difficulté à faire un versement, il vaut mieux en parler avec quelqu’un : vous pouvez préparer une question pour une personne au sujet de votre situation.",
+      "unrelated": "Je peux seulement vous aider avec cet avis. Voici des questions auxquelles je peux répondre :",
+      "fallback": "Je peux seulement répondre aux questions sur cet avis — voici des sujets sur lesquels je peux vous aider :"
     },
     "terms": {
       "principal": "Dans cet avis, {deferred} de capital seront remboursés plus tard dans le calendrier; ce montant reste dû.",
@@ -664,7 +651,7 @@
       "exports": "L’impression et le fichier CSV reprennent les mêmes calendriers approuvés : {origCount} versements initiaux et {revCount} versements révisés.",
       "ids": "Votre question peut mentionner l’avis {noticeId} et le prêt {loanId}.",
       "capitalised": "Capital à la fin de {postEnd} : {revPostCloseFull} selon le calendrier révisé (inchangé depuis le {effective}), {origPostCloseFull} selon le calendrier initial.",
-      "startPrincipal": "Capital au début des deux calendriers illustrés ({effective}) : {principalStartFull}.",
+      "startPrincipal": "Capital au début des deux calendriers ({effective}) : {principalStartFull}.",
       "scheduleTotals": "Calendrier initial : {origCount} versements totalisant {origTotalFull}. Calendrier révisé : {revCount} versements totalisant {revTotalFull}.",
       "assumptions": "Les deux calendriers commencent avec {principalStartFull} de capital le {effective}; le calendrier initial se termine le {origMat}, le révisé le {revMat}.",
       "firstMonthPayment": "Versement de {firstMonth} : {origNextFull} selon le calendrier initial, {revNextFull} selon le calendrier révisé.",
@@ -678,7 +665,7 @@
       "resumed": "En {month}, les deux calendriers comprennent {rPrincipal} de capital. Le versement révisé est de {rTotal} au lieu de {oTotal}, car les intérêts sont calculés sur un capital restant plus élevé : {rOpen} au lieu de {oOpen}.",
       "extension": "Le mois de {month} vient après le dernier versement initial du {origMat}. Selon le calendrier révisé, vous payez encore {rTotal} ce mois-ci pour rembourser le capital reporté.",
       "final": "Le versement de {month} est votre dernier versement selon le calendrier révisé : {rTotal} ({rPrincipal} de capital et {rInterest} d’intérêts). Le calendrier initial se terminait le {origMat}.",
-      "outside": "Aucun versement n’est prévu en {month} dans l’un ou l’autre calendrier. Les versements illustrés vont du {nextDate} au {revMat}.",
+      "outside": "Aucun versement n’est prévu en {month} dans l’un ou l’autre calendrier. Les versements prévus vont du {nextDate} au {revMat}.",
       "fact": "Initial : {oPrincipal} de capital + {oInterest} d’intérêts = {oTotal}. Révisé : {rPrincipal} de capital + {rInterest} d’intérêts = {rTotal}.",
       "factExtension": "Initial : aucun versement (prêt remboursé au {origMat}). Révisé : {rPrincipal} de capital + {rInterest} d’intérêts = {rTotal}.",
       "factOutside": "Initial : {origCount} versements jusqu’au {origMat}. Révisé : {revCount} versements jusqu’au {revMat}."
@@ -687,7 +674,7 @@
   "help": {
     "overline": "Questions sur votre avis",
     "title": "Aide et questions",
-    "intro": "Trouvez une réponse rapide, consultez la définition d’un terme, préparez une question ou dites-nous si cet avis était clair. Tout ce qui figure ici porte sur le même avis fictif.",
+    "intro": "Trouvez une réponse rapide, consultez la définition d’un terme, préparez une question ou dites-nous si cet avis était clair.",
     "backToNotice": "Retour à votre avis",
     "onThisPage": "Sur cette page",
     "seeInNotice": "Voir dans cet avis",
@@ -711,7 +698,7 @@
       },
       "countDetail": "{faq} dans les questions, {terms} dans le glossaire",
       "noneTitle": "Aucun résultat pour « {q} »",
-      "noneBody": "Essayez un mot plus court ou différent, comme « intérêts » ou « versement ». Vous pouvez aussi vous adresser à Clair, l’assistant de démonstration, ou préparer une question.",
+      "noneBody": "Essayez un mot plus court ou différent, comme « intérêts » ou « versement ». Vous pouvez aussi vous adresser à Clair, votre guide du financement, ou préparer une question.",
       "noneBodyNoClair": "Essayez un mot plus court ou différent, comme « intérêts » ou « versement ». Vous pouvez aussi préparer une question sur cet avis.",
       "foundInAnswer": "Trouvé dans la réponse",
       "otherLanguage": "Recherche rédigée en {language}. Les résultats tiennent compte des deux langues.",
@@ -740,16 +727,16 @@
         "why-notice": {
           "q": "Pourquoi cet avis a-t-il été émis?",
           "a": [
-            "Vous avez demandé un [[postponement|report temporaire des remboursements de capital]] afin de gérer une constitution de stocks saisonnière prévue. Dans ce scénario fictif, la modification est approuvée et terminée. Le présent avis explique comment votre calendrier de remboursement change en conséquence, à compter du {effectiveDate}.",
+            "Vous avez demandé un [[postponement|report temporaire des remboursements de capital]] afin de gérer une constitution de stocks saisonnière prévue. La modification est approuvée et terminée. Le présent avis explique comment votre calendrier de remboursement change en conséquence, à compter du {effectiveDate}.",
             "Il présente ce qui change, ce qui reste pareil et ce que vous devez faire, s’il y a lieu. Il ne s’agit pas d’une nouvelle offre, et vous n’avez rien à signer."
           ]
         },
         "accept": {
           "q": "Dois-je accepter quelque chose?",
           "a": [
-            "Non. Dans ce scénario, la modification est déjà approuvée et terminée, et aucune acceptation n’est requise au moyen de cet avis.",
+            "Non. La modification est déjà approuvée et terminée, et aucune acceptation n’est requise au moyen de cet avis.",
             "Nous vous suggérons de consulter le calendrier révisé et de mettre à jour vos prévisions de [[cashFlow|trésorerie]], surtout en vue du retour à un versement de {first} le {resume}.",
-            "La mention « Marquer comme consulté » de l’aperçu est une note locale facultative dans cette démo. Il ne s’agit pas d’une acceptation, d’un consentement ni d’une preuve de compréhension."
+            "La mention « Marquer comme consulté » de l’aperçu est une note facultative pour votre propre usage. Il ne s’agit pas d’une acceptation, d’un consentement ni d’une preuve de compréhension."
           ]
         },
         "debt-reduced": {
@@ -763,14 +750,14 @@
         "rate": {
           "q": "Le taux change-t-il?",
           "a": [
-            "Non. Le [[fixedRate|taux fixe]] de la démonstration reste de {rate} par année. Seul le moment des remboursements de capital change.",
+            "Non. Votre [[fixedRate|taux fixe]] reste de {rate} par année. Seul le moment des remboursements de capital change.",
             "Le total des intérêts augmente uniquement parce que le capital est remboursé plus tard, ce qui maintient le solde plus élevé plus longtemps. Le taux, lui, ne change pas."
           ]
         },
         "capitalised": {
           "q": "Des intérêts impayés sont-ils ajoutés à mon solde?",
           "a": [
-            "Non. Les intérêts sont payés chaque mois pendant le report; rien n’est donc ajouté à ce que vous devez. Il n’y a pas d’[[capitalisedInterest|intérêts capitalisés]] dans ce scénario.",
+            "Non. Les intérêts sont payés chaque mois pendant le report; rien n’est donc ajouté à ce que vous devez. Cette modification n’entraîne aucun [[capitalisedInterest|intérêt capitalisé]].",
             "Votre [[outstanding|capital restant à rembourser]] demeure à {principal} de {from} à {to}, puis diminue de {monthly} à chaque versement à compter du {resume}."
           ]
         },
@@ -779,7 +766,7 @@
           "a": [
             "Votre prochain versement est de {next}, à payer le {nextDate}. Il ne comprend que des intérêts, car aucun remboursement de [[principal|capital]] n’est exigé de {from} à {to}.",
             "Selon le calendrier initial, ce versement aurait été de {nextOriginal}. Le même versement de {interest}, composé uniquement d’intérêts, s’applique à la fin de chaque mois, de {fromY} à {toY}.",
-            "Aucun paiement n’est traité dans cette démonstration."
+            "Il n’est pas possible d’effectuer un paiement à partir de cet avis."
           ]
         },
         "still-interest": {
@@ -814,7 +801,7 @@
         "fee": {
           "q": "Y a-t-il des frais?",
           "a": [
-            "Aucuns frais de modification ne s’appliquent dans ce scénario : les frais sont de {fee}.",
+            "Aucuns frais ne s’appliquent à cette modification : les frais de modification sont de {fee}.",
             "Le coût du report correspond aux intérêts additionnels : {extra} sur la durée restante, déjà inclus dans le calendrier révisé."
           ]
         },
@@ -822,19 +809,15 @@
           "q": "Comment poser une question?",
           "a": [
             "Utilisez « {askLabel} » sur cette page, ou « {askAbout} » à côté d’une carte, d’un versement ou d’un paragraphe de l’avis. Le formulaire conserve l’élément choisi pour que vous n’ayez pas à réexpliquer le contexte.",
-            "Dans cette démonstration, le formulaire crée uniquement une demande de démonstration locale. Rien n’est envoyé à BDC.",
-            "Pour une explication rapide, vous pouvez aussi vous adresser à Clair, l’assistant de démonstration. Clair répond uniquement à partir de cet avis type, selon des règles locales, sans connexion à une IA en direct."
+            "Lorsque vous créez votre question, vous obtenez une référence. Conservez-la pour vos dossiers. Pour discuter de votre question, communiquez avec votre directrice ou directeur de comptes chez BDC.",
+            "Pour une explication rapide, vous pouvez aussi vous adresser à Clair, votre guide du financement. Clair répond uniquement à partir de cet avis et ne peut ni modifier vos conditions ni approuver une demande."
           ]
         },
         "accountant": {
           "q": "Puis-je faire examiner l’avis par mon ou ma comptable?",
           "a": [
-            "Oui, vous pouvez transmettre ce que vous voyez ici. Par exemple, imprimez l’avis ou exportez le calendrier révisé en fichier CSV pour que votre comptable le compare à vos dossiers.",
-            "Cette démonstration ne peut donner à personne l’accès à un compte. Il n’y a ni connexion, ni gestion des utilisateurs, ni lien avec les systèmes de BDC.",
-            "L’Espace client de BDC, tel qu’il est présenté publiquement, prévoit un accès partagé contrôlé pour les personnes que vous autorisez. Dans une version de production, le parcours prévu serait le suivant :",
-            "- Vous autoriseriez votre comptable au moyen du processus sécurisé de BDC pour l’accès partagé.",
-            "- Votre comptable se connecterait avec ses propres identifiants, jamais les vôtres.",
-            "- Cette personne verrait l’avis et les calendriers que vous choisiriez de partager, et pourrait préparer des questions à leur sujet.",
+            "Oui. Vous pouvez transmettre cet avis, ses téléchargements ou une copie imprimée à votre comptable. Par exemple, téléchargez le calendrier révisé en fichier CSV pour que votre comptable le compare à vos dossiers.",
+            "L’Espace client de BDC vous permet aussi de donner à des utilisateurs autorisés un accès contrôlé aux renseignements de votre compte.",
             "Ne communiquez jamais vos propres identifiants de connexion, même à votre comptable."
           ]
         },
@@ -843,7 +826,7 @@
           "a": [
             "Oui. Dans « {noticeTab} », utilisez « {printLabel} » pour obtenir une mise en page imprimable comprenant l’avis, les renseignements du dossier et le calendrier révisé.",
             "Dans « {paymentsTab} », vous pouvez télécharger les mois affichés ou le calendrier révisé complet en fichier CSV.",
-            "Un PDF produit par le navigateur est une copie pratique de cette démonstration, et non un document certifié."
+            "Un PDF enregistré à partir de votre navigateur est une copie pratique de cet avis, et non un document certifié."
           ]
         }
       }
@@ -856,11 +839,11 @@
       "overline": "Vous avez encore une question?",
       "title": "Poser une question",
       "body": "Préparez une question sur cet avis. Le formulaire joint les renseignements de l’avis et, s’il y a lieu, l’élément visé, pour que vous n’ayez pas à vous répéter.",
-      "local": "Démo seulement : le formulaire crée une demande locale dans ce navigateur. Rien n’est envoyé à BDC.",
+      "note": "Lorsque votre question est créée, vous obtenez une référence à conserver pour vos dossiers.",
       "button": "Poser une question",
       "clair": "Demander à Clair",
-      "clairNote": "Clair est l’assistant de démonstration. Ses réponses proviennent uniquement de cet avis type, sans connexion à une IA en direct.",
-      "unavailable": "Le formulaire de question n’est pas inclus dans cette version de la démonstration."
+      "clairNote": "Clair est votre guide du financement. Ses réponses proviennent de cet avis, et Clair ne peut ni modifier vos conditions ni approuver une demande.",
+      "unavailable": "Le formulaire de question n’est pas disponible."
     },
     "survey": {
       "overline": "Sondage éclair",
@@ -874,16 +857,16 @@
       },
       "thanks": "Merci de votre rétroaction.",
       "yourAnswer": "Votre réponse : {answer}.",
-      "recorded": "Merci. Réponse enregistrée dans cette démo : {answer}.",
+      "recorded": "Merci. Réponse enregistrée : {answer}.",
       "updated": "Réponse modifiée : {answer}.",
       "commentLabel": "Qu’est-ce qui n’était pas clair? (facultatif)",
       "commentLang": "Rédigé en {language}",
-      "commentHint": "Conservé uniquement dans la mémoire de cet onglet jusqu’à ce que vous réinitialisiez la démo ou fermiez l’onglet. Ce texte n’est jamais envoyé ni ajouté au journal de la démo.",
+      "commentHint": "Conservé uniquement dans cet onglet jusqu’à ce que vous effaciez votre activité ou fermiez l’onglet.",
       "offerTitle": "Souhaitez-vous de l’aide pour y voir plus clair?",
       "offerClair": "Demander à Clair",
       "offerQuestion": "Poser une question",
       "offerFaq": "Parcourir les questions",
-      "note": "Réponse de démonstration locale seulement. Il ne s’agit pas d’un indice de recommandation net (Net Promoter Score) ni d’une preuve de votre compréhension ou de votre consentement.",
+      "note": "Votre rétroaction nous aide à rendre nos avis plus clairs. Elle ne constitue ni une acceptation ni un consentement.",
       "hide": "Masquer le sondage",
       "hiddenText": "Le sondage est masqué pour cette session.",
       "show": "Afficher le sondage",
@@ -893,13 +876,12 @@
   },
   "insights": {
     "overline": "Mode présentateur",
-    "title": "Statistiques de la démo",
-    "intro": "Événements d’interaction enregistrés localement dans cet onglet, pour aider la personne qui présente à expliquer le concept. Rien sur cette page n’est transmis.",
+    "title": "Statistiques de la séance",
+    "intro": "Événements d’interaction enregistrés dans cet onglet pendant la séance, pour aider la personne qui présente à parcourir l’avis. Rien sur cette page n’est transmis.",
     "actions": {
       "label": "Actions de présentation",
       "export": "Exporter les événements (JSON)",
-      "exported": "Exportation lancée : {file}",
-      "reset": "Réinitialiser la démo"
+      "exported": "Exportation lancée : {file}"
     },
     "framing": {
       "heading": "Comment lire cette vue",
@@ -908,7 +890,7 @@
         "Cette page ne demande aucune connexion et ne confère aucun rôle administratif ou sécurisé.",
         "Regarder la vidéo jusqu’au bout ne démontre pas qu’elle a été comprise.",
         "La mention « Marquer comme consulté » n’est ni un consentement, ni une acceptation, ni une signature.",
-        "Seules deux étapes de demande existent ici : sélectionner un bouton de demande et créer une demande de démonstration localement. L’acceptation par un serveur et un service rendu n’existent pas dans cette démo.",
+        "Seules deux étapes de demande existent ici : sélectionner un bouton de demande et créer une demande (référence REQ-) dans cet onglet. Rien n’est transmis à BDC; l’acceptation par un serveur et un service rendu ne sont donc jamais enregistrés.",
         "Les événements contiennent uniquement des identifiants, la langue et l’heure, jamais le texte des questions, des noms ou des montants."
       ]
     },
@@ -963,8 +945,8 @@
         "event": "Question rédigée"
       },
       "demo_query_created": {
-        "count": "Demandes de démonstration créées",
-        "event": "Demande de démonstration créée localement"
+        "count": "Demandes créées",
+        "event": "Demande créée"
       },
       "survey_submitted": {
         "count": "Réponses au sondage",
@@ -1002,7 +984,7 @@
     "milestones": {
       "heading": "Jalons",
       "reviewed": "Marqué comme consulté",
-      "reviewedNote": "Une note locale seulement. Ni consentement ni acceptation.",
+      "reviewedNote": "Une note dans cet onglet seulement. Ni consentement ni acceptation.",
       "survey": "Sondage sur la clarté",
       "surveyNone": "Aucune réponse",
       "surveyNote": "Conservé séparément de « Marquer comme consulté ». Ce n’est pas un indice de satisfaction ou de fidélité.",
@@ -1011,16 +993,16 @@
         "neutral": "Assez clair",
         "happy": "Très clair"
       },
-      "requests": "Demandes de démonstration créées",
-      "requestsNote": "Créées localement dans cet onglet. Rien n’a été envoyé à BDC ni accepté par BDC.",
+      "requests": "Demandes créées",
+      "requestsNote": "Créées dans cet onglet seulement. Rien n’a été transmis à BDC ni accepté par BDC.",
       "draft": "Brouillon de question en cours",
       "yes": "Oui",
       "no": "Non"
     },
     "presenter": {
       "heading": "Commandes de présentation",
-      "hardship": "Simuler un indicateur de difficultés financières ou d’arriérés (règle de démonstration)",
-      "hardshipDesc": "Lorsque l’option est activée, la section « Du soutien pour vous » masque les suggestions d’emprunt additionnel et met l’aide en priorité. Il s’agit d’une règle de démonstration responsable, et non d’une politique attribuée à BDC. Elle ne modifie pas le dossier de l’avis.",
+      "hardship": "Simuler un indicateur de difficultés financières ou d’arriérés (paramètre d’essai)",
+      "hardshipDesc": "Lorsque l’option est activée, la section « Du soutien pour vous » masque les suggestions d’emprunt additionnel et met l’aide en priorité. Il s’agit d’une règle de conception responsable pour les essais, et non d’une politique attribuée à BDC. Elle ne modifie pas le dossier de l’avis.",
       "stateOn": "Activée : les suggestions d’emprunt additionnel sont masquées dans la section « Du soutien pour vous ».",
       "stateOff": "Désactivée : la section « Du soutien pour vous » affiche ses suggestions habituelles.",
       "openSupport": "Ouvrir la section « Du soutien pour vous »"
@@ -1046,7 +1028,7 @@
         "one": "{n} tâche réussie sur {total}",
         "other": "{n} tâches réussies sur {total}"
       },
-      "pilot": "Un projet pilote pourrait comparer la réussite des tâches et les motifs de communication avec les données de référence de BDC. Cette démo n’estime aucun résultat d’affaires.",
+      "pilot": "Un projet pilote pourrait comparer la réussite des tâches et les motifs de communication avec les données de référence de BDC. Cette vue n’estime aucun résultat d’affaires.",
       "items": {
         "nextPayment": {
           "task": "Trouver le prochain versement",
@@ -1076,7 +1058,6 @@
     "playerLabel": "Lecteur vidéo de l’explication personnalisée",
     "roleVideo": "vidéo",
     "forClient": "Pour {name} · {company}",
-    "demoTag": "Démo conceptuelle · Dossier fictif",
     "narratedIn": "Narration en français",
     "captionsIncluded": "Sous-titres et transcription",
     "stageLabel": "{title}. Chapitre {n} sur {total} : {chapter}.",
@@ -1110,8 +1091,6 @@
     "transcriptMeta": "Narration en français · {duration}",
     "transcriptIntro": "La narration complète, regroupée par chapitre. Sélectionnez le titre d’un chapitre pour lancer la lecture à partir de ce point.",
     "playFromChapter": "Lancer la lecture à partir du chapitre {n} : {title}",
-    "note": "Narration générée avant la distribution au moyen de la synthèse vocale d’ElevenLabs et intégrée à ce fichier. La lecture fonctionne hors ligne et ne communique jamais avec ElevenLabs.",
-    "voice": "Voix : {name} (ElevenLabs) · Modèle : {model} · Prononciation à faire valider.",
     "end": {
       "title": "Votre prochaine étape",
       "text": "Aucune acceptation n’est requise dans cet avis.",
@@ -1173,11 +1152,7 @@
   "notice": {
     "overline": "Référence officielle",
     "title": "Votre avis",
-    "intro": "Voici le texte officiel de l’avis fictif sur lequel reposent les explications en langage clair de cette démonstration. Il consigne la modification, son incidence sur vos versements et le calendrier de remboursement révisé.",
-    "status": {
-      "label": "État du dossier",
-      "fictional": "Démonstration fictive — ni une offre de BDC ni une entente réelle"
-    },
+    "intro": "Voici le texte officiel de votre avis. Il consigne la modification, son incidence sur vos versements et le calendrier de remboursement révisé. Les autres sections présentent les mêmes renseignements en langage clair.",
     "meta": {
       "title": "Renseignements sur le dossier",
       "noticeId": "Numéro de l’avis",
@@ -1188,17 +1163,17 @@
       "client": "Personne cliente",
       "company": "Entreprise",
       "amendmentStatus": "État de la modification",
-      "amendmentStatusValue": "Approuvée et effectuée (scénario fictif)",
+      "amendmentStatusValue": "Approuvée et effectuée",
       "acceptance": "Acceptation requise de votre part",
       "yes": "Oui",
       "no": "Non",
       "fee": "Frais de modification",
       "processing": "Traitement des paiements",
-      "processingValue": "Aucun dans cette démonstration"
+      "processingValue": "Non offert dans le cadre du présent avis"
     },
     "actions": {
       "title": "Télécharger et imprimer",
-      "intro": "Les fichiers sont générés dans ce navigateur à partir du dossier de démonstration. Rien n’est transmis.",
+      "intro": "Imprimez une copie soignée du présent avis ou téléchargez les calendriers en fichiers CSV pour un tableur.",
       "print": "Imprimer / Enregistrer en PDF",
       "printSub": "Mise en page soignée de l’avis, avec le calendrier complet",
       "revisedCsv": "Télécharger le calendrier révisé (CSV)",
@@ -1207,7 +1182,7 @@
       "recordJson": "Télécharger le dossier de l’avis (JSON)",
       "recordJsonSub": "Données du dossier et les deux calendriers",
       "pdfNote": "Le PDF généré par le navigateur est une copie pour consultation, et non un document d’archivage certifié.",
-      "downloaded": "Le fichier {file} a été généré dans ce navigateur.",
+      "downloaded": "Téléchargement lancé : {file}",
       "printOpening": "La mise en page d’impression est prête. La fenêtre d’impression de votre navigateur s’ouvre."
     },
     "toc": {
@@ -1216,14 +1191,13 @@
     "letter": {
       "aria": "Texte officiel de l’avis",
       "lhTitle": "Avis important concernant votre financement",
-      "lhSub": "Avis fictif préparé pour une démonstration conceptuelle",
       "date": "Date",
       "notice": "Avis",
       "loan": "Prêt",
       "to": "Destinataire",
       "re": "Objet : Prêt {loan} — Avis de modification : report des remboursements de capital",
       "closingTitle": "À propos de ce document",
-      "closing": "Cet avis fictif a été préparé pour une démonstration conceptuelle. Il n’a pas été émis par BDC et ne crée, ne modifie ni ne confirme aucune modalité de financement réelle."
+      "closing": "Le présent avis constitue la référence officielle de la modification apportée au prêt {loan}. Veuillez en conserver une copie avec les dossiers de votre entreprise."
     },
     "links": {
       "plain": "Lire l’explication en langage clair",
@@ -1235,12 +1209,12 @@
     },
     "text": {
       "purpose": {
-        "p1": "Le présent avis confirme une modification des modalités de remboursement du prêt {loan} consenti à {company} et décrit son incidence sur vos versements, vos intérêts et la date de votre dernier versement. Il constitue la référence officielle des explications en langage clair de cette démonstration.",
-        "p2": "Il s’agit d’un avis fictif préparé pour une démonstration conceptuelle. La personne cliente, le prêt et tous les montants sont fictifs. Ce document n’est ni un avis, ni une offre, ni une entente réels de BDC."
+        "p1": "Le présent avis confirme une modification des modalités de remboursement du prêt {loan} consenti à {company} et décrit son incidence sur vos versements, vos intérêts et la date de votre dernier versement.",
+        "p2": "Il constitue la référence officielle des explications en langage clair et des graphiques qui l’accompagnent. Ces explications vous aident à comprendre le présent avis; elles n’en modifient pas les modalités."
       },
       "amendment": {
-        "p1Seasonal": "À la demande de l’entreprise cliente, {company}, et afin de soutenir la constitution prévue de stocks saisonniers, un [[postponement|report]] temporaire des remboursements de capital a été approuvé et effectué pour le prêt {loan} dans ce scénario fictif. La modification entre en vigueur le {effective}.",
-        "p1": "À la demande de l’entreprise cliente, {company}, un [[postponement|report]] temporaire des remboursements de capital a été approuvé et effectué pour le prêt {loan} dans ce scénario fictif. La modification entre en vigueur le {effective}.",
+        "p1Seasonal": "À la demande de l’entreprise cliente, {company}, et afin de soutenir la constitution prévue de stocks saisonniers, un [[postponement|report]] temporaire des remboursements de capital a été approuvé et effectué pour le prêt {loan}. La modification entre en vigueur le {effective}.",
+        "p1": "À la demande de l’entreprise cliente, {company}, un [[postponement|report]] temporaire des remboursements de capital a été approuvé et effectué pour le prêt {loan}. La modification entre en vigueur le {effective}.",
         "p2": "La modification porte sur le moment où le capital est remboursé. Elle ne change pas le taux d’intérêt et ne réduit pas le capital dû.",
         "summaryLabel": "Résumé de la modification",
         "type": "Type de modification",
@@ -1273,7 +1247,7 @@
         "totalPayments": "Le total des versements restants passe de {origTotal} à {revTotal}.",
         "nearTerm": "Les versements exigibles de {from} à {to} totalisent {revNear} au lieu de {origNear}, soit {relief} de moins. Ce montant correspond aux {deferred} de capital reporté, moins {extra3} d’intérêts additionnels payables pendant ces mois.",
         "partOf": "Les {extra3} d’intérêts additionnels payables pendant ces mois font partie de la hausse de {extra} du total des intérêts. Ils ne s’y ajoutent pas.",
-        "sameAmount": "Dans cet exemple, les versements exigibles de {from} à {to} ({revNear}) et la hausse du total des intérêts ({extra}) correspondent par hasard au même montant. Ils mesurent des choses différentes.",
+        "sameAmount": "Les versements exigibles de {from} à {to} ({revNear}) et la hausse du total des intérêts ({extra}) correspondent par hasard au même montant. Ils mesurent des choses différentes.",
         "p2": "Le capital reporté de {deferred} reste dû. Cette modification n’annule ni ne réduit aucun montant dû."
       },
       "unchanged": {
@@ -1292,11 +1266,11 @@
         "p1": "Le calendrier révisé ci-dessous présente les {count} versements mensuels restants, du {firstDate} au {lastDate}. Il remplace le calendrier initial à compter de la date d’entrée en vigueur, le {effective}."
       },
       "assumptions": {
-        "p1": "Les calendriers du présent avis sont une illustration fondée sur les hypothèses de simulation suivantes. Il ne s’agit pas de pratiques réelles de gestion des prêts de BDC."
+        "p1": "Les montants et les dates des calendriers du présent avis sont établis comme suit :"
       },
       "contact": {
-        "p1": "Pour toute question sur le présent avis, consultez la section Aide et questions de cette démonstration : vous y trouverez des réponses aux questions fréquentes, le glossaire et un formulaire pour préparer une question sur une clause précise. Vous pouvez aussi demander à Clair, l’assistant de démonstration, d’expliquer n’importe quelle clause.",
-        "p2": "Dans cette démonstration conceptuelle, rien n’est transmis à BDC et aucune coordonnée de BDC n’est fournie. Dans un avis réel, cette section indiquerait comment joindre votre directrice ou directeur de comptes chez BDC."
+        "p1": "Pour toute question sur le présent avis ou sur votre prêt, communiquez avec votre directrice ou directeur de comptes chez BDC.",
+        "p2": "Vous pouvez aussi consulter la section Aide et questions pour lire les réponses aux questions fréquentes, chercher un terme dans le glossaire ou préparer une question sur une clause précise. Clair, votre guide du financement, peut vous expliquer n’importe quelle clause en langage clair."
       }
     },
     "schedule": {
@@ -1337,12 +1311,12 @@
     "assumptions": {
       "items": [
         "Les intérêts mensuels sont calculés au taux annuel fixe de {rate} divisé par 12, appliqué au capital au début du mois; ils sont arrondis au cent le plus proche (la demie étant arrondie au cent supérieur).",
-        "Les versements tombent le dernier jour civil de chaque mois, sans rajustement en fonction des jours ouvrables.",
+        "Les versements sont exigibles le dernier jour civil de chaque mois, sans rajustement en fonction des jours ouvrables.",
         "Aucun intérêt n’est capitalisé (ajouté au capital).",
-        "On suppose qu’il n’y a ni nouvelle avance de fonds ni remboursement supplémentaire ou anticipé.",
-        "Le calendrier illustré commence le {start}; l’historique du prêt et les intérêts antérieurs à cette date ne sont pas reconstitués."
+        "Les calendriers ne comprennent aucune nouvelle avance de fonds ni aucun remboursement supplémentaire ou anticipé.",
+        "Les calendriers sont présentés à compter du {start}; les versements et les intérêts antérieurs à cette date n’y figurent pas."
       ],
-      "fallbackNote": "Affiché tel qu’il figure dans le dossier de démonstration (en anglais)."
+      "fallbackNote": "Affiché tel qu’il figure dans le dossier de l’avis (en anglais)."
     },
     "csv": {
       "noticeId": "Avis",
@@ -1358,8 +1332,7 @@
       "currency": "Devise",
       "payments": "Nombre de versements",
       "source": "Source",
-      "sourceValue": "Généré localement dans ce navigateur à partir du dossier de démonstration",
-      "note": "Calendrier de financement illustratif, et non une offre de BDC.",
+      "sourceValue": "Avis de BDC {notice}, version du dossier {version}",
       "headers": [
         "Date du versement",
         "Numéro du versement",
@@ -1372,7 +1345,7 @@
       "totals": "Totaux"
     },
     "json": {
-      "note": "Dossier de démonstration fictif généré localement dans ce navigateur. Il ne s’agit pas d’un dossier, d’une offre ni d’une entente de BDC."
+      "note": "Avis {notice}, version du dossier {version} : données du dossier, avec les calendriers de remboursement initial et révisé. Les montants sont exprimés en cents; les dates sont au format ISO."
     },
     "print": {
       "title": "Avis important concernant votre financement",
@@ -1388,14 +1361,11 @@
     "greeting": "Bonjour {name}. Faisons le point sur la modification de votre financement.",
     "overline": "Avis de modification · en vigueur le {date}",
     "title": "Vos remboursements de capital sont reportés de trois mois.",
-    "intro": "Dans cet exemple fictif, le [[postponement|report temporaire]] des remboursements de capital demandé pour {company} a été approuvé, et la modification est finalisée. Voici ce que cela change pour vos versements, et ce qui demeure inchangé.",
+    "intro": "Le [[postponement|report temporaire]] des remboursements de capital demandé pour {company} a été approuvé, et la modification est finalisée. Voici ce que cela change pour vos versements, et ce qui demeure inchangé.",
     "cta": {
       "changes": "Voir ce qui change",
       "watch": "Voir votre explication personnalisée",
       "ask": "Poser une question"
-    },
-    "illustration": {
-      "caption": "Illustration d’un atelier de fabrication. Il ne s’agit pas d’une photo de la personne destinataire ni du personnel de BDC."
     },
     "summary": {
       "title": "Votre modification en un coup d’œil",
@@ -1444,9 +1414,9 @@
       "step2Text": "Prévoyez des versements d’intérêts seulement de {interest} par mois de {from} à {to}, puis un versement de {resumed} le {resumeDate}, à la reprise des remboursements de capital.",
       "noAcceptance": "Aucune acceptation de votre part n’est requise dans le cadre de cet avis. La modification est déjà approuvée et finalisée.",
       "markReviewed": "Marquer comme consulté",
-      "markHint": "Facultatif. Conserve une note dans cet onglet seulement.",
-      "reviewedTitle": "Marqué comme consulté dans cette démo.",
-      "reviewedNote": "Il s’agit uniquement d’une note locale, et non d’une acceptation, d’un consentement ni d’une preuve de compréhension."
+      "markHint": "Facultatif. Un aide-mémoire personnel pour cette visite seulement.",
+      "reviewedTitle": "Marqué comme consulté.",
+      "reviewedNote": "Il s’agit uniquement d’un aide-mémoire personnel, et non d’une acceptation de cet avis, d’un consentement ni d’une preuve de compréhension."
     },
     "same": {
       "title": "Ce qui ne change pas",
@@ -1462,9 +1432,9 @@
     "media": {
       "title": "Votre explication personnalisée",
       "meta": "Environ une minute · Sous-titres et transcription inclus · Aucune lecture automatique",
-      "text": "Une courte présentation animée de cet avis, narrée pour vous en français ou en anglais.",
+      "text": "Un court parcours animé de cet avis, narré pour vous en français ou en anglais.",
       "unavailableTitle": "Lecteur d’explication non disponible",
-      "unavailableText": "Le lecteur d’explication n’est pas inclus dans cette version. La même information se trouve sur cette page et dans la section « {section} »."
+      "unavailableText": "Le lecteur d’explication n’est pas disponible pour le moment. La même information se trouve sur cette page et dans la section « {section} »."
     }
   },
   "payments": {
@@ -1625,7 +1595,7 @@
       "noticeId": "Avis",
       "recordVersion": "Version du dossier",
       "status": "État",
-      "statusValue": "Démonstration fictive — ni une offre de BDC ni une entente réelle",
+      "statusValue": "Approuvée et effectuée",
       "loanId": "Prêt",
       "company": "Entreprise",
       "schedule": "Calendrier",
@@ -1638,8 +1608,7 @@
       "months": "Nombre de mois",
       "payments": "Nombre de versements",
       "source": "Source",
-      "sourceValue": "Généré localement dans ce navigateur à partir du dossier de démonstration",
-      "note": "Calendrier de financement illustratif, et non une offre de BDC.",
+      "sourceValue": "Avis de BDC {notice}, version du dossier {version}",
       "date": "Date du versement",
       "number": "Numéro du versement",
       "opening": "Capital au début",
@@ -1655,7 +1624,7 @@
     },
     "downloads": {
       "title": "Télécharger le calendrier",
-      "intro": "Les fichiers CSV sont créés dans ce navigateur à partir du dossier de démonstration. Les montants sont des nombres simples en dollars canadiens, prêts pour un tableur.",
+      "intro": "Téléchargez les mois affichés ou un calendrier complet. Dans les fichiers CSV, les montants sont des nombres simples en dollars canadiens, prêts pour un tableur.",
       "selection": "Télécharger la sélection affichée (CSV)",
       "selectionHint": "Mois affichés : {range}",
       "revised": "Télécharger le calendrier révisé complet (CSV)",
@@ -1665,15 +1634,15 @@
   },
   "query": {
     "title": "Poser une question",
-    "subtitle": "Démo locale seulement. Rien n’est envoyé à BDC.",
+    "subtitle": "Votre question comprendra les renseignements de cet avis.",
     "stepCount": "Étape {n} sur {total}",
     "stepSep": " : ",
     "steps": {
       "draft": "Rédigez votre question",
       "review": "Vérifiez votre demande",
-      "confirm": "Demande de démonstration créée"
+      "confirm": "Demande créée"
     },
-    "intro": "Préparez une question au sujet de cet avis. Vous pourrez la vérifier avant qu’une demande de démonstration soit créée dans cet onglet.",
+    "intro": "Préparez une question au sujet de cet avis. Vous pourrez la vérifier avant de créer votre demande.",
     "context": {
       "heading": "Renseignements joints à votre question",
       "hint": "Le numéro de l’avis est toujours inclus. Vous pouvez retirer l’élément sélectionné.",
@@ -1720,7 +1689,7 @@
     },
     "contact": {
       "legend": "Mode de communication préféré (facultatif)",
-      "hint": "Aucune coordonnée n’est recueillie dans cette démo.",
+      "hint": "Votre préférence est enregistrée avec votre question.",
       "options": {
         "none": "Aucune préférence",
         "phone": "Appel téléphonique",
@@ -1730,9 +1699,9 @@
     },
     "privacy": {
       "title": "Protégez vos renseignements",
-      "body": "N’indiquez aucun mot de passe, renseignement bancaire, numéro d’identification gouvernemental ni coordonnée réelle. Cette démo conserve votre question dans cet onglet seulement et n’envoie rien."
+      "body": "N’indiquez aucun mot de passe, renseignement bancaire ni numéro d’identification gouvernemental dans votre question."
     },
-    "draftKept": "Si vous fermez ce panneau, votre brouillon reste dans cet onglet jusqu’à la réinitialisation de la démo.",
+    "draftKept": "Si vous fermez ce panneau, votre brouillon reste dans cet onglet jusqu’à ce que vous effaciez votre activité.",
     "continue": "Vérifier ma demande",
     "errors": {
       "title": "Veuillez corriger ce qui suit",
@@ -1742,7 +1711,7 @@
       "questionTooLong": "Votre question doit compter au plus {max} caractères"
     },
     "review": {
-      "intro": "Vérifiez les renseignements ci-dessous. Rien n’est créé tant que vous n’avez pas sélectionné « Créer la demande de démonstration ».",
+      "intro": "Vérifiez les renseignements ci-dessous. Rien n’est créé tant que vous n’avez pas sélectionné « Créer la demande ».",
       "notice": "Avis",
       "item": "Élément sélectionné",
       "none": "Aucun",
@@ -1752,16 +1721,15 @@
       "contact": "Mode de communication préféré",
       "question": "Votre question",
       "edit": "Modifier",
-      "create": "Créer la demande de démonstration",
-      "note": "La demande de démonstration reste dans cet onglet. Elle n’est pas envoyée à BDC et ne crée aucune demande de service."
+      "create": "Créer la demande",
+      "note": "Une fois la demande créée, vous obtiendrez une référence et un résumé à copier ou à télécharger."
     },
     "confirm": {
-      "heading": "Conservée dans cet onglet seulement",
-      "text": "Demande de démonstration créée localement. Rien n’a été envoyé à BDC.",
-      "refLabel": "Référence de démonstration",
-      "notCase": "Cette référence existe uniquement dans cette démonstration. Il ne s’agit ni d’un numéro de dossier ni d’un accusé de réception de BDC, et personne ne communiquera avec vous. Un service réel confirmerait la réception séparément.",
+      "text": "Votre question a été enregistrée sous la référence {ref}. Conservez cette référence pour vos dossiers.",
+      "refLabel": "Référence",
+      "next": "Pour discuter de votre question, communiquez avec votre directrice ou directeur de comptes chez BDC. Vous pouvez copier ou télécharger le résumé ci-dessous.",
       "summaryHeading": "Résumé en texte brut",
-      "summaryLabel": "Résumé de la demande de démonstration {ref}",
+      "summaryLabel": "Résumé de la demande {ref}",
       "copy": "Copier le résumé",
       "copied": "Résumé copié dans le presse-papiers.",
       "copyFailed": "La copie n’est pas possible dans ce navigateur. Sélectionnez le texte du résumé et copiez-le manuellement.",
@@ -1773,11 +1741,11 @@
       "close": "Fermer"
     },
     "summary": {
-      "title": "Demande de démonstration {ref}",
+      "title": "Demande {ref}",
       "line": "{label} : {value}",
       "created": "Date de création",
       "questionHeading": "Question (conservée dans la langue de rédaction) :",
-      "disclaimer": "Document de démonstration local seulement. Il ne s’agit pas d’un accusé de réception de BDC."
+      "contact": "Pour discuter de votre question, communiquez avec votre directrice ou directeur de comptes chez BDC."
     },
     "languages": {
       "en-CA": "anglais",
@@ -1814,7 +1782,7 @@
     "whyTitle": "Pourquoi cela pourrait être pertinent",
     "learnMore": "En savoir plus sur bdc.ca",
     "externalAria": "{action} : {title} (ouvre un site Web externe de BDC dans un nouvel onglet)",
-    "inquiryAria": "{action} : {title}. Prépare une question de démonstration locale; rien n’est transmis à BDC.",
+    "inquiryAria": "{action} : {title}. Ouvre un formulaire pour préparer une question sur cette ressource.",
     "cards": {
       "financial-management": {
         "title": "Consultation en gestion financière",
@@ -1852,10 +1820,10 @@
         "title": "Parlez-nous de votre situation",
         "summary": "S’il vous est difficile en ce moment d’effectuer vos versements ou de planifier votre trésorerie, commencez par en parler. Vous pouvez préparer une question ou trouver des réponses dans Aide et questions.",
         "whyTitle": "Pourquoi l’aide passe en premier",
-        "why": "Dans cette démonstration, lorsqu’un indicateur de difficulté financière ou d’arriérés est activé, l’aide passe avant toute suggestion de nouvel emprunt.",
-        "note": "Dans cette démonstration, une question que vous préparez reste dans votre navigateur. Rien n’est transmis à BDC.",
+        "why": "Lorsque les versements peuvent être difficiles, l’aide relative à votre financement actuel vient avant toute suggestion de nouvel emprunt.",
+        "note": "Pour parler de votre situation, vous pouvez aussi communiquer avec votre directrice ou directeur de comptes chez BDC.",
         "ask": "Poser une question",
-        "askAria": "Poser une question au sujet de votre situation. Prépare une question de démonstration locale; rien n’est transmis à BDC.",
+        "askAria": "Poser une question au sujet de votre situation. Ouvre un formulaire pour préparer votre question.",
         "helpLink": "Aller à Aide et questions"
       }
     },
@@ -1869,13 +1837,12 @@
       "text": "Vous avez choisi de masquer toutes les suggestions pour cette session. Votre avis et ses renseignements ne sont pas touchés."
     },
     "rule": {
-      "title": "Les suggestions d’emprunt sont masquées",
-      "text": "Un indicateur de difficulté financière ou d’arriérés est activé pour cette démonstration; une règle de démonstration responsable masque donc les suggestions d’emprunt supplémentaire et met l’aide en priorité. Il s’agit d’une règle de cette démonstration, et non d’une politique de BDC."
+      "title": "Le soutien d’abord",
+      "text": "Les suggestions d’emprunt supplémentaire ne sont pas affichées sur cette page. Si vos versements ou votre planification de trésorerie vous préoccupent, commencez par le soutien présenté ci-dessous."
     },
     "footer": {
       "links": "Les liens ouvrent le site Web public de BDC dans un nouvel onglet, seulement si vous les sélectionnez.",
-      "data": "Cette démonstration ne transmet aucune donnée à BDC, et les questions que vous préparez ici restent dans ce navigateur.",
-      "source": "Les descriptions résument l’information publique de BDC pour cette démonstration conceptuelle. Elles ne constituent pas des offres."
+      "source": "Les descriptions résument l’information publique de BDC. Elles ne constituent pas des offres."
     }
   }
 }

@@ -488,7 +488,7 @@ await check('AC-14', 'Clair grounded answers for seeded and paraphrased question
 });
 
 // AC-15 Query integrity -----------------------------------------------------
-await check('AC-15', 'Query review precedes local confirmation; context retained; says nothing sent', async (notes) => {
+await check('AC-15', 'Query review precedes confirmation; context retained; no claim of delivery to BDC', async (notes) => {
   const { page, context } = await newPage(browser, { width: 1280 });
   await gotoApp(page, '#/payments/2026-12', FILE);
   await page.locator('[data-fid="ask-month-2026-12"]').first().click();
@@ -515,7 +515,7 @@ await check('AC-15', 'Query review precedes local confirmation; context retained
 });
 
 // AC-16 Survey ----------------------------------------------------------------------
-await check('AC-16', 'Three labelled faces, touch + keyboard, changeable, dismissible, not NPS', async (notes) => {
+await check('AC-16', 'Three labelled faces, touch + keyboard, changeable, dismissible', async (notes) => {
   const { page, context } = await newPage(browser, { width: 390, height: 844 });
   await gotoApp(page, '#/help/survey', FILE);
   const group = page.locator('#view').getByRole('button', { name: /^(Not clear|Somewhat clear|Very clear)/ });

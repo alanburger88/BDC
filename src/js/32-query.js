@@ -1,12 +1,13 @@
-/* Query: a local, clearly labelled demo request, separate from Clair
- * (PRD section 10, AC-15, AC-23).
- * Flow: Draft → Validate → Review → Create demo request → Confirmation.
+/* Query: "Ask a question", separate from Clair (PRD section 10, AC-15, AC-23).
+ * Flow: Draft → Validate → Review → Create request → Confirmation.
  * - The question text lives only in App.session (memory, this tab). It never
  *   goes to the event log, persistent storage or the network.
  * - The question keeps the language it was written in and is never translated.
  * - Opening the form logs nothing; the first keystroke logs `query_drafted`
- *   (topic id only) and creation logs `demo_query_created` (reference only).
- * - No contact details, attachments or sending of any kind. */
+ *   (topic id only) and creation logs the core `demo_query_created` event type
+ *   (REQ- reference only).
+ * - No contact details, attachments or sending of any kind. The copy never says
+ *   the question was sent to, received by or will be answered by BDC. */
 (() => {
   const NS = 'query';
   const T = (k, p) => t(`${NS}.${k}`, p);
@@ -356,8 +357,8 @@
         })));
   }
 
-  // Neutral info icons for local-only/privacy notes: a padlock would suggest a
-  // secure or encrypted channel, which this static demo is not (PRD section 16).
+  // Neutral info icons for the subtitle and privacy note: a padlock would suggest a
+  // secure or encrypted channel, which this static page is not (PRD section 16).
   function privacyNote() {
     return h('div', { class: 'callout callout--neutral qry-privacy' },
       App.ui.icon('info'),
@@ -565,7 +566,8 @@
       return;
     }
     st.seq = (st.seq || 0) + 1;
-    const ref = `DEMO-Q-${String(st.seq).padStart(4, '0')}`;
+    // Sequential per session (REQ-0001, REQ-0002…); numbering restarts when activity is cleared.
+    const ref = `REQ-${String(st.seq).padStart(4, '0')}`;
     const req = {
       ref,
       createdAt: new Date().toISOString(),
@@ -582,12 +584,12 @@
     st.lastRef = ref;
     st.draft = null;
     st.step = 'confirm';
-    // Identifiers only: the DEMO- reference and the topic id.
+    // Identifiers only: the REQ- reference and the topic id.
     App.events.log('demo_query_created', { id: ref, detail: req.topic });
     App.session.changed('query');
     renderStep();
     focusHeading();
-    App.announce(T('confirm.text'));
+    App.announce(T('confirm.text', { ref }));
   }
 
   /* ------------------------------------------------------------------ */
@@ -607,7 +609,7 @@
     const L = (labelKey, value) => T('summary.line', { label: T(labelKey), value });
     const head = [
       T('summary.title', { ref: req.ref }),
-      T('confirm.text'),
+      T('confirm.text', { ref: req.ref }),
       '',
       L('review.notice', req.noticeId),
       L('review.item', req.item ? itemText(req.item) : T('review.none')),
@@ -619,17 +621,16 @@
       '',
       T('summary.questionHeading'),
     ].join('\n');
-    const tail = ['', '—', T('summary.disclaimer')].join('\n');
+    const tail = ['', '—', T('summary.contact')].join('\n');
     return { head: `${head}\n`, question: req.text, tail: `\n${tail}` };
   }
   const summaryText = (req) => { const p = summaryParts(req); return `${p.head}${p.question}${p.tail}`; };
 
   function requestJSON(req) {
     return JSON.stringify({
-      schema: 'bdc-notice-demo-request/1',
-      demo: true,
-      statement: T('confirm.text'),
+      schema: 'bdc-notice-request/1',
       reference: req.ref,
+      statement: T('confirm.text', { ref: req.ref }),
       createdAt: req.createdAt,
       noticeId: req.noticeId,
       recordVersion: req.recordVersion,
@@ -639,7 +640,7 @@
       questionLanguage: req.questionLanguage,
       preferredContactMethod: req.contact && req.contact !== 'none' ? req.contact : null,
       question: req.text,
-      note: T('summary.disclaimer'),
+      nextStep: T('summary.contact'),
     }, null, 2);
   }
 
@@ -662,15 +663,14 @@
     };
     refs.scroll.append(
       stepHeader('confirm'),
+      // The step heading ("Request created") titles this box; the reference is repeated large below.
       h('div', { class: 'qry-done' },
         h('span', { class: 'qry-done-icon', 'aria-hidden': 'true' }, App.ui.icon('check', { size: 26, stroke: 2.4 })),
-        h('div', { class: 'qry-done-text' },
-          h('h4', { class: 'qry-done-title' }, T('confirm.heading')),
-          h('p', { class: 'qry-confirm-text' }, T('confirm.text')))),
+        h('p', { class: 'qry-confirm-text' }, T('confirm.text', { ref: req.ref }))),
       h('div', { class: 'qry-ref' },
         h('span', { class: 'qry-ref-label' }, T('confirm.refLabel')),
         h('span', { class: 'qry-ref-value', 'data-ref': req.ref }, req.ref)),
-      h('div', { class: 'callout callout--neutral qry-note' }, App.ui.icon('info'), h('p', null, T('confirm.notCase'))),
+      h('div', { class: 'callout callout--neutral qry-note qry-next' }, App.ui.icon('info'), h('p', null, T('confirm.next'))),
       h('div', { class: 'qry-summary-wrap' },
         h('h4', { id: 'qry-summary-title' }, T('confirm.summaryHeading')),
         // Scrollable, so focusable; a named region (aria-label is not allowed on a role-less <pre>).
@@ -746,7 +746,7 @@
     renderStep();
   }
 
-  /** Open the local query form. ctx: { kind, id, section, period, fid, topic }; trigger: element to return focus to. */
+  /** Open the query form. ctx: { kind, id, section, period, fid, topic }; trigger: element to return focus to. */
   function open(ctxIn, trigger) {
     const st = state();
     const ctx = normCtx(ctxIn || GENERAL);

@@ -1,6 +1,6 @@
 {
   "common": {
-    "docTitle": "Important financing notice (concept demonstration)",
+    "docTitle": "Important financing notice",
     "close": "Close",
     "cancel": "Cancel",
     "back": "Back",
@@ -15,7 +15,6 @@
     "definition": "show definition",
     "closeDefinition": "Close definition",
     "opensExternal": "opens an external BDC website in a new tab",
-    "illustrativeNote": "Illustrative financing schedule, not a BDC offer.",
     "amountsInCAD": "Amounts in Canadian dollars.",
     "renderError": "This section could not be displayed. Please choose another section.",
     "timeLong": "{m} min {s} s",
@@ -35,7 +34,6 @@
     "copied": "Copied",
     "copyFailed": "Copy not available in this browser",
     "print": "Print / Save as PDF",
-    "demoLabel": "Demo",
     "languageNames": {
       "en-CA": "English",
       "fr-CA": "French"
@@ -45,8 +43,7 @@
       "changed": "Changed",
       "unchanged": "Unchanged",
       "temporary": "Temporary",
-      "later": "Later date",
-      "demo": "Demo"
+      "later": "Later date"
     },
     "perMonth": "per month",
     "months": {
@@ -56,10 +53,8 @@
     "labelWithItem": "{label}: {item}"
   },
   "shell": {
-    "banner": "Concept demonstration • Fictional client and financing terms • Not connected to BDC.",
     "descriptor": "Important financing notice",
     "descriptorMeta": "Notice {notice}",
-    "demoPill": "Demo",
     "logoPlaceholder": "BDC logo placeholder",
     "skip": "Skip to main content",
     "sectionsLabel": "Notice sections",
@@ -67,21 +62,14 @@
     "current": "(current section)",
     "languageChanged": "Language changed to English.",
     "launcherSub": "Your financing guide",
-    "demoInsights": "Demo insights",
-    "resetDemo": "Reset demo",
-    "resetTitle": "Reset this demonstration?",
-    "resetBody": "This clears the local demo events, any drafted or created demo requests, survey responses, the Clair conversation and “Mark as reviewed”. The notice itself does not change.",
-    "resetConfirm": "Reset demo",
-    "resetDone": "The demonstration was reset.",
-    "footerData": "This single file contains fictional data only. No information you enter leaves this browser, except when you choose to open an external BDC link. The accessibility widget is the one online service this page loads automatically.",
-    "aboutTitle": "About this demonstration",
-    "aboutBody": [
-      "Concept prototype of an interactive financing notice. Camille Roy, Atelier Boréal Inc., the loan and all amounts are fictional. Nothing here is a BDC offer, agreement, policy or system.",
-      "Clair is a proposed demo name. In this file it answers only from this sample notice using local rules; there is no live AI connection.",
-      "The narration was generated before distribution with ElevenLabs text-to-speech and is embedded in this file. Playback never contacts ElevenLabs.",
-      "Demo requests, survey answers and “Mark as reviewed” stay in this browser tab and are cleared when you reset or close it."
-    ],
-    "buildInfo": "Build {version} · {date} · Notice {notice} · Record version {record}"
+    "demoInsights": "Session insights",
+    "resetDemo": "Clear my activity",
+    "resetTitle": "Clear your activity?",
+    "resetBody": "This clears what you did in this browser tab: questions you prepared, your feedback, the Clair conversation and “Mark as reviewed”. Your notice does not change.",
+    "resetConfirm": "Clear activity",
+    "resetDone": "Your activity in this tab was cleared.",
+    "footerMeta": "Notice {notice} · Loan {loan} · Record version {record}",
+    "footerPrivacy": "What you type on this page stays in this browser tab unless you choose to download, print or share it."
   },
   "nav": {
     "overview": "Overview",
@@ -90,7 +78,7 @@
     "documents": "Your notice",
     "support": "Support for you",
     "help": "Help & questions",
-    "insights": "Demo insights"
+    "insights": "Session insights"
   },
   "items": {
     "general": "This notice (general question)",
@@ -139,7 +127,7 @@
     "unchanged": "8. Terms that remain unchanged",
     "action": "9. What you need to do",
     "schedule": "10. Revised repayment schedule",
-    "assumptions": "11. Assumptions used in this illustration",
+    "assumptions": "11. Calculation basis",
     "contact": "12. Questions and support"
   },
   "chapters": {
@@ -190,7 +178,7 @@
     },
     "capitalisedInterest": {
       "term": "Capitalised interest",
-      "definition": "Interest added to the amount owing. This does not occur in this demonstration."
+      "definition": "Interest added to the amount owing. This does not apply to your amendment."
     }
   },
   "changes": {
@@ -271,8 +259,8 @@
         "title": "No fee for this change",
         "before": "No change fee",
         "beforeSub": "before this notice",
-        "sub": "fee for this change, in this fictional scenario",
-        "explain": "No fee applies in this example. The change still has a cost: the additional interest shown on the Interest card."
+        "sub": "fee for this change",
+        "explain": "No fee applies to this change. It still has a cost: the additional interest shown on the Interest card."
       },
       "rate": {
         "kicker": "Interest rate",
@@ -322,7 +310,7 @@
       "equals": "equals",
       "payments": "Total payments, {from} to {to}",
       "note": "The {extra3} is already part of the {extra} of additional interest over the remaining schedule. It is not an extra cost on top of it.",
-      "sameAmount": "In this example, the revised payments from {from} to {to} ({revised}) and the additional interest over the remaining schedule ({extra}) happen to be the same amount. They measure different things.",
+      "sameAmount": "The revised payments from {from} to {to} ({revised}) and the additional interest over the remaining schedule ({extra}) happen to be the same amount. They measure different things.",
       "reliefLink": "See the month-by-month difference"
     },
     "unchanged": {
@@ -384,7 +372,7 @@
         "interest": "During the postponement you pay {interest} of interest each month. Because principal is repaid later, total interest over the remaining schedule rises from {original} to {revised}.",
         "next-payment": "Under the original schedule, this payment would have been {original}. It is lower because it covers interest only.",
         "maturity": "The original schedule ended on {original}. The revised schedule ends {period} later, with {count} payments instead of {originalCount}.",
-        "fees": "The change fee in this fictional scenario is {fee}. The change still affects your total cost through additional interest.",
+        "fees": "The fee for this change is {fee}. The change still affects your total cost through additional interest.",
         "rate": "The same fixed rate applies to both schedules. What changes is the principal it applies to, month by month.",
         "debt": "Postponing principal moves {deferred} of repayments later in the schedule. That amount stays owing until it is repaid."
       },
@@ -402,7 +390,7 @@
         "interest": "[[interest|Interest]] is the cost of borrowing. Each month it is calculated on the [[outstanding|outstanding principal]] at the [[fixedRate|fixed rate]], so it stays higher while principal is not being repaid.",
         "next-payment": "An [[instalment|instalment]] is a scheduled payment. During the [[postponement|postponement]], each instalment covers [[interest|interest]] only; once principal payments resume, it covers [[principal|principal]] and interest.",
         "maturity": "The [[maturity|maturity date]] is when the remaining loan balance is scheduled to be fully repaid. Repaying [[principal|principal]] later moves this date later.",
-        "fees": "This change has no fee in this example, but it does change the total [[interest|interest]] you pay, because the [[outstanding|outstanding principal]] is repaid more slowly.",
+        "fees": "This change has no fee, but it does change the total [[interest|interest]] you pay, because the [[outstanding|outstanding principal]] is repaid more slowly.",
         "rate": "A [[fixedRate|fixed rate]] does not change during the fixed-rate period. Your monthly [[interest|interest]] still depends on the [[outstanding|outstanding principal]] it applies to.",
         "debt": "[[outstanding|Outstanding principal]] is the principal still owing at a given date. A [[postponement|principal postponement]] changes when you repay it, not how much [[principal|principal]] you repay."
       },
@@ -439,7 +427,7 @@
         "fees": {
           "title": "No fee does not mean no cost",
           "body": [
-            "No fee is charged for this change in this fictional scenario.",
+            "No fee is charged for this change.",
             "The postponement still increases total interest over the remaining schedule by {extra}, and total remaining payments go from {originalTotal} to {revisedTotal}."
           ]
         },
@@ -500,7 +488,7 @@
       "rate": {
         "formula": "Monthly interest = principal owing at the start of the month × {rate} ÷ 12",
         "example": "{opening} × {rate} ÷ 12 = {interest}",
-        "rounding": "Rounded half-up to the nearest cent, as set out in the assumptions of this illustration.",
+        "rounding": "Rounded half-up to the nearest cent, as set out in the calculation basis of your notice.",
         "why": "Same rate, higher principal: in {month}, interest is {revised} instead of {original} because no principal was repaid in {prev}."
       },
       "balance": {
@@ -519,7 +507,7 @@
   },
   "clair": {
     "title": "Clair — Your financing guide",
-    "status": "Demo assistant • Answers from this sample notice • No live AI connection.",
+    "status": "Answers are based on this notice.",
     "contextLabel": "Asking about",
     "contextRemove": "Remove context: {item}",
     "contextRemoved": "Context removed. Clair will answer about the whole notice.",
@@ -527,7 +515,7 @@
     "suggestedTitle": "Suggested questions",
     "inputLabel": "Your question for Clair",
     "placeholder": "Ask a question…",
-    "hint": "Answers come from this sample notice only. Don’t enter personal or account details.",
+    "hint": "Clair answers questions about this notice only. Don’t enter personal or account details.",
     "send": "Send",
     "emptyError": "Type a question first.",
     "counter": "{n} of {max} characters",
@@ -554,7 +542,7 @@
     "inLanguage": "In {language}",
     "announce": "Clair: {text}",
     "and": "and",
-    "greeting": "Hello! I’m Clair, a demo guide to this sample financing notice. Ask what changed, what you pay and when, or pick a suggested question below.",
+    "greeting": "Hello! I’m Clair, your financing guide for this notice. Ask what changed, what you pay and when, or pick a suggested question below.",
     "suggestions": {
       "whyRelief": "Why isn’t the relief {deferred}?",
       "nextPayment": "When is my next payment?",
@@ -575,14 +563,14 @@
       "printExport": "How do I print or export this?",
       "queryPrep": "How do I ask a person?",
       "support": "What support is available?",
-      "aboutClair": "Is this a live AI?",
+      "aboutClair": "What is Clair?",
       "purpose": "Why did I receive this notice?",
       "accountant": "Can my accountant review it?"
     },
     "answers": {
       "whatChanged": "Your principal payments for {months} are postponed. During those months you pay interest only: {postInterest} a month. Principal payments resume on {resumeDate}, your final payment moves to {revMat}, and the postponed principal remains owing.",
-      "purpose": "This notice explains an approved change to your loan: you asked to postpone principal payments, and in this fictional scenario the change is approved and completed. It shows what changes, what stays the same and what to do next.",
-      "purposeSeasonal": "This notice explains an approved change to your loan. In this fictional scenario, you asked to postpone principal payments to manage a planned seasonal inventory build. It shows what changes, what stays the same and what to do next.",
+      "purpose": "This notice explains an approved change to your loan: you asked to postpone principal payments, and the change has been approved and completed. It shows what changes, what stays the same and what to do next.",
+      "purposeSeasonal": "This notice explains an approved change to your loan. You asked to postpone principal payments to manage a planned seasonal inventory build, and the change has been approved and completed. It shows what changes, what stays the same and what to do next.",
       "effectiveDate": "The change takes effect on {effective}. The first payment under the revised schedule is due on {nextDate}.",
       "nextPayment": "Your next payment is {revNext} on {nextDate}. It covers interest only, because principal is postponed that month.",
       "lastPostponement": "Your last payment in the postponement is {lastPost} on {lastPostDate}, interest only. Principal payments resume on {resumeDate}, when your payment is {firstResumed}.",
@@ -596,27 +584,26 @@
       "totalPayments": "Over the whole schedule, your payments total {revTotalFull} in the revised schedule, compared with {origTotalFull} in the original schedule. The difference is the {extraLife} of additional interest, which already includes the {extra3} of extra interest from {from} to {to}; the principal you repay is the same.",
       "paymentCount": "The revised schedule has {revCount} monthly payments, from {nextDate} to {revMat}. The original schedule had {origCount}, ending on {origMat}. The extra payments repay the postponed principal.",
       "issueDate": "This notice was issued on {issue}. The change takes effect on {effective}, and the first payment under the revised schedule is due on {nextDate}.",
-      "loanAmount": "Both illustrated schedules start from {principalStartFull} of principal on {effective}. This sample notice covers that principal only; it doesn’t show your original loan amount or a live account balance.",
+      "loanAmount": "Both schedules start from {principalStartFull} of principal on {effective}. This notice covers that principal only; it doesn’t show your original loan amount or your current account balance.",
       "yearPayments": "Your payments for {year} are listed month by month in “{payments}”, which groups the schedule by year and shows the original and revised totals for each year.",
       "resume": "Principal payments resume on {resumeDate}. That payment is {firstResumed}: {monthlyPrincipal} of principal plus {firstResumedInterest} of interest.",
       "rate": "Your fixed rate stays at {rate}; it doesn’t change. Total interest rises only because principal is repaid later.",
-      "fees": "There is no fee for this change in this fictional scenario. The cost of the postponement is the additional interest of {extraLife} over the remaining term.",
+      "fees": "There is no fee for this change. The cost of the postponement is the additional interest of {extraLife} over the remaining term.",
       "unchanged": "Your {rate} fixed rate, the {monthlyPrincipal} monthly principal instalment once payments resume, and all other terms of loan {loanId} stay the same. There is no change fee.",
-      "acceptance": "You don’t need to accept, sign or reply to anything through this notice; the change is already approved and completed in this fictional scenario. It’s a good idea to review the revised schedule and update your cash-flow planning.",
+      "acceptance": "You don’t need to accept, sign or reply to anything through this notice; the change is already approved and completed. It’s a good idea to review the revised schedule and update your cash-flow planning.",
       "printExport": "In “{notice}”, choose “{print}” for a printable copy, or download the original or revised schedule as a CSV file. In “{payments}”, you can also download the selection you’re viewing.",
-      "queryPrep": "Choose “{askItem}” beside any item, or “{askGeneral}” in “{help}”. You draft your question, review it, then create a local demo request. Nothing is sent to BDC in this demo.",
+      "queryPrep": "Choose “{askItem}” beside any item, or “{askGeneral}” in “{help}”. You draft your question, review it, then create the request. A reference is shown so you can keep it for your records.",
       "support": "The “{supportSection}” section lists optional BDC resources, such as financial management consulting for cash-flow planning. They’re separate from this notice and don’t imply eligibility or approval.",
       "supportSuppressed": "The “{supportSection}” section focuses on help and learning resources, such as cash-flow planning. They’re separate from this notice and don’t imply eligibility or approval.",
       "debtReduced": "The postponement delays {deferred} of principal; it doesn’t reduce or cancel your debt. You still owe the same principal, and it’s repaid later in the schedule.",
       "capitalisedInterest": "No interest is capitalised. Interest during the postponement is paid each month, so it isn’t added to the amount you owe.",
-      "balanceAfter": "At the end of the postponement ({postEnd}), the revised schedule shows {revPostClose} of principal still owing, compared with {origPostClose} in the original schedule. This demo doesn’t show a live account balance.",
-      "accountant": "You can share a printed copy or the CSV schedule with your accountant. In a live service, an authorised user could be given controlled access; this demo can’t grant access to anyone.",
-      "aboutClair": "I’m Clair, a demo assistant. I answer from this sample notice using local rules: there’s no live AI connection, and what you type stays in this browser. I can’t see any real BDC records.",
-      "aboutDemo": "Demo insights show local interaction counts from this browser tab only. They aren’t measured BDC outcomes, and nothing is sent anywhere.",
-      "greeting": "Hello! Ask me anything about this sample notice, such as what changed or when your next payment is.",
+      "balanceAfter": "At the end of the postponement ({postEnd}), the revised schedule shows {revPostClose} of principal still owing, compared with {origPostClose} in the original schedule. This notice doesn’t show your current account balance.",
+      "accountant": "You can share a printed copy or the CSV schedule with your accountant. BDC’s Client Space also describes controlled shared access for people you authorise; I can’t grant access to anyone.",
+      "aboutClair": "I’m Clair, an automated guide to this notice, not a person. My answers come from the information in this notice, such as your revised schedule and its terms. I can’t see your other accounts or make changes to your loan.",
+      "greeting": "Hello! Ask me anything about this notice, such as what changed or when your next payment is.",
       "thanks": "You’re welcome. Is there anything else in this notice I can explain?",
       "scheduleClause": "This schedule lists all {revCount} revised payments, from {nextDate} to {revMat}. The first payments are interest only; the rest include {monthlyPrincipal} of principal each month.",
-      "assumptions": "The illustration assumes month-end payments, a fixed {rate} rate, no new advances or extra repayments, and no capitalised interest. These are simulation assumptions, not BDC servicing rules.",
+      "assumptions": "The schedules are calculated on this basis: month-end payments, a fixed {rate} rate, no new advances or extra repayments, and no capitalised interest.",
       "chartPayments": "The chart compares monthly payments from {from} to {sixth}. In the revised schedule, the {from} to {to} payments are interest only ({postInterest}); from {resumeMonth}, payments include {monthlyPrincipal} of principal again.",
       "chartBalance": "In the revised schedule, principal stays at {principalStart} until the end of {postEnd}, then falls by {monthlyPrincipal} a month until {revMat}. In the original schedule, it reaches zero on {origMat}.",
       "resourceFinancialManagement": "Financial management consulting can help with cash-flow forecasting and working-capital planning. It’s optional support, separate from this notice, and doesn’t imply eligibility.",
@@ -624,14 +611,14 @@
       "resourceWorkingCapital": "A Working Capital Loan is a separate BDC financing product, listed in “{supportSection}” for information only. It isn’t part of this notice, any financing is subject to assessment and approval, and I can’t assess eligibility.",
       "resourceWorkingCapitalSuppressed": "Additional borrowing isn’t promoted in this situation. If you’re facing difficulties, you can prepare a question for a person to discuss help.",
       "resourceLearning": "BDC’s cash-flow learning resources are educational. They can help you plan around lower payments from {from} to {to}, without any credit commitment.",
-      "limitChange": "I can’t change your payments or loan terms; I can only explain this sample notice. If you’d like to discuss a change, you can prepare a question for a person.",
-      "limitApprove": "I can’t approve another postponement or any other request. You can prepare a question for a person instead; in this demo, nothing is sent to BDC.",
+      "limitChange": "I can’t change your payments or loan terms; I can only explain this notice. If you’d like to discuss a change, you can prepare a question for a person.",
+      "limitApprove": "I can’t approve another postponement or any other request. You can prepare a question for a person instead.",
       "limitEligibility": "I can’t assess eligibility or offer financing. The “{supportSection}” section describes optional BDC resources, and any financing is subject to assessment and approval. You can also prepare a question for a person.",
       "limitEligibilitySuppressed": "I can’t assess eligibility or offer financing. If you’re facing difficulties, you can prepare a question for a person to discuss help that fits your situation.",
-      "limitPay": "I can’t process payments, and this demo has no payment function. Under the revised schedule, your next payment is {revNext} on {nextDate}.",
-      "hardship": "I can’t change your payments or tell you what happens if a payment is missed; this sample notice doesn’t cover that. If you’re having trouble making a payment, it’s best to talk to someone about your situation: you can prepare a question for a person.",
-      "unrelated": "I can only help with this sample notice. Here are some things I can answer:",
-      "fallback": "I can only answer questions about this sample notice — here are things I can help with:"
+      "limitPay": "I can’t process payments. Under the revised schedule, your next payment is {revNext} on {nextDate}.",
+      "hardship": "I can’t change your payments or tell you what happens if a payment is missed; this notice doesn’t cover that. If you’re having trouble making a payment, it’s best to talk to someone about your situation: you can prepare a question for a person.",
+      "unrelated": "I can only help with this notice. Here are some things I can answer:",
+      "fallback": "I can only answer questions about this notice — here are things I can help with:"
     },
     "terms": {
       "principal": "In this notice, {deferred} of principal is moved later in the schedule; it is still owed.",
@@ -664,7 +651,7 @@
       "exports": "Print and CSV use the same approved schedules: {origCount} original payments and {revCount} revised payments.",
       "ids": "Your question can reference notice {noticeId} and loan {loanId}.",
       "capitalised": "Principal at the end of {postEnd}: {revPostCloseFull} in the revised schedule (unchanged since {effective}), {origPostCloseFull} in the original schedule.",
-      "startPrincipal": "Principal at the start of both illustrated schedules ({effective}): {principalStartFull}.",
+      "startPrincipal": "Principal at the start of both schedules ({effective}): {principalStartFull}.",
       "scheduleTotals": "Original schedule: {origCount} payments totalling {origTotalFull}. Revised schedule: {revCount} payments totalling {revTotalFull}.",
       "assumptions": "Both schedules start from {principalStartFull} of principal on {effective}; the original ends on {origMat}, the revised on {revMat}.",
       "firstMonthPayment": "Payment for {firstMonth}: {origNextFull} in the original schedule, {revNextFull} in the revised schedule.",
@@ -678,7 +665,7 @@
       "resumed": "In {month}, both schedules include {rPrincipal} of principal. The revised payment is {rTotal} instead of {oTotal}, because interest is charged on a higher remaining principal: {rOpen} instead of {oOpen}.",
       "extension": "{month} comes after the original final payment on {origMat}. Under the revised schedule, you still pay {rTotal} this month as part of repaying the postponed principal.",
       "final": "{month} is your final payment under the revised schedule: {rTotal} ({rPrincipal} principal plus {rInterest} interest). The original schedule ended on {origMat}.",
-      "outside": "There’s no payment in {month} in either schedule. The illustrated payments run from {nextDate} to {revMat}.",
+      "outside": "There’s no payment in {month} in either schedule. The scheduled payments run from {nextDate} to {revMat}.",
       "fact": "Original: {oPrincipal} principal + {oInterest} interest = {oTotal}. Revised: {rPrincipal} principal + {rInterest} interest = {rTotal}.",
       "factExtension": "Original: no payment (repaid by {origMat}). Revised: {rPrincipal} principal + {rInterest} interest = {rTotal}.",
       "factOutside": "Original: {origCount} payments to {origMat}. Revised: {revCount} payments to {revMat}."
@@ -687,7 +674,7 @@
   "help": {
     "overline": "Questions about your notice",
     "title": "Help & questions",
-    "intro": "Find a quick answer, look up a term, prepare a question or tell us how clear this notice was. Everything here refers to the same fictional notice.",
+    "intro": "Find a quick answer, look up a term, prepare a question or tell us how clear this notice was.",
     "backToNotice": "Back to your notice",
     "onThisPage": "On this page",
     "seeInNotice": "See in this notice",
@@ -711,7 +698,7 @@
       },
       "countDetail": "{faq} in the questions, {terms} in the glossary",
       "noneTitle": "No results for “{q}”",
-      "noneBody": "Try a shorter or different word, such as “interest” or “payment”. You can also ask Clair, the demo assistant, or prepare a question.",
+      "noneBody": "Try a shorter or different word, such as “interest” or “payment”. You can also ask Clair, your financing guide, or prepare a question.",
       "noneBodyNoClair": "Try a shorter or different word, such as “interest” or “payment”. You can also prepare a question about this notice.",
       "foundInAnswer": "Found in the answer",
       "otherLanguage": "Search written in {language}. Results include matches in both languages.",
@@ -740,16 +727,16 @@
         "why-notice": {
           "q": "Why was this notice issued?",
           "a": [
-            "You asked for a temporary [[postponement|principal postponement]] to help manage a planned seasonal inventory build. In this fictional scenario, the change is approved and complete. This notice explains how your repayment schedule changes as a result, starting {effectiveDate}.",
+            "You asked for a temporary [[postponement|principal postponement]] to help manage a planned seasonal inventory build. The change is approved and complete. This notice explains how your repayment schedule changes as a result, starting {effectiveDate}.",
             "It shows what changes, what stays the same and what, if anything, you need to do. It is not a new offer, and you do not need to sign anything."
           ]
         },
         "accept": {
           "q": "Must I accept anything?",
           "a": [
-            "No. In this scenario, the change is already approved and complete, and no acceptance is required through this notice.",
+            "No. The change is already approved and complete, and no acceptance is required through this notice.",
             "We suggest you review the revised schedule and update your [[cashFlow|cash-flow]] planning, especially for the return to a {first} payment on {resume}.",
-            "“Mark as reviewed” on the overview is an optional local note in this demo. It is not acceptance, consent or proof of understanding."
+            "“Mark as reviewed” on the overview is an optional note for your own reference. It is not acceptance, consent or proof of understanding."
           ]
         },
         "debt-reduced": {
@@ -763,14 +750,14 @@
         "rate": {
           "q": "Does the rate change?",
           "a": [
-            "No. The demonstration [[fixedRate|fixed rate]] stays at {rate} a year. Only the timing of principal payments changes.",
+            "No. Your [[fixedRate|fixed rate]] stays at {rate} a year. Only the timing of principal payments changes.",
             "Total interest increases only because principal is repaid later, so the balance stays higher for longer. The rate itself does not change."
           ]
         },
         "capitalised": {
           "q": "Is unpaid interest added to my balance?",
           "a": [
-            "No. Interest is paid every month during the postponement, so nothing is added to what you owe. There is no [[capitalisedInterest|capitalised interest]] in this scenario.",
+            "No. Interest is paid every month during the postponement, so nothing is added to what you owe. There is no [[capitalisedInterest|capitalised interest]] with this change.",
             "Your [[outstanding|outstanding principal]] stays at {principal} from {from} to {to}, then goes down by {monthly} with each payment from {resume}."
           ]
         },
@@ -779,7 +766,7 @@
           "a": [
             "Your next payment is {next}, due on {nextDate}. It is interest only, because no [[principal|principal]] is due from {from} to {to}.",
             "Under the original schedule, that payment would have been {nextOriginal}. The same {interest} interest-only payment applies at the end of each month from {fromY} to {toY}.",
-            "Payments are not processed in this demonstration."
+            "Payments cannot be made from this notice."
           ]
         },
         "still-interest": {
@@ -814,7 +801,7 @@
         "fee": {
           "q": "Is there a fee?",
           "a": [
-            "No change fee applies in this scenario: the fee is {fee}.",
+            "No fee applies to this change: the change fee is {fee}.",
             "The cost of the postponement is the additional interest: {extra} over the remaining schedule, already included in the revised schedule."
           ]
         },
@@ -822,19 +809,15 @@
           "q": "How do I ask a question?",
           "a": [
             "Use “{askLabel}” on this page, or “{askAbout}” beside a card, payment or notice paragraph. The form keeps the item you selected, so you don’t have to explain the context again.",
-            "In this demonstration, the form creates a local demo request only. Nothing is sent to BDC.",
-            "For a quick explanation, you can also ask Clair, the demo assistant. Clair answers from this sample notice only, using local rules, with no live AI connection."
+            "When you create your question, you receive a reference. Keep it for your records. To discuss your question, contact your BDC account manager.",
+            "For a quick explanation, you can also ask Clair, your financing guide. Clair answers from this notice only and cannot change your terms or approve requests."
           ]
         },
         "accountant": {
           "q": "Can my accountant review it?",
           "a": [
-            "Yes, you can share what you see here. For example, print the notice or export the revised schedule as a CSV file so your accountant can check it against your records.",
-            "This demonstration cannot give anyone access to an account. There is no sign-in, no user management and no connection to BDC systems.",
-            "BDC’s published Client Space describes controlled shared access for people you authorise. In a production version, the intended journey would be:",
-            "- You would authorise your accountant through BDC’s own secure process for shared access.",
-            "- Your accountant would sign in with their own credentials, never yours.",
-            "- They would see the notice and schedules you chose to share, and could prepare questions about them.",
+            "Yes. You can share this notice, its downloads or a printed copy with your accountant. For example, download the revised schedule as a CSV file so your accountant can check it against your records.",
+            "BDC’s Client Space also lets you give authorised users controlled access to your account information.",
             "Never share your own sign-in details, even with your accountant."
           ]
         },
@@ -843,7 +826,7 @@
           "a": [
             "Yes. In “{noticeTab}”, use “{printLabel}” for a print layout with the notice, its record details and the revised schedule.",
             "In “{paymentsTab}”, you can download the displayed months or the full revised schedule as a CSV file.",
-            "A browser-generated PDF is a convenience copy of this demonstration, not a certified record."
+            "A PDF saved from your browser is a convenience copy of this notice, not a certified record."
           ]
         }
       }
@@ -856,11 +839,11 @@
       "overline": "Still have a question?",
       "title": "Ask a question",
       "body": "Prepare a question about this notice. The form attaches the notice details, and the item you’re asking about when you start from one, so you don’t have to repeat yourself.",
-      "local": "Demo only: the form creates a local request in this browser. Nothing is sent to BDC.",
+      "note": "When your question is created, you receive a reference to keep for your records.",
       "button": "Ask a question",
       "clair": "Ask Clair",
-      "clairNote": "Clair is the demo assistant. It answers from this sample notice only, with no live AI connection.",
-      "unavailable": "The question form is not included in this build of the demonstration."
+      "clairNote": "Clair is your financing guide. It answers from this notice and cannot change your terms or approve requests.",
+      "unavailable": "The question form is not available."
     },
     "survey": {
       "overline": "Snap survey",
@@ -874,16 +857,16 @@
       },
       "thanks": "Thank you for your feedback.",
       "yourAnswer": "Your answer: {answer}.",
-      "recorded": "Thank you. Answer recorded in this demo: {answer}.",
+      "recorded": "Thank you. Answer recorded: {answer}.",
       "updated": "Answer changed to: {answer}.",
       "commentLabel": "What was unclear? (optional)",
       "commentLang": "Written in {language}",
-      "commentHint": "Kept only in this tab’s memory until you reset the demo or close the tab. It is never sent or added to the demo log.",
+      "commentHint": "Kept only in this tab until you clear your activity or close the tab.",
       "offerTitle": "Would you like help with what was unclear?",
       "offerClair": "Ask Clair",
       "offerQuestion": "Ask a question",
       "offerFaq": "Browse the questions",
-      "note": "Local demo response only. Not a Net Promoter Score and not a record of your understanding or consent.",
+      "note": "Your feedback helps us make our notices clearer. It is not a record of acceptance or consent.",
       "hide": "Hide survey",
       "hiddenText": "The survey is hidden for this session.",
       "show": "Show survey",
@@ -893,13 +876,12 @@
   },
   "insights": {
     "overline": "Presenter view",
-    "title": "Demo insights",
-    "intro": "Interaction events recorded locally in this browser tab, to help a presenter explain the concept. Nothing on this page is sent anywhere.",
+    "title": "Session insights",
+    "intro": "Interaction events recorded in this browser tab during this session, to help a presenter walk through the notice. Nothing on this page is sent anywhere.",
     "actions": {
       "label": "Presenter actions",
       "export": "Export events (JSON)",
-      "exported": "Export started: {file}",
-      "reset": "Reset demo"
+      "exported": "Export started: {file}"
     },
     "framing": {
       "heading": "How to read this view",
@@ -908,7 +890,7 @@
         "This page needs no sign-in and gives no administrative or secure role.",
         "Completing the video does not show that it was understood.",
         "“Mark as reviewed” is not consent, acceptance or a signature.",
-        "Only two request steps exist here: selecting a request button and creating a demo request locally. Acceptance by a server and a completed service outcome do not exist in this demo.",
+        "Only two request steps exist here: selecting a request button and creating a request (REQ- reference) in this tab. Nothing is sent to BDC, so acceptance by a server and a completed service outcome are never recorded.",
         "Events hold identifiers, language and time only, never question text, names or amounts."
       ]
     },
@@ -963,8 +945,8 @@
         "event": "Question drafted"
       },
       "demo_query_created": {
-        "count": "Demo requests created",
-        "event": "Demo request created locally"
+        "count": "Requests created",
+        "event": "Request created"
       },
       "survey_submitted": {
         "count": "Survey responses",
@@ -1002,7 +984,7 @@
     "milestones": {
       "heading": "Milestones",
       "reviewed": "Marked as reviewed",
-      "reviewedNote": "A local note only. Not consent or acceptance.",
+      "reviewedNote": "A note in this tab only. Not consent or acceptance.",
       "survey": "Clarity survey",
       "surveyNone": "No response",
       "surveyNote": "Stored separately from “Mark as reviewed”. Not a satisfaction or loyalty score.",
@@ -1011,16 +993,16 @@
         "neutral": "Somewhat clear",
         "happy": "Very clear"
       },
-      "requests": "Demo requests created",
-      "requestsNote": "Created locally in this tab. Nothing was sent to or accepted by BDC.",
+      "requests": "Requests created",
+      "requestsNote": "Created in this tab only. Nothing was sent to or accepted by BDC.",
       "draft": "Question draft in progress",
       "yes": "Yes",
       "no": "No"
     },
     "presenter": {
       "heading": "Presenter controls",
-      "hardship": "Simulate a hardship/arrears flag (demo rule)",
-      "hardshipDesc": "When on, “Support for you” hides additional-borrowing suggestions and puts help first. This is a responsible demo rule, not a claimed BDC policy. It does not change the notice record.",
+      "hardship": "Simulate a hardship/arrears flag (test setting)",
+      "hardshipDesc": "When on, “Support for you” hides additional-borrowing suggestions and puts help first. This is a responsible design rule for testing, not a claimed BDC policy. It does not change the notice record.",
       "stateOn": "On: additional-borrowing suggestions are hidden in “Support for you”.",
       "stateOff": "Off: “Support for you” shows its standard suggestions.",
       "openSupport": "Open “Support for you”"
@@ -1046,7 +1028,7 @@
         "one": "{n} of {total} tasks completed",
         "other": "{n} of {total} tasks completed"
       },
-      "pilot": "A pilot could compare task completion and contact reasons with BDC’s own baseline. This demo does not estimate business results.",
+      "pilot": "A pilot could compare task completion and contact reasons with BDC’s own baseline. This view does not estimate business results.",
       "items": {
         "nextPayment": {
           "task": "Find the next payment",
@@ -1076,7 +1058,6 @@
     "playerLabel": "Personalised explanation video player",
     "roleVideo": "video",
     "forClient": "For {name} · {company}",
-    "demoTag": "Concept demo · Fictional client",
     "narratedIn": "Narrated in English",
     "captionsIncluded": "Captions and transcript",
     "stageLabel": "{title}. Chapter {n} of {total}: {chapter}.",
@@ -1110,8 +1091,6 @@
     "transcriptMeta": "Narration in English · {duration}",
     "transcriptIntro": "The full narration, grouped by chapter. Select a chapter title to play from that point.",
     "playFromChapter": "Play from chapter {n}: {title}",
-    "note": "Narration generated before distribution with ElevenLabs text-to-speech and embedded in this file. Playback works offline and never contacts ElevenLabs.",
-    "voice": "Voice: {name} (ElevenLabs) · Model: {model} · Pronunciation pending human review.",
     "end": {
       "title": "Your next step",
       "text": "No acceptance is required through this notice.",
@@ -1173,11 +1152,7 @@
   "notice": {
     "overline": "Formal reference",
     "title": "Your notice",
-    "intro": "This is the formal synthetic notice behind the plain-language explanations in this demonstration. It records the amendment, its effect on your payments and the revised repayment schedule.",
-    "status": {
-      "label": "Record status",
-      "fictional": "Fictional demonstration — not a BDC offer or actual agreement"
-    },
+    "intro": "This is the formal text of your notice. It records the amendment, its effect on your payments and the revised repayment schedule. The other sections explain the same information in plain language.",
     "meta": {
       "title": "Record details",
       "noticeId": "Notice identifier",
@@ -1188,17 +1163,17 @@
       "client": "Client",
       "company": "Company",
       "amendmentStatus": "Amendment status",
-      "amendmentStatusValue": "Approved and completed (fictional scenario)",
+      "amendmentStatusValue": "Approved and completed",
       "acceptance": "Customer acceptance required",
       "yes": "Yes",
       "no": "No",
       "fee": "Change fee",
       "processing": "Payment processing",
-      "processingValue": "None in this demo"
+      "processingValue": "Not available through this notice"
     },
     "actions": {
       "title": "Download and print",
-      "intro": "Files are generated in this browser from the demonstration record. Nothing is sent anywhere.",
+      "intro": "Print a clean copy of this notice, or download the schedules as CSV files for a spreadsheet.",
       "print": "Print / Save as PDF",
       "printSub": "Clean notice layout with the full schedule",
       "revisedCsv": "Download revised schedule (CSV)",
@@ -1207,7 +1182,7 @@
       "recordJson": "Download notice record (JSON)",
       "recordJsonSub": "Record data and both schedules",
       "pdfNote": "Browser-generated PDF is a convenience copy, not a certified archival record.",
-      "downloaded": "{file} was generated in this browser.",
+      "downloaded": "Download started: {file}",
       "printOpening": "Print layout prepared. Your browser’s print dialog is opening."
     },
     "toc": {
@@ -1216,14 +1191,13 @@
     "letter": {
       "aria": "Formal notice text",
       "lhTitle": "Important financing notice",
-      "lhSub": "Synthetic notice for a concept demonstration",
       "date": "Date",
       "notice": "Notice",
       "loan": "Loan",
       "to": "To",
       "re": "Re: Loan {loan} — Notice of amendment: principal postponement",
       "closingTitle": "About this document",
-      "closing": "This synthetic notice was prepared for a concept demonstration. It was not issued by BDC and does not create, change or confirm any actual financing terms."
+      "closing": "This notice is the formal reference for the amendment to loan {loan}. Please keep a copy with your business records."
     },
     "links": {
       "plain": "Read the plain-language explanation",
@@ -1235,12 +1209,12 @@
     },
     "text": {
       "purpose": {
-        "p1": "This notice confirms an amendment to the repayment terms of loan {loan} for {company} and describes its effect on your payments, interest and final payment date. It is the formal reference for the plain-language explanations in this demonstration.",
-        "p2": "This is a synthetic notice prepared for a concept demonstration. The client, the loan and all amounts are fictional. It is not an actual BDC notice, offer or agreement."
+        "p1": "This notice confirms an amendment to the repayment terms of loan {loan} for {company} and describes its effect on your payments, interest and final payment date.",
+        "p2": "It is the formal reference for the plain-language explanations and charts provided with it. Those explanations help you understand this notice; they do not change its terms."
       },
       "amendment": {
-        "p1Seasonal": "At the request of the client, {company}, and to support a planned seasonal inventory build, a temporary [[postponement|principal postponement]] on loan {loan} has been approved and completed in this fictional scenario. The amendment takes effect on {effective}.",
-        "p1": "At the request of the client, {company}, a temporary [[postponement|principal postponement]] on loan {loan} has been approved and completed in this fictional scenario. The amendment takes effect on {effective}.",
+        "p1Seasonal": "At the request of the client, {company}, and to support a planned seasonal inventory build, a temporary [[postponement|principal postponement]] on loan {loan} has been approved and completed. The amendment takes effect on {effective}.",
+        "p1": "At the request of the client, {company}, a temporary [[postponement|principal postponement]] on loan {loan} has been approved and completed. The amendment takes effect on {effective}.",
         "p2": "The amendment changes when principal is repaid. It does not change the interest rate or reduce the principal owing.",
         "summaryLabel": "Amendment summary",
         "type": "Type of amendment",
@@ -1273,7 +1247,7 @@
         "totalPayments": "Total remaining payments increase from {origTotal} to {revTotal}.",
         "nearTerm": "Payments due from {from} to {to} total {revNear} instead of {origNear}, a reduction of {relief}. This equals the {deferred} of postponed principal less {extra3} of additional interest payable during those months.",
         "partOf": "The {extra3} of additional interest payable during those months forms part of the {extra} increase in total interest. It is not charged in addition to it.",
-        "sameAmount": "In this example, the payments due from {from} to {to} ({revNear}) and the increase in total interest ({extra}) happen to be the same amount. They measure different things.",
+        "sameAmount": "The payments due from {from} to {to} ({revNear}) and the increase in total interest ({extra}) happen to be the same amount. They measure different things.",
         "p2": "The postponed principal of {deferred} remains owing. This amendment does not cancel or reduce any amount owing."
       },
       "unchanged": {
@@ -1292,11 +1266,11 @@
         "p1": "The revised schedule below lists all {count} remaining monthly payments, from {firstDate} to {lastDate}. It replaces the original schedule from the effective date, {effective}."
       },
       "assumptions": {
-        "p1": "The schedules in this notice are an illustration based on the following simulation assumptions. They are not actual BDC servicing conventions."
+        "p1": "The amounts and dates in the schedules of this notice are calculated as follows:"
       },
       "contact": {
-        "p1": "For questions about this notice, use Help & questions in this demonstration to read answers to common questions, look up terms in the glossary or prepare a question about a specific clause. You can also ask Clair, the demo assistant, to explain any clause.",
-        "p2": "In this concept demonstration, nothing is sent to BDC and no BDC contact details are provided. In an actual notice, this section would explain how to reach your BDC account manager."
+        "p1": "If you have questions about this notice or your loan, contact your BDC account manager.",
+        "p2": "You can also use Help & questions to read answers to common questions, look up terms in the glossary or prepare a question about a specific clause. Clair, your financing guide, can explain any clause in plain language."
       }
     },
     "schedule": {
@@ -1337,12 +1311,12 @@
     "assumptions": {
       "items": [
         "Monthly interest is calculated at the fixed annual rate of {rate} divided by 12, applied to the opening principal for the month and rounded half-up to the nearest cent.",
-        "Payments fall on the last calendar day of each month, with no business-day adjustment.",
+        "Payments are due on the last calendar day of each month, with no business-day adjustment.",
         "No interest is capitalised (added to the principal).",
-        "No new advances and no additional or early repayments are assumed.",
-        "The illustrated schedule starts on {start}; loan history and interest before that date are not reconstructed."
+        "The schedules include no new advances and no additional or early repayments.",
+        "The schedules are shown from {start}; payments and interest before that date are not included."
       ],
-      "fallbackNote": "Shown as written in the demonstration record (English)."
+      "fallbackNote": "Shown as written in the notice record (English)."
     },
     "csv": {
       "noticeId": "Notice",
@@ -1358,8 +1332,7 @@
       "currency": "Currency",
       "payments": "Number of payments",
       "source": "Source",
-      "sourceValue": "Generated locally in this browser from the demonstration record",
-      "note": "Illustrative financing schedule, not a BDC offer.",
+      "sourceValue": "BDC notice {notice}, record version {version}",
       "headers": [
         "Payment date",
         "Payment number",
@@ -1372,7 +1345,7 @@
       "totals": "Totals"
     },
     "json": {
-      "note": "Fictional demonstration record generated locally in this browser. It is not a BDC record, offer or agreement."
+      "note": "Notice {notice}, record version {version}: record data with the original and revised repayment schedules. Amounts are in cents; dates are ISO dates."
     },
     "print": {
       "title": "Important financing notice",
@@ -1388,14 +1361,11 @@
     "greeting": "Hello, {name}. Let’s walk through your financing update.",
     "overline": "Notice of amendment · effective {date}",
     "title": "Your principal payments are postponed for three months.",
-    "intro": "In this fictional example, the temporary [[postponement|principal postponement]] requested for {company} has been approved and the amendment is complete. Here is what it means for your payments, and what stays the same.",
+    "intro": "The temporary [[postponement|principal postponement]] requested for {company} has been approved and the amendment is complete. Here is what it means for your payments, and what stays the same.",
     "cta": {
       "changes": "See what changes",
       "watch": "Watch your personalised explanation",
       "ask": "Ask a question"
-    },
-    "illustration": {
-      "caption": "Illustration of a manufacturing workshop. Not a photograph of the recipient or BDC staff."
     },
     "summary": {
       "title": "Your update at a glance",
@@ -1444,9 +1414,9 @@
       "step2Text": "Plan for interest-only payments of {interest} a month from {from} to {to}, then a payment of {resumed} on {resumeDate}, when principal payments resume.",
       "noAcceptance": "No acceptance is required through this notice. The amendment is already approved and complete.",
       "markReviewed": "Mark as reviewed",
-      "markHint": "Optional. Keeps a note in this browser tab only.",
-      "reviewedTitle": "Marked as reviewed in this demo.",
-      "reviewedNote": "This is a local note only — not acceptance, consent or proof of understanding."
+      "markHint": "Optional. A personal reminder for this visit only.",
+      "reviewedTitle": "Marked as reviewed.",
+      "reviewedNote": "This is a personal reminder only — not an acceptance of this notice, consent or proof of understanding."
     },
     "same": {
       "title": "What stays the same",
@@ -1464,7 +1434,7 @@
       "meta": "About one minute · Captions and transcript included · No autoplay",
       "text": "A short animated walkthrough of this notice, narrated for you in English or French.",
       "unavailableTitle": "Explanation player unavailable",
-      "unavailableText": "The explanation player is not included in this build. The same information is on this page and in “{section}”."
+      "unavailableText": "The explanation player is not available right now. The same information is on this page and in “{section}”."
     }
   },
   "payments": {
@@ -1625,7 +1595,7 @@
       "noticeId": "Notice",
       "recordVersion": "Record version",
       "status": "Status",
-      "statusValue": "Fictional demonstration — not a BDC offer or actual agreement",
+      "statusValue": "Approved and completed",
       "loanId": "Loan",
       "company": "Company",
       "schedule": "Schedule",
@@ -1638,8 +1608,7 @@
       "months": "Number of months",
       "payments": "Number of payments",
       "source": "Source",
-      "sourceValue": "Generated locally in this browser from the demonstration record",
-      "note": "Illustrative financing schedule, not a BDC offer.",
+      "sourceValue": "BDC notice {notice}, record version {version}",
       "date": "Payment date",
       "number": "Payment number",
       "opening": "Opening principal",
@@ -1655,7 +1624,7 @@
     },
     "downloads": {
       "title": "Download the schedule",
-      "intro": "CSV files are created in this browser from the demonstration record. Amounts are plain numbers in Canadian dollars, ready for a spreadsheet.",
+      "intro": "Download the months shown or a full schedule. In the CSV files, amounts are plain numbers in Canadian dollars, ready for a spreadsheet.",
       "selection": "Download displayed selection (CSV)",
       "selectionHint": "Months shown: {range}",
       "revised": "Download full revised schedule (CSV)",
@@ -1665,15 +1634,15 @@
   },
   "query": {
     "title": "Ask a question",
-    "subtitle": "Local demo only. Nothing is sent to BDC.",
+    "subtitle": "Your question will include the details of this notice.",
     "stepCount": "Step {n} of {total}",
     "stepSep": ": ",
     "steps": {
       "draft": "Write your question",
       "review": "Review your request",
-      "confirm": "Demo request created"
+      "confirm": "Request created"
     },
-    "intro": "Prepare a question about this notice. You will check it before a demo request is created in this browser tab.",
+    "intro": "Prepare a question about this notice. You can review it before you create your request.",
     "context": {
       "heading": "Included with your question",
       "hint": "The notice identifier is always included. You can remove the selected item.",
@@ -1720,7 +1689,7 @@
     },
     "contact": {
       "legend": "Preferred contact method (optional)",
-      "hint": "No contact details are collected in this demo.",
+      "hint": "Your preference is saved with your question.",
       "options": {
         "none": "No preference",
         "phone": "Phone call",
@@ -1730,9 +1699,9 @@
     },
     "privacy": {
       "title": "Keep it private",
-      "body": "Do not include passwords, bank-account details, government identifiers or real contact information. This demo keeps your question in this browser tab only and sends nothing."
+      "body": "Do not include passwords, banking details or government identifiers in your question."
     },
-    "draftKept": "If you close this panel, your draft is kept in this tab until you reset the demo.",
+    "draftKept": "If you close this panel, your draft is kept in this tab until you clear your activity.",
     "continue": "Continue to review",
     "errors": {
       "title": "There is a problem",
@@ -1742,7 +1711,7 @@
       "questionTooLong": "Your question must be {max} characters or fewer"
     },
     "review": {
-      "intro": "Check the details below. Nothing is created until you select “Create demo request”.",
+      "intro": "Check the details below. Nothing is created until you select “Create request”.",
       "notice": "Notice",
       "item": "Selected item",
       "none": "None",
@@ -1752,16 +1721,15 @@
       "contact": "Preferred contact method",
       "question": "Your question",
       "edit": "Edit",
-      "create": "Create demo request",
-      "note": "The demo request stays in this browser tab. It is not sent to BDC and does not start a service request."
+      "create": "Create request",
+      "note": "Creating the request gives you a reference and a summary you can copy or download."
     },
     "confirm": {
-      "heading": "Kept in this browser tab only",
-      "text": "Demo request created locally. Nothing has been sent to BDC.",
-      "refLabel": "Demo reference",
-      "notCase": "This reference exists only in this demonstration. It is not a case number or an acknowledgement from BDC, and no one will contact you. A real service would confirm receipt separately.",
+      "text": "Your question has been recorded with reference {ref}. Keep this reference for your records.",
+      "refLabel": "Reference",
+      "next": "To discuss your question, contact your BDC account manager. You can copy or download the summary below.",
       "summaryHeading": "Plain-text summary",
-      "summaryLabel": "Summary of demo request {ref}",
+      "summaryLabel": "Summary of request {ref}",
       "copy": "Copy summary",
       "copied": "Summary copied to the clipboard.",
       "copyFailed": "Copying is not available in this browser. Select the summary text and copy it manually.",
@@ -1773,11 +1741,11 @@
       "close": "Close"
     },
     "summary": {
-      "title": "Demo request {ref}",
+      "title": "Request {ref}",
       "line": "{label}: {value}",
       "created": "Created",
       "questionHeading": "Question (kept in the language it was written in):",
-      "disclaimer": "Local demonstration record only. It is not a case acknowledgement from BDC."
+      "contact": "To discuss your question, contact your BDC account manager."
     },
     "languages": {
       "en-CA": "English",
@@ -1814,7 +1782,7 @@
     "whyTitle": "Why this may be relevant",
     "learnMore": "Learn more on bdc.ca",
     "externalAria": "{action}: {title} (opens an external BDC website in a new tab)",
-    "inquiryAria": "{action}: {title}. Prepares a local demo question; nothing is sent to BDC.",
+    "inquiryAria": "{action}: {title}. Opens a form to prepare a question about this resource.",
     "cards": {
       "financial-management": {
         "title": "Financial management consulting",
@@ -1852,10 +1820,10 @@
         "title": "Talk to us about your situation",
         "summary": "If making your payments or planning cash flow is difficult right now, start with a conversation. You can prepare a question, or find answers in Help & questions.",
         "whyTitle": "Why this comes first",
-        "why": "In this demonstration, when a hardship or arrears flag is set, help comes before any suggestion of new borrowing.",
-        "note": "In this demonstration, a question you prepare stays in your browser. Nothing is sent to BDC.",
+        "why": "When payments may be difficult, help with your current financing comes before any suggestion of new borrowing.",
+        "note": "To talk about your situation, you can also contact your BDC account manager.",
         "ask": "Ask a question",
-        "askAria": "Ask a question about your situation. Prepares a local demo question; nothing is sent to BDC.",
+        "askAria": "Ask a question about your situation. Opens a form to prepare your question.",
         "helpLink": "Go to Help & questions"
       }
     },
@@ -1869,13 +1837,12 @@
       "text": "You chose to hide every suggestion for this session. Your notice and its information are not affected."
     },
     "rule": {
-      "title": "Borrowing suggestions are hidden",
-      "text": "A hardship or arrears flag is set for this demonstration, so a responsible demo rule hides additional-borrowing suggestions and puts help first. This is a rule of this demonstration, not a BDC policy."
+      "title": "Support comes first",
+      "text": "Suggestions for additional borrowing are not shown on this page. If making payments or planning cash flow is a concern, start with the support below."
     },
     "footer": {
       "links": "Links open BDC’s public website in a new tab, only when you select them.",
-      "data": "This demonstration does not share any data with BDC, and questions you prepare here stay in this browser.",
-      "source": "Descriptions summarize BDC’s public information for this concept demonstration. They are not offers."
+      "source": "Descriptions summarize BDC’s public information. They are not offers."
     }
   }
 }

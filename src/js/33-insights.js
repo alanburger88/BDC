@@ -1,9 +1,11 @@
-/* Demo insights: a presenter view of LOCAL interaction events (PRD section 17).
- * Shows counts by event type, a live timeline, milestones, Export and Reset,
- * the hardship/arrears demo-rule switch, the accessibility-widget status and
- * the usability evaluation tasks. Interaction counts only: never presented
- * as measured BDC outcomes, comprehension, consent or service completion.
- * Reached from the footer link (#/insights); not a tab, not a secure role. */
+/* Session insights: a presenter view of this tab's interaction events (PRD section 17).
+ * Shows counts by event type, a live timeline, milestones, Export and "Clear my
+ * activity" (the shell's own confirmation and reset), the hardship/arrears
+ * test-setting switch, the accessibility-widget status and the usability
+ * evaluation tasks. Interaction counts only: never presented as measured BDC
+ * outcomes, comprehension, consent or service completion.
+ * Reachable by URL only (#/insights): not a tab, not linked from the recipient
+ * footer, not a secure role. */
 (() => {
   const NS = 'insights';
   const T = (k, p) => t(`${NS}.${k}`, p);
@@ -311,7 +313,7 @@
     const D = R.derived || {};
     const next = App.rec.nextPayment();
     const res = App.rec.firstResumed();
-    // Every task link opens a view that shows "Back to Demo insights" (App.ui.goWithReturn via
+    // Every task link opens a view that shows "Back to Session insights" (App.ui.goWithReturn via
     // routeLink). The next payment opens its month in Payments, the same detail the Overview's
     // "Next payment" card leads to (the Overview itself has no Back control).
     return {
@@ -385,9 +387,8 @@
     const R = App.record;
     const m = milestoneData();
     const data = {
-      schema: 'bdc-notice-demo-events/1',
-      demo: true,
-      scope: 'local-browser-tab',
+      schema: 'bdc-notice-session-events/1',
+      scope: 'browser-tab-session',
       noticeId: R.noticeId,
       recordVersion: R.recordVersion,
       exportedAt: new Date().toISOString(),
@@ -396,8 +397,8 @@
       milestones: {
         markedReviewed: m.reviewed,
         surveyRating: m.survey && ID_RE.test(m.survey) ? m.survey : null,
-        demoRequestsCreated: m.requests.length,
-        demoRequestReferences: m.requests,
+        requestsCreated: m.requests.length,
+        requestReferences: m.requests,
       },
       presenter: { simulateHardship: !!presenter().simulateHardship },
       // Identifiers, locale and timestamps only - no free text, names or amounts.
@@ -407,30 +408,15 @@
         return out;
       }),
     };
-    const file = `demo-insights-${R.noticeId}.json`;
+    const file = `session-insights-${R.noticeId}.json`;
     App.util.downloadBlob(file, 'application/json', JSON.stringify(data, null, 2));
     setStatus(T('actions.exported', { file })); // role=status announces it
   }
 
+  // "Clear my activity" reuses the shell's own confirmation dialog and reset, so the
+  // wording, events (a fresh notice_opened) and return to the Overview match the footer.
   function confirmReset(trigger) {
-    App.overlay.open({
-      id: 'ins-reset',
-      variant: 'dialog',
-      title: t('shell.resetTitle'),
-      trigger,
-      render: (body, api) => {
-        body.append(
-          h('p', null, t('shell.resetBody')),
-          h('div', { class: 'button-row' },
-            App.ui.button({ label: t('shell.resetConfirm'), kind: 'primary', fid: 'ins-reset-confirm', onClick: () => { api.close('confirm'); doReset(); } }),
-            App.ui.button({ label: t('common.cancel'), kind: 'secondary', fid: 'ins-reset-cancel', onClick: () => api.close('cancel') })));
-      },
-    });
-  }
-
-  function doReset() {
-    cap = null;
-    if (App.shell && typeof App.shell.resetDemo === 'function') { App.shell.resetDemo(); return; }
+    if (App.shell && typeof App.shell.confirmReset === 'function') { App.shell.confirmReset(trigger); return; }
     App.session.reset();
     App.router.rerender();
   }
@@ -449,7 +435,7 @@
     refs.status = h('p', { class: 'status-msg ins-status', role: 'status' });
     const actions = h('div', { class: 'ins-actions', role: 'group', 'aria-label': T('actions.label') },
       App.ui.button({ label: T('actions.export'), kind: 'secondary', iconName: 'download', fid: 'ins-export', onClick: exportEvents }),
-      App.ui.button({ label: T('actions.reset'), kind: 'secondary', iconName: 'reset', fid: 'ins-reset', onClick: (e) => confirmReset(e.currentTarget) }),
+      App.ui.button({ label: t('shell.resetDemo'), kind: 'secondary', iconName: 'reset', fid: 'ins-reset', onClick: (e) => confirmReset(e.currentTarget) }),
       refs.status);
 
     const framing = h('section', { class: 'callout callout--neutral ins-framing', 'aria-labelledby': 'ins-framing-title' },

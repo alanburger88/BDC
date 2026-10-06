@@ -3,6 +3,29 @@
 **Build under test:** `dist/index.html` (single file) · **Date:** 2026-10-06 · **Notice:** `DEMO-BDC-CHANGE-2026-001`, record version 1.0
 **Status:** all automated gates pass. Five acceptance criteria still need manual follow-up (see §4).
 
+## 0. Recipient view (product-owner decision, 2026-10-06)
+
+The product owner asked for the experience to read as the customer would see it. These PRD requirements are deliberately superseded:
+- the §2 persistent demo banner and "illustrative / not a BDC offer" note;
+- the §9 status line "Demo assistant • … No live AI connection";
+- the §10 confirmation "Demo request created locally. Nothing has been sent to BDC." and the `DEMO-` reference prefix;
+- the §11 NPS/demo disclaimer;
+- the `DEMO-` record identifiers;
+- "In this example" in the §8 narration.
+
+What replaced them:
+- Neutral identifiers: `BDC-CHG-2026-001` and `LN-4821`.
+- Clair: "Answers are based on this notice."
+- Query: "Request created — your question has been recorded with reference REQ-0001". It never claims BDC received it.
+- Both narrations were regenerated.
+- The build gate (`RECIPIENT_BANNED`) and the RV-01 acceptance check enforce the change.
+
+The honesty guardrails are kept: no claim that a question was sent to BDC, and no invented contacts, rates, policies or eligibility.
+
+Also at the product owner's request, the UserWay launcher now sits bottom-left via UserWay's documented `data-position` 5.
+
+The data remains fictional; a non-visible HTML comment in the file records this. The presenter page `#/insights` is no longer linked from the recipient UI.
+
 ## 1. Scope and method
 
 | Layer | What it checks | Command |
@@ -45,19 +68,21 @@
 | AC-11 Media quality | **PARTIAL** | Creation-time ElevenLabs audio is embedded for both languages: en-CA Sarah, 60.3 s; fr-CA Amélie (Quebec French, chosen by the product owner), 69.3 s. Loudness is matched (−17.7 / −18.5 LUFS). **Pronunciation audition: manual (§4.1).** |
 | AC-12 Video-like behaviour | **PASS** | No autoplay; pause holds the clock; chapter and seek-bar seeks work; captions match cues at 1× and 1.5×; replay works; an EN chapter maps to the FR chapter start, paused |
 | AC-13 Right-side assistance | **PASS** | 420 px panel anchored right on desktop, full width at 390 px, context chip shows the selected item, and focus returns |
-| AC-14 Assistant integrity | **PARTIAL** | 20 seeded/paraphrased EN+FR probes route to the right intents, including limits and out-of-scope; demo label is exact. **Wording review: manual.** |
-| AC-15 Query integrity | **PASS** | Draft → review → local confirmation; the exact "Nothing has been sent to BDC" text; DEMO- reference; no free text in events or storage |
-| AC-16 Survey | **PASS** | Three labelled faces, none preselected; keyboard and tap work; the answer can be changed; NPS disclaimer present |
+| AC-14 Assistant integrity | **PARTIAL** | 20 seeded/paraphrased EN+FR probes route to the right intents, including limits and out-of-scope; the scope line reads "Answers are based on this notice." **Wording review: manual.** |
+| AC-15 Query integrity | **PASS** | Draft → review → "Request created" with a REQ- reference; no claim that BDC received the question; no free text in events or storage |
+| AC-16 Survey | **PASS** | Three labelled faces, none preselected; keyboard and tap work; the answer can be changed; no demo/NPS framing |
 | AC-17 Jargon help | **PASS** | Hover previews, click pins, Escape closes and returns focus to the term |
 | AC-18 Language completeness | **PASS** | Build parity gate; no ⟦missing⟧ keys at runtime in fr-CA; `lang="fr-CA"` set |
-| AC-19 Widget | **PARTIAL** | Supplied snippet appears exactly once; Clair launcher is bottom-right; bottom-left space is reserved, including in mobile panels. **Vendor launcher placement: manual (host blocked here).** |
+| AC-19 Widget | **PARTIAL** | Supplied snippet appears exactly once, with UserWay `data-position` 5 (bottom left, per UserWay's documentation). The Clair launcher is bottom-right, and bottom-left space is reserved, including in mobile panels. **Confirm placement on the live preview (the host is blocked here).** |
 | AC-20 Cross-sell | **PASS** | Three relevant cards; external links open in a new tab with noopener; no eligibility claims; the hardship rule hides the loan card |
 | AC-21 Accessibility | **PARTIAL** | axe-core finds 0 WCAG 2.x A/AA violations on all sections in EN and FR. Keyboard flows are scripted. **Screen-reader review: manual.** |
 | AC-22 Record/export alignment | **PASS** | Both tabs use one shared exporter. The CSV has 63 dated rows plus the notice identity. The print view (6 pages, `tests/results/notice-print.pdf`) has no assistant or survey |
 | AC-23 Privacy and secrets | **PASS** | No credentials or synthesis code; localStorage holds only the allow-listed preferences |
 | AC-24 Brand/assets | **PASS** | Supplied logo embedded unaltered (1280×680, aspect preserved); no broken images; no remote fonts |
 
-**Totals:** 19 pass, 5 partial (manual follow-up), 0 fail.
+| RV-01 Recipient view | **PASS** | 12+ routes, the Clair/query/reset overlays, Clair's self-description, the CSV/print exports and both narrations were scanned in EN and FR: no demo/fictional wording |
+
+**Totals:** 20 pass (including RV-01), 5 partial (manual follow-up), 0 fail.
 
 ### 2.3 Independent QA sweep
 

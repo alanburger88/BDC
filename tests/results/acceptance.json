@@ -1,6 +1,6 @@
 {
   "file": "/home/user/BDC/dist/index.html",
-  "ranAt": "2026-10-06T20:59:46.371Z",
+  "ranAt": "2026-10-06T23:26:17.815Z",
   "browser": "Chromium (Playwright)",
   "results": [
     {
@@ -8,11 +8,11 @@
       "title": "One-file portability (file:// and static host)",
       "status": "PASS",
       "notes": [
-        "file size 3.64 MB",
+        "file size 3.59 MB",
         "file: 6 sections rendered, no console errors",
         "http: 6 sections rendered, no console errors"
       ],
-      "ms": 2834
+      "ms": 2741
     },
     {
       "id": "AC-02",
@@ -21,16 +21,16 @@
       "notes": [
         "requests observed: 1 (widget: 1)"
       ],
-      "ms": 4526
+      "ms": 4451
     },
     {
       "id": "AC-03",
       "title": "Offline operation (voiceover, tabs, charts, definitions, assistant, query, survey)",
       "status": "PASS",
       "notes": [
-        "audio offline: {\"en-CA\":\"ok 60.2s\",\"fr-CA\":\"ok 69.2s\"}"
+        "audio offline: {\"en-CA\":\"ok 59.3s\",\"fr-CA\":\"ok 68.4s\"}"
       ],
-      "ms": 5807
+      "ms": 5696
     },
     {
       "id": "AC-04",
@@ -39,7 +39,7 @@
       "notes": [
         "60/63 rows, totals 48,800/53,600 and 288,800/293,600, half-up rounding, zero end; key figures shown in both locales"
       ],
-      "ms": 705
+      "ms": 580
     },
     {
       "id": "AC-05",
@@ -48,7 +48,7 @@
       "notes": [
         "visible on first screen render at 390px without opening disclosures"
       ],
-      "ms": 491
+      "ms": 365
     },
     {
       "id": "AC-06",
@@ -56,9 +56,9 @@
       "status": "PASS",
       "notes": [
         "clause reached: #/documents/postponement, focus on #clause-postponement",
-        "back to #/payments/2026-12, focus explain-month-2026-12, scroll 2667 (was 2667)"
+        "back to #/payments/2026-12, focus explain-month-2026-12, scroll 2636 (was 2636)"
       ],
-      "ms": 2689
+      "ms": 2644
     },
     {
       "id": "AC-07",
@@ -67,7 +67,7 @@
       "notes": [
         "compact at 390 (EN+FR), tabs at 1280; selector closes after choice"
       ],
-      "ms": 1996
+      "ms": 1886
     },
     {
       "id": "AC-08",
@@ -76,7 +76,7 @@
       "notes": [
         "all routes + Clair + query dialogs fit at 320px in EN and FR"
       ],
-      "ms": 7866
+      "ms": 7716
     },
     {
       "id": "AC-09",
@@ -85,7 +85,7 @@
       "notes": [
         "Clair send and query textarea reachable in a keyboard-reduced viewport (390×420); real-device keyboard test is MANUAL"
       ],
-      "ms": 1607
+      "ms": 1550
     },
     {
       "id": "AC-10",
@@ -96,28 +96,28 @@
         "reduce: handshake animation on first view = none",
         "plays once per session (not on revisit or language switch); static under reduced motion; icon aria-hidden"
       ],
-      "ms": 1747
+      "ms": 1549
     },
     {
       "id": "AC-11",
       "title": "Creation-time ElevenLabs audio embedded in both languages",
       "status": "PARTIAL",
       "notes": [
-        "en-CA: 942 KB MP3",
-        "fr-CA: 1083 KB MP3",
-        "durations en 60.264s, fr 69.277s; voices en: Sarah (ElevenLabs premade), fr: Amélie (ElevenLabs Voice Library); model eleven_multilingual_v2",
+        "en-CA: 928 KB MP3",
+        "fr-CA: 1070 KB MP3",
+        "durations en 59.35s, fr 68.441s; voices en: Sarah (ElevenLabs premade), fr: Amélie (ElevenLabs Voice Library); model eleven_multilingual_v2",
         "Pronunciation, amounts and dates require human audition (MANUAL)"
       ],
-      "ms": 6
+      "ms": 4
     },
     {
       "id": "AC-12",
       "title": "Pause, replay, seek, speed, captions and chapter-mapped language switch stay in sync",
       "status": "PASS",
       "notes": [
-        "no autoplay; play/pause clock stable; chapter + seek-bar seeks; captions match cues at 1×/1.5×; replay; EN \"difference\" → FR chapter start 16.343s, paused"
+        "no autoplay; play/pause clock stable; chapter + seek-bar seeks; captions match cues at 1×/1.5×; replay; EN \"difference\" → FR chapter start 13.684s, paused"
       ],
-      "ms": 6860
+      "ms": 6655
     },
     {
       "id": "AC-13",
@@ -127,11 +127,11 @@
         "1280px: right-anchored width 420, context ok, focus returned",
         "390px: right-anchored width 390, context ok, focus returned"
       ],
-      "ms": 2180
+      "ms": 2036
     },
     {
       "id": "AC-14",
-      "title": "Clair grounded answers for seeded and paraphrased questions; safe fallback; labelled demo",
+      "title": "Clair grounded answers for seeded and paraphrased questions; safe fallback; scope stated",
       "status": "PARTIAL",
       "notes": [
         "relief: \"Why is the relief not $12,000?\" → whyRelief",
@@ -156,25 +156,25 @@
         "unrelated: \"who won the hockey game\" → unrelated",
         "Human review of answer wording and wider paraphrase coverage is MANUAL"
       ],
-      "ms": 566
+      "ms": 425
     },
     {
       "id": "AC-15",
-      "title": "Query review precedes local confirmation; context retained; says nothing sent",
+      "title": "Query review precedes confirmation; context retained; no claim of delivery to BDC",
       "status": "PASS",
       "notes": [
-        "draft → review → local confirmation with DEMO- reference; no free text in events/storage"
+        "draft → review → confirmation (\"Request created\", REQ- reference, no claim that BDC received it); no free text in events/storage"
       ],
-      "ms": 1338
+      "ms": 1287
     },
     {
       "id": "AC-16",
-      "title": "Three labelled faces, touch + keyboard, changeable, dismissible, not NPS",
+      "title": "Three labelled faces, touch + keyboard, changeable, dismissible",
       "status": "PASS",
       "notes": [
         "3 labelled faces, keyboard + tap, change allowed"
       ],
-      "ms": 803
+      "ms": 821
     },
     {
       "id": "AC-17",
@@ -183,7 +183,7 @@
       "notes": [
         "hover shows, click pins, Escape closes and returns focus"
       ],
-      "ms": 1428
+      "ms": 1431
     },
     {
       "id": "AC-18",
@@ -192,16 +192,16 @@
       "notes": [
         "build-time dictionary parity check passes; no ⟦missing⟧ keys at runtime"
       ],
-      "ms": 2378
+      "ms": 2322
     },
     {
       "id": "AC-19",
       "title": "Supplied widget script once; launcher area bottom-left reserved",
       "status": "PARTIAL",
       "notes": [
-        "snippet present once; Clair launcher bottom-right; vendor launcher position depends on account config and could not be loaded here (egress blocked) → MANUAL"
+        "snippet present once with UserWay data-position 5 (documented: bottom left); Clair launcher bottom-right; vendor launcher could not be loaded here (egress blocked) → confirm on the live preview"
       ],
-      "ms": 419
+      "ms": 426
     },
     {
       "id": "AC-20",
@@ -210,7 +210,7 @@
       "notes": [
         "3 BDC links, new tab + noopener; hardship rule hides loan card"
       ],
-      "ms": 592
+      "ms": 566
     },
     {
       "id": "AC-21",
@@ -219,25 +219,25 @@
       "notes": [
         "axe-core: 0 WCAG 2.x A/AA violations on all sections in EN and FR; screen-reader review is MANUAL"
       ],
-      "ms": 9629
+      "ms": 8220
     },
     {
       "id": "AC-22",
-      "title": "CSV and print views reproduce approved data with demo notice identity",
+      "title": "CSV and print views reproduce approved data with the notice identity",
       "status": "PASS",
       "notes": [
-        "CSV: 63 dated rows + notice id (DEMO-BDC-CHANGE-2026-001_revised-schedule_en-CA.csv); print view rendered to /home/user/BDC/tests/results/notice-print.pdf"
+        "CSV: 63 dated rows + notice id (BDC-CHG-2026-001_revised-schedule_en-CA.csv); print view rendered to /home/user/BDC/tests/results/notice-print.pdf"
       ],
-      "ms": 610
+      "ms": 524
     },
     {
       "id": "AC-23",
       "title": "No real data, credentials, browser synthesis or persistent free-text storage",
       "status": "PASS",
       "notes": [
-        "localStorage keys: (none); fixture status: fictional demonstration"
+        "localStorage keys: (none); fixture data only (no real client data)"
       ],
-      "ms": 423
+      "ms": 396
     },
     {
       "id": "AC-24",
@@ -246,7 +246,16 @@
       "notes": [
         "logo 1280×680 rendered 64×34 (aspect preserved); no remote fonts"
       ],
-      "ms": 443
+      "ms": 388
+    },
+    {
+      "id": "RV-01",
+      "title": "Recipient view: no demo/fictional wording in sections, overlays, exports or print (EN + FR)",
+      "status": "PASS",
+      "notes": [
+        "12+ routes, Clair/query/reset overlays, Clair self-description, CSV/print and both narrations scanned in EN and FR: no demo/fictional wording; #/insights (presenter, unlinked) excluded"
+      ],
+      "ms": 9546
     }
   ]
 }

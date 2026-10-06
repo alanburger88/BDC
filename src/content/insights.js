@@ -1,18 +1,19 @@
-/* Demo insights: approved copy for the presenter view (PRD section 17).
- * Local interaction counts only - never measured BDC outcomes, never an
- * administrative role. Amounts and dates in the evaluation answers are
+/* Session insights: approved copy for the presenter view (PRD section 17).
+ * Presenter-only page, reached by URL (#/insights) and not linked from the
+ * recipient view, so the build's recipient-wording gate exempts it. It keeps
+ * its presenter framing: interaction counts from this tab only, never measured
+ * BDC outcomes, never an administrative role. Amounts and dates in the evaluation answers are
  * {params} filled from App.record via App.fmt.
  * French drafts are implementation input pending qualified fr-CA review. */
 App.i18n.register('insights', {
   'en-CA': {
     overline: 'Presenter view',
-    title: 'Demo insights',
-    intro: 'Interaction events recorded locally in this browser tab, to help a presenter explain the concept. Nothing on this page is sent anywhere.',
+    title: 'Session insights',
+    intro: 'Interaction events recorded in this browser tab during this session, to help a presenter walk through the notice. Nothing on this page is sent anywhere.',
     actions: {
       label: 'Presenter actions',
       export: 'Export events (JSON)',
       exported: 'Export started: {file}',
-      reset: 'Reset demo',
     },
     framing: {
       heading: 'How to read this view',
@@ -21,7 +22,7 @@ App.i18n.register('insights', {
         'This page needs no sign-in and gives no administrative or secure role.',
         'Completing the video does not show that it was understood.',
         '“Mark as reviewed” is not consent, acceptance or a signature.',
-        'Only two request steps exist here: selecting a request button and creating a demo request locally. Acceptance by a server and a completed service outcome do not exist in this demo.',
+        'Only two request steps exist here: selecting a request button and creating a request (REQ- reference) in this tab. Nothing is sent to BDC, so acceptance by a server and a completed service outcome are never recorded.',
         'Events hold identifiers, language and time only, never question text, names or amounts.',
       ],
     },
@@ -45,7 +46,7 @@ App.i18n.register('insights', {
       video_chapter_viewed: { count: 'Video chapters viewed', event: 'Video chapter viewed' },
       video_completed: { count: 'Video completions', event: 'Video completed' },
       query_drafted: { count: 'Questions drafted', event: 'Question drafted' },
-      demo_query_created: { count: 'Demo requests created', event: 'Demo request created locally' },
+      demo_query_created: { count: 'Requests created', event: 'Request created' },
       survey_submitted: { count: 'Survey responses', event: 'Survey response' },
       resource_opened: { count: 'Resources opened', event: 'Resource opened' },
       schedule_exported: { count: 'Schedule exports', event: 'Schedule exported' },
@@ -67,21 +68,21 @@ App.i18n.register('insights', {
     milestones: {
       heading: 'Milestones',
       reviewed: 'Marked as reviewed',
-      reviewedNote: 'A local note only. Not consent or acceptance.',
+      reviewedNote: 'A note in this tab only. Not consent or acceptance.',
       survey: 'Clarity survey',
       surveyNone: 'No response',
       surveyNote: 'Stored separately from “Mark as reviewed”. Not a satisfaction or loyalty score.',
       ratings: { unhappy: 'Not clear', neutral: 'Somewhat clear', happy: 'Very clear' },
-      requests: 'Demo requests created',
-      requestsNote: 'Created locally in this tab. Nothing was sent to or accepted by BDC.',
+      requests: 'Requests created',
+      requestsNote: 'Created in this tab only. Nothing was sent to or accepted by BDC.',
       draft: 'Question draft in progress',
       yes: 'Yes',
       no: 'No',
     },
     presenter: {
       heading: 'Presenter controls',
-      hardship: 'Simulate a hardship/arrears flag (demo rule)',
-      hardshipDesc: 'When on, “Support for you” hides additional-borrowing suggestions and puts help first. This is a responsible demo rule, not a claimed BDC policy. It does not change the notice record.',
+      hardship: 'Simulate a hardship/arrears flag (test setting)',
+      hardshipDesc: 'When on, “Support for you” hides additional-borrowing suggestions and puts help first. This is a responsible design rule for testing, not a claimed BDC policy. It does not change the notice record.',
       stateOn: 'On: additional-borrowing suggestions are hidden in “Support for you”.',
       stateOff: 'Off: “Support for you” shows its standard suggestions.',
       openSupport: 'Open “Support for you”',
@@ -105,7 +106,7 @@ App.i18n.register('insights', {
       doneLabel: 'Completed by participant: {task}',
       answerLabel: 'Expected answer: {task}',
       progress: { one: '{n} of {total} tasks completed', other: '{n} of {total} tasks completed' },
-      pilot: 'A pilot could compare task completion and contact reasons with BDC’s own baseline. This demo does not estimate business results.',
+      pilot: 'A pilot could compare task completion and contact reasons with BDC’s own baseline. This view does not estimate business results.',
       items: {
         nextPayment: {
           task: 'Find the next payment',
@@ -129,13 +130,12 @@ App.i18n.register('insights', {
   },
   'fr-CA': {
     overline: 'Mode présentateur',
-    title: 'Statistiques de la démo',
-    intro: 'Événements d’interaction enregistrés localement dans cet onglet, pour aider la personne qui présente à expliquer le concept. Rien sur cette page n’est transmis.',
+    title: 'Statistiques de la séance',
+    intro: 'Événements d’interaction enregistrés dans cet onglet pendant la séance, pour aider la personne qui présente à parcourir l’avis. Rien sur cette page n’est transmis.',
     actions: {
       label: 'Actions de présentation',
       export: 'Exporter les événements (JSON)',
       exported: 'Exportation lancée : {file}',
-      reset: 'Réinitialiser la démo',
     },
     framing: {
       heading: 'Comment lire cette vue',
@@ -144,7 +144,7 @@ App.i18n.register('insights', {
         'Cette page ne demande aucune connexion et ne confère aucun rôle administratif ou sécurisé.',
         'Regarder la vidéo jusqu’au bout ne démontre pas qu’elle a été comprise.',
         'La mention « Marquer comme consulté » n’est ni un consentement, ni une acceptation, ni une signature.',
-        'Seules deux étapes de demande existent ici : sélectionner un bouton de demande et créer une demande de démonstration localement. L’acceptation par un serveur et un service rendu n’existent pas dans cette démo.',
+        'Seules deux étapes de demande existent ici : sélectionner un bouton de demande et créer une demande (référence REQ-) dans cet onglet. Rien n’est transmis à BDC; l’acceptation par un serveur et un service rendu ne sont donc jamais enregistrés.',
         'Les événements contiennent uniquement des identifiants, la langue et l’heure, jamais le texte des questions, des noms ou des montants.',
       ],
     },
@@ -168,7 +168,7 @@ App.i18n.register('insights', {
       video_chapter_viewed: { count: 'Chapitres vidéo consultés', event: 'Chapitre vidéo consulté' },
       video_completed: { count: 'Vidéos regardées jusqu’au bout', event: 'Vidéo regardée jusqu’au bout' },
       query_drafted: { count: 'Questions rédigées', event: 'Question rédigée' },
-      demo_query_created: { count: 'Demandes de démonstration créées', event: 'Demande de démonstration créée localement' },
+      demo_query_created: { count: 'Demandes créées', event: 'Demande créée' },
       survey_submitted: { count: 'Réponses au sondage', event: 'Réponse au sondage' },
       resource_opened: { count: 'Ressources ouvertes', event: 'Ressource ouverte' },
       schedule_exported: { count: 'Exportations du calendrier', event: 'Calendrier exporté' },
@@ -190,21 +190,21 @@ App.i18n.register('insights', {
     milestones: {
       heading: 'Jalons',
       reviewed: 'Marqué comme consulté',
-      reviewedNote: 'Une note locale seulement. Ni consentement ni acceptation.',
+      reviewedNote: 'Une note dans cet onglet seulement. Ni consentement ni acceptation.',
       survey: 'Sondage sur la clarté',
       surveyNone: 'Aucune réponse',
       surveyNote: 'Conservé séparément de « Marquer comme consulté ». Ce n’est pas un indice de satisfaction ou de fidélité.',
       ratings: { unhappy: 'Pas clair', neutral: 'Assez clair', happy: 'Très clair' },
-      requests: 'Demandes de démonstration créées',
-      requestsNote: 'Créées localement dans cet onglet. Rien n’a été envoyé à BDC ni accepté par BDC.',
+      requests: 'Demandes créées',
+      requestsNote: 'Créées dans cet onglet seulement. Rien n’a été transmis à BDC ni accepté par BDC.',
       draft: 'Brouillon de question en cours',
       yes: 'Oui',
       no: 'Non',
     },
     presenter: {
       heading: 'Commandes de présentation',
-      hardship: 'Simuler un indicateur de difficultés financières ou d’arriérés (règle de démonstration)',
-      hardshipDesc: 'Lorsque l’option est activée, la section « Du soutien pour vous » masque les suggestions d’emprunt additionnel et met l’aide en priorité. Il s’agit d’une règle de démonstration responsable, et non d’une politique attribuée à BDC. Elle ne modifie pas le dossier de l’avis.',
+      hardship: 'Simuler un indicateur de difficultés financières ou d’arriérés (paramètre d’essai)',
+      hardshipDesc: 'Lorsque l’option est activée, la section « Du soutien pour vous » masque les suggestions d’emprunt additionnel et met l’aide en priorité. Il s’agit d’une règle de conception responsable pour les essais, et non d’une politique attribuée à BDC. Elle ne modifie pas le dossier de l’avis.',
       stateOn: 'Activée : les suggestions d’emprunt additionnel sont masquées dans la section « Du soutien pour vous ».',
       stateOff: 'Désactivée : la section « Du soutien pour vous » affiche ses suggestions habituelles.',
       openSupport: 'Ouvrir la section « Du soutien pour vous »',
@@ -227,7 +227,7 @@ App.i18n.register('insights', {
       doneLabel: 'Réussie par la personne participante : {task}',
       answerLabel: 'Réponse attendue : {task}',
       progress: { one: '{n} tâche réussie sur {total}', other: '{n} tâches réussies sur {total}' },
-      pilot: 'Un projet pilote pourrait comparer la réussite des tâches et les motifs de communication avec les données de référence de BDC. Cette démo n’estime aucun résultat d’affaires.',
+      pilot: 'Un projet pilote pourrait comparer la réussite des tâches et les motifs de communication avec les données de référence de BDC. Cette vue n’estime aucun résultat d’affaires.',
       items: {
         nextPayment: {
           task: 'Trouver le prochain versement',

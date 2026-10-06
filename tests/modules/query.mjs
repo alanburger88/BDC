@@ -1,14 +1,20 @@
 #!/usr/bin/env node
-// Query form + Demo insights module QA (PRD sections 10 and 17, AC-15, AC-23).
+// Query form + Session insights module QA (PRD sections 10 and 17, AC-15, AC-23).
 // Query: context capture and removal, accessible validation (error summary,
-// aria-invalid, 1,000-character limit), review before creation, exact local
-// confirmation, DEMO- reference, copy and downloads, draft persistence across
-// close/reopen, locale switch keeping the question's language, session reset,
-// identifier-only events and no persistent storage of the question.
-// Insights: counts, live timeline, milestones, export, hardship switch,
-// widget status, usability tasks, French and 320px layout; round 2: task links
-// all return to Demo insights (S-22), count tiles aligned per row with codes
-// wrapping only after underscores (S-08).
+// aria-invalid, 1,000-character limit), review before creation, exact
+// confirmation ("Request created", REQ- reference), copy and downloads, draft
+// persistence across close/reopen, locale switch keeping the question's
+// language, session reset, identifier-only events and no persistent storage of
+// the question.
+// Recipient view (product-owner decision 2026-10-06): the panel, its aria-labels
+// and the JSON/TXT exports carry no demo/fictional/sample/local framing in either
+// locale, and never claim the question was sent to, received by or will be
+// answered by BDC. Identifiers are read from App.record, never hard-coded.
+// Insights (presenter page at the unlinked #/insights, exempt from the recipient
+// wording gate): counts, live timeline, milestones, export, hardship switch,
+// widget status, usability tasks, French and 320px layout; task links all return
+// to Session insights (S-22), count tiles aligned per row with codes wrapping
+// only after underscores (S-08); Reset uses the shell's "Clear my activity" dialog.
 // Usage: node tests/modules/query.mjs [path/to/index.html] [--shots dir]
 import { mkdirSync, readFileSync, existsSync } from 'node:fs';
 import { launch, newPage, gotoApp, overflowReport, missingKeys, DEFAULT_FILE } from '../lib/browser.mjs';
@@ -22,12 +28,22 @@ const file = args[0] && !args[0].startsWith('--') ? args[0] : DEFAULT_FILE;
 const shots = args.includes('--shots') ? args[args.indexOf('--shots') + 1] : null;
 if (shots) mkdirSync(shots, { recursive: true });
 
-const CONFIRM_EN = 'Demo request created locally. Nothing has been sent to BDC.';
-const CONFIRM_FR = 'Demande de démonstration créée localement. Rien n’a été envoyé à BDC.';
+const CONFIRM_EN = (ref) => `Your question has been recorded with reference ${ref}. Keep this reference for your records.`;
+const CONFIRM_FR = (ref) => `Votre question a été enregistrée sous la référence ${ref}. Conservez cette référence pour vos dossiers.`;
 const Q1 = 'Why is my December payment different from the original schedule?';
 const Q_DRAFT = 'Could you explain the new final payment date?';
 const Q_FR_TYPED_EN = 'Is the interest rate still fixed?';
 const BANNED = /forgiv|interest[- ]free|holiday|saving|remise de dette|sans int[ée]r[êe]t|cong[ée] de|[ée]conomi|[ée]pargn/i;
+// Recipient view: the build's RECIPIENT_BANNED list, plus framing this module used to carry
+// ("DEMO-" references, "local", "real contact information", "reset the demo").
+const RECIPIENT_BANNED = [
+  /\b(?:demos?|démos?|démonstrations?|demonstrations?|fictional|fictives?|fictifs?|synthetic|synthétiques?|illustrative|illustratifs?|illustrations?|prototypes?|conceptuelle|presenter|présentat(?:eur|rice|ion))\b/i,
+  /this example|cet exemple|sample notice|avis type|not a BDC offer|non une offre de BDC|not connected to BDC|aucun lien avec les systèmes|no live AI|aucune connexion à une IA|nothing (?:is|was|has been) sent|rien n.a été envoyé|n.est envoyé|\blocally\b|\blocalement\b/i,
+  /\bDEMO-|\bsample\b|illustrat|\bconcept\b|\blocale?s?\b|real contact|coordonnée réelle|réinitialis/i,
+];
+const bannedHit = (txt) => { for (const re of RECIPIENT_BANNED) { const m = String(txt).match(re); if (m) return m[0]; } return null; };
+// Honesty guardrail: never say the question was sent to, received by or will be answered by BDC.
+const FALSE_CLAIM = /\b(?:was|has been|have been|is being|will be) (?:sent|submitted|forwarded|received|delivered|answered|reviewed)\b|\bBDC will\b|\bwe will\b|\bwill (?:contact|reply|respond|answer|get back)|a été (?:envoyée|transmise|reçue|soumise)|sera (?:traitée|transmise|envoyée|examinée)|BDC (?:communiquera|répondra|vous répondra)|nous (?:communiquerons|répondrons)/i;
 
 let failures = 0;
 function check(name, ok, detail) {
@@ -71,9 +87,38 @@ const axeCheck = async (name, selector) => {
 // French typography: no ordinary (breakable) space before ":" or inside « ».
 const badFrenchSpacing = (txt) => (txt.match(/ :|« | »/g) || []).length;
 const openQuery = async (ctx) => {
-  await page.evaluate((c) => window.BDCNotice.query.open(c, document.querySelector('[data-fid="footer-insights"]')), ctx);
+  await page.evaluate((c) => window.BDCNotice.query.open(c, document.querySelector('[data-fid="footer-help"]')), ctx);
   await panelOpen();
 };
+// Everything a reader or a screen reader meets in the panel: visible text plus
+// aria-label / title / placeholder / alt attributes.
+const panelAllText = () => page.evaluate((s) => {
+  const p = document.querySelector(s);
+  if (!p) return '';
+  const attrs = [...p.querySelectorAll('[aria-label],[title],[placeholder],[alt]')].map((e) => ['aria-label', 'title', 'placeholder', 'alt'].map((a) => e.getAttribute(a)).filter(Boolean).join(' '));
+  return [p.innerText, p.textContent, ...attrs].join('\n');
+}, PANEL);
+const recipientCheck = async (name) => {
+  const txt = await panelAllText();
+  const hit = bannedHit(txt);
+  check(`recipient view: no demo/fictional/local framing — ${name}`, !hit, hit);
+};
+const NOTICE_ID = await page.evaluate(() => window.BDCNotice.record.noticeId);
+check('notice identifier comes from App.record and carries no DEMO- prefix', typeof NOTICE_ID === 'string' && NOTICE_ID.length > 0 && !/^DEMO-/i.test(NOTICE_ID), NOTICE_ID);
+// The dictionaries of this namespace carry no framing words in either locale.
+{
+  const hits = await page.evaluate((srcs) => {
+    const res = srcs.map((x) => new RegExp(x, 'i'));
+    const out = [];
+    const walk = (o, path) => {
+      if (typeof o === 'string') { for (const re of res) { const m = o.match(re); if (m) { out.push(`${path}: ${m[0]}`); break; } } return; }
+      if (o && typeof o === 'object') Object.entries(o).forEach(([k, x]) => walk(x, `${path}.${k}`));
+    };
+    for (const l of ['en-CA', 'fr-CA']) walk(window.BDCNotice.i18n._dicts[l].query, `${l}.query`);
+    return out;
+  }, RECIPIENT_BANNED.map((re) => re.source));
+  check('query dictionaries (en-CA + fr-CA): no demo/fictional/sample/local wording', hits.length === 0, hits);
+}
 
 check('App.query exposes open() and state()', await page.evaluate(() => typeof window.BDCNotice.query?.open === 'function' && typeof window.BDCNotice.query?.state === 'function'));
 check('insights view is registered', await page.evaluate(() => !!window.BDCNotice.router.views.insights));
@@ -82,7 +127,7 @@ check('insights view is registered', await page.evaluate(() => !!window.BDCNotic
 /* 1. Open with month context                                          */
 /* ------------------------------------------------------------------ */
 const evBefore = (await events()).length;
-await openQuery({ kind: 'month', id: '2026-12', topic: 'payment', section: 'payments', fid: 'footer-insights' });
+await openQuery({ kind: 'month', id: '2026-12', topic: 'payment', section: 'payments', fid: 'footer-help' });
 const opened = await page.evaluate((s) => {
   const p = document.querySelector(s);
   return {
@@ -106,17 +151,18 @@ const opened = await page.evaluate((s) => {
     fontSize: getComputedStyle(p.querySelector('#qry-question')).fontSize,
   };
 }, PANEL);
-check('panel title "Ask a question" with local-demo subtitle', opened.title === 'Ask a question' && opened.subtitle === 'Local demo only. Nothing is sent to BDC.', opened);
+check('panel title "Ask a question" with the notice-details subtitle', opened.title === 'Ask a question' && opened.subtitle === 'Your question will include the details of this notice.', opened);
 check('step indicator "Step 1 of 3: Write your question" (3 segments)', /^Step 1 of 3:? ?Write your question$/.test(opened.step) && opened.progress === 3, opened.step);
-check('notice identifier always shown', opened.notice === 'DEMO-BDC-CHANGE-2026-001', opened.notice);
+check('notice identifier always shown (from App.record)', opened.notice === NOTICE_ID, opened.notice);
 check('selected item captured: "December 2026 payment" with labelled Remove', opened.item === 'December 2026 payment' && opened.removeLabel === 'Remove selected item: December 2026 payment', opened);
 check('chosen language shown (English)', opened.lang === 'English', opened.lang);
 check('topic preselected from ctx.topic (payment)', opened.topic === 'payment', opened.topic);
 check('labelled topic and question fields', opened.topicLabel === 'Topic' && opened.qLabel === 'Your question');
 check('contact radios: none/phone/email/secure, "No preference" default', opened.radios.join() === 'none:true,phone:false,email:false,secure:false', opened.radios);
 check('no file upload, email, phone or password inputs', opened.forbiddenInputs === 0);
-check('privacy note warns against passwords, bank details, IDs, contact info', /passwords/.test(opened.privacy) && /bank-account/.test(opened.privacy) && /government identifiers/.test(opened.privacy) && /sends nothing/.test(opened.privacy));
-check('"No contact details are collected in this demo"', opened.contactHint === 'No contact details are collected in this demo.');
+check('privacy note warns against passwords, banking details and government identifiers', opened.privacy === 'Keep it privateDo not include passwords, banking details or government identifiers in your question.', opened.privacy);
+check('contact hint: "Your preference is saved with your question." (no promise of how BDC will contact you)', opened.contactHint === 'Your preference is saved with your question.' && !FALSE_CLAIM.test(opened.contactHint), opened.contactHint);
+check('draft footnote: kept in this tab until you clear your activity', await page.evaluate(() => document.querySelector('.qry-footnote')?.textContent === 'If you close this panel, your draft is kept in this tab until you clear your activity.'));
 check('panel on the right at 420px, modal', Math.round(opened.rect.width) === 420 && Math.round(opened.rect.right) === 1280 && opened.modal === 'true', opened.rect);
 check('16px text input (no iOS zoom)', opened.fontSize === '16px', opened.fontSize);
 check('opening the form logs nothing', (await events()).length === evBefore);
@@ -128,6 +174,7 @@ const iconsQ = await page.evaluate((s) => {
   return { anyLock: d(p).includes(lock), subtitle: d(p.querySelector('.qry-subtitle')).includes(info), privacy: d(p.querySelector('.qry-privacy')).includes(info) };
 }, PANEL);
 check('no padlock icon in the query panel; subtitle and privacy note use the info icon', !iconsQ.anyLock && iconsQ.subtitle && iconsQ.privacy, iconsQ);
+await recipientCheck('draft step (EN)');
 // R-33: French dictionaries of this area use a no-break space (U+00A0) before ":" and
 // inside « », and no space before ; ! ? (Canadian convention).
 const frSpacing = await page.evaluate(() => {
@@ -217,6 +264,7 @@ check('question: aria-invalid + aria-describedby → inline error', v.taInvalid 
 check('topic: aria-invalid + aria-describedby → inline error', v.selInvalid === 'true' && v.selDesc === 'qry-topic-error', v);
 check('stays on the draft step', v.step === 'draft');
 await axeCheck('axe: no WCAG A/AA violations in the panel with errors', PANEL);
+await recipientCheck('draft step with errors (EN)');
 await shot(page, 'query-en-1280-errors');
 await page.click('.qry-error-summary a[href="#qry-question"]');
 await page.waitForTimeout(100);
@@ -258,9 +306,13 @@ let rv = await page.evaluate(() => {
   return { step: p.getAttribute('data-step'), heading: p.querySelector('.qry-step-title').textContent, rows, qLang: p.querySelector('.qry-question-text')?.getAttribute('lang'), focus: document.activeElement?.classList.contains('qry-step-title'), buttons: [...p.querySelectorAll('.qry-footer button')].map((b) => b.textContent.trim()) };
 });
 check('review step precedes creation (Step 2 of 3)', rv.step === 'review' && /Step 2 of 3/.test(rv.heading) && rv.focus, rv);
-check('review lists notice, item, topic, language, contact and question', rv.rows.Notice === 'DEMO-BDC-CHANGE-2026-001' && rv.rows['Selected item'] === 'December 2026 payment' && rv.rows.Topic === 'Interest' && rv.rows['Preferred language'] === 'English' && rv.rows['Preferred contact method'] === 'Email' && rv.rows['Your question'] === Q1, rv.rows);
+check('review lists notice, item, topic, language, contact and question', rv.rows.Notice === NOTICE_ID && rv.rows['Selected item'] === 'December 2026 payment' && rv.rows.Topic === 'Interest' && rv.rows['Preferred language'] === 'English' && rv.rows['Preferred contact method'] === 'Email' && rv.rows['Your question'] === Q1, rv.rows);
 check('question rendered as text in its own language; review row shows just the language', rv.qLang === 'en-CA' && rv.rows['Language of your question'] === 'English', rv.rows['Language of your question']);
-check('review buttons: Edit + Create demo request', rv.buttons.join('|') === 'Edit|Create demo request', rv.buttons);
+check('review buttons: Edit + Create request', rv.buttons.join('|') === 'Edit|Create request', rv.buttons);
+check('review note: a reference and a summary to copy or download', await page.evaluate(() => document.querySelector('.qry-note')?.textContent === 'Creating the request gives you a reference and a summary you can copy or download.'));
+check('review intro names the "Create request" button', await page.evaluate(() => document.querySelector('.qry-intro')?.textContent === 'Check the details below. Nothing is created until you select “Create request”.'));
+await recipientCheck('review step (EN)');
+check('review step makes no claim that BDC receives or answers the question (EN)', !FALSE_CLAIM.test(await panelAllText()), (await panelAllText()).match(FALSE_CLAIM));
 await axeCheck('axe: no WCAG A/AA violations on the review step', PANEL);
 await shot(page, 'query-en-1280-review');
 await page.click('[data-fid="qry-edit"]');
@@ -268,32 +320,38 @@ await page.waitForTimeout(150);
 check('Edit returns to the draft with text and choices kept', await page.evaluate((q) => document.querySelector('#qry-question').value === q && document.querySelector('#qry-topic').value === 'interest' && document.querySelector('#qry-contact-email').checked, Q1));
 await page.click('[data-fid="qry-continue"]');
 await page.waitForTimeout(150);
-check('no request exists before "Create demo request"', await page.evaluate(() => window.BDCNotice.query.state().requests.length === 0));
+check('no request exists before "Create request"', await page.evaluate(() => window.BDCNotice.query.state().requests.length === 0));
 
 // AC-15 style: role-based buttons work
 const panel = page.locator(PANEL);
-await panel.getByRole('button', { name: /create demo request/i }).click();
+await panel.getByRole('button', { name: /^create request$/i }).click();
 await page.waitForTimeout(200);
 let cf = await page.evaluate(() => {
   const p = document.querySelector('[data-overlay="query"]');
   return {
     step: p.getAttribute('data-step'),
     heading: p.querySelector('.qry-step-title').textContent,
+    stepName: p.querySelector('.qry-step-name')?.textContent,
     text: p.querySelector('.qry-confirm-text')?.textContent,
     ref: p.querySelector('.qry-ref-value')?.textContent,
-    notCase: p.querySelector('.qry-note')?.textContent || '',
+    refLabel: p.querySelector('.qry-ref-label')?.textContent,
+    next: p.querySelector('.qry-next')?.textContent || '',
+    doneHeadings: p.querySelectorAll('.qry-done h4, .qry-done-title').length,
     summary: p.querySelector('.qry-summary')?.textContent || '',
     focus: document.activeElement?.classList.contains('qry-step-title'),
     footer: [...p.querySelectorAll('.qry-footer button')].map((b) => b.textContent.trim()),
   };
 });
-check('confirmation shows the exact text', cf.text === CONFIRM_EN && (await panelText()).includes(CONFIRM_EN), cf.text);
-check('reference prefixed DEMO- (DEMO-Q-0001)', cf.ref === 'DEMO-Q-0001', cf.ref);
-check('confirmation heading is Step 3 of 3 and receives focus', /Step 3 of 3/.test(cf.heading) && cf.focus);
-check('clarifies this is not a case acknowledgement', /not a case number or an acknowledgement/.test(cf.notCase));
-check('plain-text summary has ref, statement, item and the question', cf.summary.includes('Demo request DEMO-Q-0001') && cf.summary.includes(CONFIRM_EN) && cf.summary.includes('Selected item: December 2026 payment') && cf.summary.includes(Q1), cf.summary.slice(0, 200));
+check('confirmation title "Request created" (Step 3 of 3) receives focus', /Step 3 of 3/.test(cf.heading) && cf.stepName === 'Request created' && cf.focus, cf);
+check('confirmation shows the exact text with the reference', cf.text === CONFIRM_EN('REQ-0001') && (await panelText()).includes(CONFIRM_EN('REQ-0001')), cf.text);
+check('reference REQ-0001 shown under "Reference" (no DEMO- prefix)', cf.ref === 'REQ-0001' && cf.refLabel === 'Reference', cf);
+check('no duplicate heading inside the confirmation box', cf.doneHeadings === 0, cf.doneHeadings);
+check('next step points to the BDC account manager (as in the notice) and the summary below', cf.next === 'To discuss your question, contact your BDC account manager. You can copy or download the summary below.', cf.next);
+check('plain-text summary has ref, statement, item and the question', cf.summary.includes('Request REQ-0001') && cf.summary.includes(CONFIRM_EN('REQ-0001')) && cf.summary.includes(`Notice: ${NOTICE_ID}`) && cf.summary.includes('Selected item: December 2026 payment') && cf.summary.includes(Q1) && cf.summary.trim().endsWith('To discuss your question, contact your BDC account manager.'), cf.summary.slice(0, 200));
+await recipientCheck('confirmation step (EN)');
+check('confirmation makes no claim that BDC received or will answer the question (EN)', !FALSE_CLAIM.test(await panelAllText()), (await panelAllText()).match(FALSE_CLAIM));
 check('"Start a new question" and "Close" offered', cf.footer.join('|') === 'Start a new question|Close', cf.footer);
-check('scrollable summary is a focusable, named region', await page.evaluate(() => { const p = document.querySelector('.qry-summary'); return p.getAttribute('role') === 'region' && p.tabIndex === 0 && /DEMO-Q-0001/.test(p.getAttribute('aria-label')); }));
+check('scrollable summary is a focusable, named region', await page.evaluate(() => { const p = document.querySelector('.qry-summary'); return p.getAttribute('role') === 'region' && p.tabIndex === 0 && p.getAttribute('aria-label') === 'Summary of request REQ-0001'; }));
 check('step heading keeps a visible focus style (no outline:none)', await page.evaluate(() => {
   const hd = document.querySelector('.qry-step-title');
   const rule = [...document.styleSheets].flatMap((ss) => { try { return [...ss.cssRules]; } catch (e) { return []; } }).find((r) => r.selectorText === '.qry-step-title');
@@ -301,12 +359,12 @@ check('step heading keeps a visible focus style (no outline:none)', await page.e
 }));
 await axeCheck('axe: no WCAG A/AA violations on the confirmation step', PANEL);
 await page.waitForTimeout(80);
-check('creation announced', await page.evaluate((c) => document.getElementById('live-polite').textContent === c, CONFIRM_EN));
+check('creation announced', await page.evaluate((c) => document.getElementById('live-polite').textContent === c, CONFIRM_EN('REQ-0001')));
 await shot(page, 'query-en-1280-confirm');
 
 ev = await events();
 const created = ev.filter((e) => e.type === 'demo_query_created');
-check('demo_query_created logged once with the reference id', created.length === 1 && created[0].id === 'DEMO-Q-0001', created);
+check('request creation logged once (core demo_query_created type) with the REQ- reference id', created.length === 1 && created[0].id === 'REQ-0001', created);
 const evJson = JSON.stringify(ev);
 check('events contain no question text', !evJson.includes('December payment') && !evJson.includes('Why') && !evJson.includes('aaaa'));
 
@@ -317,7 +375,7 @@ const copyStatus = await page.evaluate(() => document.querySelector('.qry-status
 check('Copy gives status feedback', ['Summary copied to the clipboard.', 'Copying is not available in this browser. Select the summary text and copy it manually.'].includes(copyStatus), copyStatus);
 let clip = null;
 try { clip = await page.evaluate(() => navigator.clipboard.readText()); } catch (e) { clip = null; }
-if (clip !== null && copyStatus.startsWith('Summary copied')) check('clipboard holds the plain-text summary', clip.includes('DEMO-Q-0001') && clip.includes(Q1), clip.slice(0, 120));
+if (clip !== null && copyStatus.startsWith('Summary copied')) check('clipboard holds the plain-text summary (no framing words)', clip.includes('REQ-0001') && clip.includes(Q1) && !bannedHit(clip), clip.slice(0, 120));
 // R-46: when the Clipboard API is unavailable, the fallback copy (temporary textarea)
 // must not drop focus to <body>: focus stays on "Copy summary" and the result is announced.
 await page.evaluate(() => {
@@ -343,12 +401,14 @@ let [dl] = await Promise.all([page.waitForEvent('download', { timeout: 5000 }), 
 let content = readFileSync(await dl.path(), 'utf8');
 let json = null;
 try { json = JSON.parse(content); } catch (e) { json = null; }
-check('JSON download triggers (DEMO-Q-0001.json)', dl.suggestedFilename() === 'DEMO-Q-0001.json' && !!json, dl.suggestedFilename());
-check('JSON has reference, demo flag, statement, item, topic and question', json && json.reference === 'DEMO-Q-0001' && json.demo === true && json.statement === CONFIRM_EN && json.selectedItem?.id === '2026-12' && json.topic?.id === 'interest' && json.question === Q1 && json.preferredContactMethod === 'email', json);
+check('JSON download triggers (REQ-0001.json)', dl.suggestedFilename() === 'REQ-0001.json' && !!json, dl.suggestedFilename());
+check('JSON has reference, statement, notice, item, topic, contact and question', json && json.schema === 'bdc-notice-request/1' && json.reference === 'REQ-0001' && json.statement === CONFIRM_EN('REQ-0001') && json.noticeId === NOTICE_ID && json.selectedItem?.id === '2026-12' && json.topic?.id === 'interest' && json.question === Q1 && json.preferredContactMethod === 'email' && json.nextStep === 'To discuss your question, contact your BDC account manager.', json);
+check('JSON carries no demo flag or framing words (keys and values)', json && !('demo' in json) && !bannedHit(content.replace(Q1, '')), bannedHit(content));
 [dl] = await Promise.all([page.waitForEvent('download', { timeout: 5000 }), page.click('[data-fid="qry-download-txt"]')]);
 content = readFileSync(await dl.path(), 'utf8');
-check('text download triggers (DEMO-Q-0001.txt) with the summary', dl.suggestedFilename() === 'DEMO-Q-0001.txt' && content.includes(CONFIRM_EN) && content.includes(Q1));
-check('download status shown', await page.evaluate(() => /Download started: DEMO-Q-0001\.txt/.test(document.querySelector('.qry-status')?.textContent || '')));
+check('text download triggers (REQ-0001.txt) with the summary', dl.suggestedFilename() === 'REQ-0001.txt' && content.includes(CONFIRM_EN('REQ-0001')) && content.includes(Q1) && content.includes(`Notice: ${NOTICE_ID}`));
+check('text download carries no framing words and no claim that BDC received it', !bannedHit(content) && !FALSE_CLAIM.test(content), bannedHit(content) || content.match(FALSE_CLAIM));
+check('download status shown', await page.evaluate(() => /Download started: REQ-0001\.txt/.test(document.querySelector('.qry-status')?.textContent || '')));
 
 // Focus trap inside the panel
 let trapped = true;
@@ -362,7 +422,7 @@ check('visible focus indicator', await page.evaluate(() => { const s = getComput
 // Close returns focus
 await page.click('[data-fid="qry-done-close"]');
 await panelClosed();
-check('Close closes the panel and returns focus to the trigger', (await activeInfo()).fid === 'footer-insights');
+check('Close closes the panel and returns focus to the trigger', (await activeInfo()).fid === 'footer-help');
 
 /* ------------------------------------------------------------------ */
 /* 6. Draft persistence, new ctx, locale switch                        */
@@ -447,6 +507,14 @@ check('"Rédigée en anglais" (agrees with « question ») + kept-as-written not
 check('focus and caret preserved in the textarea', v.focus && v.caret === 5, v);
 check('item relabelled in French', v.item === 'Date du dernier versement (échéance)', v.item);
 check('no missing keys in French panel', (await missingKeys(page)).length === 0, await missingKeys(page));
+check('French subtitle, privacy note and contact hint', await page.evaluate(() => {
+  const p = document.querySelector('[data-overlay="query"]');
+  return p.querySelector('.qry-subtitle').textContent === 'Votre question comprendra les renseignements de cet avis.'
+    && p.querySelector('.qry-privacy').textContent === 'Protégez vos renseignementsN’indiquez aucun mot de passe, renseignement bancaire ni numéro d’identification gouvernemental dans votre question.'
+    && p.querySelector('#qry-contact-hint').textContent === 'Votre préférence est enregistrée avec votre question.'
+    && p.querySelector('.qry-footnote').textContent === 'Si vous fermez ce panneau, votre brouillon reste dans cet onglet jusqu’à ce que vous effaciez votre activité.';
+}));
+await recipientCheck('draft step (FR)');
 await page.setViewportSize({ width: 320, height: 720 });
 await page.waitForTimeout(200);
 let of = await overflowReport(page);
@@ -464,6 +532,7 @@ await page.fill('#qry-question', '');
 await page.click('[data-fid="qry-continue"]');
 await page.waitForTimeout(150);
 check('French error summary and messages', await page.evaluate(() => document.querySelector('.qry-error-title')?.textContent === 'Veuillez corriger ce qui suit' && /Saisissez votre question/.test(document.querySelector('.qry-error-summary').textContent)));
+await recipientCheck('draft step with errors (FR)');
 await shot(page, 'query-fr-390-errors');
 
 // Question typed in English while the UI is French keeps English
@@ -479,11 +548,30 @@ await page.waitForTimeout(150);
 await shot(page, 'query-fr-390-review');
 v = await page.evaluate(() => Object.fromEntries([...document.querySelectorAll('.qry-review-row')].map((r) => [r.querySelector('dt').textContent, r.querySelector('dd').textContent])));
 check('French review: language values shown standalone and capitalised (as in the summary)', v['Langue préférée'] === 'Français' && v['Langue de votre question'] === 'Français', v);
+check('French review: « Créer la demande » button and intro', await page.evaluate(() => [...document.querySelectorAll('.qry-footer button')].map((b) => b.textContent.trim()).join('|') === 'Modifier|Créer la demande' && document.querySelector('.qry-intro').textContent === 'Vérifiez les renseignements ci-dessous. Rien n’est créé tant que vous n’avez pas sélectionné «\u00a0Créer la demande\u00a0».'));
+await recipientCheck('review step (FR)');
+check('French review makes no claim that BDC receives or answers the question', !FALSE_CLAIM.test(await panelAllText()), (await panelAllText()).match(FALSE_CLAIM));
 await page.click('[data-fid="qry-create"]');
 await page.waitForTimeout(200);
-cf = await page.evaluate(() => ({ text: document.querySelector('.qry-confirm-text')?.textContent, ref: document.querySelector('.qry-ref-value')?.textContent }));
-check('French confirmation exact text', cf.text === CONFIRM_FR, cf.text);
-check('references are sequential per session (DEMO-Q-0002)', cf.ref === 'DEMO-Q-0002', cf.ref);
+cf = await page.evaluate(() => ({ text: document.querySelector('.qry-confirm-text')?.textContent, ref: document.querySelector('.qry-ref-value')?.textContent, stepName: document.querySelector('.qry-step-name')?.textContent, refLabel: document.querySelector('.qry-ref-label')?.textContent, next: document.querySelector('.qry-next')?.textContent, summary: document.querySelector('.qry-summary')?.textContent || '' }));
+check('French confirmation: « Demande créée » and exact text', cf.stepName === 'Demande créée' && cf.text === CONFIRM_FR('REQ-0002') && cf.refLabel === 'Référence', cf);
+check('French next step: account manager (as in the notice) and the summary below', cf.next === 'Pour discuter de votre question, communiquez avec votre directrice ou directeur de comptes chez BDC. Vous pouvez copier ou télécharger le résumé ci-dessous.', cf.next);
+check('French summary: « Demande REQ-0002 », notice line and closing line', cf.summary.startsWith('Demande REQ-0002') && cf.summary.includes(`Avis\u00a0: ${NOTICE_ID}`) && cf.summary.trim().endsWith('Pour discuter de votre question, communiquez avec votre directrice ou directeur de comptes chez BDC.'), cf.summary.slice(0, 160));
+check('references are sequential per session (REQ-0002)', cf.ref === 'REQ-0002', cf.ref);
+await recipientCheck('confirmation step (FR)');
+check('French confirmation makes no claim that BDC received or will answer the question', !FALSE_CLAIM.test(await panelAllText()), (await panelAllText()).match(FALSE_CLAIM));
+// French exports: same shape, French labels, no framing words.
+{
+  let [fdl] = await Promise.all([page.waitForEvent('download', { timeout: 5000 }), page.click('[data-fid="qry-download-json"]')]);
+  const fjson = readFileSync(await fdl.path(), 'utf8');
+  let fj = null;
+  try { fj = JSON.parse(fjson); } catch (e) { fj = null; }
+  check('French JSON export (REQ-0002.json): statement in French, no demo flag or framing words', fdl.suggestedFilename() === 'REQ-0002.json' && fj && fj.statement === CONFIRM_FR('REQ-0002') && !('demo' in fj) && !bannedHit(fjson.replace(Q_FR_TYPED_EN, '')), fj);
+  [fdl] = await Promise.all([page.waitForEvent('download', { timeout: 5000 }), page.click('[data-fid="qry-download-txt"]')]);
+  const ftxt = readFileSync(await fdl.path(), 'utf8');
+  check('French text export (REQ-0002.txt): no framing words, no claim that BDC received it', fdl.suggestedFilename() === 'REQ-0002.txt' && ftxt.includes(CONFIRM_FR('REQ-0002')) && !bannedHit(ftxt) && !FALSE_CLAIM.test(ftxt), bannedHit(ftxt) || ftxt.slice(0, 160));
+  check('French download status uses a no-break space before ":"', await page.evaluate(() => /^Téléchargement lancé\u00a0: REQ-0002\.txt$/.test(document.querySelector('.qry-status')?.textContent || '')));
+}
 of = await overflowReport(page);
 check('fr-CA 390px confirmation: no horizontal overflow', !of.overflow && !of.offenders.length, of.offenders.slice(0, 3));
 await shot(page, 'query-fr-390-confirm');
@@ -541,12 +629,14 @@ let ins = await page.evaluate(() => {
 });
 const allEvents = await events();
 check('arriving on the view does not flash its own section_viewed as a "new" event', await page.evaluate(() => !document.querySelector('.ins-event.is-new') && !document.querySelector('.ins-tile.is-bumped')));
-check('insights h1 "Demo insights" (single h1)', ins.h1.length === 1 && ins.h1[0] === 'Demo insights', ins.h1);
+check('insights h1 "Session insights" matches nav.insights (single h1)', ins.h1.length === 1 && ins.h1[0] === 'Session insights' && ins.h1[0] === (await page.evaluate(() => window.BDCNotice.i18n.t('nav.insights'))), ins.h1);
 check('a count tile for each of the 15 event types', ins.tiles === 15 && ins.types === 15, ins.tiles);
 check('tile counts match App.events.counts()', ins.created === 2 && ins.drafted >= 1 && ins.sections === allEvents.filter((e) => e.type === 'section_viewed').length, ins);
 check('timeline lists events newest first with "Showing n of m"', ins.first === allEvents[allEvents.length - 1].type && /^Showing \d+ of \d+$/.test(ins.showing), ins);
-check('framing: local counts, not BDC outcomes; no admin role; video ≠ comprehension; reviewed ≠ consent', /not measured BDC outcomes/.test(ins.framing) && /administrative/.test(ins.framing) && /understood/.test(ins.framing) && /not consent/.test(ins.framing) && /Acceptance by a server/.test(ins.framing));
-check('milestones show demo requests created (2) with references', /DEMO-Q-0001/.test(ins.requests) && /DEMO-Q-0002/.test(ins.requests), ins.requests.slice(0, 300));
+check('framing: local counts, not BDC outcomes; no admin role; video ≠ comprehension; reviewed ≠ consent', /not measured BDC outcomes/.test(ins.framing) && /administrative/.test(ins.framing) && /understood/.test(ins.framing) && /not consent/.test(ins.framing) && /Nothing is sent to BDC, so acceptance by a server/.test(ins.framing) && /REQ- reference/.test(ins.framing), ins.framing);
+check('milestones show requests created (2) with REQ- references', /Requests created\s*2/.test(ins.requests) && /REQ-0001/.test(ins.requests) && /REQ-0002/.test(ins.requests) && !/DEMO-/.test(ins.requests), ins.requests.slice(0, 300));
+check('the request count tile and timeline use the new request wording', await page.evaluate(() => document.querySelector('.ins-tile[data-type="demo_query_created"] .ins-tile-label')?.textContent === 'Requests created' && [...document.querySelectorAll('.ins-event[data-type="demo_query_created"] .ins-event-title')].every((e) => e.textContent === 'Request created')));
+check('insights actions: Export + "Clear my activity" (core label)', await page.evaluate(() => [...document.querySelectorAll('.ins-actions button')].map((b) => b.textContent.trim()).join('|') === `Export events (JSON)|${window.BDCNotice.i18n.t('shell.resetDemo')}` && window.BDCNotice.i18n.t('shell.resetDemo') === 'Clear my activity'));
 check('widget status reports the script element (matched by fragment)', /Script element in this page\s*Yes/.test(ins.widget), ins.widget.slice(0, 200));
 check('no question text on the insights page', !ins.text.includes(Q1) && !ins.text.includes(Q_DRAFT));
 check('no banned framing on insights (EN)', !BANNED.test(ins.text), ins.text.match(BANNED));
@@ -582,7 +672,7 @@ check('when "Show more" hides itself, focus moves to the first newly shown event
 // Hardship switch
 const sw = '[data-fid="ins-hardship"]';
 v = await page.evaluate((s) => { const b = document.querySelector(s); return { role: b.getAttribute('role'), checked: b.getAttribute('aria-checked'), name: document.querySelector('label[for="ins-hardship"]').textContent }; }, sw);
-check('hardship switch: role=switch, off by default, labelled', v.role === 'switch' && v.checked === 'false' && v.name === 'Simulate a hardship/arrears flag (demo rule)', v);
+check('hardship switch: role=switch, off by default, labelled', v.role === 'switch' && v.checked === 'false' && v.name === 'Simulate a hardship/arrears flag (test setting)', v);
 await page.click(sw);
 await page.waitForTimeout(80);
 v = await page.evaluate((s) => ({ checked: document.querySelector(s).getAttribute('aria-checked'), flag: window.BDCNotice.session.slice('presenter').simulateHardship, rule: window.BDCNotice.config.rules.suppressBorrowingPromotion(), state: document.querySelector('#ins-hardship-state').textContent }), sw);
@@ -634,7 +724,7 @@ let tn = await taskControlNames();
 check('task checkboxes and "Expected answer" buttons have unique names that include the task', namesOk(tn) && tn[0].cbName === 'Completed by participant: Find the next payment' && tn[0].btnName === 'Expected answer: Find the next payment', tn.slice(0, 2));
 
 // S-22: all four task links behave the same way: they open a view that offers
-// "Back to Demo insights" (goWithReturn), and Back lands on the link again.
+// "Back to Session insights" (goWithReturn), and Back lands on the link again.
 {
   const exp = await page.evaluate(() => {
     const A = window.BDCNotice;
@@ -654,12 +744,12 @@ check('task checkboxes and "Expected answer" buttons have unique names that incl
       // The real module is in this build when its content namespace is registered (else a boot fallback view).
       return { hash: location.hash, from: top ? top.from : null, registered: !!A.i18n._dicts['en-CA'][sec], back: btn ? btn.textContent.trim() : null };
     });
-    check(`S-22: ${l.fid} keeps a return path to Demo insights${at.registered ? ' and shows "Back to Demo insights"' : ' (view not in this build)'}`, at.hash === l.href && at.from === '#/insights' && (!at.registered || at.back === 'Back to Demo insights'), at);
+    check(`S-22: ${l.fid} keeps a return path to Session insights${at.registered ? ' and shows "Back to Session insights"' : ' (view not in this build)'}`, at.hash === l.href && at.from === '#/insights' && (!at.registered || at.back === 'Back to Session insights'), at);
     if (at.back) await page.click('[data-fid="back-control"]');
     else await page.evaluate(() => window.BDCNotice.router.back());
     await page.waitForTimeout(450);
     const ret = await page.evaluate(() => ({ hash: location.hash, fid: (document.activeElement.closest('[data-fid]') || {}).getAttribute?.('data-fid') || null }));
-    check(`S-22: Back from ${l.fid} returns to Demo insights with focus on the link`, ret.hash === '#/insights' && ret.fid === l.fid, ret);
+    check(`S-22: Back from ${l.fid} returns to Session insights with focus on the link`, ret.hash === '#/insights' && ret.fid === l.fid, ret);
   }
 }
 
@@ -694,8 +784,8 @@ check('S-08: counts line up across each row of tiles and codes never break insid
 [dl] = await Promise.all([page.waitForEvent('download', { timeout: 5000 }), page.click('[data-fid="ins-export"]')]);
 content = readFileSync(await dl.path(), 'utf8');
 json = JSON.parse(content);
-check('Export downloads JSON with notice id, 15 counts and events', dl.suggestedFilename() === 'demo-insights-DEMO-BDC-CHANGE-2026-001.json' && json.noticeId === 'DEMO-BDC-CHANGE-2026-001' && Object.keys(json.counts).length === 15 && json.events.length === (await events()).length, dl.suggestedFilename());
-check('export holds identifiers only (no question text)', !content.includes(Q1) && !content.includes(Q_DRAFT) && !content.includes(Q_FR_TYPED_EN) && json.milestones.demoRequestsCreated === 2);
+check('Export downloads JSON with notice id, 15 counts and events', dl.suggestedFilename() === `session-insights-${NOTICE_ID}.json` && json.noticeId === NOTICE_ID && json.schema === 'bdc-notice-session-events/1' && !('demo' in json) && Object.keys(json.counts).length === 15 && json.events.length === (await events()).length, dl.suggestedFilename());
+check('export holds identifiers only (no question text)', !content.includes(Q1) && !content.includes(Q_DRAFT) && !content.includes(Q_FR_TYPED_EN) && json.milestones.requestsCreated === 2 && json.milestones.requestReferences.join() === 'REQ-0001,REQ-0002', json.milestones);
 await axeCheck('axe: no WCAG A/AA violations in the insights view', '#view');
 await shot(page, 'insights-en-1280', true);
 
@@ -703,7 +793,7 @@ await shot(page, 'insights-en-1280', true);
 await page.evaluate(() => window.BDCNotice.i18n.setLocale('fr-CA'));
 await page.waitForTimeout(250);
 v = await page.evaluate(() => ({ h1: document.querySelector('#view h1').textContent, overline: document.querySelector('#view .section-header .overline')?.textContent || '', text: document.querySelector('#view').innerText }));
-check('French insights view: « Statistiques de la démo » (distinct from the « Aperçu » tab), overline « Mode présentateur »', v.h1 === 'Statistiques de la démo' && v.overline === 'Mode présentateur' && !/Aperçu de la démo|Vue de présentation/.test(v.text) && /Nombre d’interactions/.test(v.text) && /Simuler un indicateur de difficultés financières/.test(v.text), { h1: v.h1, overline: v.overline });
+check('French insights view: « Statistiques de la séance » = nav.insights (distinct from the « Aperçu » tab), overline « Mode présentateur »', v.h1 === 'Statistiques de la séance' && v.h1 === (await page.evaluate(() => window.BDCNotice.i18n.t('nav.insights'))) && v.overline === 'Mode présentateur' && /Effacer mon activité/.test(v.text) && /Demandes créées/.test(v.text) && !/Aperçu de la démo|Vue de présentation/.test(v.text) && /Nombre d’interactions/.test(v.text) && /Simuler un indicateur de difficultés financières/.test(v.text), { h1: v.h1, overline: v.overline });
 tn = await taskControlNames();
 check('French task controls: unique names that include the task', namesOk(tn) && tn[0].cbName === 'Réussie par la personne participante\u00a0: Trouver le prochain versement' && tn[0].btnName === 'Réponse attendue\u00a0: Trouver le prochain versement', tn.slice(0, 1));
 check('no missing keys on insights (FR)', (await missingKeys(page)).length === 0, await missingKeys(page));
@@ -740,14 +830,18 @@ await page.fill('#qry-question', 'Temporary draft to clear');
 await page.keyboard.press('Escape');
 await panelClosed();
 await page.click('[data-fid="ins-reset"]');
-await page.waitForSelector('[data-overlay="ins-reset"].is-open');
+await page.waitForSelector('[data-overlay="reset"].is-open');
 await page.waitForTimeout(250);
-check('Reset asks for confirmation in a dialog', await page.evaluate(() => /Reset this demonstration\?/.test(document.querySelector('[data-overlay="ins-reset"]').innerText)));
-await page.click('[data-fid="ins-reset-confirm"]');
+check('"Clear my activity" opens the shell\'s confirmation dialog ("Clear your activity?")', await page.evaluate(() => {
+  const d = document.querySelector('[data-overlay="reset"]');
+  const A = window.BDCNotice;
+  return /Clear your activity\?/.test(d.innerText) && d.innerText.includes(A.i18n.t('shell.resetBody')) && !!d.querySelector('[data-fid="reset-confirm"]') && !document.querySelector('[data-overlay="ins-reset"]');
+}));
+await page.click('[data-fid="reset-confirm"]');
 await page.waitForTimeout(400);
 v = await page.evaluate(() => ({ st: window.BDCNotice.query.state(), hash: location.hash, events: window.BDCNotice.events.all().length, flag: window.BDCNotice.session.slice('presenter', () => ({ simulateHardship: false })).simulateHardship }));
 check('session reset clears the draft and created requests', v.st.draft === null && v.st.requests.length === 0, v.st);
-check('reset clears events (fresh section view only) and returns to overview', v.hash === '#/overview' && v.events <= 2, v);
+check('reset clears events (fresh notice_opened + section view only) and returns to overview', v.hash === '#/overview' && v.events <= 2, v);
 await openQuery({ kind: 'general' });
 check('after reset the form is empty and numbering restarts', await page.evaluate(() => document.querySelector('#qry-question').value === ''));
 await page.fill('#qry-question', 'New question after reset');
@@ -756,7 +850,7 @@ await page.click('[data-fid="qry-continue"]');
 await page.waitForTimeout(120);
 await page.click('[data-fid="qry-create"]');
 await page.waitForTimeout(150);
-check('reference numbering restarts after reset (DEMO-Q-0001)', await page.evaluate(() => document.querySelector('.qry-ref-value')?.textContent === 'DEMO-Q-0001'));
+check('reference numbering restarts after reset (REQ-0001)', await page.evaluate(() => document.querySelector('.qry-ref-value')?.textContent === 'REQ-0001'));
 // Reset while the panel is open closes it
 await page.evaluate(() => window.BDCNotice.session.reset());
 await page.waitForTimeout(150);
