@@ -252,7 +252,7 @@
     return h('ul', { class: 'ntc-f4-cards', role: 'list' }, months.map((m) => h('li', { class: 'ntc-f4-card' },
       h('table', { class: 'ntc-mini' },
         h('caption', null, date(m.date)),
-        h('colgroup', null, h('col', { class: 'ntc-mini-label' }), h('col'), h('col')),
+        h('colgroup', null, h('col', { class: 'ntc-mini-label' }), h('col', { class: 'ntc-mini-amt' }), h('col', { class: 'ntc-mini-amt' })),
         h('thead', null, h('tr', null,
           h('td', null),
           h('th', { scope: 'col', class: 'num' }, t('common.original')),
@@ -548,13 +548,20 @@
       h('span', { class: 'ntc-dl-text' }, h('span', { class: 'ntc-dl-label' }, label), ' ', h('span', { class: 'ntc-dl-sub' }, sub))));
   }
 
+  // "Print / Save as PDF": each side of the slash is kept whole, so a long label
+  // (fr-CA) breaks cleanly after the slash onto two lines instead of three.
+  function printLabel() {
+    const parts = k('actions.print').split(/(?<=\/)\s+/);
+    return parts.map((part, i) => [i ? ' ' : null, h('span', { class: 'ntc-print-seg' }, part)]);
+  }
+
   function actionsCard() {
     const R = App.record;
     statusEl = h('p', { class: 'ntc-dl-status' });
     return h('section', { class: ['card', 'ntc-card', 'ntc-actions'], 'aria-labelledby': 'ntc-actions-title' },
       h('h2', { class: 'ntc-card-title', id: 'ntc-actions-title' }, k('actions.title')),
       h('p', { class: 'ntc-card-intro' }, k('actions.intro')),
-      App.ui.button({ label: k('actions.print'), kind: 'primary', iconName: 'print', fid: 'ntc-print', className: 'ntc-print-btn', onClick: () => printNotice() }),
+      App.ui.button({ label: printLabel(), kind: 'primary', iconName: 'print', fid: 'ntc-print', className: 'ntc-print-btn', onClick: () => printNotice() }),
       h('ul', { class: 'ntc-dl-list' },
         dlButton('revised', k('actions.revisedCsv'), k('actions.paymentsSub', { count: num(R.revisedSchedule.length) }), 'ntc-dl-revised'),
         dlButton('original', k('actions.originalCsv'), k('actions.paymentsSub', { count: num(R.originalSchedule.length) }), 'ntc-dl-original'),

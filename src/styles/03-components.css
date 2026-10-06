@@ -63,8 +63,8 @@
 .card.is-selected { border-color: var(--blue); box-shadow: 0 0 0 2px var(--blue), var(--shadow-lift); }
 .card-title { font-size: var(--fs-h3); margin-bottom: var(--space-2); }
 .card-kicker { font-size: var(--fs-overline); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); margin-bottom: var(--space-2); display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
-.card-figure { font-size: var(--fs-figure); font-weight: 700; color: var(--navy); line-height: 1.1; letter-spacing: var(--tracking-tight); margin: var(--space-1) 0 var(--space-2); overflow-wrap: anywhere; }
-.card-figure .money { white-space: normal; }
+/* Amounts never split from their currency sign: .money stays nowrap, lines wrap between words */
+.card-figure { font-size: var(--fs-figure); font-weight: 700; color: var(--navy); line-height: 1.1; letter-spacing: var(--tracking-tight); margin: var(--space-1) 0 var(--space-2); }
 .card-meta { color: var(--muted); font-size: var(--fs-small); }
 .error-card { border-color: var(--red); }
 @media (max-width: 599.98px) { .card { padding: var(--space-4); } }
@@ -98,9 +98,10 @@
 .compare-cell--before { background: var(--grey-bg); border: 1px dashed var(--line-strong); }
 .compare-cell--after { background: var(--blue-tint); border: 1px solid #b9c8ff; }
 .compare-label { display: block; font-size: var(--fs-overline); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
-.compare-value { display: block; font-weight: 700; color: var(--navy); font-size: 1.0625rem; overflow-wrap: anywhere; }
-.compare-value .money { white-space: normal; }
-@media (max-width: 359.98px) { .compare { grid-template-columns: minmax(0, 1fr); } }
+.compare-value { display: block; font-weight: 700; color: var(--navy); font-size: 1.0625rem; }
+/* Stacked below 380px: half-width cells there are too narrow for a French amount
+   ("16 720,00 $") on one line, and an amount must never split from its "$". */
+@media (max-width: 379.98px) { .compare { grid-template-columns: minmax(0, 1fr); } }
 
 /* Key-value lists */
 .kv { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-2) var(--space-4); margin: 0; }
@@ -195,6 +196,12 @@
 .overlay-title { font-size: 1.25rem; margin: 6px 0 2px; outline: none; }
 .overlay-close { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border: 1px solid var(--line); flex: 0 0 auto; }
 .overlay-close-text { font-size: var(--fs-small); font-weight: 600; }
+/* Very narrow dialogs: the close button shows its icon only (its accessible name is
+   unchanged) so the title keeps the width it needs, e.g. "Réinitialiser cette démonstration?" */
+@media (max-width: 379.98px) {
+  .overlay--dialog .overlay-close { padding: 8px; }
+  .overlay--dialog .overlay-close-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}
 .overlay-body { flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain; padding: var(--space-4) var(--space-5) calc(var(--space-5) + var(--safe-bottom)); min-height: 0; }
 @media (max-width: 599.98px) {
   .overlay--panel { width: 100%; border-radius: 0; }

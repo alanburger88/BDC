@@ -494,6 +494,69 @@ for (const [locale, w] of [['en-CA', 390], ['fr-CA', 390], ['fr-CA', 320], ['en-
   const mk = await missingKeys(page);
   check(`${locale} ${w} px: no missing keys`, mk.length === 0, mk);
 }
+/* ---------- 8b. Width sweeps (320–1440 px, 10 px steps, both languages) ---------- */
+// S-00: the "First four payments" cards. Amounts stay inside their own columns
+// with a visible gap, nothing spills past the card, and no label or amount
+// wraps (so "Principal" never splits mid-word).
+// S-07: the primary "Print / Save as PDF" pill is never three lines: one line
+// in en-CA, at most two in fr-CA with the break right after the slash.
+for (const locale of ['en-CA', 'fr-CA']) {
+  await setLocale(page, locale);
+  await go(page, '#/documents', 300);
+  const cardIssues = []; const printIssues = []; let cardWidths = 0; let pairWidths = 0; let minGap = Infinity; const printLines = new Set();
+  for (let w = 320; w <= 1440; w += 10) {
+    await page.setViewportSize({ width: w, height: 900 });
+    await wait(page, 40);
+    const r = await page.evaluate(() => {
+      // rendered lines of an element's text (inline-block parts count once per line)
+      const lines = (el) => {
+        const tops = [];
+        const tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+        while (tw.nextNode()) { const rg = document.createRange(); rg.selectNodeContents(tw.currentNode); for (const x of rg.getClientRects()) if (x.width > 1) tops.push(x.top); }
+        tops.sort((a, b) => a - b);
+        let n = 0; let last = -1e9;
+        for (const t of tops) if (t - last > 4) { n += 1; last = t; }
+        return n;
+      };
+      const textRects = (el) => { const rg = document.createRange(); rg.selectNodeContents(el); return [...rg.getClientRects()].filter((x) => x.width > 0); };
+      const issues = []; let gap = Infinity;
+      const cards = [...document.querySelectorAll('#clause-schedule .ntc-f4-card')].filter((c) => c.getClientRects().length);
+      for (const card of cards) {
+        const cr = card.getBoundingClientRect();
+        const tbl = card.querySelector('.ntc-mini');
+        if (tbl.getBoundingClientRect().right > cr.right - 1) issues.push('table wider than its card');
+        for (const tr of tbl.querySelectorAll('tr')) {
+          const cells = [...tr.children];
+          for (const c of cells) if (c.textContent.trim() && lines(c) > 1) issues.push(`wraps: ${c.textContent.trim()}`);
+          for (let i = 1; i < cells.length - 1; i++) {
+            const a = textRects(cells[i]); const b = textRects(cells[i + 1]);
+            if (a.length && b.length) gap = Math.min(gap, b[0].left - a[a.length - 1].right);
+          }
+          const last = textRects(cells[cells.length - 1]);
+          if (last.length && last[last.length - 1].right > cr.right - 1) issues.push('amount past the card edge');
+        }
+      }
+      const cols = cards.length ? getComputedStyle(cards[0].parentElement).gridTemplateColumns.split(' ').length : 0;
+      const btn = document.querySelector('[data-fid="ntc-print"]');
+      const label = btn.querySelector('.btn-label');
+      const segs = [...label.querySelectorAll('.ntc-print-seg')].map((s) => ({ text: s.textContent, lines: lines(s), top: Math.round(s.getBoundingClientRect().top) }));
+      const br = btn.getBoundingClientRect(); const lr = label.getBoundingClientRect();
+      return { cards: cards.length, cols, gap, issues: [...new Set(issues)], print: { lines: lines(label), segs, inside: lr.left >= br.left - 0.5 && lr.right <= br.right + 0.5, text: btn.textContent.replace(/\s+/g, ' ').trim() } };
+    });
+    if (r.cards) { cardWidths += 1; if (r.cols === 2) pairWidths += 1; minGap = Math.min(minGap, r.gap); }
+    if (r.issues.length || (r.cards && r.gap < 6)) cardIssues.push(`${w}px gap ${Math.round(r.gap * 10) / 10}: ${r.issues.join(', ')}`);
+    printLines.add(r.print.lines);
+    const maxLines = locale === 'en-CA' ? 1 : 2;
+    // A two-line label must break exactly between the two parts, each kept whole.
+    const cleanBreak = r.print.lines === 1 || (r.print.segs.length === 2 && r.print.segs.every((x) => x.lines === 1) && r.print.segs[0].top < r.print.segs[1].top);
+    if (r.print.lines > maxLines || !cleanBreak || !r.print.inside) printIssues.push(`${w}px: ${r.print.lines} lines ${JSON.stringify(r.print.segs)}`);
+  }
+  check(`${locale} 320–1440 px: first-four-payments cards never overlap, spill or break a word (closest amounts ${minGap.toFixed(1)} px apart)`, cardWidths > 20 && pairWidths > 0 && cardIssues.length === 0, cardIssues.slice(0, 8));
+  const fullLabel = await page.evaluate(() => [document.querySelector('[data-fid="ntc-print"]').textContent.replace(/\s+/g, ' ').trim(), window.BDCNotice.i18n.t('notice.actions.print')]);
+  check(`${locale} 320–1440 px: "${fullLabel[1]}" pill is ${locale === 'en-CA' ? 'one line' : 'at most two lines, split after the slash'} (seen: ${[...printLines].sort().join('/')} lines)`, printIssues.length === 0, printIssues.slice(0, 8));
+  check(`${locale}: the print pill reads the approved label exactly`, fullLabel[0] === fullLabel[1], fullLabel);
+}
+await setLocale(page, 'en-CA');
 await page.setViewportSize({ width: 1280, height: 900 });
 
 /* ---------- 9. Language switch on a clause keeps the place ---------- */

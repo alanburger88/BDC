@@ -117,6 +117,43 @@ App.ui = (() => {
     return { section: App.router.current().section, period: ctx.period || null, ...ctx, fid };
   }
 
+  // Item controls (Explain, Ask, notice and return links) carry their item as data-ctx
+  // ("kind:id"), so a glossary term can tell which card, month, clause or FAQ it sits in.
+  const ctxKey = (ctx) => (ctx && ctx.kind && ctx.kind !== 'general' && ctx.id ? `${ctx.kind}:${ctx.id}` : null);
+  function ctxFromKey(key) {
+    const i = key.indexOf(':');
+    return { kind: key.slice(0, i), id: key.slice(i + 1) };
+  }
+
+  /** The item a control sits inside: the nearest ancestor holding item controls for exactly
+   * one item (popover controls and `exclude` aside); null when that is ambiguous. */
+  function enclosingCtx(el, exclude) {
+    const stop = document.getElementById('view');
+    for (let a = el && el.parentElement; a && a !== document.body; a = a.parentElement) {
+      const keys = new Set();
+      a.querySelectorAll('[data-ctx]').forEach((c) => {
+        const k = c.getAttribute('data-ctx');
+        if (k && k !== exclude && !c.closest('.popover')) keys.add(k);
+      });
+      if (keys.size === 1) return ctxFromKey([...keys][0]);
+      if (keys.size > 1 || a === stop) return null;
+    }
+    return null;
+  }
+
+  /** The item a route names (#/changes/<card>, #/payments/<month>, #/documents/<clause>…). */
+  function routeCtx(r) {
+    if (!r || !r.item) return null;
+    const { section, item, sub } = r;
+    if (section === 'payments' && App.rec.isMonthId(item)) return { kind: 'month', id: item };
+    if (section === 'payments' && App.i18n.has(`items.infographic.${item}`)) return { kind: 'infographic', id: item };
+    if (section === 'changes' && App.CHANGE_CARDS.includes(item)) return { kind: 'card', id: item };
+    if (section === 'documents' && App.CLAUSES.includes(item)) return { kind: 'clause', id: item };
+    if (section === 'support' && App.RESOURCES.includes(item)) return { kind: 'resource', id: item };
+    if (section === 'help' && item === 'faq' && sub && App.i18n.has(`help.faq.items.${sub}.q`)) return { kind: 'faq', id: sub };
+    return null;
+  }
+
   /** "Explain with AI" - opens Clair with the selected context. */
   function explainButton(ctx, opts = {}) {
     const fid = opts.fid || `explain-${ctx.kind}-${ctx.id || 'general'}`;
@@ -126,6 +163,7 @@ App.ui = (() => {
       iconName: 'sparkle',
       fid,
       className: 'btn-explain',
+      attrs: { 'data-ctx': ctxKey(ctx) },
       ariaLabel: opts.ariaLabel || t('common.labelWithItem', { label: t('common.explainWithAI'), item: itemLabel(ctx) }),
       onClick: (e) => {
         if (App.clair) App.clair.open(contextWithFid(ctx, fid), e.currentTarget);
@@ -142,6 +180,7 @@ App.ui = (() => {
       iconName: 'chat',
       fid,
       className: 'btn-ask',
+      attrs: { 'data-ctx': ctxKey(ctx) },
       ariaLabel: opts.ariaLabel || t('common.labelWithItem', { label: t('common.askAboutThis'), item: itemLabel(ctx) }),
       onClick: (e) => {
         if (App.query) App.query.open(contextWithFid(ctx, fid), e.currentTarget);
@@ -163,6 +202,7 @@ App.ui = (() => {
       iconAfter: 'arrowRight',
       fid,
       className: 'btn-notice-link',
+      attrs: { 'data-ctx': ctxKey(originCtx) },
       ariaLabel: t('common.labelWithItem', { label: opts.label || t('common.viewInNotice'), item: t(`clauses.${clauseId}`) }),
       href: App.router.href('documents', clauseId),
       onClick: (e) => {
@@ -181,6 +221,7 @@ App.ui = (() => {
       iconName,
       fid,
       ariaLabel,
+      attrs: { 'data-ctx': withReturn ? ctxKey(originCtx) : null },
       href: target,
       onClick: (e) => {
         e.preventDefault();
@@ -191,13 +232,19 @@ App.ui = (() => {
   }
 
   /** Back control shown when the current place was reached from elsewhere. */
-  function backControl() {
-    const top = App.router.backTop();
-    if (!top) return null;
+  /** Localised name of the place a back-stack entry returns to: "Section: item". */
+  function backPlace(top) {
     const fromRoute = App.router.parse(top.from);
     let place = t(`nav.${fromRoute.section}`);
     if (top.ctx) place = t('common.labelWithItem', { label: place, item: itemLabel(top.ctx) });
     else if (fromRoute.item && App.rec.isMonthId(fromRoute.item)) place = t('common.labelWithItem', { label: place, item: itemLabel({ kind: 'month', id: fromRoute.item }) });
+    return place;
+  }
+
+  function backControl() {
+    const top = App.router.backTop();
+    if (!top) return null;
+    const place = backPlace(top);
     return h('nav', { class: 'back-nav', 'aria-label': t('common.breadcrumb') },
       button({
         label: t('common.backTo', { place }),
@@ -250,9 +297,11 @@ App.ui = (() => {
           href: App.router.href('help', 'glossary', id),
           onClick: (e) => {
             e.preventDefault();
-            const origin = App.router.current();
+            // "Back to…" names the place the term sits in (its card, month, clause or FAQ,
+            // else the section), never the glossary entry being opened.
+            const ctx = enclosingCtx(btn, `term:${id}`) || routeCtx(App.router.current());
             api.close();
-            App.router.go(App.router.href('help', 'glossary', id), { origin: { fid: btn.getAttribute('data-fid'), ctx: origin.item && App.rec.isMonthId(origin.item) ? { kind: 'month', id: origin.item } : { kind: 'term', id } }, focus: 'item' });
+            App.router.go(App.router.href('help', 'glossary', id), { origin: { fid: btn.getAttribute('data-fid'), ctx }, focus: 'item' });
           },
         }),
         h('button', { type: 'button', class: 'btn btn-icon popover-close', 'aria-label': t('common.closeDefinition'), on: { click: () => api.close() } }, icon('close', { size: 16 }))));
@@ -333,5 +382,5 @@ App.ui = (() => {
   /** Visually hidden text */
   const srOnly = (text) => h('span', { class: 'sr-only' }, text);
 
-  return { monthPhrase, stableId, resetCounters, icon, button, badge, money, itemLabel, explainButton, askButton, noticeLink, routeLink, goWithReturn, backControl, sectionHeader, demoNote, term, rich, plain, disclosure, srOnly, ICONS };
+  return { monthPhrase, stableId, resetCounters, icon, button, badge, money, itemLabel, explainButton, askButton, noticeLink, routeLink, goWithReturn, backControl, backPlace, enclosingCtx, routeCtx, sectionHeader, demoNote, term, rich, plain, disclosure, srOnly, ICONS };
 })();

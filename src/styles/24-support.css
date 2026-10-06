@@ -104,9 +104,8 @@
 }
 .sup-why-text { margin: 0; font-size: 0.9375rem; line-height: 1.45; color: var(--text-2); }
 
-/* Bottom group (actions, hide) sits at the foot of equal-height cards, so any
-   spare height falls above the actions rather than in the middle of the card */
-.sup-bottom { margin-top: auto; min-width: 0; }
+/* Bottom group (actions, hide) follows the card content directly. */
+.sup-bottom { min-width: 0; }
 
 /* Actions: local inquiry (secondary) + external text link with arrow */
 .sup-actions {
@@ -114,7 +113,11 @@
   padding-top: var(--space-4);
 }
 .sup-actions > * { min-width: 0; }
-.sup-ask { text-align: left; justify-content: flex-start; border-radius: 22px; }
+/* Inquiry pill: 15 px label and 16 px sides so the longest fr-CA action
+   ("Discuter de votre planification de trésorerie") takes at most two lines,
+   from 320 px phones to the 3-column desktop cards. */
+.sup-ask { text-align: left; justify-content: flex-start; border-radius: 22px; padding-left: 16px; padding-right: 16px; font-size: 0.9375rem; }
+.sup-ask .btn-label { text-wrap: balance; }
 .sup-ext .icon-after { width: 18px; height: 18px; }
 .sup-ext:hover .icon-after { transform: translate(2px, -2px); }
 
@@ -150,7 +153,7 @@
   .sup-icon-svg { width: 38px; height: 38px; }
   .sup-basis { padding: var(--space-3); }
   .sup-actions { gap: var(--space-2) var(--space-3); }
-  .sup-actions .sup-ask { width: 100%; padding-left: 18px; padding-right: 18px; }
+  .sup-actions .sup-ask { width: 100%; }
 }
 
 /* Tablet: icon beside the content, one card per row */
@@ -159,9 +162,11 @@
   .sup-body { max-width: 640px; }
 }
 
-/* Desktop: three equal columns, actions aligned at the bottom of each card */
+/* Desktop: three equal columns. The cards do not have the same parts (the
+   learning card has no inquiry button), so each card keeps its natural height
+   and its actions follow its content: no blank band above a lone link. */
 @media (min-width: 1024px) {
-  .sup-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-5); }
+  .sup-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-5); align-items: start; }
   .sup-card { padding: var(--space-5) var(--space-5) var(--space-4); }
   .sup-card-title { min-height: 2.3em; }
 }

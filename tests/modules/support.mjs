@@ -387,22 +387,61 @@ check('unknown item falls back to the list without errors', JSON.stringify(await
 await go(page, '#/support');
 const cols = async () => page.evaluate(() => [...document.querySelectorAll('#view article[data-card]')].map((a) => { const r = a.getBoundingClientRect(); return { l: Math.round(r.left), t: Math.round(r.top), h: Math.round(r.height) }; }));
 let c = await cols();
-check('1280px: three equal cards side by side', new Set(c.map((x) => x.t)).size === 1 && new Set(c.map((x) => x.l)).size === 3 && new Set(c.map((x) => x.h)).size === 1, c);
+check('1280px: three cards side by side, top-aligned', new Set(c.map((x) => x.t)).size === 1 && new Set(c.map((x) => x.l)).size === 3, c);
+// S-10: the cards do not share the same parts (the learning card has no inquiry
+// button), so each keeps its natural height and its actions follow its content:
+// no blank band above "Explore resources" or any other action, and no blank
+// band at the foot of a card.
 for (const locale of ['en-CA', 'fr-CA']) {
   await setLocale(page, locale);
-  const lay = await page.evaluate(() => [...document.querySelectorAll('#view article[data-card]')].map((a) => {
-    const why = a.querySelector('.sup-why');
-    const prev = why.previousElementSibling;
-    return {
-      id: a.dataset.card,
-      gap: Math.round(why.getBoundingClientRect().top - prev.getBoundingClientRect().bottom),
-      hideTop: Math.round(a.querySelector('[data-action="hide"]').getBoundingClientRect().top),
-      linkTop: Math.round(a.querySelector('a[data-action="external"]').getBoundingClientRect().top),
-    };
-  }));
-  check(`${locale} 1280px: each rationale follows its content directly (no empty band mid-card)`, lay.every((x) => x.gap >= 0 && x.gap <= 24), lay);
-  check(`${locale} 1280px: external links and hide controls line up across the three cards`, new Set(lay.map((x) => x.hideTop)).size === 1 && new Set(lay.map((x) => x.linkTop)).size === 1, lay);
+  for (const w of [1024, 1280, 1440]) {
+    await page.setViewportSize({ width: w, height: 900 });
+    await wait(page, 120);
+    const lay = await page.evaluate(() => [...document.querySelectorAll('#view article[data-card]')].map((a) => {
+      const why = a.querySelector('.sup-why');
+      const prev = why.previousElementSibling;
+      const actions = a.querySelector('.sup-actions');
+      const firstAction = actions.firstElementChild.getBoundingClientRect();
+      const lastFoot = a.querySelector('.sup-card-foot').lastElementChild.getBoundingClientRect();
+      const ar = a.getBoundingClientRect();
+      return {
+        id: a.dataset.card,
+        top: Math.round(ar.top),
+        gap: Math.round(why.getBoundingClientRect().top - prev.getBoundingClientRect().bottom),
+        whyToAction: Math.round(firstAction.top - why.getBoundingClientRect().bottom),
+        footToEdge: Math.round(ar.bottom - lastFoot.bottom),
+      };
+    }));
+    check(`${locale} ${w}px: each rationale follows its content directly (no empty band mid-card)`, lay.every((x) => x.gap >= 0 && x.gap <= 24), lay);
+    check(`${locale} ${w}px: actions follow the rationale directly in every card (no blank band above a lone link)`, lay.every((x) => x.whyToAction >= 0 && x.whyToAction <= 32), lay);
+    check(`${locale} ${w}px: cards are top-aligned and end right after their hide control`, new Set(lay.map((x) => x.top)).size === 1 && lay.every((x) => x.footToEdge <= 32), lay);
+  }
 }
+await page.setViewportSize({ width: 1280, height: 900 });
+// S-07: the inquiry pills ("Discuter de votre planification de trésorerie", the
+// longest) never wrap to three lines, from 320 to 1440 px, in either language.
+for (const locale of ['en-CA', 'fr-CA']) {
+  await setLocale(page, locale);
+  const bad = []; const seen = new Set();
+  for (let w = 320; w <= 1440; w += 20) {
+    await page.setViewportSize({ width: w, height: 900 });
+    await wait(page, 40);
+    const res = await page.evaluate(() => [...document.querySelectorAll('#view .sup-ask')].filter((b) => b.getClientRects().length).map((b) => {
+      const l = b.querySelector('.btn-label');
+      const tops = [];
+      const tw = document.createTreeWalker(l, NodeFilter.SHOW_TEXT);
+      while (tw.nextNode()) { const rg = document.createRange(); rg.selectNodeContents(tw.currentNode); for (const x of rg.getClientRects()) if (x.width > 1) tops.push(x.top); }
+      tops.sort((x, y) => x - y);
+      let n = 0; let last = -1e9;
+      for (const t of tops) if (t - last > 4) { n += 1; last = t; }
+      const br = b.getBoundingClientRect(); const lr = l.getBoundingClientRect();
+      return { n, inside: lr.right <= br.right + 0.5, text: l.textContent };
+    }));
+    for (const r of res) { seen.add(r.n); if (r.n > 2 || !r.inside) bad.push(`${w}px ${r.n} lines: ${r.text}`); }
+  }
+  check(`${locale} 320–1440 px: inquiry pills take at most two lines (seen ${[...seen].sort().join('/')})`, bad.length === 0, bad.slice(0, 8));
+}
+await page.setViewportSize({ width: 1280, height: 900 });
 await setLocale(page, 'en-CA');
 await page.setViewportSize({ width: 390, height: 844 });
 await wait(page);

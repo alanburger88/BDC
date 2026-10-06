@@ -160,6 +160,13 @@
 .clair-source .btn-label { overflow-wrap: break-word; }
 .clair-source .icon-after { display: inline-block; vertical-align: -4px; }
 .clair-nowrap { white-space: nowrap; }
+/* In place of a source link that would lead back to where Clair was opened */
+.clair-here {
+  display: flex; align-items: flex-start; gap: 6px;
+  margin: 0; padding: 6px 0;
+  font-size: var(--fs-small); line-height: 1.4; color: var(--text-2);
+}
+.clair-here .icon { flex: 0 0 auto; margin-top: 2px; color: var(--muted); }
 .clair-ask { min-height: 36px; }
 
 .clair-lang { display: block; margin-top: 6px; font-size: 0.75rem; font-weight: 500; color: var(--muted); }
@@ -240,7 +247,38 @@
   .clair-avatar { display: none; }
   .clair-status { padding-top: var(--space-1); }
   .clair-hint { display: none; }
+  .clair-form-meta { margin-top: 0; }
+  .clair-counter:not([hidden]) { margin-top: 4px; }
   .clair-scroll { padding-top: var(--space-3); }
   .clair-context { padding-top: var(--space-1); padding-bottom: var(--space-1); }
   .clair-form { padding-top: var(--space-2); }
+}
+/* Very short viewports (400% zoom, landscape phone with its keyboard open): the whole panel
+   scrolls as one column. The header, with the full demo status, scrolls away with the
+   conversation; the context row and a compact composer stay pinned. On open the header is held
+   in view (.clair-pinned, released by 31-clair.js on the first scroll, focus or question), and
+   scroll-padding keeps focused controls clear of the pinned rows. */
+@media (max-height: 420px) {
+  .clair-overlay.overlay--panel {
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scroll-padding-top: calc(var(--clair-ctx-h, 40px) + 8px);
+    scroll-padding-bottom: calc(var(--clair-form-h, 56px) + 8px);
+  }
+  .clair-overlay.overlay--panel.clair-pinned { scroll-padding-top: calc(var(--clair-head-h, 0px) + var(--clair-ctx-h, 40px) + 8px); }
+  .clair-overlay.clair-pinned .overlay-header { position: sticky; top: 0; z-index: 3; }
+  .clair-overlay .overlay-body { flex: 1 0 auto; min-height: auto; overflow: visible; }
+  .clair-scroll { flex: 1 0 auto; min-height: auto; overflow: visible; padding-top: var(--space-3); padding-bottom: var(--space-3); }
+  .clair-context { position: sticky; top: 0; z-index: 2; }
+  .clair-overlay.clair-pinned .clair-context { top: var(--clair-head-h, 0px); }
+  .clair-context .clair-chip { min-height: 30px; }
+  .clair-overlay .overlay-close { padding-top: 4px; padding-bottom: 4px; }
+  .clair-form {
+    position: sticky; bottom: 0; z-index: 2;
+    padding: 6px var(--space-3) calc(6px + env(safe-area-inset-bottom, 0px));
+  }
+  .clair-input { padding-top: 8px; padding-bottom: 8px; }
+  .clair-send { padding-top: 8px; padding-bottom: 8px; }
+  .clair-suggest { margin-top: var(--space-4); }
 }

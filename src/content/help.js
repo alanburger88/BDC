@@ -30,6 +30,8 @@ App.i18n.register('help', {
       noneBody: 'Try a shorter or different word, such as “interest” or “payment”. You can also ask Clair, the demo assistant, or prepare a question.',
       noneBodyNoClair: 'Try a shorter or different word, such as “interest” or “payment”. You can also prepare a question about this notice.',
       foundInAnswer: 'Found in the answer',
+      // Shown after a language switch: the search text stays as the reader wrote it.
+      otherLanguage: 'Search written in {language}. Results include matches in both languages.',
       showingFaq: 'Showing {n} of {total} questions',
       showingTerms: 'Showing {n} of {total} terms',
     },
@@ -228,6 +230,7 @@ App.i18n.register('help', {
       noneBody: 'Essayez un mot plus court ou différent, comme « intérêts » ou « versement ». Vous pouvez aussi vous adresser à Clair, l’assistant de démonstration, ou préparer une question.',
       noneBodyNoClair: 'Essayez un mot plus court ou différent, comme « intérêts » ou « versement ». Vous pouvez aussi préparer une question sur cet avis.',
       foundInAnswer: 'Trouvé dans la réponse',
+      otherLanguage: 'Recherche rédigée en {language}. Les résultats tiennent compte des deux langues.',
       showingFaq: 'Questions affichées : {n} sur {total}',
       showingTerms: 'Termes affichés : {n} sur {total}',
     },

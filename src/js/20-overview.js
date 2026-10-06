@@ -498,6 +498,7 @@
   App.router.registerView('overview', {
     render(el) {
       el.appendChild(h('div', { class: 'ov' },
+        App.ui.backControl(),
         hero(),
         summary(),
         h('div', { class: 'ov-columns' }, todoCard(), sameCard()),

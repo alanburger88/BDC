@@ -34,6 +34,10 @@
   .ntc-rail { display: flex; flex-direction: column; gap: var(--space-4); }
   .ntc-toc { position: sticky; top: var(--space-4); max-height: calc(100vh - 32px); overflow-y: auto; }
 }
+@media (min-width: 960px) and (max-width: 1079.98px) {
+  /* 264 px rail: a little less side padding keeps the actions readable */
+  .ntc-rail > .ntc-card { padding-left: 20px; padding-right: 20px; }
+}
 @media (min-width: 1080px) {
   .ntc-layout { grid-template-columns: 296px minmax(0, 784px); gap: 40px; }
 }
@@ -57,7 +61,11 @@
   .ntc-meta-row.is-wide { grid-column: 1 / -1; }
 }
 
-.ntc-print-btn { width: 100%; }
+/* Primary pill: slightly tighter sides in the narrow rail so "Print / Save as
+   PDF" stays on one line and the fr-CA label takes at most two (split after
+   the slash, each part kept whole while it fits). */
+.ntc-print-btn { width: 100%; padding-left: 16px; padding-right: 16px; }
+.ntc-print-seg { display: inline-block; }
 .ntc-dl-list { list-style: none; margin: var(--space-3) 0 0; padding: 0; display: grid; gap: var(--space-2); }
 .ntc-dl-list li + li { margin-top: 0; }
 .ntc-dl {
@@ -264,22 +272,34 @@
 .ntc-first4-table .ntc-col-split { border-left: 2px solid var(--line-strong); }
 .ntc-first4-table .ntc-th-date { vertical-align: bottom; }
 
-.ntc-f4-cards { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); grid-template-columns: minmax(0, 1fr); }
+/* One card per row, capped so a lone card never stretches its three columns
+   across a wide document. */
+.ntc-f4-cards { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); grid-template-columns: minmax(0, 28rem); }
 .ntc-f4-cards li + li { margin-top: 0; }
-.ntc-f4-card { padding: var(--space-3) var(--space-4); border: 1px solid var(--line); border-radius: 12px; background: var(--white); }
-@container ntc (min-width: 460px) {
+.ntc-f4-card { padding: var(--space-3) var(--space-4); border: 1px solid var(--line); border-radius: 12px; background: var(--white); min-width: 0; }
+/* Two cards per row only once each card has room for the label and both
+   one-line amounts with space to spare: a card needs about 240 px of content
+   (label + two amounts + gaps), so pairs start at a 600 px container
+   (≈ 260 px of content per card). Narrower containers keep one card per row. */
+@container ntc (min-width: 37.5rem) {
   .ntc-f4-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
-.ntc-mini { font-size: 0.875rem; font-variant-numeric: tabular-nums; table-layout: fixed; width: 100%; }
-.ntc-mini col.ntc-mini-label { width: 31%; }
+/* Automatic layout: the preferred widths below are honoured when they fit, but
+   a column never shrinks under its one-line content, so amounts cannot run
+   into each other and the row label never splits mid-word. */
+.ntc-mini { font-size: 0.875rem; font-variant-numeric: tabular-nums; table-layout: auto; width: 100%; }
+.ntc-mini col.ntc-mini-amt { width: 34%; }
 .ntc-mini caption { text-align: left; font-weight: 700; color: var(--navy); padding-bottom: var(--space-2); font-size: 0.9375rem; }
 .ntc-mini th, .ntc-mini td { padding: 5px 0; vertical-align: baseline; }
-.ntc-mini thead th { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
-.ntc-mini tbody th { font-weight: 500; color: var(--text-2); padding-right: var(--space-2); }
+.ntc-mini thead th { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+.ntc-mini tbody th { font-weight: 500; color: var(--text-2); padding-right: var(--space-2); white-space: nowrap; hyphens: manual; overflow-wrap: normal; word-break: keep-all; }
 .ntc-mini .num { text-align: right; white-space: nowrap; padding-left: var(--space-2); }
+/* a clear gap between the original amount and the shaded revised column */
+.ntc-mini td.num:not(.ntc-rev), .ntc-mini thead th.num:not(:last-child) { padding-right: 6px; }
 @container ntc (max-width: 299.98px) {
   .ntc-f4-card { padding: var(--space-3); }
   .ntc-mini { font-size: 0.8125rem; }
+  .ntc-mini td.num:not(.ntc-rev), .ntc-mini thead th.num:not(:last-child) { padding-right: 2px; }
 }
 .ntc-mini .ntc-rev { color: var(--navy); font-weight: 600; }
 .ntc-mini td.ntc-rev, .ntc-mini thead th:last-child { background: #f3f6ff; padding-right: 6px; }

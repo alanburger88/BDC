@@ -14,7 +14,8 @@
   const GENERAL = Object.freeze({ kind: 'general', id: null });
   const KINDS = ['card', 'summary', 'month', 'clause', 'term', 'chapter', 'resource', 'chart', 'infographic', 'faq', 'section', 'general'];
 
-  const state = () => App.session.slice('clair', () => ({ messages: [], seq: 0, openedCtx: null, activeCtx: null, triggerFid: null, draft: '' }));
+  // here: the places (route hashes) Clair was opened from; originCtx: the "Back to …" item for source links
+  const state = () => App.session.slice('clair', () => ({ messages: [], seq: 0, openedCtx: null, activeCtx: null, triggerFid: null, originCtx: null, here: [], draft: '' }));
   let refs = null; // live DOM references while the panel is open
 
   /* ------------------------------------------------------------------ */
@@ -221,6 +222,17 @@
   };
   const POOL = ['whatChanged', 'nextPayment', 'whyRelief', 'totalCost', 'acceptance', 'resume', 'maturity', 'debtReduced', 'continuingInterest', 'rate', 'fees', 'unchanged', 'printExport', 'queryPrep', 'aboutClair'];
 
+  function placeItem(section, a, b) {
+    if (!a) return null;
+    if (section === 'help' && a === 'ask') return t('common.askAQuestion');
+    if (section === 'help' && a === 'glossary' && b) return t(`glossary.${b}.term`);
+    if (section === 'support') return t(`items.resource.${a}`);
+    if (section === 'changes' && App.CHANGE_CARDS.includes(a)) return t(`items.card.${a}`);
+    if (section === 'payments' && App.rec.isMonthId(a)) return App.ui.itemLabel({ kind: 'month', id: a });
+    if (section === 'payments' && App.i18n.has(`clair.places.${a}`)) return T(`places.${a}`);
+    return null;
+  }
+
   function source(spec) {
     if (!spec) return null;
     if (spec[0] === 'clause') {
@@ -229,12 +241,48 @@
     }
     const [, section, a, b] = spec;
     const target = `#/${[section, a, b].filter(Boolean).join('/')}`;
-    let item = null;
-    if (section === 'help' && a === 'ask') item = t('common.askAQuestion');
-    else if (section === 'help' && a === 'glossary') item = t(`glossary.${b}.term`);
-    else if (section === 'support' && a) item = t(`items.resource.${a}`);
+    const item = placeItem(section, a, b);
     const sectionLabel = t(`nav.${section}`);
-    return { kind: 'place', target, label: item || sectionLabel, text: item ? T('seeIn', { section: sectionLabel, item }) : T('seeInSection', { section: sectionLabel }) };
+    const kind = section === 'help' && a === 'glossary' ? 'term' : (section === 'support' && a ? 'resource' : 'place');
+    return { kind, id: kind === 'term' ? b : (a || null), section, target, label: item || sectionLabel, text: item ? T('seeIn', { section: sectionLabel, item }) : T('seeInSection', { section: sectionLabel }) };
+  }
+
+  /* When an answer's source is the very place Clair was opened from (the clause or glossary
+   * entry being explained), the link points to the most useful other place instead: a clause's
+   * plain-language explanation (as the notice links it), or a term's supporting notice clause. */
+  const TERM_CLAUSE = { principal: 'postponement', interest: 'interest', postponement: 'postponement', instalment: 'schedule', maturity: 'maturity', outstanding: 'cost', fixedRate: 'unchanged', cashFlow: 'cost', amortisation: 'schedule', capitalisedInterest: 'interest' };
+  const resumedMonth = () => { const r = App.rec.firstResumed(); return r ? r.date.slice(0, 7) : null; };
+  const CLAUSE_PLACE = {
+    purpose: () => ['overview'],
+    amendment: () => ['changes'],
+    postponement: () => ['changes', 'principal'],
+    interest: () => ['changes', 'interest'],
+    resumption: () => (resumedMonth() ? ['payments', resumedMonth()] : ['changes', 'principal']),
+    maturity: () => ['changes', 'maturity'],
+    cost: () => ['payments', 'cost'],
+    unchanged: () => ['changes', 'rate'],
+    action: () => ['overview'],
+    schedule: () => ['payments', 'schedule'],
+    assumptions: () => ['payments', 'schedule'],
+    contact: () => ['help', 'ask'],
+  };
+
+  function altSource(src) {
+    if (!src) return null;
+    if (src.kind === 'clause') {
+      const viaNotice = App.notice && typeof App.notice.plainTarget === 'function' ? App.notice.plainTarget(src.id) : null;
+      if (viaNotice) { const r = App.router.parse(viaNotice); return source(P(r.section, r.item, r.sub)); }
+      return CLAUSE_PLACE[src.id] ? source(P(...CLAUSE_PLACE[src.id]())) : null;
+    }
+    if (src.kind === 'term' && TERM_CLAUSE[src.id]) return source(C(TERM_CLAUSE[src.id]));
+    return null;
+  }
+
+  // "You're viewing this clause" - shown instead of a link when no other place helps
+  function hereNote(src) {
+    if (!src) return null;
+    const section = src.section ? t(`nav.${src.section}`) : '';
+    return T(`viewing.${src.kind === 'clause' || src.kind === 'term' || src.kind === 'resource' ? src.kind : 'place'}`, { section });
   }
 
   function compose(id, v, over = {}) {
@@ -782,6 +830,8 @@
     return T(`suggestions.${id}`, vals());
   }
 
+  const linkOf = (s) => (s ? { target: s.target, label: s.label, text: s.text } : null);
+
   // Store resolved text so earlier messages keep their original language
   function storeAnswer(a, ctx, ctxKey) {
     return pushMsg({
@@ -790,7 +840,10 @@
       text: a.text,
       fact: a.fact,
       factLabel: T('supportingFact'),
-      source: a.source ? { target: a.source.target, label: a.source.label, text: a.source.text } : null,
+      source: linkOf(a.source),
+      // used when the source is the place Clair was opened from (decided when shown)
+      altSource: linkOf(altSource(a.source)),
+      hereNote: a.source ? hereNote(a.source) : null,
       askPerson: !!a.askPerson,
       askLabel: T('askPerson'),
       topic: a.topic,
@@ -887,6 +940,16 @@
     return h('span', { class: 'clair-lang', lang: App.i18n.locale }, T('inLanguage', { language: App.i18n.languageName(m.lang) }));
   }
 
+  const isHere = (target) => !!target && (state().here || []).includes(App.router.parse(target).hash);
+
+  // The source link to show: never the place Clair was opened from (another place, or a note)
+  function shownSource(m) {
+    if (!m.source) return null;
+    if (!isHere(m.source.target)) return m.source;
+    if (m.altSource && !isHere(m.altSource.target)) return m.altSource;
+    return m.hereNote ? { note: m.hereNote } : null;
+  }
+
   function renderMsg(m) {
     if (m.role === 'user') {
       return h('div', { class: 'clair-msg clair-msg--user', lang: m.lang, 'data-msg': m.id },
@@ -895,14 +958,17 @@
         langTag(m));
     }
     const actions = [];
-    if (m.source) {
+    const src = shownSource(m);
+    if (src && src.note) {
+      actions.push(h('p', { class: 'clair-here' }, App.ui.icon('info', { size: 16 }), h('span', null, src.note)));
+    } else if (src) {
       // Text link with a trailing red arrow that stays on the last line of the label
       actions.push(h('a', {
         class: 'btn btn-link clair-source',
-        href: m.source.target,
+        href: src.target,
         fid: `clair-src-${m.id}`,
-        on: { click: (e) => { e.preventDefault(); followSource(m.source); } },
-      }, h('span', { class: 'btn-label' }, withTrailingIcon(m.source.text, App.ui.icon('arrowRight', { class: 'icon-after', size: 18 })))));
+        on: { click: (e) => { e.preventDefault(); followSource(src); } },
+      }, h('span', { class: 'btn-label' }, withTrailingIcon(src.text, App.ui.icon('arrowRight', { class: 'icon-after', size: 18 })))));
     }
     if (m.askPerson) {
       actions.push(App.ui.button({
@@ -1036,16 +1102,66 @@
     renderSuggestions();
   }
 
+  /* Very short viewports (CSS: max-height 420px, e.g. 400% zoom): the whole panel scrolls as one
+   * column, so the header and its demo status scroll away with the conversation while the context
+   * row and the composer stay pinned. On open the header is held in view (.clair-pinned) so the
+   * status is read first; scrolling, typing or asking releases it. */
+  const panelScrolls = () => !!refs && getComputedStyle(refs.api.el).overflowY !== 'hidden';
+  const scroller = () => (panelScrolls() ? refs.api.el : refs.scroll);
+
+  function pinHeader(on) {
+    if (!refs) return;
+    refs.api.el.classList.toggle('clair-pinned', !!on);
+  }
+
+  // Heights of the pinned chrome, for scroll-padding (focus never hides under it) and the pinned context row
+  function syncMetrics() {
+    if (!refs) return;
+    const el = refs.api.el;
+    const head = el.querySelector('.overlay-header');
+    el.style.setProperty('--clair-head-h', `${head ? head.offsetHeight : 0}px`);
+    el.style.setProperty('--clair-ctx-h', `${refs.ctxRow.offsetHeight}px`);
+    el.style.setProperty('--clair-form-h', `${refs.form.offsetHeight}px`);
+  }
+
+  function watchLayout() {
+    const el = refs.api.el;
+    if (typeof ResizeObserver === 'function') {
+      refs.ro = new ResizeObserver(() => syncMetrics());
+      [el.querySelector('.overlay-header'), refs.ctxRow, refs.form].forEach((n) => { if (n) refs.ro.observe(n); });
+    }
+    syncMetrics();
+    // Any reader scroll (wheel, touch, keys, scrollbar) or focus inside the conversation releases the header
+    refs.progUntil = 0;
+    el.addEventListener('scroll', () => { if (refs && performance.now() > refs.progUntil) pinHeader(false); }, { passive: true });
+    el.addEventListener('wheel', () => pinHeader(false), { passive: true });
+    el.addEventListener('touchmove', () => pinHeader(false), { passive: true });
+    refs.body.addEventListener('focusin', () => pinHeader(false));
+  }
+
+  /* Scroll a message into view: the newest question at the top, unless that would leave too little
+   * room for its answer (short viewports), in which case the answer itself comes to the top. */
   function scrollToMsg(id, mode = 'start', smooth = true) {
     if (!refs) return;
     requestAnimationFrame(() => {
       if (!refs) return;
-      const sc = refs.scroll;
-      const el = id ? refs.log.querySelector(`[data-msg="${id}"]`) : null;
+      const sc = scroller();
+      const whole = sc !== refs.scroll;
+      const pinned = whole && refs.api.el.classList.contains('clair-pinned');
+      const head = refs.api.el.querySelector('.overlay-header');
+      const padTop = whole ? refs.ctxRow.offsetHeight + (pinned && head ? head.offsetHeight : 0) : 0;
+      const padBottom = whole ? refs.form.offsetHeight : 0;
+      let el = id ? refs.log.querySelector(`[data-msg="${id}"]`) : null;
       let top;
-      if (el && mode === 'start') top = Math.max(0, el.offsetTop - 12);
-      else top = sc.scrollHeight;
-      try { sc.scrollTo({ top, behavior: smooth && !App.util.prefersReducedMotion() ? 'smooth' : 'auto' }); } catch (e) { sc.scrollTop = top; }
+      if (el && mode === 'start') {
+        const view = sc.clientHeight - padTop - padBottom;
+        const next = el.classList.contains('clair-msg--user') ? el.nextElementSibling : null;
+        if (next && view - el.offsetHeight - 24 < Math.min(next.offsetHeight, 96)) el = next;
+        top = Math.max(0, el.getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop - padTop - 12);
+      } else top = sc.scrollHeight;
+      const animate = smooth && !App.util.prefersReducedMotion();
+      refs.progUntil = performance.now() + (animate ? 1000 : 150);
+      try { sc.scrollTo({ top, behavior: animate ? 'smooth' : 'auto' }); } catch (e) { sc.scrollTop = top; }
     });
   }
 
@@ -1105,7 +1221,7 @@
     const st = state();
     const opened = st.openedCtx || GENERAL;
     return {
-      ctx: opened.kind !== 'general' ? { kind: opened.kind, id: opened.id } : null,
+      ctx: st.originCtx || (opened.kind !== 'general' ? { kind: opened.kind, id: opened.id } : null),
       fid: opened.fid || st.triggerFid || null,
     };
   }
@@ -1188,23 +1304,53 @@
     body.classList.add('clair-body');
     body.append(refs.ctxRow, refs.scroll, refs.form);
     renderAll();
+    watchLayout();
+    pinHeader(true);
   }
 
   /* ------------------------------------------------------------------ */
   /* Public API                                                          */
   /* ------------------------------------------------------------------ */
 
+  // Where each context item lives: an Explain control there (not a popover) makes it "here"
+  const HOME = { clause: (id) => ['documents', id], term: (id) => ['help', 'glossary', id], resource: (id) => ['support', id], month: (id) => ['payments', id], card: (id) => ['changes', id], faq: (id) => ['help', 'faq', id], section: (id) => [id] };
+
+  function herePlaces(ctx, route, fromPopover) {
+    const out = [route.hash];
+    const home = !fromPopover && ctx.id && HOME[ctx.kind] ? HOME[ctx.kind](ctx.id) : null;
+    if (home && home[0] === route.section) out.push(App.router.href(...home));
+    return out;
+  }
+
+  // The item a glossary term sits in, for the "Back to …" label (a month, a change card, a clause)
+  function placeCtx(route) {
+    if (route.section === 'payments' && App.rec.isMonthId(route.item)) return { kind: 'month', id: route.item };
+    if (route.section === 'changes' && App.CHANGE_CARDS.includes(route.item)) return { kind: 'card', id: route.item };
+    if (route.section === 'documents' && App.CLAUSES.includes(route.item)) return { kind: 'clause', id: route.item };
+    return null;
+  }
+
   /** Open Clair. ctx: { kind, id, section, period, fid }; trigger: element to return focus to. */
   function open(ctxIn, trigger) {
     const ctx = normCtx(ctxIn || GENERAL);
     const st = state();
+    const route = App.router.current();
     let trig = trigger || null;
-    // A trigger inside a glossary popover disappears when the panel opens: return to its term instead.
-    if (trig && trig.closest && trig.closest('.popover') && App.popover && App.popover.current()) trig = App.popover.current().trigger;
+    // A trigger inside a glossary popover disappears when the panel opens. The reader's place is
+    // the popover's term: focus returns there, and a source link's "Back" entry leads back to it.
+    const pop = trig && trig.closest && trig.closest('.popover') && App.popover ? App.popover.current() : null;
+    const fromPopover = !!(pop && pop.trigger);
+    if (fromPopover) {
+      trig = pop.trigger;
+      const termFid = trig.getAttribute('data-fid');
+      if (termFid) ctx.fid = termFid;
+    }
     const fidHost = trig && trig.closest ? trig.closest('[data-fid]') : null;
     st.triggerFid = ctx.fid || (fidHost ? fidHost.getAttribute('data-fid') : null);
     st.openedCtx = ctx;
     st.activeCtx = ctx;
+    st.originCtx = (fromPopover && placeCtx(route)) || (ctx.kind !== 'general' ? { kind: ctx.kind, id: ctx.id } : null);
+    st.here = herePlaces(ctx, route, fromPopover);
 
     let added = null;
     if (ctx.kind !== 'general') {
@@ -1224,7 +1370,7 @@
         titleExtra: statusEl,
         trigger: trig,
         render: (body, api) => build(body, api, statusEl),
-        onClose: () => { refs = null; },
+        onClose: () => { if (refs && refs.ro) refs.ro.disconnect(); refs = null; },
       });
     }
     if (added) {
@@ -1242,6 +1388,7 @@
     if (!(refs && App.overlay.isOpen('clair'))) open({ kind: 'general', section: App.router.current().section }, opts.trigger || null);
     const st = state();
     const ctx = st.activeCtx || GENERAL;
+    pinHeader(false);
     const user = pushMsg({ role: 'user', text: q });
     const a = opts.intent ? answer({ intent: opts.intent }, ctx) : answer(q, ctx);
     const clair = storeAnswer(a, ctx);
@@ -1261,9 +1408,11 @@
     const active = document.activeElement;
     const fidEl = active && active.closest ? active.closest('[data-fid]') : null;
     const fid = fidEl && refs.api.el.contains(fidEl) ? fidEl.getAttribute('data-fid') : null;
-    const scrollTop = refs.scroll.scrollTop;
+    const sc = scroller();
+    const scrollTop = sc.scrollTop;
     renderAll();
-    refs.scroll.scrollTop = scrollTop;
+    refs.progUntil = performance.now() + 150;
+    sc.scrollTop = scrollTop;
     if (fid) {
       const el = App.util.findByFid(fid, refs.api.el);
       if (el) App.util.focusEl(el, { preventScroll: true });
@@ -1272,6 +1421,7 @@
 
   App.session.onReset(() => {
     if (App.overlay.isOpen('clair')) App.overlay.close('reset', { silent: true });
+    if (refs && refs.ro) refs.ro.disconnect();
     refs = null;
   });
 

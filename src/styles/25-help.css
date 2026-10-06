@@ -64,6 +64,20 @@
 }
 .hlp-search-clear:hover { color: var(--navy); }
 .hlp-search-hint { margin: var(--space-2) 0 0; font-size: var(--fs-small); color: var(--muted); }
+/* Search text written in the other language (after a language switch) */
+.hlp-search-lang {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3);
+  margin-top: var(--space-3); padding: var(--space-2) var(--space-3);
+  background: var(--blue-tint); border: 1px solid #c9d6ff; border-radius: 12px; min-width: 0;
+}
+.hlp-search-lang[hidden] { display: none; }
+.hlp-search-lang-msg {
+  display: flex; align-items: flex-start; gap: 6px; flex: 1 1 16rem; min-width: 0; margin: 0;
+  font-size: var(--fs-small); font-weight: 600; line-height: 1.4; color: var(--blue-text);
+}
+.hlp-search-lang-msg .icon { flex: 0 0 auto; margin-top: 2px; }
+.hlp-search-lang-text { min-width: 0; overflow-wrap: break-word; }
+.hlp-search-lang-clear { flex: 0 0 auto; }
 .hlp-suggest { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-top: var(--space-3); min-width: 0; }
 .hlp-suggest-label { font-size: var(--fs-small); font-weight: 600; color: var(--muted); margin-right: 2px; }
 .hlp-suggest-chip { font-weight: 500; }

@@ -11,6 +11,11 @@ App.router = (() => {
   let viewEl = null;
   let started = false;
   let rendered = false;
+  // Index of the current session-history entry within this tab, stamped into
+  // history.state (bdcIdx) so in-app "Back to…" can step back with history.go(-n)
+  // instead of adding entries. Unknown (null) when history.state is unavailable.
+  let idx = 0;
+  let idxOk = true;
 
   const backStack = () => App.session.slice('backStack', () => []);
   // Entries popped by browser Back, so browser Forward can show "Back to…" again
@@ -42,6 +47,36 @@ App.router = (() => {
   }
 
   function sectionOf(hash) { return parse(hash).section; }
+
+  /* ---------- history entry index ---------- */
+  function stamp() {
+    if (!idxOk) return;
+    try { history.replaceState({ bdcIdx: idx }, ''); } catch (e) { idxOk = false; }
+  }
+  const stateIdx = () => (history.state && typeof history.state.bdcIdx === 'number' ? history.state.bdcIdx : null);
+  // Traversal (Back/Forward, history.go) lands on a stamped entry; an unstamped one is a
+  // new entry made outside the router (typed URL, plain in-page link): one step further.
+  function syncIdx() {
+    const s = stateIdx();
+    if (s !== null) idx = s;
+    else { idx += 1; stamp(); }
+  }
+  /** Overlay history entries (App.overlay) carry their own index: keep in step with them. */
+  function syncHistoryIndex() {
+    const s = stateIdx();
+    if (s !== null) idx = s;
+  }
+  // Entry of the page itself: an open overlay's entry (same URL) sits one above it.
+  const pageIdx = () => (history.state && history.state.bdcOverlay ? idx - 1 : idx);
+
+  // Push (or replace) the hash. An open overlay's history entry (same URL) is reused for
+  // the destination, so closing an overlay and navigating leaves one entry, not two.
+  function setHash(hash, replace) {
+    const reuse = !!(App.overlay && App.overlay.takeHistoryEntry && App.overlay.takeHistoryEntry());
+    if (replace || reuse) location.replace(hash);
+    else { location.hash = hash; idx += 1; }
+    stamp();
+  }
 
   function remember() {
     scrollMap[current.hash] = window.scrollY;
@@ -82,23 +117,38 @@ App.router = (() => {
         fid: opts.origin.fid || activeFid(),
         ctx: opts.origin.ctx || null,
         scroll: window.scrollY,
+        idx: idxOk ? pageIdx() : null, // history entry of the origin
       });
     }
     pending = { hash, opts };
     if (location.hash === hash) handle();
-    else if (opts.replace) location.replace(hash);
-    else location.hash = hash;
+    else setHash(hash, !!opts.replace);
   }
 
+  /** In-app "Back to…": steps browser history back to the origin entry (history.go(-n),
+   * counting the push navigations made since it) so browser Back afterwards continues
+   * from there; restores the origin's scroll and focus. Without a known index it
+   * navigates to the origin as before. */
   function back() {
     const stack = backStack();
     const top = stack.pop();
     if (!top) return go('#/overview', { focus: 'heading' });
     remember();
-    forwardStack().length = 0;
     pending = { hash: top.from, opts: { restore: { scroll: top.scroll, fid: top.fid }, isBack: true } };
-    if (location.hash === top.from) handle();
-    else location.hash = top.from;
+    if (location.hash === top.from) {
+      forwardStack().length = 0;
+      handle();
+      return;
+    }
+    const steps = idxOk && typeof top.idx === 'number' && stateIdx() === idx ? top.idx - idx : 0;
+    if (steps < 0) {
+      // The entries stepped over stay as browser Forward: let Forward show "Back to…" again.
+      forwardStack().push(top);
+      history.go(steps);
+      return;
+    }
+    forwardStack().length = 0;
+    setHash(top.from, false);
   }
 
   function backTop() {
@@ -110,6 +160,7 @@ App.router = (() => {
 
   function handle() {
     const hash = location.hash;
+    syncIdx();
     if (hash && !hash.startsWith('#/')) {
       // In-page anchors (e.g. skip link) are not routes
       pending = null;
@@ -143,6 +194,9 @@ App.router = (() => {
       go('#/overview', { replace: true });
       return;
     }
+    // Never change the page beneath an open overlay (e.g. a typed URL, or Back with no
+    // overlay history entry): close it without restoring focus; the new view takes focus.
+    if (App.overlay && App.overlay.isOpen() && r.hash !== current.hash) App.overlay.close('route', { silent: true, keepHistory: true });
     // Maintain the back stack: keep the top entry while we stay in its target section.
     const stack = backStack();
     const top = stack[stack.length - 1];
@@ -229,13 +283,18 @@ App.router = (() => {
   function start(opts = {}) {
     started = true;
     window.addEventListener('hashchange', handle);
+    // Traversals between same-URL entries (overlay history entries) fire popstate only
+    window.addEventListener('popstate', syncHistoryIndex);
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    idx = stateIdx() !== null ? stateIdx() : 0;
+    stamp();
     const r = parse(location.hash);
     const valid = location.hash.startsWith('#/') && isKnown(r.section);
     const first = valid ? r : parse('#/overview');
     if (typeof opts.beforeRender === 'function') opts.beforeRender(first);
     if (!valid) {
       location.replace('#/overview');
+      stamp();
       render(first, { initial: true, focus: false });
     } else {
       render(r, { initial: true, focus: r.item ? 'item' : false });
@@ -254,6 +313,8 @@ App.router = (() => {
     focusHeading,
     current: () => current,
     activeFid,
+    syncHistoryIndex,
+    historyIndex: () => (idxOk ? idx : null),
     onChange(fn) { changeListeners.push(fn); },
     views,
   };

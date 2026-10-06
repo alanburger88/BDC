@@ -585,6 +585,181 @@ await page.evaluate(() => window.BDCNotice.i18n.setLocale('en-CA'));
   await rm.context.close();
 }
 
+// 12c. S-04: very short viewports (320×256 = 1280×1024 at 400% zoom). The exact status is shown on
+// open; after a question the panel scrolls as one column (header away, context row and composer
+// pinned) so the newest answer gets the room.
+for (const loc of ['en-CA', 'fr-CA']) {
+  const sv = await newPage(browser, { width: 320, height: 256, reducedMotion: 'reduce' });
+  await gotoApp(sv.page, '#/payments', file);
+  await sv.page.evaluate((l) => window.BDCNotice.i18n.setLocale(l), loc);
+  await sv.page.waitForTimeout(150);
+  await sv.page.click('.clair-launcher');
+  await sv.page.waitForSelector('[data-overlay="clair"].is-open');
+  await sv.page.waitForTimeout(250);
+  const measure = () => sv.page.evaluate(() => {
+    const r = (s) => document.querySelector(s).getBoundingClientRect();
+    const st = r('.clair-status'); const ctx = r('.clair-context'); const form = r('.clair-form'); const send = r('.clair-send');
+    const ans = [...document.querySelectorAll('.clair-log .clair-msg--clair[data-msg]')].pop();
+    const ar = ans ? ans.getBoundingClientRect() : null;
+    return {
+      status: document.querySelector('.clair-status').textContent,
+      statusVisible: st.top >= 0 && st.bottom <= ctx.top + 1,
+      chipVisible: ctx.top >= 0 && ctx.bottom <= form.top,
+      composerVisible: form.bottom <= innerHeight + 1 && send.bottom <= innerHeight && send.right <= innerWidth,
+      answerVisible: ar ? Math.round(Math.max(0, Math.min(ar.bottom, form.top) - Math.max(ar.top, ctx.bottom))) : 0,
+      answerTop: ar ? Math.round(ar.top - ctx.bottom) : null,
+      pinned: document.querySelector('[data-overlay="clair"]').classList.contains('clair-pinned'),
+    };
+  });
+  const o = await measure();
+  check(`S-04 ${loc} 320×256: on open the exact status line is visible above the context row`, o.statusVisible && o.status === (loc === 'en-CA' ? STATUS_EN : STATUS_FR) && o.pinned && o.chipVisible && o.composerVisible, o);
+  await sv.page.fill('#clair-input', loc === 'en-CA' ? 'What is my next payment?' : 'Quel est mon prochain versement?');
+  await sv.page.press('#clair-input', 'Enter');
+  await sv.page.waitForTimeout(400);
+  const a1 = await measure();
+  check(`S-04 ${loc} 320×256: after asking, the answer is scrolled into view with ≥ 100px showing (context chip and composer stay visible)`, a1.answerVisible >= 100 && a1.answerTop >= 0 && a1.answerTop < 40 && a1.chipVisible && a1.composerVisible && !a1.pinned, a1);
+  const of = await overflowReport(sv.page);
+  check(`S-04 ${loc} 320×256: no horizontal overflow`, !of.overflow && of.offenders.length === 0, of.offenders.slice(0, 3));
+  // Scrolling back to the top shows the header and its status again
+  await sv.page.evaluate(() => { document.querySelector('[data-overlay="clair"]').scrollTop = 0; });
+  await sv.page.waitForTimeout(100);
+  check(`S-04 ${loc} 320×256: the status stays available — scrolling up shows it again`, (await measure()).statusVisible);
+  // A reader scroll releases the pinned header on a fresh open
+  await sv.page.keyboard.press('Escape');
+  await sv.page.waitForTimeout(150);
+  await sv.page.click('.clair-launcher');
+  await sv.page.waitForSelector('[data-overlay="clair"].is-open');
+  await sv.page.waitForTimeout(250);
+  const reopened = await measure();
+  const pinnedOnReopen = reopened.pinned && reopened.statusVisible;
+  await sv.page.mouse.move(160, 150);
+  await sv.page.mouse.wheel(0, 200);
+  await sv.page.waitForTimeout(200);
+  check(`S-04 ${loc} 320×256: reopened with history, the header is pinned until the reader scrolls`, pinnedOnReopen && !(await measure()).pinned);
+  // Keyboard: focus never lands under the pinned context row or composer
+  await sv.page.focus('#clair-input');
+  let obscured = null;
+  for (let i = 0; i < 12 && !obscured; i += 1) {
+    await sv.page.keyboard.press('Shift+Tab');
+    await sv.page.waitForTimeout(60);
+    obscured = await sv.page.evaluate(() => {
+      const a = document.activeElement;
+      if (!a || !a.closest('.clair-scroll')) return null;
+      const r = a.getBoundingClientRect();
+      const ctx = document.querySelector('.clair-context').getBoundingClientRect();
+      const form = document.querySelector('.clair-form').getBoundingClientRect();
+      return r.top < ctx.bottom - 1 || r.bottom > form.top + 1 ? `${a.textContent.trim().slice(0, 40)} ${Math.round(r.top)}–${Math.round(r.bottom)} (ctx ${Math.round(ctx.bottom)}, form ${Math.round(form.top)})` : null;
+    });
+  }
+  check(`S-04 ${loc} 320×256: keyboard focus in the conversation is never hidden under the pinned rows`, !obscured, obscured);
+  check(`S-04 ${loc}: no console errors`, sv.consoleMsgs.length === 0, sv.consoleMsgs.slice(0, 3));
+  await sv.context.close();
+}
+
+// 12d. S-19: a source link never leads back to the place Clair was opened from.
+{
+  const sp = await newPage(browser, { width: 1280, height: 900 });
+  await gotoApp(sp.page, '#/documents', file);
+  const srcOf = () => sp.page.evaluate(() => {
+    const m = [...document.querySelectorAll('.clair-log .clair-msg--clair[data-msg]')].pop();
+    const a = m.querySelector('.clair-source');
+    const n = m.querySelector('.clair-here');
+    return { href: a ? a.getAttribute('href') : null, text: a ? a.textContent.trim() : null, note: n ? n.textContent.trim() : null };
+  });
+  if (await sp.page.$('[data-fid="explain-clause-maturity"]')) {
+    const ids = await sp.page.$$eval('[data-fid^="explain-clause-"]', (els) => els.map((e) => e.dataset.fid.replace('explain-clause-', '')));
+    const bad = [];
+    for (const id of ids) {
+      await sp.page.evaluate(() => window.scrollTo(0, 0));
+      await sp.page.locator(`[data-fid="explain-clause-${id}"]`).scrollIntoViewIfNeeded();
+      await sp.page.click(`[data-fid="explain-clause-${id}"]`);
+      await sp.page.waitForSelector('[data-overlay="clair"].is-open');
+      await sp.page.waitForTimeout(150);
+      const s = await srcOf();
+      if (s.href === `#/documents/${id}` || (!s.href && !s.note)) bad.push({ id, ...s });
+      await sp.page.keyboard.press('Escape');
+      await sp.page.waitForTimeout(150);
+    }
+    check(`S-19: Explain on each of ${ids.length} notice clauses never links back to that clause (links elsewhere or says so)`, ids.length >= 9 && bad.length === 0, bad);
+    await sp.page.locator('[data-fid="explain-clause-maturity"]').scrollIntoViewIfNeeded();
+    await sp.page.click('[data-fid="explain-clause-maturity"]');
+    await sp.page.waitForSelector('[data-overlay="clair"].is-open');
+    await sp.page.waitForTimeout(150);
+    const mat = await srcOf();
+    check('S-19: clause 6 (maturity) source is its plain-language place, "What changed" › final payment date', mat.href === '#/changes/maturity' && mat.text === 'See in “What changed”: Final payment date (maturity)', mat);
+    await sp.page.click('.clair-log .clair-msg--clair[data-msg]:last-of-type .clair-source');
+    await sp.page.waitForTimeout(300);
+    check('S-19: following it keeps a Back entry to the clause', await sp.page.evaluate(() => location.hash === '#/changes/maturity' && /6\. Revised maturity date/.test((document.querySelector('[data-fid="back-control"]') || {}).textContent || '')));
+  }
+  await sp.page.evaluate(() => window.BDCNotice.router.go('#/help'));
+  await sp.page.waitForTimeout(300);
+  if (await sp.page.$('[data-fid="hlp-gl-explain-principal"]')) {
+    await sp.page.locator('[data-fid="hlp-gl-explain-principal"]').scrollIntoViewIfNeeded();
+    await sp.page.click('[data-fid="hlp-gl-explain-principal"]');
+    await sp.page.waitForSelector('[data-overlay="clair"].is-open');
+    await sp.page.waitForTimeout(150);
+    const gl = await srcOf();
+    check('S-19: glossary entry Explain links to the supporting notice clause, not back to the entry', gl.href === '#/documents/postponement' && /^See in your notice: 3\./.test(gl.text), gl);
+    await sp.page.keyboard.press('Escape');
+    await sp.page.waitForTimeout(150);
+  }
+  // A place source equal to the current page: a note instead of a link (both locales)
+  await sp.page.evaluate(() => window.BDCNotice.router.go('#/payments'));
+  await sp.page.waitForTimeout(300);
+  await sp.page.evaluate(() => window.BDCNotice.clair.open({ kind: 'general' }, document.querySelector('.clair-launcher')));
+  await sp.page.waitForSelector('[data-overlay="clair"].is-open');
+  await sp.page.fill('#clair-input', 'payments in 2027');
+  await sp.page.press('#clair-input', 'Enter');
+  await sp.page.waitForTimeout(150);
+  const yr = await srcOf();
+  check('S-19: opened on Payments & impact, a year answer says "You’re viewing “Payments & impact”." instead of linking to it', !yr.href && yr.note === 'You’re viewing “Payments & impact”.', yr);
+  await sp.page.evaluate(() => window.BDCNotice.i18n.setLocale('fr-CA'));
+  await sp.page.fill('#clair-input', 'versements en 2027');
+  await sp.page.press('#clair-input', 'Enter');
+  await sp.page.waitForTimeout(150);
+  const yrFr = await srcOf();
+  check('S-19 fr-CA: same note in French', !yrFr.href && yrFr.note === 'Vous consultez «\u00a0Versements et incidence\u00a0».', yrFr);
+  await sp.page.keyboard.press('Escape');
+  await sp.page.waitForTimeout(150);
+  // Reopened elsewhere, the same answer links to Payments & impact again
+  await sp.page.evaluate(() => window.BDCNotice.router.go('#/help'));
+  await sp.page.waitForTimeout(300);
+  await sp.page.evaluate(() => window.BDCNotice.clair.open({ kind: 'general' }, document.querySelector('.clair-launcher')));
+  await sp.page.waitForSelector('[data-overlay="clair"].is-open');
+  await sp.page.waitForTimeout(150);
+  check('S-19: reopened on another page, that answer links to Payments & impact again', (await srcOf()).href === '#/payments');
+  await sp.page.keyboard.press('Escape');
+  check('S-19: no console errors', sp.consoleMsgs.length === 0, sp.consoleMsgs.slice(0, 3));
+  await sp.context.close();
+}
+
+// 12e. S-12: Explain with AI from a glossary popover → source link → Back returns to the term
+// (the reader's place), with its scroll position, not to the top of the page.
+for (const [w, hh] of [[1280, 900], [390, 844]]) {
+  const gp = await newPage(browser, { width: w, height: hh });
+  await gotoApp(gp.page, '#/payments/2026-12', file);
+  await gp.page.waitForTimeout(300);
+  const termFid = await gp.page.evaluate(() => { const d = document.querySelector('#pay-detail'); const tm = d && d.querySelector('.term'); return tm ? tm.dataset.fid : null; });
+  if (!termFid) { await gp.context.close(); continue; }
+  await gp.page.locator(`[data-fid="${termFid}"]`).scrollIntoViewIfNeeded();
+  await gp.page.click(`[data-fid="${termFid}"]`);
+  await gp.page.waitForTimeout(200);
+  const y0 = await gp.page.evaluate(() => Math.round(scrollY));
+  await gp.page.click('.popover [data-fid^="explain-term-"]');
+  await gp.page.waitForSelector('[data-overlay="clair"].is-open');
+  await gp.page.waitForTimeout(200);
+  await gp.page.click('.clair-log .clair-msg--clair[data-msg]:last-of-type .clair-source');
+  await gp.page.waitForTimeout(400);
+  const top = await gp.page.evaluate(() => { const s = window.BDCNotice.session.slice('backStack'); return { ...s[s.length - 1], back: (document.querySelector('[data-fid="back-control"]') || {}).textContent }; });
+  check(`S-12 ${w}px: the Back entry points to the glossary term in the December detail (not the closed popover's button)`, top.fid === termFid && top.ctx && top.ctx.kind === 'month' && top.ctx.id === '2026-12' && /December 2026 payment/.test(top.back || ''), top);
+  await gp.page.click('[data-fid="back-control"]');
+  await gp.page.waitForTimeout(500);
+  const ret = await gp.page.evaluate(() => ({ hash: location.hash, fid: document.activeElement && document.activeElement.getAttribute('data-fid'), y: Math.round(scrollY) }));
+  check(`S-12 ${w}px: Back returns to #/payments/2026-12 with focus on the term and the reader's scroll position`, ret.hash === '#/payments/2026-12' && ret.fid === termFid && Math.abs(ret.y - y0) < 120 && ret.y > 300, { ...ret, y0 });
+  check(`S-12 ${w}px: no console errors`, gp.consoleMsgs.length === 0, gp.consoleMsgs.slice(0, 3));
+  await gp.context.close();
+}
+
 // 13. Isolation
 const ext = requests.filter((u) => !u.startsWith('https://accessibilityserver.org/'));
 check('no external network requests', ext.length === 0, ext);

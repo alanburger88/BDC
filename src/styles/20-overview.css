@@ -201,7 +201,8 @@
 .ov-fact-title .badge { margin-left: 6px; vertical-align: 1px; }
 .ov-fact-text { margin: 0; color: var(--text-2); }
 .ov-fact .btn-notice-link { padding-left: 0; margin-top: 2px; font-size: 0.9375rem; }
-.ov-demo-note { margin: auto 0 0; padding-top: var(--space-3); border-top: 1px dashed var(--line); }
+/* The note follows the facts directly (no stretched blank band above it) */
+.ov-demo-note { margin: var(--space-1) 0 0; padding-top: var(--space-3); border-top: 1px dashed var(--line); }
 @media (min-width: 640px) and (max-width: 999.98px) {
   .ov-beside { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4) var(--space-5); }
   .ov-beside-title, .ov-demo-note { grid-column: 1 / -1; }

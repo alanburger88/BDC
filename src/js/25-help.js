@@ -51,8 +51,10 @@
   };
 
   /* ---------- experience state (memory only) ---------- */
-  const st = () => App.session.slice('help', () => ({ query: '', open: {} }));
+  // queryLang: the interface language the search text was typed in (user-written, never translated).
+  const st = () => App.session.slice('help', () => ({ query: '', queryLang: null, open: {} }));
   let refs = null; // DOM references for the current render
+  let renderedLocale = null; // locale of the last render, to detect a language switch
 
   /* ---------- formatting helpers (display only) ---------- */
   // One format for every amount in an answer: whole dollars drop ".00", cents stay when present
@@ -133,9 +135,13 @@
     }
     return false;
   }
+  // "Ask Clair" opens the general conversation (greeting + suggestions) so the reader asks in
+  // their own words: no question is posted for them and no Explain request is logged.
+  // Explain with AI controls keep their own item context (App.ui.explainButton).
   function openClair(trigger) {
     if (App.clair && typeof App.clair.open === 'function') {
-      App.clair.open({ kind: 'section', id: 'help', section: 'help', fid: trigger && trigger.getAttribute('data-fid') }, trigger);
+      const section = (App.router.current() || {}).section || NS;
+      App.clair.open({ kind: 'general', section, fid: trigger && trigger.getAttribute('data-fid') }, trigger);
       return true;
     }
     return false;
@@ -188,16 +194,36 @@
     return { text: n, compact: n.replace(/\s+/g, '') };
   }
 
-  function faqPlain(id, p) {
-    const paras = tv(`${NS}.faq.items.${id}.a`) || [];
-    return paras.map((_, i) => App.ui.plain(k(`faq.items.${id}.a.${i}`, p)).replace(/^- /, '')).join(' ');
+  function faqPlain(id, p, l = App.i18n.locale) {
+    const paras = tv(`${NS}.faq.items.${id}.a`, l) || [];
+    return paras.map((_, i) => App.ui.plain(t(`${NS}.faq.items.${id}.a.${i}`, p, l)).replace(/^- /, '')).join(' ');
   }
+  // Search indexes per locale: the current language always; also the language the search text
+  // was typed in after a language switch, so the reader's results stay in place (shown in the
+  // current language) with a note and a one-click clear.
+  function faqIndex(id, p, l) {
+    const q = t(`${NS}.faq.items.${id}.q`, p, l);
+    return { index: indexEntry(`${q} ${faqPlain(id, p, l)}`), qIndex: indexEntry(q) };
+  }
+  function termIndex(id, l) {
+    return { index: indexEntry(`${t(`glossary.${id}.term`, null, l)} ${t(`glossary.${id}.definition`, null, l)}`) };
+  }
+  // The other language the search text was written in, when it differs from the interface.
+  function crossLang() {
+    const s = st();
+    return s.query && s.queryLang && s.queryLang !== App.i18n.locale && App.i18n.LOCALES.includes(s.queryLang) ? s.queryLang : null;
+  }
+  const searchLocales = () => (crossLang() ? [App.i18n.locale, crossLang()] : [App.i18n.locale]);
 
   function wouldMatchQuery(kind, id, p) {
     const toks = tokens(st().query);
     if (!toks.length) return true;
-    if (kind === 'faq') return matches(toks, indexEntry(`${k(`faq.items.${id}.q`, p)} ${faqPlain(id, p)}`));
-    return matches(toks, indexEntry(`${t(`glossary.${id}.term`)} ${t(`glossary.${id}.definition`)}`));
+    return searchLocales().some((l) => matches(toks, (kind === 'faq' ? faqIndex(id, p, l) : termIndex(id, l)).index));
+  }
+  // Lazily built index of an item in locale l (cached on the item for this render).
+  function idxOf(it, l) {
+    if (!it.idx[l]) it.idx[l] = it.kind === 'faq' ? faqIndex(it.id, refs.p, l) : termIndex(it.id, l);
+    return it.idx[l];
   }
 
   const announceCount = App.util.debounce(() => {
@@ -211,14 +237,16 @@
     const q = st().query;
     const toks = tokens(q);
     const searching = toks.length > 0;
+    const locs = searchLocales();
+    const other = searching ? crossLang() : null;
     let faqN = 0;
     let termN = 0;
     refs.faqGroups.forEach((g) => {
       let visible = 0;
       g.items.forEach((id) => {
         const it = refs.faq[id];
-        const hit = !searching || matches(toks, it.index);
-        const qHit = searching && matches(toks, it.qIndex);
+        const hit = !searching || locs.some((l) => matches(toks, idxOf(it, l).index));
+        const qHit = searching && locs.some((l) => matches(toks, idxOf(it, l).qIndex));
         it.el.hidden = !hit;
         it.found.hidden = !(searching && hit && !qHit);
         if (hit) visible += 1;
@@ -228,7 +256,7 @@
     });
     App.TERMS.forEach((id) => {
       const it = refs.terms[id];
-      const hit = !searching || matches(toks, it.index);
+      const hit = !searching || locs.some((l) => matches(toks, idxOf(it, l).index));
       it.el.hidden = !hit;
       if (hit) termN += 1;
     });
@@ -242,6 +270,15 @@
     refs.faqMeta.textContent = searching ? k('search.showingFaq', { n: App.fmt.number(faqN), total: App.fmt.number(FAQ_IDS.length) }) : '';
     refs.termMeta.textContent = searching ? k('search.showingTerms', { n: App.fmt.number(termN), total: App.fmt.number(App.TERMS.length) }) : '';
     refs.expandBtn.hidden = searching && faqN === 0;
+    // Search text typed in the other language: keep it as written (lang on the field), say so,
+    // and offer a one-click clear next to the note.
+    const langNote = other ? k('search.otherLanguage', { language: App.i18n.languageName(other) }) : '';
+    refs.langNote.hidden = !other;
+    refs.langText.textContent = langNote;
+    // The note replaces the "searches in <current language>" hint while it applies.
+    refs.hint.hidden = !!other;
+    if (other) refs.input.setAttribute('lang', other); else refs.input.removeAttribute('lang');
+    refs.input.setAttribute('aria-describedby', other ? 'hlp-search-lang hlp-search-status' : refs.describedBy);
     App.util.clear(refs.status);
     let statusText = '';
     if (searching && total > 0) {
@@ -252,8 +289,9 @@
     refs.none.hidden = !(searching && total === 0);
     if (searching && total === 0) {
       refs.noneTitle.textContent = k('search.noneTitle', { q: shown });
-      statusText = `${k('search.noneTitle', { q: shown })}. ${k('search.noneBody')}`;
+      statusText = `${k('search.noneTitle', { q: shown })}. ${k(hasClair() ? 'search.noneBody' : 'search.noneBodyNoClair')}`;
     }
+    if (langNote) statusText = `${statusText} ${langNote}`;
     refs.lastStatus = statusText;
     const pop = App.popover.current();
     if (pop && refs.root.contains(pop.trigger) && pop.trigger.closest('[hidden]')) App.popover.close({ restoreFocus: false });
@@ -261,14 +299,18 @@
     if (announce) announceCount();
   }
 
+  // Typed or chosen text is tagged with the interface language it was entered in.
   function setQuery(value, { announce = true } = {}) {
-    st().query = String(value || '').slice(0, 120);
-    if (refs && refs.input.value !== st().query) refs.input.value = st().query;
+    const s = st();
+    s.query = String(value || '').slice(0, 120);
+    s.queryLang = s.query ? App.i18n.locale : null;
+    if (refs && refs.input.value !== s.query) refs.input.value = s.query;
     applySearch({ announce });
   }
 
   function clearSearch() {
     st().query = '';
+    st().queryLang = null;
     if (!refs) return;
     refs.input.value = '';
     applySearch();
@@ -308,6 +350,11 @@
       on: { click: () => clearSearch() },
     }, App.ui.icon('close', { size: 18 }));
     const status = h('p', { class: 'hlp-search-status', id: statusId, hidden: true });
+    const hint = h('p', { class: 'hlp-search-hint', id: hintId }, k('search.hint'));
+    const langText = h('span', { class: 'hlp-search-lang-text' });
+    const langNote = h('div', { class: 'hlp-search-lang', hidden: true },
+      h('p', { class: 'hlp-search-lang-msg', id: 'hlp-search-lang' }, App.ui.icon('transcript', { size: 16 }), langText),
+      App.ui.button({ label: k('search.clear'), kind: 'chip', iconName: 'close', fid: 'hlp-search-lang-clear', className: 'hlp-search-lang-clear', onClick: () => clearSearch() }));
     const chips = (tv(`${NS}.search.suggestions`) || []).map((word, i) => h('button', {
       type: 'button',
       class: ['btn', 'btn-chip', 'hlp-suggest-chip'],
@@ -328,10 +375,11 @@
         h('span', { class: 'hlp-search-icon', 'aria-hidden': 'true' }, App.ui.icon('search')),
         input,
         clearBtn),
-      h('p', { class: 'hlp-search-hint', id: hintId }, k('search.hint')),
+      langNote,
+      hint,
       h('div', { class: 'hlp-suggest' }, h('span', { class: 'hlp-suggest-label' }, k('search.suggestionsLabel')), chips),
       status);
-    return { block, input, clearBtn, status, none, noneTitle };
+    return { block, input, clearBtn, status, none, noneTitle, hint, langNote, langText, describedBy: `${hintId} ${statusId}` };
   }
 
   /* ---------- FAQ ---------- */
@@ -409,14 +457,7 @@
     const el = h('div', { class: ['hlp-faq-item', open ? 'is-open' : null], id: `faq-${id}`, fid: `faq-${id}`, tabindex: '-1', 'data-faq': id },
       h('h4', { class: 'hlp-faq-q' }, btn),
       panel);
-    return {
-      el,
-      btn,
-      panel,
-      found,
-      index: indexEntry(`${question} ${faqPlain(id, p)}`),
-      qIndex: indexEntry(question),
-    };
+    return { el, btn, panel, found, kind: 'faq', id, idx: {} };
   }
 
   function setOpen(id, open) {
@@ -505,7 +546,7 @@
           targetId === id ? inlineBack(p) : null,
           hasClair() ? App.ui.explainButton({ kind: 'term', id }, { fid: `hlp-gl-explain-${id}` }) : null,
           TERM_CLAUSE[id] ? App.ui.noticeLink(TERM_CLAUSE[id], { kind: 'term', id }, { label: k('seeInNotice'), fid: `hlp-gl-notice-${id}` }) : null));
-      terms[id] = { el, index: indexEntry(`${term} ${def}`) };
+      terms[id] = { el, kind: 'term', id, idx: {} };
       return el;
     }));
     const section = h('section', { class: ['hlp-section', 'hlp-glossary'], 'aria-labelledby': 'hlp-glossary-title' },
@@ -575,8 +616,12 @@
     // Arriving at an item: open it, and make sure an earlier search does not hide it.
     if (!opts.rerender) {
       if (targetKind === 'faq') s.open[sub] = true;
-      if ((targetKind === 'faq' || targetKind === 'glossary') && !wouldMatchQuery(targetKind, sub, p)) s.query = '';
+      if ((targetKind === 'faq' || targetKind === 'glossary') && !wouldMatchQuery(targetKind, sub, p)) { s.query = ''; s.queryLang = null; }
     }
+    if (!s.query) s.queryLang = null;
+    // A language switch keeps the reader's search text and announces the result count again.
+    const localeSwitched = !!opts.rerender && !!renderedLocale && renderedLocale !== App.i18n.locale;
+    renderedLocale = App.i18n.locale;
 
     const search = searchBlock();
     const faq = faqSection(p);
@@ -602,7 +647,12 @@
 
     refs = {
       root,
+      p,
       input: search.input,
+      langNote: search.langNote,
+      langText: search.langText,
+      hint: search.hint,
+      describedBy: search.describedBy,
       clearBtn: search.clearBtn,
       status: search.status,
       none: search.none,
@@ -618,7 +668,7 @@
       termEmpty: glossary.empty,
       lastStatus: '',
     };
-    applySearch();
+    applySearch({ announce: localeSwitched && tokens(s.query).length > 0 });
 
     let itemEl = null;
     if (targetKind === 'faq') itemEl = faq.faq[sub].el;

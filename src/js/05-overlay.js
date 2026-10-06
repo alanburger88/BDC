@@ -4,6 +4,75 @@
 App.overlay = (() => {
   let currentOv = null; // { id, el, opts, returnTarget }
   let root = null;
+  // A backdrop click this soon after opening is the second half of a double click on
+  // the control that opened the overlay, not a request to close it.
+  const BACKDROP_GUARD_MS = 350;
+
+  /* History entry while an overlay is open (standard dialog pattern): opening pushes a
+   * same-URL entry, so browser or hardware Back closes the overlay and stays on the
+   * page. Closing normally removes the entry again; a navigation made right after
+   * closing (Clair's source links, Reset) reuses it for the destination instead
+   * (App.router calls takeHistoryEntry). Same-URL traversals fire popstate only, so the
+   * router's hashchange handling is not involved. */
+  let histEntry = false;  // the current history entry belongs to the open overlay
+  let popPending = false; // closed: its entry is removed at the end of this task unless reused
+  let popping = false;    // our own history.back() is in flight
+  const onOverlayEntry = () => !!(history.state && history.state.bdcOverlay);
+
+  function pushEntry() {
+    if (histEntry) return;
+    if (popPending) { popPending = false; histEntry = true; return; } // switching overlays keeps the entry
+    try {
+      const st = history.state && typeof history.state === 'object' ? history.state : {};
+      const next = { ...st, bdcOverlay: 1 };
+      if (typeof st.bdcIdx === 'number') next.bdcIdx = st.bdcIdx + 1;
+      history.pushState(next, '');
+      histEntry = true;
+      if (App.router && App.router.syncHistoryIndex) App.router.syncHistoryIndex();
+    } catch (e) {
+      histEntry = false; // no history entry (e.g. sandboxed): Back falls back to the router
+    }
+  }
+
+  function releaseEntry() {
+    if (!histEntry) return;
+    histEntry = false;
+    popPending = true;
+    // Deferred to the end of the current task: history.back() is asynchronous and would
+    // otherwise undo a navigation made right after closing.
+    const pop = () => {
+      if (!popPending) return;
+      popPending = false;
+      if (!onOverlayEntry()) return;
+      popping = true;
+      history.back();
+    };
+    if (typeof queueMicrotask === 'function') queueMicrotask(pop); else Promise.resolve().then(pop);
+  }
+
+  /** For the router: a push navigation replaces the overlay's entry instead of adding one. */
+  function takeHistoryEntry() {
+    if (!onOverlayEntry()) return false;
+    if (popPending) { popPending = false; return true; }
+    if (histEntry) { histEntry = false; return true; }
+    return false;
+  }
+
+  function onPopState() {
+    const onEntry = onOverlayEntry();
+    if (popping) { popping = false; return; }
+    if (histEntry && !onEntry) {
+      // Browser/hardware Back left the overlay's entry: close it, stay on the page.
+      histEntry = false;
+      if (currentOv) close('history');
+      return;
+    }
+    if (onEntry && !histEntry && !popPending && !currentOv) {
+      // A leftover overlay entry reached with Forward: step back over it.
+      popping = true;
+      history.back();
+    }
+  }
 
   function appRoot() { return document.getElementById('app'); }
 
@@ -80,7 +149,20 @@ App.overlay = (() => {
     const titleId = App.util.uid('ov-title');
     const variant = opts.variant || 'dialog';
     const reduced = App.util.prefersReducedMotion();
-    const backdrop = h('div', { class: 'overlay-backdrop', on: { click: () => close('backdrop') } });
+    const openedAt = performance.now();
+    let armed = false;
+    const backdrop = h('div', {
+      class: 'overlay-backdrop',
+      on: {
+        pointerdown: () => { armed = performance.now() - openedAt >= BACKDROP_GUARD_MS; },
+        click: (e) => {
+          // A click needs its pointerdown on the backdrop too (e.detail 0: synthetic click)
+          const ok = e.detail === 0 ? performance.now() - openedAt >= BACKDROP_GUARD_MS : armed;
+          armed = false;
+          if (ok) close('backdrop');
+        },
+      },
+    });
     const closeBtn = h('button', { type: 'button', class: 'btn btn-icon overlay-close', fid: `ov-close-${opts.id}`, 'aria-label': t('common.close'), on: { click: () => close('button') } }, App.ui.icon('close'), h('span', { class: 'overlay-close-text' }, t('common.close')));
     const titleEl = h('h2', { id: titleId, class: 'overlay-title' }, opts.title || '');
     const body = h('div', { class: 'overlay-body' });
@@ -98,6 +180,7 @@ App.overlay = (() => {
     root.appendChild(el);
     syncViewport();
     setBackgroundInert(true);
+    pushEntry();
     currentOv = { id: opts.id, el, backdrop, opts, returnTarget: inheritedReturn || returnTargetFrom(opts.trigger) };
     const api = {
       close: (reason) => close(reason || 'api'),
@@ -117,10 +200,13 @@ App.overlay = (() => {
     return api;
   }
 
-  function close(reason = 'api', { silent = false } = {}) {
+  /** close(reason, { silent, keepHistory }): silent skips the focus return; keepHistory
+   * leaves session history alone (the router is already showing another entry). */
+  function close(reason = 'api', { silent = false, keepHistory = false } = {}) {
     if (!currentOv) return;
     const ov = currentOv;
     currentOv = null;
+    if (keepHistory) histEntry = false; else releaseEntry();
     if (App.popover) App.popover.close({ restoreFocus: false });
     ov.el.remove();
     ov.backdrop.remove();
@@ -136,6 +222,7 @@ App.overlay = (() => {
   }
 
   document.addEventListener('keydown', onKeydown);
+  window.addEventListener('popstate', onPopState);
   App.i18n.onChange(() => {
     if (!currentOv) return;
     const btn = currentOv.el.querySelector('.overlay-close');
@@ -156,6 +243,7 @@ App.overlay = (() => {
     isOpen: (id) => !!currentOv && (!id || currentOv.id === id),
     current: () => (currentOv ? currentOv.id : null),
     element: () => (currentOv ? currentOv.el : null),
+    takeHistoryEntry,
   };
 })();
 

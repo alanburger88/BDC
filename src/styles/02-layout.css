@@ -155,12 +155,15 @@ main { padding: var(--space-5) 0 var(--space-7); outline: none; }
 
 /* Clair launcher (bottom right; bottom left is reserved for the accessibility widget) */
 .launcher-wrap { position: fixed; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(16px + var(--safe-bottom)); z-index: 40; }
+/* Steps aside while the compact section list is open so it never covers a menu item */
+html.nav-compact.selector-open .launcher-wrap { visibility: hidden; }
 .clair-launcher {
   display: inline-flex; align-items: center; gap: var(--space-3);
   min-height: 56px; padding: 8px 20px 8px 16px;
   border: 0; border-radius: var(--radius-pill);
   background: var(--navy); color: var(--white);
-  box-shadow: var(--shadow-lift);
+  /* White ring: keeps the button shape visible over the navy footer and hero */
+  box-shadow: 0 0 0 2px var(--white), var(--shadow-lift);
   text-align: left;
 }
 .clair-launcher:hover { background: var(--navy-3); }
@@ -175,7 +178,6 @@ main { padding: var(--space-5) 0 var(--space-7); outline: none; }
   .clair-launcher {
     flex-direction: column; justify-content: center; gap: 0;
     width: 58px; height: 58px; min-height: 0; padding: 0; border-radius: 50%;
-    box-shadow: 0 0 0 2px var(--white), var(--shadow-lift);
   }
   .clair-launcher .icon { width: 22px; height: 22px; }
   .clair-launcher-text { align-items: center; }

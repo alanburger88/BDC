@@ -122,8 +122,15 @@ App.shell = (() => {
     return h('div', { class: 'section-select' }, btn, list);
   }
 
+  // The floating Clair launcher steps aside while the section list is open, so it never
+  // covers a menu item (zoomed-in or short viewports).
+  function markSelector() {
+    document.documentElement.classList.toggle('selector-open', selectorOpen);
+  }
+
   function toggleSelector(force, restoreFocus = true) {
     selectorOpen = force === undefined ? !selectorOpen : force;
+    markSelector();
     const btn = els.selector.querySelector('.section-select-btn');
     const list = els.selector.querySelector('.section-list');
     btn.setAttribute('aria-expanded', String(selectorOpen));
@@ -214,6 +221,9 @@ App.shell = (() => {
 
   function resetDemo() {
     App.session.reset();
+    // The reset starts a new demo session: it opens the notice again (identifier only),
+    // before the overview logs its section_viewed.
+    App.events.log('notice_opened', { id: App.record.noticeId, section: 'overview' });
     App.router.go('#/overview', { focus: 'heading' });
     App.announce(t('shell.resetDone'));
   }
@@ -272,6 +282,7 @@ App.shell = (() => {
   function update(route) {
     if (!els.nav) return;
     selectorOpen = false;
+    markSelector();
     renderNav();
     updateViewRole();
     document.documentElement.setAttribute('data-route', route.section);

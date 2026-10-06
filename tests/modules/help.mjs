@@ -9,6 +9,8 @@
 // review regressions: one money format per answer, typed-URL focus, inline back
 // naming the question, focus kept on a language switch, pinned definitions and
 // search, external survey mounts (ids, locale, reset) and tablet/320px layout.
+// Round 2: search text kept across a language switch with an other-language note
+// and one-click clear (S-21); "Ask Clair" opens the general conversation (S-14).
 // Usage: node tests/modules/help.mjs [path/to/index.html] [--shots dir]
 import { mkdirSync } from 'node:fs';
 import { launch, newPage, gotoApp, overflowReport, missingKeys, DEFAULT_FILE } from '../lib/browser.mjs';
@@ -221,6 +223,133 @@ await page.focus('#hlp-search-input');
 await page.keyboard.press('Escape');
 await wait(page, 100);
 check('Escape in the search field clears it', await page.evaluate(() => document.getElementById('hlp-search-input').value === '' && [...document.querySelectorAll('.hlp-faq-item')].every((e) => !e.hidden)));
+
+/* ------------------------------------------------------------------ */
+/* S-21: language switch keeps the typed search text, never an        */
+/* unexplained empty list; the result count is announced again        */
+/* ------------------------------------------------------------------ */
+{
+  const searchState = () => page.evaluate(() => {
+    const i = document.getElementById('hlp-search-input');
+    const note = document.querySelector('.hlp-search-lang');
+    const st = document.getElementById('hlp-search-status');
+    return {
+      value: i.value,
+      lang: i.getAttribute('lang'),
+      describedBy: i.getAttribute('aria-describedby') || '',
+      note: note && !note.hidden ? note.querySelector('.hlp-search-lang-msg').textContent.trim() : null,
+      noteClear: note && !note.hidden ? (note.querySelector('[data-fid="hlp-search-lang-clear"]') || {}).textContent : null,
+      hint: !document.getElementById('hlp-search-hint').hidden,
+      status: st && !st.hidden ? st.textContent : '',
+      none: !document.querySelector('.hlp-none').hidden,
+      faq: [...document.querySelectorAll('.hlp-faq-item')].filter((e) => !e.hidden).length,
+      gl: [...document.querySelectorAll('.hlp-gl-item')].filter((e) => !e.hidden).length,
+      focus: document.activeElement.id,
+      live: document.getElementById('live-polite').textContent,
+    };
+  });
+  await setLocale(page, 'en-CA');
+  await freshHelp(page);
+  await page.fill('#hlp-search-input', 'interest');
+  await wait(page, 150);
+  const en = await searchState();
+  check('S-21 en-CA: typed search shows results and no language note', en.faq + en.gl > 0 && en.note === null && en.lang === null && en.hint, en);
+  await page.focus('#hlp-search-input');
+  await setLocale(page, 'fr-CA');
+  await wait(page, 900);
+  const fr = await searchState();
+  check('S-21: after switching to French the typed search text is kept, with focus', fr.value === 'interest' && fr.focus === 'hlp-search-input', fr);
+  check('S-21: the reader keeps the same results (matched in both languages), never an empty list', fr.faq === en.faq && fr.gl === en.gl && !fr.none && fr.faq + fr.gl > 0, { en: [en.faq, en.gl], fr: [fr.faq, fr.gl, fr.none] });
+  check('S-21: note « Recherche rédigée en anglais » with a one-click clear; hint replaced', /^Recherche rédigée en anglais\. Les résultats tiennent compte des deux langues\.$/.test(N(fr.note)) && N(fr.noteClear) === 'Effacer la recherche' && !fr.hint, fr);
+  check('S-21: the field keeps the language it was typed in (lang="en-CA") and is described by the note', fr.lang === 'en-CA' && fr.describedBy.split(' ').includes('hlp-search-lang'), fr);
+  check('S-21: French result count shown and announced with the note after the switch', N(fr.status).includes(`${fr.faq + fr.gl} résultats pour « interest »`) && N(fr.live).includes(`${fr.faq + fr.gl} résultats`) && N(fr.live).includes('Recherche rédigée en anglais'), { status: fr.status, live: fr.live });
+  await shot(page, 'fr-CA-1280-search-other-language');
+  await page.click('[data-fid="hlp-search-lang-clear"]');
+  await wait(page, 200);
+  const cl = await searchState();
+  check('S-21: the note\'s clear button empties the search, restores every item and keeps focus in the field', cl.value === '' && cl.faq === 14 && cl.gl === 10 && cl.note === null && cl.hint && cl.lang === null && cl.focus === 'hlp-search-input' && !cl.describedBy.includes('hlp-search-lang'), cl);
+  // Text typed in the current language carries no note; the tag follows the latest typing.
+  await page.fill('#hlp-search-input', 'interets');
+  await wait(page, 150);
+  const fr2 = await searchState();
+  check('S-21: search typed in French while in French shows no note', fr2.note === null && fr2.lang === null && fr2.gl > 0, fr2);
+  await setLocale(page, 'en-CA');
+  await wait(page, 900);
+  const en2 = await searchState();
+  check('S-21: French search kept after switching to English, still matched, note « Search written in French »', en2.value === 'interets' && en2.gl > 0 && !en2.none && N(en2.note) === 'Search written in French. Results include matches in both languages.' && en2.lang === 'fr-CA' && en2.live.includes('Search written in French'), en2);
+  await page.fill('#hlp-search-input', 'interest');
+  await wait(page, 150);
+  check('S-21: typing again in the current language drops the note', (await searchState()).note === null);
+  // Nothing matches in either language: the empty state is explained by the note.
+  await setLocale(page, 'fr-CA');
+  await page.fill('#hlp-search-input', 'zzqxv');
+  await wait(page, 150);
+  await setLocale(page, 'en-CA');
+  await wait(page, 900);
+  const none2 = await searchState();
+  check('S-21: no match in either language shows "No results" together with the other-language note', none2.none && none2.faq === 0 && N(none2.note).startsWith('Search written in French') && none2.live.includes('No results') && none2.live.includes('Search written in French'), none2);
+  check('S-21: search text is still never logged', !(await page.evaluate(() => JSON.stringify(window.BDCNotice.events.all()))).match(/interets|zzqxv/));
+  // 320px: the note and its clear button fit.
+  for (const loc of ['en-CA', 'fr-CA']) {
+    await setLocale(page, loc === 'en-CA' ? 'fr-CA' : 'en-CA');
+    await page.setViewportSize({ width: 320, height: 800 });
+    await freshHelp(page);
+    await page.fill('#hlp-search-input', loc === 'en-CA' ? 'interets' : 'interest');
+    await wait(page, 100);
+    await setLocale(page, loc);
+    await wait(page, 200);
+    const of = await overflowReport(page);
+    const st = await searchState();
+    check(`S-21 ${loc}: 320px other-language note fits without horizontal overflow`, st.note && !of.overflow && of.offenders.length === 0, { note: st.note, of });
+    await page.evaluate(() => document.querySelector('.hlp-search').scrollIntoView());
+    await shot(page, `${loc}-320-search-other-language`);
+  }
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await setLocale(page, 'en-CA');
+}
+
+/* ------------------------------------------------------------------ */
+/* S-14: "Ask Clair" opens the general conversation (no question is   */
+/* posted for the reader, no explain_requested)                       */
+/* ------------------------------------------------------------------ */
+if (await page.evaluate(() => !!(window.BDCNotice.clair && window.BDCNotice.clair.open))) {
+  const clairState = () => page.evaluate(() => {
+    const p = document.querySelector('[data-overlay="clair"]');
+    return {
+      open: !!p,
+      user: p ? p.querySelectorAll('.clair-msg--user').length : -1,
+      greeting: p ? !!p.querySelector('.clair-msg--greeting') : false,
+      chip: p ? (p.querySelector('.clair-chip') || {}).className || '' : '',
+      explain: window.BDCNotice.events.all().filter((e) => e.type === 'explain_requested').map((e) => e.id),
+    };
+  });
+  const closeClair = async () => { await page.keyboard.press('Escape'); await wait(page, 300); };
+  const cases = [
+    ['help card', 'hlp-ask-clair', async () => {}],
+    ['no-results box', 'hlp-none-clair', async () => { await page.fill('#hlp-search-input', 'zzqxv'); await wait(page, 150); }],
+    ['survey "What was unclear?" offer', 'hlp-sv-clair', async () => { await page.click('[data-fid="hlp-sv-unhappy"]'); await wait(page, 150); }],
+    ['FAQ "How do I ask a question?"', 'hlp-faq-ask-clair', async () => { await go(page, '#/help/faq/ask', 'item'); }],
+  ];
+  for (const [name, fid, prep] of cases) {
+    await setLocale(page, 'en-CA');
+    await freshHelp(page);
+    await prep();
+    await page.click(`[data-fid="${fid}"]`);
+    await wait(page, 500);
+    const c = await clairState();
+    check(`S-14: "Ask Clair" (${name}) opens Clair with the greeting, posts no question and logs no explain_requested`, c.open && c.user === 0 && c.greeting && c.explain.length === 0 && /clair-chip--general/.test(c.chip), c);
+    await closeClair();
+    check(`S-14: closing Clair returns focus to "Ask Clair" (${name})`, (await active(page)).fid === fid, await active(page));
+  }
+  // Explain with AI keeps its item context (and is the only Help control that logs explain_requested).
+  await freshHelp(page);
+  await go(page, '#/help/faq/relief', 'item');
+  await page.click('[data-fid="explain-faq-relief"]');
+  await wait(page, 500);
+  const ex = await clairState();
+  check('S-14: Explain with AI on an answer still explains that item (faq:relief)', ex.open && ex.user === 1 && JSON.stringify(ex.explain) === '["faq:relief"]', ex);
+  await closeClair();
+}
 
 /* ------------------------------------------------------------------ */
 /* Glossary route and inline term popover (AC-17)                      */

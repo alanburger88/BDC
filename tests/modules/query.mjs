@@ -6,7 +6,9 @@
 // close/reopen, locale switch keeping the question's language, session reset,
 // identifier-only events and no persistent storage of the question.
 // Insights: counts, live timeline, milestones, export, hardship switch,
-// widget status, usability tasks, French and 320px layout.
+// widget status, usability tasks, French and 320px layout; round 2: task links
+// all return to Demo insights (S-22), count tiles aligned per row with codes
+// wrapping only after underscores (S-08).
 // Usage: node tests/modules/query.mjs [path/to/index.html] [--shots dir]
 import { mkdirSync, readFileSync, existsSync } from 'node:fs';
 import { launch, newPage, gotoApp, overflowReport, missingKeys, DEFAULT_FILE } from '../lib/browser.mjs';
@@ -631,6 +633,63 @@ const namesOk = (rows) => rows.length === 4
 let tn = await taskControlNames();
 check('task checkboxes and "Expected answer" buttons have unique names that include the task', namesOk(tn) && tn[0].cbName === 'Completed by participant: Find the next payment' && tn[0].btnName === 'Expected answer: Find the next payment', tn.slice(0, 2));
 
+// S-22: all four task links behave the same way: they open a view that offers
+// "Back to Demo insights" (goWithReturn), and Back lands on the link again.
+{
+  const exp = await page.evaluate(() => {
+    const A = window.BDCNotice;
+    return [`#/payments/${A.rec.nextPayment().date.slice(0, 7)}`, `#/payments/${A.rec.firstResumed().date.slice(0, 7)}`, '#/changes/debt', '#/payments/cost'];
+  });
+  const links = await page.evaluate(() => [...document.querySelectorAll('[data-fid^="ins-task-link-"]')].map((a) => ({ fid: a.getAttribute('data-fid'), href: a.getAttribute('href'), text: a.textContent.trim() })));
+  const payLabel = await page.evaluate(() => `Go to ${window.BDCNotice.i18n.t('nav.payments')}`);
+  check('S-22: the four task links open detail views (next payment → its month in Payments, not the Overview)', JSON.stringify(links.map((l) => l.href)) === JSON.stringify(exp) && links[0].text === payLabel, links);
+  for (const l of links) {
+    await page.click(`[data-fid="${l.fid}"]`);
+    await page.waitForTimeout(400);
+    const at = await page.evaluate(() => {
+      const A = window.BDCNotice;
+      const top = A.router.backTop();
+      const sec = A.router.current().section;
+      const btn = document.querySelector('[data-fid="back-control"]');
+      // The real module is in this build when its content namespace is registered (else a boot fallback view).
+      return { hash: location.hash, from: top ? top.from : null, registered: !!A.i18n._dicts['en-CA'][sec], back: btn ? btn.textContent.trim() : null };
+    });
+    check(`S-22: ${l.fid} keeps a return path to Demo insights${at.registered ? ' and shows "Back to Demo insights"' : ' (view not in this build)'}`, at.hash === l.href && at.from === '#/insights' && (!at.registered || at.back === 'Back to Demo insights'), at);
+    if (at.back) await page.click('[data-fid="back-control"]');
+    else await page.evaluate(() => window.BDCNotice.router.back());
+    await page.waitForTimeout(450);
+    const ret = await page.evaluate(() => ({ hash: location.hash, fid: (document.activeElement.closest('[data-fid]') || {}).getAttribute?.('data-fid') || null }));
+    check(`S-22: Back from ${l.fid} returns to Demo insights with focus on the link`, ret.hash === '#/insights' && ret.fid === l.fid, ret);
+  }
+}
+
+// S-08: count tiles keep their values on one line across a row, and event codes wrap only
+// after an underscore (never inside a word).
+const tileLayout = () => page.evaluate(() => {
+  const rows = {};
+  const midWord = [];
+  const wrapped = [];
+  document.querySelectorAll('.ins-group').forEach((g, gi) => g.querySelectorAll('.ins-tile').forEach((li) => {
+    const key = `${gi}:${Math.round(li.getBoundingClientRect().top)}`;
+    (rows[key] ||= []).push(Math.round(li.querySelector('.ins-tile-count').getBoundingClientRect().top));
+    const code = li.querySelector('.ins-tile-code');
+    if (code.textContent !== li.dataset.type) midWord.push(`text:${code.textContent}`);
+    const tops = new Set();
+    code.childNodes.forEach((n) => {
+      if (n.nodeType !== 3) return;
+      const rg = document.createRange();
+      rg.selectNodeContents(n);
+      const lines = new Set([...rg.getClientRects()].filter((x) => x.width > 0).map((x) => Math.round(x.top)));
+      if (lines.size > 1) midWord.push(n.textContent);
+      lines.forEach((tp) => tops.add(tp));
+    });
+    if (tops.size > 1) wrapped.push(li.dataset.type);
+  }));
+  return { misaligned: Object.entries(rows).filter(([, v]) => new Set(v).size > 1), midWord, wrapped };
+});
+let tl = await tileLayout();
+check('S-08: counts line up across each row of tiles and codes never break inside a word (1280px)', tl.misaligned.length === 0 && tl.midWord.length === 0, tl);
+
 // Export
 [dl] = await Promise.all([page.waitForEvent('download', { timeout: 5000 }), page.click('[data-fid="ins-export"]')]);
 content = readFileSync(await dl.path(), 'utf8');
@@ -658,6 +717,12 @@ for (const w of [320, 390]) {
   check(`fr-CA ${w}px insights: no horizontal overflow`, !of.overflow && !of.offenders.length, of.offenders.slice(0, 3));
 }
 await shot(page, 'insights-fr-390', true);
+for (const w of [320, 390, 768, 1440]) {
+  await page.setViewportSize({ width: w, height: 900 });
+  await page.waitForTimeout(150);
+  tl = await tileLayout();
+  check(`S-08 fr-CA ${w}px: tile counts aligned per row, codes wrap only after "_"`, tl.misaligned.length === 0 && tl.midWord.length === 0, tl);
+}
 await page.setViewportSize({ width: 1280, height: 900 });
 await page.evaluate(() => window.BDCNotice.i18n.setLocale('en-CA'));
 await page.waitForTimeout(150);

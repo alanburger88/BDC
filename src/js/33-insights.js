@@ -311,8 +311,11 @@
     const D = R.derived || {};
     const next = App.rec.nextPayment();
     const res = App.rec.firstResumed();
+    // Every task link opens a view that shows "Back to Demo insights" (App.ui.goWithReturn via
+    // routeLink). The next payment opens its month in Payments, the same detail the Overview's
+    // "Next payment" card leads to (the Overview itself has no Back control).
     return {
-      nextPayment: { params: { amount: money(next.totalCents), date: longDate(next.date) }, target: App.router.href('overview'), place: t('nav.overview') },
+      nextPayment: { params: { amount: money(next.totalCents), date: longDate(next.date) }, target: App.router.href('payments', next.date.slice(0, 7)), place: t('nav.payments') },
       resume: { params: { date: longDate(R.change.resumePrincipalDate), amount: money(D.firstResumedPaymentCents || res.totalCents) }, target: App.router.href('payments', res.date.slice(0, 7)), place: t('nav.payments') },
       owing: { params: { deferred: money(D.principalDeferredCents), maturity: longDate(R.change.revisedMaturity) }, target: App.router.href('changes', 'debt'), place: t('nav.changes') },
       interest: { params: { total: money(D.additionalLifetimeInterestCents), first: money(D.additionalInterestFirstThreeMonthsCents) }, target: App.router.href('payments', 'cost'), place: t('nav.payments') },

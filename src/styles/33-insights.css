@@ -66,9 +66,21 @@
 .ins-tile-label { font-size: var(--fs-small); font-weight: 600; line-height: 1.3; color: var(--text-2); overflow-wrap: break-word; }
 .ins-tile-count { font-size: 1.875rem; font-weight: 700; line-height: 1.1; letter-spacing: var(--tracking-tight); color: var(--navy); font-variant-numeric: tabular-nums; margin-top: auto; padding-top: 4px; }
 .ins-tile.is-zero .ins-tile-count { color: var(--muted); }
+/* The code is secondary text: it stays on one line when it fits and otherwise wraps only
+   after an underscore (<wbr>), never inside a word (break-word is a last-resort overflow guard). */
 .ins-tile-code {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-  font-size: 0.75rem; color: var(--muted); overflow-wrap: anywhere;
+  font-size: 0.75rem; color: var(--muted); overflow-wrap: break-word; word-break: normal; hyphens: none;
+}
+/* Values line up across a row: each tile spans three rows of the tile grid (label, count,
+   code) so a wrapped label or code in one tile moves the whole row, not just its own count. */
+@supports (grid-template-rows: subgrid) {
+  @media (min-width: 360px) {
+    .ins-tile { display: grid; grid-row: span 3; grid-template-rows: subgrid; row-gap: 2px; align-content: start; }
+    .ins-tile-label { align-self: start; }
+    .ins-tile-count { align-self: end; margin-top: 0; }
+    .ins-tile-code { align-self: start; }
+  }
 }
 .ins-tile.is-bumped { animation: ins-bump 0.9s ease-out; }
 @keyframes ins-bump {
