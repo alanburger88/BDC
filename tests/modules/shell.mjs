@@ -34,7 +34,7 @@ ok('document lang is fr-CA', (await page.evaluate(() => document.documentElement
 ok('route preserved on language switch', (await page.evaluate(() => location.hash)) === '#/payments');
 ok('focus restored to language toggle', (await page.evaluate(() => document.activeElement.getAttribute('data-fid'))) === 'lang-fr-CA');
 ok('tabs relabelled in French', (await page.locator('#tab-payments').innerText()).includes('Versements'));
-ok('banner in French', (await page.locator('.demo-banner').innerText()).includes('Démonstration conceptuelle'));
+ok('recipient view: no demo banner or pill; French header descriptor', (await page.locator('.demo-banner, .demo-pill').count()) === 0 && (await page.locator('.descriptor-title').innerText()).includes('Avis important concernant votre financement'));
 ok('language_changed event logged', await page.evaluate(() => window.BDCNotice.events.all().some((e) => e.type === 'language_changed' && e.id === 'fr-CA')));
 await page.locator('[data-fid="lang-en-CA"]').click();
 await page.waitForTimeout(200);
@@ -68,7 +68,7 @@ await page.locator('[data-fid="footer-reset"]').click();
 await page.locator('[data-fid="reset-confirm"]').click();
 await page.waitForTimeout(250);
 const after = await page.evaluate(() => window.BDCNotice.events.all().length);
-ok('reset clears demo events', after < before && (await page.evaluate(() => location.hash)) === '#/overview', `${before}→${after}`);
+ok('clearing activity clears the session events', after < before && (await page.evaluate(() => location.hash)) === '#/overview', `${before}→${after}`);
 
 // Compact selector at 390px
 await page.setViewportSize({ width: 390, height: 800 });
@@ -131,11 +131,12 @@ const allMsgs = [];
     ['common', 'shell', 'nav', 'items', 'clauses', 'chapters', 'glossary'].forEach((ns) => walk(A.i18n._dicts['fr-CA'][ns], ns));
     return {
       insights: A.i18n.t('nav.insights'),
-      footer: document.querySelector('[data-fid="footer-insights"]').textContent.trim(),
+      footerLinksInsights: !!document.querySelector('.site-footer a[href="#/insights"]'),
+      footerHelp: (document.querySelector('[data-fid="footer-help"]') || {}).textContent,
       bad,
     };
   });
-  ok('R-03 French "Demo insights" label is distinct from the Overview tab', fr.insights === 'Statistiques de la démo' && fr.footer === 'Statistiques de la démo' && !/Aperçu/.test(fr.insights), fr);
+  ok('R-03 presenter page label is distinct from the Overview tab and not linked from the recipient footer', fr.insights === 'Statistiques de la séance' && !/Aperçu/.test(fr.insights) && !fr.footerLinksInsights && /Aide et questions/.test(fr.footerHelp || ''), fr);
   ok('R-33 core fr-CA strings use U+00A0 before : and inside « », no space before ;', fr.bad.length === 0, fr.bad);
   allMsgs.push(...cm);
   await context.close();
@@ -396,9 +397,9 @@ const has = (p, name) => p.evaluate((n) => !!window.BDCNotice[n], name);
   const { page: p, context, consoleMsgs: cm } = await fresh('#/support');
   await p.evaluate(() => window.BDCNotice.router.go('#/overview', { focus: 'heading' })); await wait(p, 250);
   const base = await st(p);
-  await p.evaluate(() => { const el = document.querySelector('[data-fid="footer-insights"]'); el.scrollIntoView({ block: 'center' }); el.focus(); });
+  await p.evaluate(() => { const el = document.querySelector('[data-fid="footer-help"]'); el.scrollIntoView({ block: 'center' }); el.focus(); });
   const y0 = await p.evaluate(() => Math.round(scrollY));
-  await p.evaluate(() => window.BDCNotice.ui.goWithReturn('#/payments/relief', { kind: 'summary', id: 'relief' }, 'footer-insights')); await wait(p, 300);
+  await p.evaluate(() => window.BDCNotice.ui.goWithReturn('#/payments/relief', { kind: 'summary', id: 'relief' }, 'footer-help')); await wait(p, 300);
   await p.evaluate(() => window.BDCNotice.router.go('#/payments/2026-12', { focus: 'heading' })); await wait(p, 300);
   await p.evaluate(() => window.BDCNotice.ui.goWithReturn('#/documents/postponement', { kind: 'month', id: '2026-12' }, null)); await wait(p, 300);
   const deep = await st(p);
@@ -407,7 +408,7 @@ const has = (p, name) => p.evaluate((n) => !!window.BDCNotice[n], name);
   await p.evaluate(() => window.BDCNotice.router.back()); await wait(p, 400);
   const b2 = { ...(await st(p)), y: await p.evaluate(() => Math.round(scrollY)) };
   ok('S-11 in-app Back steps back through history (no new entries)', deep.len === base.len + 3 && b1.hash === '#/payments/2026-12' && b1.len === deep.len && b2.hash === '#/overview' && b2.len === deep.len && b2.idx === base.idx, { base, deep, b1, b2 });
-  ok('S-11 in-app Back still restores the origin focus and scroll', b2.focus === 'footer-insights' && Math.abs(b2.y - y0) <= 2, { y0, b2 });
+  ok('S-11 in-app Back still restores the origin focus and scroll', b2.focus === 'footer-help' && Math.abs(b2.y - y0) <= 2, { y0, b2 });
   await p.goBack(); await wait(p, 400);
   ok('S-11 browser Back after in-app Back goes to the page before the origin', (await st(p)).hash === '#/support');
   await p.goForward(); await wait(p, 300);
@@ -446,11 +447,11 @@ const has = (p, name) => p.evaluate((n) => !!window.BDCNotice[n], name);
   const later = await st(p);
   ok('S-17 a backdrop click right after opening (double click) keeps the dialog open', early.ov === 'reset', early);
   ok('S-17 a later backdrop click closes it', !later.ov && later.focus === 'footer-reset', later);
-  // S-15: Reset demo starts a new session that opens the notice again
+  // S-15: clearing activity starts a new session that opens the notice again
   await p.locator('[data-fid="footer-reset"]').click(); await wait(p, 300);
   await p.locator('[data-fid="reset-confirm"]').click(); await wait(p, 400);
   const ev = await p.evaluate(() => window.BDCNotice.events.all().map((e) => `${e.type}:${e.id}:${e.section}`));
-  ok('S-15 after Reset demo the log starts with notice_opened (identifier only), then the overview', ev.length === 2 && ev[0] === 'notice_opened:DEMO-BDC-CHANGE-2026-001:overview' && ev[1] === 'section_viewed:overview:overview', ev);
+  ok('S-15 after clearing activity the log starts with notice_opened (identifier only), then the overview', ev.length === 2 && ev[0] === 'notice_opened:BDC-CHG-2026-001:overview' && ev[1] === 'section_viewed:overview:overview', ev);
   const s4 = await st(p);
   ok('S-18 Reset from another page reuses the dialog entry (one entry, no stray Back)', s4.hash === '#/overview' && !s4.ov && !(await p.evaluate(() => !!(history.state && history.state.bdcOverlay))), s4);
   await p.goBack(); await wait(p, 400);

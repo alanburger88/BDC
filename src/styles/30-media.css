@@ -226,10 +226,6 @@
 .media-poster-art .media-hs-cuff--accent { fill: rgba(224, 26, 34, 0.35); stroke: rgba(224, 26, 34, 0.35); }
 .media-poster-body { position: relative; display: grid; gap: 0.55em; justify-items: start; max-width: 34em; }
 .media-poster-body p { margin: 0; }
-.media-poster-tag {
-  font-size: 0.8em; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--media-ink-2);
-  border: 1px solid rgba(255, 255, 255, 0.35); border-radius: 999px; padding: 0.15em 0.75em;
-}
 .media-poster-title { font-size: 1.65em; font-weight: 700; letter-spacing: -0.02em; line-height: 1.12; }
 .media-poster-for { font-size: 1.05em; color: var(--media-ink-2); }
 .media-poster-meta { list-style: none; margin: 0.15em 0 0.4em; padding: 0; display: flex; flex-wrap: wrap; gap: 0.4em; font-size: 0.85em; color: var(--media-ink-2); }
@@ -379,9 +375,6 @@
 .media-tx-cap.is-current { background: var(--blue-tint); box-shadow: 0 0 0 2px var(--blue-tint); color: var(--navy); }
 .media-player.is-reduced .media-tx-cap { transition: none; }
 
-.media-note { display: flex; align-items: flex-start; gap: var(--space-2); margin: 0; font-size: var(--fs-small); color: var(--muted); }
-.media-note .icon { flex: 0 0 auto; margin-top: 2px; }
-
 /* ---------- Narrow frames (phones): the stage, captions and controls fit
    on one screen. The scene type scales with the frame width and the small
    viewport height (never below 13px; small print never below 12px), the
@@ -408,7 +401,7 @@
   .media-scene { padding: 14px 14px 16px; gap: 0.75em; }
   .media-scene-title { font-size: 1.25em; }
   .media-overline, .media-month-year, .media-block-sub, .media-tl-year, .media-tl-shift,
-  .media-cost-note, .media-date-full, .media-eq-note, .media-poster-tag, .media-poster-meta { font-size: max(12px, 0.85em); }
+  .media-cost-note, .media-date-full, .media-eq-note, .media-poster-meta { font-size: max(12px, 0.85em); }
   .media-rows, .media-legend, .media-date-month { font-size: max(12px, 0.9em); }
 
   /* Scene 2: tighter month cards */

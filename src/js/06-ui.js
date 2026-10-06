@@ -269,7 +269,7 @@ App.ui = (() => {
   }
 
   function demoNote(opts = {}) {
-    return h('p', { class: ['demo-note', opts.className] }, icon('info', { size: 16 }), h('span', null, t('common.illustrativeNote'), ' ', t('common.amountsInCAD')));
+    return h('p', { class: ['demo-note', opts.className] }, icon('info', { size: 16 }), h('span', null, t('common.amountsInCAD')));
   }
 
   /** Glossary term trigger: hover/focus shows (focus only from 600px), click/tap/Enter pins, Escape closes. */

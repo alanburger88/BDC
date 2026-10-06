@@ -134,6 +134,28 @@ const frSpacing = [];
 }(dicts['fr-CA'], 'fr-CA'));
 if (frSpacing.length) errors.push(`fr-CA spacing: ordinary space (U+0020) before : ; ? ! » or after « in ${frSpacing.length} string(s); use U+00A0 (none before ; ? !):\n   ${frSpacing.join('\n   ')}`);
 
+// 5c. Recipient view (product-owner decision 2026-10-06): no demo/fictional framing in any
+// recipient-facing copy or narration. The presenter-only 'insights' namespace (#/insights,
+// not linked from the recipient UI) is exempt.
+const RECIPIENT_BANNED = [
+  /\b(?:demos?|démos?|démonstrations?|demonstrations?|fictional|fictives?|fictifs?|synthetic|synthétiques?|illustrative|illustratifs?|illustrations?|prototypes?|conceptuelle|presenter|présentat(?:eur|rice|ion))\b/i,
+  /this example|cet exemple|sample notice|avis type|not a BDC offer|non une offre de BDC|not connected to BDC|aucun lien avec les systèmes|no live AI|aucune connexion à une IA|nothing (?:is|was|has been) sent|rien n.a été envoyé|n.est envoyé|\blocally\b|\blocalement\b/i,
+];
+const recipientHits = [];
+function walkRecipient(v, path) {
+  if (typeof v === 'string') {
+    for (const re of RECIPIENT_BANNED) { const m = v.match(re); if (m) { recipientHits.push(`${path}: "${m[0]}"`); break; } }
+  } else if (v && typeof v === 'object') {
+    for (const k of Object.keys(v)) walkRecipient(v[k], Array.isArray(v) ? `${path}[${k}]` : `${path}.${k}`);
+  }
+}
+for (const l of ['en-CA', 'fr-CA']) for (const [ns, d] of Object.entries(dicts[l])) if (ns !== 'insights') walkRecipient(d, `${l}.${ns}`);
+{
+  const nar = JSON.parse(read(join(src, 'content/narration.json')));
+  for (const l of ['en-CA', 'fr-CA']) walkRecipient(nar.scripts[l], `narration.${l}`);
+}
+if (recipientHits.length) errors.push(`recipient view: demo/fictional wording in ${recipientHits.length} string(s):\n   ${recipientHits.slice(0, 80).join('\n   ')}`);
+
 // 6. Runtime isolation and privacy lint on the application code
 const forbidden = [
   [/api\.elevenlabs\.io|elevenlabs\.io\/v1|xi-api-key/i, 'ElevenLabs endpoint or key header'],

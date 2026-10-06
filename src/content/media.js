@@ -1,15 +1,13 @@
 /* Personalised animated explanation (media module): player chrome, scene
  * labels, transcript and end card. Amounts, dates and counts are always
  * passed in as parameters formatted with App.fmt. The narration text itself
- * comes from the embedded cue manifests so it matches the audio exactly.
- * French drafts are implementation input pending qualified fr-CA review. */
+ * comes from the embedded cue manifests so it matches the audio exactly. */
 App.i18n.register('media', {
   'en-CA': {
     title: 'Your personalised explanation',
     playerLabel: 'Personalised explanation video player',
     roleVideo: 'video',
     forClient: 'For {name} · {company}',
-    demoTag: 'Concept demo · Fictional client',
     narratedIn: 'Narrated in English',
     captionsIncluded: 'Captions and transcript',
     stageLabel: '{title}. Chapter {n} of {total}: {chapter}.',
@@ -43,8 +41,6 @@ App.i18n.register('media', {
     transcriptMeta: 'Narration in English · {duration}',
     transcriptIntro: 'The full narration, grouped by chapter. Select a chapter title to play from that point.',
     playFromChapter: 'Play from chapter {n}: {title}',
-    note: 'Narration generated before distribution with ElevenLabs text-to-speech and embedded in this file. Playback works offline and never contacts ElevenLabs.',
-    voice: 'Voice: {name} (ElevenLabs) · Model: {model} · Pronunciation pending human review.',
     end: {
       title: 'Your next step',
       text: 'No acceptance is required through this notice.',
@@ -108,7 +104,6 @@ App.i18n.register('media', {
     playerLabel: 'Lecteur vidéo de l’explication personnalisée',
     roleVideo: 'vidéo',
     forClient: 'Pour {name} · {company}',
-    demoTag: 'Démo conceptuelle · Dossier fictif',
     narratedIn: 'Narration en français',
     captionsIncluded: 'Sous-titres et transcription',
     stageLabel: '{title}. Chapitre {n} sur {total}\u00a0: {chapter}.',
@@ -142,8 +137,6 @@ App.i18n.register('media', {
     transcriptMeta: 'Narration en français · {duration}',
     transcriptIntro: 'La narration complète, regroupée par chapitre. Sélectionnez le titre d’un chapitre pour lancer la lecture à partir de ce point.',
     playFromChapter: 'Lancer la lecture à partir du chapitre {n}\u00a0: {title}',
-    note: 'Narration générée avant la distribution au moyen de la synthèse vocale d’ElevenLabs et intégrée à ce fichier. La lecture fonctionne hors ligne et ne communique jamais avec ElevenLabs.',
-    voice: 'Voix\u00a0: {name} (ElevenLabs) · Modèle\u00a0: {model} · Prononciation à faire valider.',
     end: {
       title: 'Votre prochaine étape',
       text: 'Aucune acceptation n’est requise dans cet avis.',

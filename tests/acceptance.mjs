@@ -454,7 +454,7 @@ await check('AC-13', 'Clair opens from the right; full-width on mobile; contextu
   }
 });
 
-await check('AC-14', 'Clair grounded answers for seeded and paraphrased questions; safe fallback; labelled demo', async (notes) => {
+await check('AC-14', 'Clair grounded answers for seeded and paraphrased questions; safe fallback; scope stated', async (notes) => {
   const { page, context } = await newPage(browser, { width: 1280 });
   await gotoApp(page, '#/overview', FILE);
   const probe = await page.evaluate(() => {
@@ -478,7 +478,7 @@ await check('AC-14', 'Clair grounded answers for seeded and paraphrased question
   const flat = Object.entries(probe).flatMap(([k, arr]) => arr.map((x) => `${k}: "${x.q}" → ${x.intent}`));
   notes.push(...flat.slice(0, 20));
   const status = await page.evaluate(() => { window.BDCNotice.clair.open({ kind: 'general' }); return document.querySelector('[data-overlay="clair"]').innerText; });
-  assert(/Demo assistant • Answers from this sample notice • No live AI connection\./.test(status), 'demo status line missing');
+  assert(/Answers are based on this notice\./.test(status), 'Clair scope line missing');
   assert(probe.relief.every((x) => /11,920|11 920/.test(x.text) || /12,000|12 000/.test(x.text)), 'relief answer lacks values');
   const expect = { relief: /relief/i, extraCost: /cost|extra|interest/i, maturity: /maturity|final|last/i, resume: /resum/i, next: /next/i, rate: /rate/i, fees: /fee/i, accept: /accept/i, limits: /limit/i, unrelated: /unrelated|outOfScope|fallback/i };
   const wrong = Object.entries(probe).flatMap(([k, arr]) => arr.filter((x) => !expect[k].test(x.intent || '')).map((x) => `${k}: "${x.q}" → ${x.intent}`));
@@ -500,16 +500,17 @@ await check('AC-15', 'Query review precedes local confirmation; context retained
   await page.waitForTimeout(200);
   const review = await panel.innerText();
   assert(/December 2026/.test(review) && /Why is my December payment/.test(review), 'review step missing context or question');
-  await panel.getByRole('button', { name: /create demo request/i }).click();
+  await panel.getByRole('button', { name: /create (demo )?request|submit|create/i }).last().click();
   await page.waitForTimeout(200);
   const conf = await panel.innerText();
-  assert(conf.includes('Demo request created locally. Nothing has been sent to BDC.'), 'confirmation text missing');
-  assert(/DEMO-[A-Z0-9-]+/.test(conf), 'DEMO- reference missing');
+  assert(/Request created/i.test(conf) && /recorded with reference/i.test(conf), 'confirmation text missing');
+  assert(/REQ-\d{4}/.test(conf) && !/DEMO-/.test(conf), 'REQ- reference missing');
+  assert(!/sent to BDC|BDC (?:has )?received|will (?:reply|respond|contact)/i.test(conf), 'confirmation claims delivery to BDC');
   const events = await page.evaluate(() => JSON.stringify(window.BDCNotice.events.all()));
   assert(!/December payment different/.test(events), 'question text leaked into events');
   const ls = await page.evaluate(() => JSON.stringify(localStorage));
   assert(!/December payment different/.test(ls), 'question text persisted in localStorage');
-  notes.push('draft → review → local confirmation with DEMO- reference; no free text in events/storage');
+  notes.push('draft → review → confirmation ("Request created", REQ- reference, no claim that BDC received it); no free text in events/storage');
   await context.close();
 });
 
@@ -528,7 +529,7 @@ await check('AC-16', 'Three labelled faces, touch + keyboard, changeable, dismis
   await page.waitForTimeout(150);
   assert((await group.nth(2).getAttribute('aria-pressed')) === 'true', 'changing response failed');
   const txt = await page.locator('#view').innerText();
-  assert(/not a Net Promoter Score/i.test(txt), 'NPS disclaimer missing');
+  assert(!/Net Promoter|demo/i.test(txt), 'survey still shows demo/NPS framing');
   notes.push('3 labelled faces, keyboard + tap, change allowed');
   await context.close();
 });
@@ -586,11 +587,12 @@ await check('AC-19', 'Supplied widget script once; launcher area bottom-left res
   const n = HTML.split('https://accessibilityserver.org/widget.js').length - 1;
   assert(n === 1, `widget script appears ${n} times`);
   assert(HTML.includes('s.setAttribute("data-account", "B3W9A2mgGs");'), 'account attribute missing');
+  assert(HTML.includes('s.setAttribute("data-position", 5);'), 'UserWay data-position 5 (bottom left) missing');
   const { page, context } = await newPage(browser, { width: 390, height: 844 });
   await gotoApp(page, '#/overview', FILE);
   const launcher = await page.locator('.clair-launcher').boundingBox();
   assert(launcher.x > 390 / 2, 'Clair launcher not on the right');
-  notes.push('snippet present once; Clair launcher bottom-right; vendor launcher position depends on account config and could not be loaded here (egress blocked) → MANUAL');
+  notes.push('snippet present once with UserWay data-position 5 (documented: bottom left); Clair launcher bottom-right; vendor launcher could not be loaded here (egress blocked) → confirm on the live preview');
   await context.close();
   return 'PARTIAL';
 });
@@ -640,7 +642,7 @@ await check('AC-21', 'Automated accessibility scan (axe-core) + keyboard/focus b
 });
 
 // AC-22 Record/export alignment ---------------------------------------------------
-await check('AC-22', 'CSV and print views reproduce approved data with demo notice identity', async (notes) => {
+await check('AC-22', 'CSV and print views reproduce approved data with the notice identity', async (notes) => {
   const { page, context } = await newPage(browser, { width: 1280 });
   await gotoApp(page, '#/documents', FILE);
   const [dl] = await Promise.all([
@@ -648,13 +650,13 @@ await check('AC-22', 'CSV and print views reproduce approved data with demo noti
     page.locator('#view').getByRole('button', { name: /revised schedule.*CSV/i }).first().click(),
   ]);
   const csv = readFileSync(await dl.path(), 'utf8');
-  assert(csv.includes('DEMO-BDC-CHANGE-2026-001'), 'CSV lacks notice id');
+  assert(csv.includes('BDC-CHG-2026-001'), 'CSV lacks notice id');
   const rows = csv.split(/\r?\n/).filter((r) => /^\d{4}-\d{2}-\d{2}/.test(r));
   assert(rows.length === 63, `CSV has ${rows.length} dated rows, expected 63`);
   assert(csv.includes('1600.00') && csv.includes('560000') === false, 'CSV amount formatting unexpected');
   await page.evaluate(() => window.BDCNotice.print.prepare(document.getElementById('print-root')));
   const printTxt = await page.locator('#print-root').evaluate((el) => el.textContent);
-  assert(printTxt.includes('DEMO-BDC-CHANGE-2026-001'), 'print view lacks notice id');
+  assert(printTxt.includes('BDC-CHG-2026-001'), 'print view lacks notice id');
   assert(!/Clair —|How clear was this notice/.test(printTxt), 'print view contains assistant or survey');
   await page.emulateMedia({ media: 'print' });
   const pdfPath = join(here, 'results/notice-print.pdf');
@@ -672,7 +674,7 @@ await check('AC-23', 'No real data, credentials, browser synthesis or persistent
   await gotoApp(page, '#/overview', FILE);
   const keys = await page.evaluate(() => Object.keys(localStorage));
   assert(keys.every((k) => k === 'bdc-demo-prefs'), `unexpected storage keys ${keys}`);
-  notes.push(`localStorage keys: ${keys.join(',') || '(none)'}; fixture status: fictional demonstration`);
+  notes.push(`localStorage keys: ${keys.join(',') || '(none)'}; fixture data only (no real client data)`);
   await context.close();
 });
 
@@ -688,6 +690,58 @@ await check('AC-24', 'Supplied logo embedded unaltered; no broken images or remo
   assert(broken === 0, `${broken} broken images`);
   assert(!/fonts\.googleapis|@font-face\s*{[^}]*url\(\s*["']?https?:/i.test(HTML), 'remote font reference');
   notes.push(`logo ${logo.nw}×${logo.nh} rendered ${Math.round(logo.w)}×${Math.round(logo.h)} (aspect preserved); no remote fonts`);
+  await context.close();
+});
+
+// RV-01 Recipient view (product-owner decision 2026-10-06) ---------------------------
+await check('RV-01', 'Recipient view: no demo/fictional wording in sections, overlays, exports or print (EN + FR)', async (notes) => {
+  const BANNED = /\b(?:demos?|démos?|démonstrations?|demonstrations?|fictional|fictives?|fictifs?|synthetic|synthétiques?|illustrative|illustratifs?|illustrations?|prototypes?|conceptuelle|presenter)\b|this example|cet exemple|sample notice|avis type|not a BDC offer|non une offre de BDC|not connected to BDC|no live AI|nothing (?:is|was|has been) sent|rien n.a été envoyé|\bDEMO-/i;
+  const { page, context } = await newPage(browser, { width: 1280 });
+  await gotoApp(page, '#/overview', FILE);
+  const hits = [];
+  const scan = async (label) => {
+    const txt = await page.evaluate(() => [document.title, document.querySelector('#app').innerText, (document.getElementById('overlay-root') || {}).innerText || '', ...[...document.querySelectorAll('[aria-label],[title],[placeholder],[alt]')].map((e) => [e.getAttribute('aria-label'), e.getAttribute('title'), e.getAttribute('placeholder'), e.getAttribute('alt')].filter(Boolean).join(' '))].join('\n'));
+    const m = txt.match(BANNED);
+    if (m) hits.push(`${label}: "${m[0]}"`);
+  };
+  for (const l of ['en-CA', 'fr-CA']) {
+    await setLocale(page, l);
+    for (const r of [...SECTIONS, 'changes/interest', 'changes/debt', 'payments/2026-12', 'payments/relief', 'payments/cost', 'documents/assumptions', 'help/faq/accountant', 'help/survey', 'support/working-capital']) {
+      await go(page, `#/${r}`);
+      await scan(`${l} #/${r}`);
+    }
+    await go(page, '#/overview');
+    for (const [name, open] of [
+      ['clair', () => window.BDCNotice.clair.open({ kind: 'summary', id: 'relief' })],
+      ['query', () => window.BDCNotice.query.open({ kind: 'card', id: 'interest', topic: 'interest' })],
+      ['reset', () => window.BDCNotice.shell.confirmReset(document.querySelector('[data-fid="footer-reset"]'))],
+    ]) {
+      await page.evaluate(open);
+      await page.waitForTimeout(350);
+      await scan(`${l} overlay ${name}`);
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(200);
+    }
+    // Clair conversation answers
+    const ans = await page.evaluate(() => ['what is clair', 'is this AI?', 'what can you do', 'who are you', 'qui es-tu'].map((q) => { const a = window.BDCNotice.clair.answer(q, { kind: 'general' }); return `${a.text} ${a.fact || ''}`; }).join('\n'));
+    const ma = ans.match(BANNED); if (ma) hits.push(`${l} clair answers: "${ma[0]}"`);
+    // Exports and print
+    const exp = await page.evaluate(() => {
+      const out = [];
+      if (window.BDCNotice.notice && window.BDCNotice.notice.csv) for (const k of ['revised', 'original']) out.push(window.BDCNotice.notice.csv(k).content, window.BDCNotice.notice.csv(k).filename);
+      window.BDCNotice.print.prepare(document.getElementById('print-root'));
+      out.push(document.getElementById('print-root').textContent);
+      return out.join('\n');
+    });
+    const me = exp.match(BANNED); if (me) hits.push(`${l} exports/print: "${me[0]}"`);
+  }
+  // narration captions/transcript come from the cue manifests
+  const cues = JSON.parse(HTML.match(/id="data-cues">([\s\S]*?)<\/script>/)[1]);
+  for (const l of ['en-CA', 'fr-CA']) { const m = cues[l].captions.map((c) => c.text).join(' ').match(BANNED); if (m) hits.push(`${l} narration: "${m[0]}"`); }
+  assert(!hits.length, hits.slice(0, 12).join('\n    '));
+  const idOk = HTML.includes('"noticeId":"BDC-CHG-2026-001"') && !/DEMO-BDC|DEMO-4821/.test(HTML.replace(/<!--[\s\S]*?-->/g, ''));
+  assert(idOk, 'record identifiers still carry DEMO-');
+  notes.push('12+ routes, Clair/query/reset overlays, Clair self-description, CSV/print and both narrations scanned in EN and FR: no demo/fictional wording; #/insights (presenter, unlinked) excluded');
   await context.close();
 });
 

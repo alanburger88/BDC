@@ -1,4 +1,4 @@
-/* Application shell: demo banner, header (logo, descriptor, language toggle),
+/* Application shell: header (logo, descriptor, language toggle),
  * section navigation (desktop tabs or compact "Sections" selector), main
  * view, footer and the Clair launcher. */
 App.shell = (() => {
@@ -182,25 +182,17 @@ App.shell = (() => {
     checkFit();
   }
 
+  // Recipient footer: notice identity, help route, privacy note and a way to clear
+  // this tab's activity. Presenter tools (#/insights) are intentionally not linked.
   function footer() {
-    const b = App.build || {};
     return h('div', { class: 'container footer-inner' },
       h('div', { class: 'footer-brand' },
-        h('p', { class: 'footer-demo' }, t('shell.banner')),
-        h('p', { class: 'footer-small' }, t('shell.footerData'))),
+        h('p', { class: 'footer-title' }, t('shell.descriptor')),
+        h('p', { class: 'footer-small' }, t('shell.footerMeta', { notice: App.record.noticeId, record: App.record.recordVersion, loan: App.record.loan.id })),
+        h('p', { class: 'footer-small' }, t('shell.footerPrivacy'))),
       h('div', { class: 'footer-actions' },
-        App.ui.button({ label: t('shell.demoInsights'), kind: 'ghost-light', iconName: 'trend', fid: 'footer-insights', href: App.router.href('insights'), onClick: (e) => { e.preventDefault(); App.router.go(App.router.href('insights'), { focus: 'heading' }); } }),
-        App.ui.button({ label: t('shell.resetDemo'), kind: 'ghost-light', iconName: 'reset', fid: 'footer-reset', onClick: (e) => confirmReset(e.currentTarget) })),
-      h('div', { class: 'footer-about' },
-        App.ui.disclosure({
-          summary: t('shell.aboutTitle'),
-          fid: 'footer-about',
-          className: 'disclosure--dark',
-          content: () => [
-            ...tv('shell.aboutBody').map((p) => h('p', null, p)),
-            h('p', { class: 'footer-small' }, t('shell.buildInfo', { version: b.version || App.version, date: b.builtAt ? b.builtAt.slice(0, 10) : '-', notice: App.record.noticeId, record: App.record.recordVersion })),
-          ],
-        })));
+        App.ui.button({ label: t('nav.help'), kind: 'ghost-light', iconName: 'question', fid: 'footer-help', href: App.router.href('help'), onClick: (e) => { e.preventDefault(); App.router.go(App.router.href('help'), { focus: 'heading' }); } }),
+        App.ui.button({ label: t('shell.resetDemo'), kind: 'ghost-light', iconName: 'reset', fid: 'footer-reset', onClick: (e) => confirmReset(e.currentTarget) })));
   }
 
   function confirmReset(trigger) {
@@ -221,7 +213,7 @@ App.shell = (() => {
 
   function resetDemo() {
     App.session.reset();
-    // The reset starts a new demo session: it opens the notice again (identifier only),
+    // Clearing activity starts a new session: it opens the notice again (identifier only),
     // before the overview logs its section_viewed.
     App.events.log('notice_opened', { id: App.record.noticeId, section: 'overview' });
     App.router.go('#/overview', { focus: 'heading' });
@@ -229,14 +221,12 @@ App.shell = (() => {
   }
 
   function renderChrome() {
-    App.util.clear(els.banner).append(h('div', { class: 'container' }, h('p', null, t('shell.banner'))));
     App.util.clear(els.headerBar).append(
       h('div', { class: 'brand' }, logo()),
       h('div', { class: 'header-descriptor' },
         h('span', { class: 'descriptor-title' }, t('shell.descriptor')),
         h('span', { class: 'descriptor-meta' }, t('shell.descriptorMeta', { notice: App.record.noticeId }))),
       h('div', { class: 'header-tools' },
-        h('span', { class: 'demo-pill' }, t('shell.demoPill')),
         buildLangToggle()));
     renderNav();
     App.util.clear(els.footer).append(footer());
@@ -259,11 +249,10 @@ App.shell = (() => {
     const app = document.getElementById('app');
     App.util.clear(app);
     els.skip = h('a', { class: 'skip-link', href: '#main', on: { click: (e) => { e.preventDefault(); App.util.focusEl(document.getElementById('main')); } } });
-    els.banner = h('div', { class: 'demo-banner', role: 'note' });
     els.headerBar = h('div', { class: 'container header-bar' });
     els.nav = h('nav', { class: 'section-nav', 'aria-label': t('shell.sectionsLabel') });
     els.navWrap = h('div', { class: 'container nav-wrap' }, els.nav);
-    els.header = h('header', { class: 'site-header' }, els.banner, els.headerBar, els.navWrap);
+    els.header = h('header', { class: 'site-header' }, els.headerBar, els.navWrap);
     els.view = h('div', { id: 'view', class: 'view' });
     els.main = h('main', { id: 'main', tabindex: '-1' }, h('div', { class: 'container' }, els.view));
     els.footer = h('footer', { class: 'site-footer on-dark' });

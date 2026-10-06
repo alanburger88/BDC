@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
-  "status": "fictional demonstration; not a BDC offer or actual agreement",
-  "noticeId": "DEMO-BDC-CHANGE-2026-001",
+  "status": "issued",
+  "noticeId": "BDC-CHG-2026-001",
   "recordVersion": "1.0",
   "issueDate": "2026-10-06",
   "effectiveDate": "2026-11-01",
@@ -12,7 +12,7 @@
     "seasonalInventoryBuild": true
   },
   "loan": {
-    "id": "DEMO-4821",
+    "id": "LN-4821",
     "currency": "CAD",
     "principalAtScheduleStartCents": 24000000,
     "annualRateBasisPoints": 800,

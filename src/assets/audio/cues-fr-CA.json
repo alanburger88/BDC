@@ -1,201 +1,195 @@
 {
  "locale": "fr-CA",
- "duration": 69.277,
- "scriptHash": "a8d15557015d1fb6f5d2db88525f7e64ad9240a79e4343f1490daca8e41f08d6",
+ "duration": 68.441,
+ "scriptHash": "6d50472fa071864abac49d2c37c05a9246c0f40077012cbd8b811d43b58ec424",
  "voice": {
   "voiceId": "UJCi4DDncuo0VJDSIegj",
   "voiceName": "Amélie (ElevenLabs Voice Library)",
   "note": "Selected by the product owner on 2026-10-06. Voice ID taken from public ElevenLabs voice-library listings (Amélie, young, confident and friendly; Quebec French); confirm the ID in the ElevenLabs Voice Library."
  },
  "model": "eleven_multilingual_v2",
- "generatedAt": "2026-10-06T20:45:56.851Z",
+ "generatedAt": "2026-10-06T22:20:52.506Z",
  "chapters": [
   {
    "id": "welcome",
    "index": 0,
    "start": 0,
    "speechStart": 0,
-   "speechEnd": 4.272,
+   "speechEnd": 4.412,
    "text": "Bonjour Camille. Voici la modification du financement d’Atelier Boréal.",
-   "end": 4.965
+   "end": 4.536
   },
   {
    "id": "relief",
    "index": 1,
-   "start": 4.965,
-   "speechStart": 5.085,
-   "speechEnd": 15.86,
-   "text": "Dans cet exemple, vos remboursements de capital de novembre, décembre et janvier sont reportés. Vous continuerez de payer mille six cents dollars d’intérêts chaque mois.",
-   "end": 16.343
+   "start": 4.536,
+   "speechStart": 4.656,
+   "speechEnd": 13.363,
+   "text": "Vos remboursements de capital de novembre, décembre et janvier sont reportés. Vous continuerez de payer mille six cents dollars d’intérêts chaque mois.",
+   "end": 13.684
   },
   {
    "id": "difference",
    "index": 2,
-   "start": 16.343,
-   "speechStart": 16.463,
-   "speechEnd": 30.964,
+   "start": 13.684,
+   "speechStart": 13.804,
+   "speechEnd": 28.525,
    "text": "Douze mille dollars de capital seront remboursés plus tard. Au total, vos versements de ces trois mois diminuent de onze mille neuf cent vingt dollars. Il s’agit d’un allègement temporaire de trésorerie, et non d’une remise de dette.",
-   "end": 31.657
+   "end": 29.357
   },
   {
    "id": "tradeoff",
    "index": 3,
-   "start": 31.657,
-   "speechStart": 31.777,
-   "speechEnd": 46.534,
+   "start": 29.357,
+   "speechStart": 29.477,
+   "speechEnd": 45.209,
    "text": "Il y a une contrepartie. Les intérêts continuent de courir, et le calendrier révisé ajoute quatre mille huit cents dollars d’intérêts sur la durée restante. Votre dernier versement est reporté au trente et un janvier deux mille trente-deux.",
-   "end": 47.11
+   "end": 45.6
   },
   {
    "id": "resume",
    "index": 4,
-   "start": 47.11,
-   "speechStart": 47.23,
-   "speechEnd": 56.1,
+   "start": 45.6,
+   "speechStart": 45.72,
+   "speechEnd": 55.263,
    "text": "Les remboursements de capital reprennent le vingt-huit février deux mille vingt-sept. Le versement total de ce mois sera de cinq mille six cents dollars.",
-   "end": 56.584
+   "end": 55.526
   },
   {
    "id": "next-step",
    "index": 5,
-   "start": 56.584,
-   "speechStart": 56.704,
-   "speechEnd": 69.243,
+   "start": 55.526,
+   "speechStart": 55.646,
+   "speechEnd": 68.405,
    "text": "Consultez le calendrier révisé, explorez un montant ou demandez une explication à Clair. Vous pouvez aussi préparer une question pour votre personne-ressource. Aucune acceptation n’est requise dans cet avis.",
-   "end": 69.277
+   "end": 68.441
   }
  ],
  "captions": [
   {
    "chapter": "welcome",
    "start": 0,
-   "end": 1.358,
+   "end": 1.486,
    "text": "Bonjour Camille."
   },
   {
    "chapter": "welcome",
-   "start": 1.358,
-   "end": 4.872,
+   "start": 1.486,
+   "end": 4.656,
    "text": "Voici la modification du financement d’Atelier Boréal."
   },
   {
    "chapter": "relief",
-   "start": 5.085,
-   "end": 9.218,
-   "text": "Dans cet exemple, vos remboursements de capital de novembre,"
+   "start": 4.656,
+   "end": 9.729,
+   "text": "Vos remboursements de capital de novembre, décembre et janvier sont reportés."
   },
   {
    "chapter": "relief",
-   "start": 9.218,
-   "end": 12.098,
-   "text": "décembre et janvier sont reportés."
-  },
-  {
-   "chapter": "relief",
-   "start": 12.098,
-   "end": 16.463,
+   "start": 9.729,
+   "end": 13.804,
    "text": "Vous continuerez de payer mille six cents dollars d’intérêts chaque mois."
   },
   {
    "chapter": "difference",
-   "start": 16.463,
-   "end": 19.943,
+   "start": 13.804,
+   "end": 16.846,
    "text": "Douze mille dollars de capital seront remboursés plus tard."
   },
   {
    "chapter": "difference",
-   "start": 20.155,
-   "end": 26.502,
+   "start": 16.846,
+   "end": 23.587,
    "text": "Au total, vos versements de ces trois mois diminuent de onze mille neuf cent vingt dollars."
   },
   {
    "chapter": "difference",
-   "start": 26.715,
-   "end": 31.564,
+   "start": 23.939,
+   "end": 29.125,
    "text": "Il s’agit d’un allègement temporaire de trésorerie, et non d’une remise de dette."
   },
   {
    "chapter": "tradeoff",
-   "start": 31.777,
-   "end": 33.565,
+   "start": 29.477,
+   "end": 31.47,
    "text": "Il y a une contrepartie."
   },
   {
    "chapter": "tradeoff",
-   "start": 33.565,
-   "end": 35.759,
+   "start": 31.822,
+   "end": 34.04,
    "text": "Les intérêts continuent de courir,"
   },
   {
    "chapter": "tradeoff",
-   "start": 35.759,
-   "end": 42.423,
+   "start": 34.04,
+   "end": 40.398,
    "text": "et le calendrier révisé ajoute quatre mille huit cents dollars d’intérêts sur la durée restante."
   },
   {
    "chapter": "tradeoff",
-   "start": 42.423,
-   "end": 47.23,
+   "start": 41.099,
+   "end": 45.72,
    "text": "Votre dernier versement est reporté au trente et un janvier deux mille trente-deux."
   },
   {
    "chapter": "resume",
-   "start": 47.23,
-   "end": 52.408,
+   "start": 45.72,
+   "end": 51.084,
    "text": "Les remboursements de capital reprennent le vingt-huit février deux mille vingt-sept."
   },
   {
    "chapter": "resume",
-   "start": 52.408,
-   "end": 56.704,
+   "start": 51.084,
+   "end": 55.646,
    "text": "Le versement total de ce mois sera de cinq mille six cents dollars."
   },
   {
    "chapter": "next-step",
-   "start": 56.704,
-   "end": 60.06,
+   "start": 55.646,
+   "end": 59.303,
    "text": "Consultez le calendrier révisé, explorez un montant"
   },
   {
    "chapter": "next-step",
-   "start": 60.06,
-   "end": 62.599,
+   "start": 59.303,
+   "end": 61.869,
    "text": "ou demandez une explication à Clair."
   },
   {
    "chapter": "next-step",
-   "start": 62.951,
-   "end": 66.561,
+   "start": 61.869,
+   "end": 65.677,
    "text": "Vous pouvez aussi préparer une question pour votre personne-ressource."
   },
   {
    "chapter": "next-step",
-   "start": 66.561,
-   "end": 69.277,
+   "start": 65.677,
+   "end": 68.441,
    "text": "Aucune acceptation n’est requise dans cet avis."
   }
  ],
  "marks": {
-  "company": 3.262,
-  "months": 8.29,
-  "interest1600": 13.282,
-  "deferred12000": 16.463,
-  "relief11920": 23.464,
-  "notForgiveness": 29.536,
-  "tradeoff": 31.777,
-  "extra4800": 37.571,
-  "maturity": 42.423,
-  "resumeDate": 49.576,
-  "payment5600": 54.684,
-  "reviewSchedule": 56.704,
-  "askClair": 60.257,
-  "prepareQuestion": 63.729,
-  "noAcceptance": 66.561
+  "company": 3.367,
+  "months": 6.269,
+  "interest1600": 10.89,
+  "deferred12000": 13.804,
+  "relief11920": 20.143,
+  "notForgiveness": 27.039,
+  "tradeoff": 29.477,
+  "extra4800": 36.153,
+  "maturity": 41.099,
+  "resumeDate": 47.926,
+  "payment5600": 53.614,
+  "reviewSchedule": 55.646,
+  "askClair": 59.512,
+  "prepareQuestion": 62.705,
+  "noAcceptance": 65.677
  },
  "mastering": {
   "method": "ffmpeg loudnorm two-pass to -18 LUFS / -1.5 dBTP",
-  "inputI": -27.48,
-  "outputI": -18.58,
+  "inputI": -27.49,
+  "outputI": -18.53,
   "outputTP": -1.88
  }
 }

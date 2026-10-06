@@ -49,6 +49,7 @@ Smoke: `node tests/smoke.mjs /tmp/x/index.html --routes payments --shots /tmp/x/
 8. **Don't edit core files** (`js/00-…`, `js/10-shell.js`, `js/99-boot.js`, `content/core.js`, `styles/00-03,90`). If you need a core change, work around it inside your module and report the needed change in your final summary.
 9. **CSS:** put module styles in `styles/<nn>-<module>.css`; prefix module classes (see table). Reuse core components (`.card`, `.btn-*`, `.badge`, `.compare`, `.kv`, `.grid-*`, `.split`, `.segmented`, `.field`, `.data-table`, `.hero`, `.callout`, `.chip`).
 10. **Tone:** helpful, institutional, plain language. Never call deferred principal or lower near-term payments “forgiveness”, “savings”, “interest-free” or a “holiday”. The $80 is part of the $4,800 lifetime increase; never add it again.
+11. **Recipient view (product-owner decision, 2026-10-06):** the app reads as the recipient would see a real notice, so no demo/fictional/sample/illustrative/prototype wording in any recipient-facing copy, export, print view or narration (build gate `RECIPIENT_BANNED`; the presenter-only `insights` namespace at the unlinked `#/insights` route is exempt). The honesty guardrails still apply: never claim a question was sent to or received by BDC, and never invent contacts, policies, rates or eligibility.
 
 ## Module ownership
 

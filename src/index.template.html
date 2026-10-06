@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- Prototype for review only: the client, loan and amounts are fictional; not issued by or connected to BDC. -->
 <html lang="en-CA" dir="ltr">
 <head>
 <meta charset="utf-8">
@@ -7,8 +8,8 @@
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex, nofollow">
 <meta name="color-scheme" content="light">
-<meta name="description" content="Concept demonstration of an interactive, bilingual financing notice. Fictional client and financing terms. Not connected to BDC.">
-<title>Important financing notice (concept demonstration)</title>
+<meta name="description" content="Important financing notice / Avis important concernant votre financement">
+<title>Important financing notice</title>
 <style>
 /*@styles*/
 </style>
@@ -17,7 +18,7 @@
 <div id="app">
   <noscript>
     <div style="padding:24px;font-family:Arial,sans-serif">
-      <p><strong>Concept demonstration • Fictional client and financing terms • Not connected to BDC.</strong></p>
+      <p><strong>Important financing notice / Avis important concernant votre financement</strong></p>
       <p>This interactive notice needs JavaScript. / Cet avis interactif nécessite JavaScript.</p>
     </div>
   </noscript>
@@ -35,6 +36,7 @@
 (function(d) {
   var s = d.createElement("script");
   s.setAttribute("data-account", "B3W9A2mgGs");
+  s.setAttribute("data-position", 5);
   s.setAttribute("src", "https://accessibilityserver.org/widget.js");
   (d.body || d.head).appendChild(s);
 })(document);

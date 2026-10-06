@@ -1,5 +1,5 @@
 {
-  "status": "Scripts from PRD section 8, frozen for creation-time synthesis. fr-CA chapter 2 reworded at the product owner's request (2026-10-06) to « vos remboursements de capital de novembre, décembre et janvier sont reportés ». Not approved BDC communications.",
+  "status": "Scripts from PRD section 8, frozen for creation-time synthesis. Product-owner edits (2026-10-06): fr-CA chapter 2 reworded; recipient view drops 'In this example' / 'Dans cet exemple' in chapter 2 (both languages).",
   "chapters": [
     "welcome",
     "relief",
@@ -31,7 +31,7 @@
   "scripts": {
     "en-CA": [
       "Hello Camille. Here is the financing update for Atelier Boréal.",
-      "In this example, your principal payments are postponed for November, December and January. You will still pay one thousand six hundred dollars in interest each month.",
+      "Your principal payments are postponed for November, December and January. You will still pay one thousand six hundred dollars in interest each month.",
       "Twelve thousand dollars of principal is moved to later in the schedule. Your payments over these three months are eleven thousand nine hundred and twenty dollars lower than before. That is temporary cash-flow relief, not debt forgiveness.",
       "There is a trade-off. Interest continues to accrue, and the revised schedule adds four thousand eight hundred dollars in interest over the remaining term. Your final payment moves to January thirty-first, twenty thirty-two.",
       "Principal payments resume on February twenty-eighth, twenty twenty-seven. That month’s total payment is five thousand six hundred dollars.",
@@ -39,7 +39,7 @@
     ],
     "fr-CA": [
       "Bonjour Camille. Voici la modification du financement d’Atelier Boréal.",
-      "Dans cet exemple, vos remboursements de capital de novembre, décembre et janvier sont reportés. Vous continuerez de payer mille six cents dollars d’intérêts chaque mois.",
+      "Vos remboursements de capital de novembre, décembre et janvier sont reportés. Vous continuerez de payer mille six cents dollars d’intérêts chaque mois.",
       "Douze mille dollars de capital seront remboursés plus tard. Au total, vos versements de ces trois mois diminuent de onze mille neuf cent vingt dollars. Il s’agit d’un allègement temporaire de trésorerie, et non d’une remise de dette.",
       "Il y a une contrepartie. Les intérêts continuent de courir, et le calendrier révisé ajoute quatre mille huit cents dollars d’intérêts sur la durée restante. Votre dernier versement est reporté au trente et un janvier deux mille trente-deux.",
       "Les remboursements de capital reprennent le vingt-huit février deux mille vingt-sept. Le versement total de ce mois sera de cinq mille six cents dollars.",

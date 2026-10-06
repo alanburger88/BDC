@@ -203,7 +203,7 @@ App.media = (() => {
   let ui = null;
   let resizeObs = null;
 
-  /* ---------- Watch tracking (for DemoEvents only) ----------
+  /* ---------- Watch tracking (session events only) ----------
    * Only narration that actually plays counts: the audio clock's forward
    * progress between two renders while playing. A seek (setTime) breaks the
    * chain, so chapters crossed or skipped by seeking never count, and
@@ -808,7 +808,6 @@ App.media = (() => {
     u.poster = h('div', { class: 'media-poster', on: { click: (e) => { if (!e.target.closest('button, a')) { play(); focusPlay(); } } } },
       h('div', { class: 'media-poster-art' }, handshake('media-handshake--poster')),
       h('div', { class: 'media-poster-body' },
-        h('p', { class: 'media-poster-tag' }, t('media.demoTag')),
         h('p', { class: 'media-poster-title' }, t('media.title')),
         h('p', { class: 'media-poster-for' }, t('media.forClient', { name: App.rec.clientName(), company: R.client.company })),
         h('ul', { class: 'media-poster-meta' },
@@ -1035,16 +1034,12 @@ App.media = (() => {
         return block;
       }));
 
-    const voiceName = c.voice && c.voice.name ? String(c.voice.name).split(' (')[0] : '';
-    u.note = h('p', { class: 'media-note' }, App.ui.icon('info', { size: 16 }),
-      h('span', null, t('media.note'), voiceName ? [' ', t('media.voice', { name: voiceName, model: c.model || '' })] : null));
-
     u.root = h('div', {
       class: ['media-player', reduced ? 'is-reduced' : null],
       role: 'region',
       'aria-label': t('media.playerLabel'),
       dataset: { locale: st.locale },
-    }, u.fs, u.transcript, u.note);
+    }, u.fs, u.transcript);
 
     container.appendChild(u.root);
     // Re-measure only when the frame width changes (the overview mounts the
