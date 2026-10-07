@@ -25,7 +25,7 @@
     "lead": "BDC already has a strong digital relationship with Canadian entrepreneurs. InfoSlips can carry that relationship into the financing communications that travel through Client Space, so every important notice is easier to understand, explore and act on.",
     "notPortal": {
       "title": "Not another portal.",
-      "body": "InfoSlips improves the communications BDC already sends, inside the channels BDC already owns. Entrepreneurs don't need to learn a new destination."
+      "body": "InfoSlips can improve the communications BDC already sends, inside the channels BDC already owns. Entrepreneurs wouldn't need to learn a new destination."
     },
     "pillars": [
       {
@@ -75,7 +75,7 @@
       },
       {
         "part": "presentation",
-        "text": "18 slides. Each has a short talk track: what to notice, why it matters and what to keep in mind."
+        "text": "18 slides. Each has a short talk track: what to notice and, where relevant, why it matters and what to keep in mind."
       },
       {
         "part": "live",
@@ -221,7 +221,7 @@
       "n": 5,
       "chapter": "notice",
       "title": "The interactive Financing Change Notice",
-      "alt": "A screenshot of the interactive notice's overview, with a callout on its personalised greeting.",
+      "alt": "A screenshot of the interactive notice's overview, with a callout on its personalized greeting.",
       "text": [
         "The interactive Financing Change Notice.",
         "Not just a statement. A governed, interactive guide that helps the entrepreneur understand exactly where they stand.",
@@ -275,7 +275,7 @@
       "text": [
         "Visualizing finance: the trade-off.",
         "Cash-flow effect: $11,920 less paid from November to January. Original payments $16,720; revised payments $4,800. Additional interest: +$4,800.",
-        "Payments, November 2026 to April 2027: the original and revised monthly payments, with principal postponed from November to January. March 2027: original $5,493.33, revised $5,573.33, a difference of $80.00 higher.",
+        "Payments, November 2026 to April 2027 (original, then revised): November $5,600 and $1,600; December $5,573.33 and $1,600; January $5,546.67 and $1,600, with principal postponed; February $5,520 and $5,600; March $5,493.33 and $5,573.33, a difference of $80.00 higher; April $5,466.67 and $5,546.67.",
         "The direct comparison: isolating the exact temporary cashflow relief against the total lifetime cost.",
         "The monthly reality: transforming complex amortization schedules into intuitive, at-a-glance visual impacts."
       ],
@@ -351,7 +351,7 @@
       "text": [
         "Interactive financial transparency.",
         "Chart: payments from November 2026 to April 2027, original beside revised, with an Explain with AI button.",
-        "Month cards for November 2026, December 2026 and January 2027 show the original payment, the revised payment and the difference.",
+        "Month cards: November 2026, original $5,600.00, revised $1,600.00, $4,000.00 lower; December 2026, original $5,573.33, revised $1,600.00, $3,973.33 lower; January 2027, original $5,546.67, revised $1,600.00, $3,946.67 lower. Each is marked Principal postponed.",
         "Visual reconciliation: the user toggles to see exactly how the postponed principal shifts the schedule and alters total interest over the remaining term.",
         "Drill-down detail: from high-level summary down to month-by-month mathematical proof, accommodating both quick skimmers and detailed accountants."
       ],
@@ -408,9 +408,7 @@
       ],
       "talk": {
         "notice": [
-          0
-        ],
-        "why": [
+          0,
           1
         ],
         "keep": [
@@ -433,10 +431,10 @@
       ],
       "talk": {
         "notice": [
-          0
+          0,
+          1
         ],
         "why": [
-          1,
           2
         ],
         "keep": [
@@ -470,7 +468,7 @@
     {
       "n": 15,
       "chapter": "value",
-      "title": "Uniquely suited to BDC's dual mandate",
+      "title": "Uniquely suited for BDC's dual mandate",
       "alt": "Two speech bubbles: commercial and operational value, and public-service and entrepreneur value.",
       "text": [
         "Uniquely suited for BDC's dual mandate.",
@@ -479,14 +477,12 @@
         "Delivering on the commercial mandate of efficiency while simultaneously elevating the public mandate of SME support."
       ],
       "talk": {
-        "notice": [
+        "why": [
           0
         ],
-        "why": [
-          1,
-          2
-        ],
         "keep": [
+          1,
+          2,
           3
         ]
       }
@@ -501,7 +497,7 @@
         "Delivered: the API confirms a successful drop into Client Space.",
         "Accessed: time, device and language-toggle tracking.",
         "Interacted: which specific charts were toggled? Was Clair AI engaged?",
-        "Action taken: did they download the CSV? Did they start a contextual question?",
+        "Action taken: did they download the CSV? Did they initiate a contextual question?",
         "Takeaway: move from relying on basic “read receipts” to understanding true communication effectiveness."
       ],
       "talk": {
@@ -572,7 +568,7 @@
         "id": "meet",
         "icon": "live",
         "title": "Your turn: the live Financing Change Notice",
-        "body": "This is the interactive notice from the presentation, running live. It is designed to open inside Client Space, the channel BDC already runs: it is not another portal. Everything works, from the summary and charts to Clair and both languages.",
+        "body": "This is the interactive notice from the presentation, running live. In production it would open inside Client Space, the channel BDC already runs: it is not another portal. Everything works, from the summary and charts to Clair and both languages.",
         "try": "Scroll the overview: what changed, what it means and what to do next are all answered first. Show me points to the summary cards.",
         "enter": {
           "route": "#/overview",
@@ -618,7 +614,7 @@
           "route": "#/overview",
           "click": "term-postponement-1"
         },
-        "why": "Routine questions can be answered inside the notice, in BDC-approved words, before they become a call.",
+        "why": "Routine questions can be answered inside the notice, in wording BDC approves, before they become a call.",
         "slide": 8
       },
       {
@@ -646,7 +642,7 @@
         "pillar": "Understandable",
         "title": "Clair answers from this notice only",
         "body": "Clair, the notice's guide, explains the change in plain language, points to the clause behind each answer and offers a route to a person.",
-        "try": "Ask Clair “Can you change my payment?” It explains that it can't change the notice or approve requests.",
+        "try": "Ask Clair “Can you change my payment?” It replies that it can't change your payments or loan terms, and offers to prepare a question for a person.",
         "enter": {
           "route": "#/overview",
           "lang": "en-CA"
@@ -750,7 +746,7 @@
           "route": "#/documents",
           "spotlightSelector": ".ntc-meta"
         },
-        "why": "There is no gap between the digital view and the formal record: both come from the same governed content, delivered through Client Space rather than a separate system.",
+        "why": "The digital view and the formal record come from the same governed content, so BDC can verify they stay aligned. In a pilot, both would arrive through Client Space.",
         "slide": 12
       },
       {
@@ -768,7 +764,7 @@
           "route": "#/overview",
           "spotlight": "overview-mark-reviewed"
         },
-        "why": "The communication moves the entrepreneur from reading to acting, inside the channel BDC already runs, while BDC stays in control of what is offered.",
+        "why": "The communication moves the entrepreneur from reading to acting, while BDC stays in control of what is offered. In production, this would happen inside Client Space.",
         "keep": "A suggested resource never implies eligibility, approval or a particular outcome.",
         "slide": 13
       },
@@ -776,7 +772,7 @@
         "id": "insights",
         "icon": "insights",
         "pillar": "Measurable",
-        "title": "See what the communication achieved",
+        "title": "See how the notice was used",
         "body": "Session insights lists what happened during your visit: sections viewed, definitions opened, questions drafted and actions taken.",
         "try": "Look for the steps you took in the notice during this walkthrough.",
         "enter": {

@@ -120,7 +120,7 @@ try {
     check('all 18 slide images load and have alternative text', !broken.length, broken.join(', '));
     // talk track rendered
     await open(page, '#/slides/6');
-    const talk = await page.evaluate(() => [...document.querySelectorAll('.talk-block')].map((b) => [b.querySelector('h2').textContent, b.querySelector('p').textContent]));
+    const talk = await page.evaluate(() => [...document.querySelectorAll('.layer:not(.is-offstage) .talk-block')].map((b) => [b.querySelector('h2').textContent, b.querySelector('p').textContent]));
     check('slide 6 shows What to notice, Why it matters and Keep in mind', talk.length === 3 && talk[0][0] === 'What to notice' && talk[1][0] === 'Why it matters' && talk[2][0] === 'Keep in mind', JSON.stringify(talk));
     await page.click('details.more summary');
     const slideText = await page.evaluate(() => document.querySelectorAll('.slide-text-list li').length);
@@ -432,6 +432,76 @@ try {
     await open(page, '#/slides/3');
     const dev = await page.evaluate(() => [...document.querySelectorAll('#device-switch .seg-btn')].map((b) => [b.getAttribute('aria-pressed'), b.title]));
     check('outside the live statement no screen size looks selected, and each explains it opens the live statement', dev.every(([p, t]) => p === 'false' && /Show the live statement/.test(t)), JSON.stringify(dev));
+    await page.context().close();
+  }
+
+  /* ---------------- keyboard order, full size, focus after layer switches ---------------- */
+  {
+    const { page, problems } = await newPage({ width: 1440, height: 900 }); // reduced motion on
+    await open(page, '#/slides/7');
+    await page.click('text=See it in the live statement');
+    await page.waitForTimeout(150);
+    check('with reduced motion, switching from a slide to a live stop focuses the stop heading', await page.evaluate(() => document.activeElement.id === 'guide-title'));
+    await waitReady(page);
+    const order = await page.evaluate(() => {
+      const g = document.getElementById('btn-showme'); const f = window.WT_NOTICE.frame();
+      return { guideFirst: !!(g.compareDocumentPosition(f) & Node.DOCUMENT_POSITION_FOLLOWING), guideRight: g.getBoundingClientRect().left > f.getBoundingClientRect().right - 2 };
+    });
+    check('on live stops the guide comes before the notice in keyboard order, and still sits to its right', order.guideFirst && order.guideRight, JSON.stringify(order));
+    await page.keyboard.press('Tab'); // from the heading
+    let reached = false;
+    for (let i = 0; i < 6 && !reached; i += 1) { reached = await page.evaluate(() => document.activeElement.id === 'btn-showme'); if (!reached) await page.keyboard.press('Tab'); }
+    check('Show me is reached with a few Tab presses from the stop heading', reached);
+    // visible caveat on the Clair stop
+    await open(page, '#/live/clair');
+    await page.waitForTimeout(300);
+    check('the Clair stop shows its caveat (no external AI service) without expanding anything', await page.evaluate(() => { const k = document.querySelector('.guide-keep'); return !!k && k.getClientRects().length > 0 && /No external AI service/.test(k.textContent); }));
+    // Clair opened by Show me, closed inside the notice: focus comes back to Show me
+    await page.click('#btn-showme');
+    await page.waitForTimeout(900);
+    const fr = page.frames().find((f) => f.url().includes('/notice/'));
+    await fr.focus('[data-fid="clair-input"]');
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(800);
+    check('closing Clair inside the notice returns focus to Show me', await page.evaluate(() => document.activeElement.id === 'btn-showme'));
+    // full size
+    await page.click('.device-full-btn');
+    await page.waitForTimeout(200);
+    const fs = await page.evaluate(() => {
+      const f = window.WT_NOTICE.frame().getBoundingClientRect();
+      return { w: Math.round(f.width), h: Math.round(f.height), vw: innerWidth, vh: innerHeight, focus: document.activeElement.className, inert: document.getElementById('topbar').inert && document.getElementById('controls').inert, inner: window.WT_NOTICE.frame().contentWindow.innerWidth };
+    });
+    check('Use full size shows the notice at the real window size, with the walkthrough inert and Exit focused', fs.w === fs.vw && fs.h === fs.vh && fs.inner === fs.vw && /fullsize-exit/.test(fs.focus) && fs.inert, JSON.stringify(fs));
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(200);
+    const back = await page.evaluate(() => ({ focus: document.activeElement.className, inert: document.getElementById('topbar').inert, scaled: /scale/.test(document.querySelector('.device').style.transform) }));
+    check('Escape leaves full size, restores the scaled device and returns focus', /device-full-btn/.test(back.focus) && !back.inert && back.scaled, JSON.stringify(back));
+    // enlarged slide announces slide changes inside the dialog
+    await open(page, '#/slides/8');
+    await page.click('.slide-zoom-btn');
+    await page.keyboard.press('ArrowRight');
+    await page.waitForTimeout(200);
+    check('the enlarged view announces the new slide from inside the dialog', /Slide 9 of 18/.test(await page.textContent('#zoom-live')));
+    await page.keyboard.press('Escape');
+    check('no console errors in the keyboard and full-size checks', !problems.length, problems.join('\n'));
+    await page.context().close();
+  }
+  {
+    // sticky bars never hide the focused control (tablet portrait)
+    const { page } = await newPage({ width: 768, height: 1024 });
+    await open(page, '#/slides/12');
+    const hidden = [];
+    for (let i = 0; i < 14; i += 1) {
+      await page.keyboard.press('Tab');
+      const r = await page.evaluate(() => {
+        const a = document.activeElement; if (!a || a === document.body) return null;
+        if (a.closest('#topbar, #controls') || a.classList.contains('skip-link')) return null; // the skip link sits above the header
+        const b = a.getBoundingClientRect(); const top = document.getElementById('topbar').getBoundingClientRect().bottom; const bot = document.getElementById('controls').getBoundingClientRect().top;
+        return b.bottom <= top + 1 || b.top >= bot - 1 ? (a.id || a.textContent.trim().slice(0, 30)) : null;
+      });
+      if (r) hidden.push(r);
+    }
+    check('Tab never leaves a focused control hidden under the sticky header or control bar (768x1024)', !hidden.length, hidden.join(', '));
     await page.context().close();
   }
 

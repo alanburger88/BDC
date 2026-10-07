@@ -283,6 +283,9 @@ window.WT_NOTICE = (() => {
 
   function locale() { const a = access(); return a && a.A ? a.A.i18n.locale : null; }
 
+  /** Is a panel (Clair, the question form) open in the notice? */
+  function panelOpen() { const a = access(); try { return !!(a && a.A && a.A.overlay.isOpen()); } catch (e) { return false; } }
+
   /** URL for "Open live statement": the notice at the section currently shown. */
   function href() {
     const a = access();
@@ -299,6 +302,7 @@ window.WT_NOTICE = (() => {
     onKey,
     reset,
     locale,
+    panelOpen,
     href,
     onState,
     state: () => state,

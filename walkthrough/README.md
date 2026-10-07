@@ -2,7 +2,7 @@
 
 A responsive, self-guided executive walkthrough that takes a BDC stakeholder through the InfoSlips value proposition and into the live Financing Change Notice. It works on its own without a presenter, and it also supports a live sales conversation.
 
-It is a static site: plain HTML, CSS and JavaScript, with no framework and no third-party requests. The walkthrough uses the InfoSlips brand: Inter, white and slate surfaces, green accents and the InfoSlips logos, with a "Prepared for BDC" lockup. The BDC look appears inside the slides and the notice.
+It is a static site: plain HTML, CSS and JavaScript, with no framework. The walkthrough itself makes no third-party requests. The embedded notice loads its accessibility widget from accessibilityserver.org, as it does on its own. The walkthrough uses the InfoSlips brand: Inter, white and slate surfaces, green accents and the InfoSlips logos, with a "Prepared for BDC" lockup. The BDC look appears inside the slides and the notice.
 
 ## The three parts
 

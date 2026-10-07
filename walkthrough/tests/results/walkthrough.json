@@ -1,7 +1,7 @@
 {
-  "ranAt": "2026-10-07T15:05:09.218Z",
-  "passed": 50,
-  "failed": 2,
+  "ranAt": "2026-10-07T16:24:51.307Z",
+  "passed": 78,
+  "failed": 0,
   "results": [
     {
       "name": "talk tracks are the speaker notes, verbatim, for all 18 slides",
@@ -54,7 +54,7 @@
       "detail": ""
     },
     {
-      "name": "no horizontal scrolling on 12 screen sizes (8 steps each, live view in 3 devices)",
+      "name": "no horizontal scrolling and no unannounced cut-off content on 16 screen sizes (8 steps each, live view in 3 devices)",
       "ok": true,
       "detail": ""
     },
@@ -139,6 +139,21 @@
       "detail": ""
     },
     {
+      "name": "Enlarge slide shows the slide larger and fully on screen at 1920x1080",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Enlarge slide shows the slide larger and fully on screen at 820x1180",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Enlarge slide shows the slide larger and fully on screen at 390x844",
+      "ok": true,
+      "detail": ""
+    },
+    {
       "name": "Enlarge slide opens a full view; arrow keys move through slides; Escape closes it",
       "ok": true,
       "detail": ""
@@ -185,8 +200,8 @@
     },
     {
       "name": "after Restart: welcome step, heading focused, saved place cleared",
-      "ok": false,
-      "detail": "{\"hash\":\"#/welcome\",\"focus\":\"btn-restart\",\"saved\":{\"lastSlide\":1,\"lastStop\":\"meet\",\"device\":\"desktop\",\"visited\":[\"welcome\"],\"resumeId\":null},\"lang\":\"en-CA\",\"route\":\"#/overview\",\"reviewed\":0}"
+      "ok": true,
+      "detail": ""
     },
     {
       "name": "after Restart the live notice is back to English, on the overview, with no activity",
@@ -239,6 +254,121 @@
       "detail": ""
     },
     {
+      "name": "browser Back returns to the previous step",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "browser Forward returns to the next step",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "moving on with Clair open closes it and keeps the new step",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "browser Back after that returns to the Clair stop",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "the language stop opens on a clean overview (no leftover form, scrolled to the top)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Page Down from a clicker advances the walkthrough even when the notice has focus",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Page Up goes back from inside the notice too",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "after Session insights, the wrap-up and header links open the notice overview",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "no console errors in the history and clicker checks",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "the responsive stop demonstrates another size, then restores the visitor’s size on Next",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "on phones the stop’s heading is shown above the device",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "skipping ahead does not mark the skipped parts as completed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "outside the live statement no screen size looks selected, and each explains it opens the live statement",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "with reduced motion, switching from a slide to a live stop focuses the stop heading",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "on live stops the guide comes before the notice in keyboard order, and still sits to its right",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Show me is reached with a few Tab presses from the stop heading",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "the Clair stop shows its caveat (no external AI service) without expanding anything",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "closing Clair inside the notice returns focus to Show me",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Use full size shows the notice at the real window size, with the walkthrough inert and Exit focused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Escape leaves full size, restores the scaled device and returns focus",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "the enlarged view announces the new slide from inside the dialog",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "no console errors in the keyboard and full-size checks",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Tab never leaves a focused control hidden under the sticky header or control bar (768x1024)",
+      "ok": true,
+      "detail": ""
+    },
+    {
       "name": "moving between stops keeps keyboard focus on Next (the notice never takes it)",
       "ok": true,
       "detail": ""
@@ -260,8 +390,8 @@
     },
     {
       "name": "axe-core: no WCAG 2.2 A/AA violations (5 steps and 2 dialogs, desktop and phone)",
-      "ok": false,
-      "detail": "1440px #/welcome: color-contrast (serious): .welcome-meta\n1440px #/how-it-works: color-contrast (serious): .how-control:nth-child(1) > div > p | .how-control:nth-child(2) > div > p | .how-control:nth-child(3) > div > p\n390px #/welcome: color-contrast (serious): .welcome-meta\n390px #/how-it-works: color-contrast (serious): .how-control:nth-child(1) > div > p | .how-control:nth-child(2) > div > p | .how-control:nth-child(3) > div > p"
+      "ok": true,
+      "detail": ""
     }
   ]
 }

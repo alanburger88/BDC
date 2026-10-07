@@ -239,7 +239,10 @@
   function focusHeading() {
     const step = STEPS[st.index];
     const target = $(step.kind === 'stop' ? 'guide-title' : 'step-title');
-    if (target) target.focus({ preventScroll: isFrame() });
+    if (!target) return;
+    target.focus({ preventScroll: isFrame() });
+    // A layer that has only just become visible may not accept focus in this frame
+    if (document.activeElement !== target) requestAnimationFrame(() => { if (target.isConnected) target.focus({ preventScroll: isFrame() }); });
   }
 
   function renderParts(step) {
@@ -320,6 +323,7 @@
   }
 
   function showPage(step, prev) {
+    if (fullsize) setFullsize(false);
     setLayer(false);
     clear(el.page);
     if (step.kind === 'welcome') renderWelcome(el.page);
@@ -461,7 +465,7 @@
     const panel = h('div', { class: 'panel' },
       h('p', { class: 'eyebrow' }, C.chapters[s.chapter]),
       h('h1', { class: 'panel-title', id: 'step-title', tabindex: '-1' }, s.title),
-      h('p', { class: 'sr-only' }, `Slide ${s.n} of ${total}. Talk track follows.`),
+      h('p', { class: 'sr-only' }, `Slide ${s.n} of ${total}. The slide shows: ${s.alt} Its full text is under “Read the slide text”. The talk track follows.`),
       talk,
       liveStop ? h('div', { class: 'panel-actions' },
         stepLink(liveStop, { class: 'btn btn-outline-green' }, icon('live'), h('span', null, C.live.seeLive))) : null,
@@ -503,7 +507,10 @@
     if (!target) return;
     go(target, { noScroll: true, history: 'replace' });
     renderZoom();
-    announce(`Slide ${target.slide.n} of ${C.slides.length}: ${target.title}`);
+    // The page's live region is hidden while the modal dialog is open; use the dialog's own
+    const zl = $('zoom-live');
+    zl.textContent = '';
+    setTimeout(() => { zl.textContent = `Slide ${target.slide.n} of ${C.slides.length}: ${target.title}`; }, 60);
   }
   $('zoom-prev').addEventListener('click', () => zoomStep(-1));
   $('zoom-next').addEventListener('click', () => zoomStep(1));
@@ -565,11 +572,19 @@
     // The unavailable card and the loading pill stay at full size over the scaled device
     live.area = h('div', { class: 'device-area' }, live.holder, live.overlay, live.loading);
     live.caption = h('p', { class: 'device-caption' });
+    live.fullBtn = h('button', { type: 'button', class: 'btn btn-on-dark device-full-btn', on: { click: () => setFullsize(true) } },
+      icon('expand'), h('span', null, 'Use full size'));
+    live.exitBtn = h('button', { type: 'button', class: 'btn btn-primary fullsize-exit', on: { click: () => setFullsize(false) } },
+      icon('close'), h('span', null, 'Exit full size'));
+    live.holder.appendChild(live.exitBtn);
     live.guide = h('div', { class: 'panel guide', id: 'live-guide' });
     live.toggle = h('button', { type: 'button', class: 'btn btn-on-dark guide-toggle', 'aria-controls': 'live-guide', 'aria-expanded': 'true', on: { click: toggleGuide } },
-      icon('expand'), h('span', null, 'Hide guide'));
-    live.stage = h('div', { class: 'stage live-stage on-dark' }, live.toggle, live.area, live.caption);
-    live.view = h('section', { class: 'split live-view', 'aria-label': 'Live statement' }, live.stage, live.guide);
+      icon('text'), h('span', null, 'Hide guide'));
+    live.captionRow = h('div', { class: 'device-caption-row' }, live.caption, live.fullBtn, live.toggle);
+    live.stage = h('div', { class: 'stage live-stage on-dark' }, live.area, live.captionRow);
+    // The guide comes first in reading and keyboard order (the stop, then the notice);
+    // on large screens the grid still shows the notice on the left.
+    live.view = h('section', { class: 'split live-view', 'aria-label': 'Live statement' }, live.guide, live.stage);
     el.live.appendChild(live.view);
     live.built = true;
 
@@ -578,11 +593,31 @@
     window.addEventListener('resize', () => layoutDevice());
   }
 
+  /** Full size: the notice fills the browser window at its real size (no scaling), which
+   * on a phone is the real mobile experience. The rest of the walkthrough is inert. */
+  let fullsize = false;
+  function setFullsize(on) {
+    if (!live.built || on === fullsize) return;
+    fullsize = on;
+    live.view.classList.toggle('is-fullsize', on);
+    document.documentElement.classList.toggle('wt-fullsize', on);
+    for (const node of [$('topbar'), $('controls'), live.guide, live.captionRow]) node.toggleAttribute('inert', on);
+    if (on) {
+      live.exitBtn.focus({ preventScroll: true });
+      announce('The notice is shown at full size. Use Exit full size to return to the walkthrough.');
+    } else {
+      layoutDevice();
+      live.fullBtn.focus({ preventScroll: true });
+      announce('Back to the walkthrough.');
+    }
+  }
+  document.addEventListener('keydown', (e) => { if (fullsize && e.key === 'Escape') { e.preventDefault(); setFullsize(false); } });
+
   /** Large screens: hide the guide panel to give the notice the whole stage. */
   function toggleGuide() {
     const collapsed = live.view.classList.toggle('guide-collapsed');
     live.toggle.setAttribute('aria-expanded', String(!collapsed));
-    clear(live.toggle).append(icon(collapsed ? 'contents' : 'expand'), h('span', null, collapsed ? 'Show guide' : 'Hide guide'));
+    clear(live.toggle).append(icon('text'), h('span', null, collapsed ? 'Show guide' : 'Hide guide'));
     requestAnimationFrame(() => layoutDevice());
     announce(collapsed ? 'Guide hidden. The notice uses the whole stage.' : 'Guide shown.');
   }
@@ -602,7 +637,7 @@
   }
 
   function layoutDevice() {
-    if (!live.built || el.live.classList.contains('is-offstage')) return;
+    if (!live.built || fullsize || el.live.classList.contains('is-offstage')) return;
     const d = DEV[st.device];
     const ch = CHROME[st.device];
     const W = d.w + ch.x;
@@ -617,7 +652,7 @@
     live.device.style.transform = `scale(${s})`;
     live.holder.style.width = `${Math.floor(W * s)}px`;
     live.holder.style.height = `${Math.floor(H * s)}px`;
-    clear(live.caption).append(h('b', null, 'As opened from BDC Client Space'), ` · ${d.label} view · ${d.w} × ${d.h} · shown at ${Math.round(s * 100)}%`);
+    clear(live.caption).append(h('b', null, 'As it would appear in BDC Client Space'), ` · ${d.label} view · ${d.w} × ${d.h} · shown at ${Math.round(s * 100)}%`);
   }
 
   function updateDeviceState(state) {
@@ -682,11 +717,11 @@
     const count = partSteps.live.length - 1;
     showMeBtn = h('button', { type: 'button', class: 'btn btn-primary', id: 'btn-showme', on: { click: () => showMe(step) } }, icon('pointer'), h('span', null, ''));
     statusEl = h('p', { class: 'guide-status', role: 'status' });
-    const more = (s.why || s.keep) ? h('details', { class: 'more' },
+    const keep = s.keep ? h('section', { class: 'talk-block keep guide-keep', 'aria-labelledby': 'keep-title' },
+      h('h2', { id: 'keep-title' }, C.talkLabels.keep), h('p', null, s.keep)) : null;
+    const more = s.why ? h('details', { class: 'more' },
       h('summary', null, icon('info'), C.live.whyLabel),
-      h('div', { class: 'more-body' },
-        s.why ? h('p', null, s.why) : null,
-        s.keep ? h('p', { class: 'muted' }, s.keep) : null)) : null;
+      h('div', { class: 'more-body' }, h('p', null, s.why))) : null;
 
     append(clear(live.guide), [
       h('div', { class: 'guide-meta' },
@@ -699,6 +734,7 @@
         h('p', null, s.try)),
       h('div', { class: 'panel-actions' }, showMeBtn),
       statusEl,
+      keep,
       more,
       s.slide ? stepLink(slideStep(s.slide), { class: 'link-row' }, icon('slides'), h('span', null, fmt(C.live.fromSlide, { n: s.slide }))) : null,
     ]);
@@ -730,6 +766,7 @@
     // Opening Clair or the question form moves focus into the notice; keep it on Show me so
     // the notice doesn't draw its keyboard focus ring. Tab reaches the open panel.
     if (document.activeElement === N.frame() && showMeBtn && showMeBtn.isConnected) showMeBtn.focus({ preventScroll: true });
+    if (res && res.ok && (spec.clair || spec.click)) watchPanel(step);
     if (res && res.ok) revealStage();
     if (res && res.ok) {
       if (spec.clair) status('Clair is open in the notice with an answer. Ask your own question there.');
@@ -739,6 +776,20 @@
     } else {
       status('That part isn’t on screen in the notice right now. Follow the steps above.');
     }
+  }
+
+  /** A panel opened by Show me (Clair, the question form): when the visitor closes it inside
+   * the notice, focus would stay in the notice; return it to Show me instead. */
+  let panelWatch = null;
+  function watchPanel(step) {
+    clearInterval(panelWatch);
+    panelWatch = setInterval(() => {
+      if (STEPS[st.index] !== step || !showMeBtn || !showMeBtn.isConnected) { clearInterval(panelWatch); return; }
+      if (!N.panelOpen()) {
+        clearInterval(panelWatch);
+        if (document.activeElement === N.frame()) showMeBtn.focus({ preventScroll: true });
+      }
+    }, 300);
   }
 
   /** On small screens the guide sits below the device: bring the device back into view
@@ -907,7 +958,7 @@
     if (dir > 0) next({ keep }); else back({ keep });
   });
 
-  N.onKey((dir) => { if (!document.querySelector('dialog[open]')) { if (dir > 0) next(); else back(); } });
+  N.onKey((dir) => { if (!fullsize && !document.querySelector('dialog[open]')) { if (dir > 0) next(); else back(); } });
 
   // Fetch the notice (about 3 MB, mostly its narration) in the background so part 3
   // opens quickly: on large screens once the page is idle, elsewhere from slide 10 on.
@@ -919,6 +970,17 @@
     prefetched = true;
     document.head.appendChild(h('link', { rel: 'prefetch', href: 'notice/index.html' }));
   }
+
+  // Scrolling to a focused element keeps it clear of the sticky header and control bar
+  function measureBars() {
+    const top = $('topbar');
+    const sticky = getComputedStyle(top).position === 'sticky';
+    document.documentElement.style.setProperty('--topbar-h', `${sticky ? top.offsetHeight : 0}px`);
+    document.documentElement.style.setProperty('--controls-h', `${$('controls').offsetHeight}px`);
+  }
+  if (window.ResizeObserver) { const ro = new ResizeObserver(measureBars); ro.observe($('topbar')); ro.observe($('controls')); }
+  window.addEventListener('resize', measureBars);
+  measureBars();
 
   /* ------------------------------------------------------------------ */
   /* Start                                                               */
