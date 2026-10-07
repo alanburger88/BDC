@@ -270,7 +270,7 @@
     {
       "n": 7,
       "chapter": "notice",
-      "title": "Visualizing the trade-off",
+      "title": "Visualizing the trade‑off",
       "alt": "A cash-flow comparison card beside a chart of monthly payments from November 2026 to April 2027.",
       "text": [
         "Visualizing finance: the trade-off.",
@@ -625,7 +625,7 @@
         "id": "financials",
         "icon": "chart",
         "pillar": "Interactive",
-        "title": "Explore the trade-off, month by month",
+        "title": "Explore the trade‑off, month by month",
         "body": "The chart sets the original payments beside the revised ones. Select any month to see its principal, its interest and why it differs.",
         "try": "Select March 2027: the revised payment is $80 higher. Then select See the breakdown to find out why.",
         "enter": {

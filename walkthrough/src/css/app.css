@@ -129,11 +129,11 @@ a:hover { color: var(--slate-1); }
 .brand-home { display: inline-flex; padding: 6px 2px; border-radius: 6px; }
 .brand-logo { width: 132px; height: auto; display: block; }
 .brand-for {
-  display: inline-flex; align-items: center; gap: 10px;
+  display: inline-flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 3px;
   padding-left: 14px; border-left: 1px solid var(--border);
 }
-.brand-for-label { font-size: 12px; font-weight: 500; color: var(--muted); white-space: nowrap; }
-.brand-bdc { width: 50px; height: auto; display: block; }
+.brand-for-label { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); white-space: nowrap; line-height: 1; }
+.brand-bdc { width: 46px; height: auto; display: block; }
 
 .parts { flex: 1; display: flex; justify-content: center; min-width: 0; }
 .parts-list { display: flex; align-items: center; gap: 6px; list-style: none; margin: 0; padding: 0; }
@@ -271,7 +271,7 @@ main:focus { outline: none; }
 .hero-phone-screen { border-radius: 20px; overflow: hidden; aspect-ratio: 390 / 600; background: var(--white); }
 .hero-phone-screen img { object-fit: cover; object-position: top; height: 100%; }
 .hero-badge {
-  position: absolute; left: 6%; bottom: 6%;
+  position: absolute; left: 4%; bottom: 8%; max-width: 58%; white-space: nowrap;
   display: inline-flex; align-items: center; gap: 8px;
   padding: 8px 14px; border-radius: var(--pill); background: var(--white);
   box-shadow: var(--shadow); font-size: 13px; font-weight: 600; color: var(--slate-1);
@@ -294,7 +294,10 @@ main:focus { outline: none; }
 .pillar p { margin-top: 3px; font-size: 14px; line-height: 1.4; color: var(--muted); }
 
 /* ---------- how it works ---------- */
+.how-top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px 32px; }
 .how-head { max-width: 760px; }
+.how-start { flex: none; }
+.how-part-head { display: flex; align-items: center; gap: 12px; }
 .how-title { margin-top: 12px; font-size: clamp(28px, 3vw, 38px); font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
 .how-head .lead { margin-top: 12px; }
 .how-parts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 24px; padding: 0; list-style: none; }
@@ -306,8 +309,8 @@ main:focus { outline: none; }
   display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 50%;
   background: var(--green-900); color: var(--white); font-weight: 700; font-size: 15px;
 }
-.how-part h2 { margin-top: 12px; font-size: 18px; }
-.how-part p { margin-top: 6px; font-size: 15px; color: var(--muted); }
+.how-part h2 { font-size: 18px; }
+.how-part p { margin-top: 8px; font-size: 15px; color: var(--muted); }
 .how-controls-title { margin-top: 28px; font-size: 20px; }
 .how-controls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 14px; padding: 0; list-style: none; }
 .how-control { display: flex; gap: 12px; align-items: flex-start; padding: 14px; border-radius: var(--radius); background: var(--slate-7); }
@@ -322,7 +325,10 @@ main:focus { outline: none; }
 .how-actions { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 12px; }
 
 /* ---------- slide view ---------- */
-.split { flex: 1 1 auto; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) clamp(340px, 31vw, 440px); }
+.split { flex: 1 1 auto; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) clamp(300px, 29vw, 440px); }
+.live-view.guide-collapsed { grid-template-columns: minmax(0, 1fr); }
+.live-view.guide-collapsed .guide { display: none; }
+.guide-toggle { position: absolute; top: 12px; right: 12px; z-index: 2; min-height: 36px; padding: 6px 14px; font-size: 13px; }
 .stage {
   position: relative; min-width: 0; min-height: 0;
   background: var(--stage); color: var(--white);
@@ -529,15 +535,15 @@ details.more summary .icon { color: var(--green-900); }
 .dialog-slide[open] { display: flex; flex-direction: column; }
 .dialog-slide::backdrop { background: var(--slate-1); }
 .slide-zoom { flex: 1; min-height: 0; display: grid; place-items: center; padding: 16px; overflow: auto; }
-.slide-zoom img { max-width: 100%; max-height: calc(100vh - 100px); max-height: calc(100dvh - 100px); width: auto; height: auto; border-radius: 8px; }
+.slide-zoom img { width: min(100%, calc((100vh - 110px) * 1.794)); width: min(100%, calc((100dvh - 110px) * 1.794)); height: auto; max-width: none; max-height: none; border-radius: 8px; }
 .slide-zoom-bar { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 10px 16px calc(12px + env(safe-area-inset-bottom)); }
 .slide-zoom-count { min-width: 90px; text-align: center; font-weight: 600; color: var(--slate-5); }
 .zoom-hint { display: none; }
-@media (max-width: 699.98px) and (orientation: portrait) {
+@media (max-width: 1023.98px) and (orientation: portrait) {
   .slide-zoom { position: relative; overflow: hidden; display: block; }
   .slide-zoom img {
     position: absolute; left: 50%; top: 50%; max-width: none; max-height: none;
-    width: min(calc(100dvh - 120px), calc((100vw - 24px) * 1.794)); height: auto;
+    width: min(calc(100dvh - 130px), calc((100vw - 24px) * 1.794)); height: auto;
     transform: translate(-50%, -50%) rotate(90deg);
   }
   .zoom-hint { display: block; text-align: center; font-size: 13px; color: var(--slate-4); padding: 0 16px; }
@@ -558,6 +564,12 @@ details.more summary .icon { color: var(--green-900); }
 @media (min-width: 1024px) and (min-height: 620px) {
   .app { height: 100vh; height: 100dvh; }
   main, .layer, .live-stage, .device-area { overflow: hidden; overflow: clip; }
+  .page { display: flex; flex-direction: column; }
+  .page-inner { margin: auto; width: 100%; }
+  .page.is-clipped {
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 56px), transparent);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 56px), transparent);
+  }
 }
 
 /* ---------- medium ---------- */
@@ -569,7 +581,8 @@ details.more summary .icon { color: var(--green-900); }
 }
 /* Short desktop screens: the value cards keep their title; the description stays
    available to screen readers and returns on taller screens. */
-@media (min-width: 1024px) and (max-height: 860px) {
+@media (min-width: 1024px) and (max-height: 960px) {
+  .pillars { grid-template-columns: repeat(5, minmax(0, 1fr)); }
   .pillar { display: flex; align-items: center; gap: 12px; padding: 12px 14px; }
   .pillar-icon { margin-bottom: 0; }
   .pillar p { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
@@ -577,6 +590,18 @@ details.more summary .icon { color: var(--green-900); }
 @media (max-width: 1199.98px) {
   .welcome-hero { gap: 32px; }
   .pillars { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (min-width: 1024px) and (max-height: 860px) {
+  .close-card { padding: 30px 40px; }
+  .close-logo { width: 120px; margin-bottom: 14px; }
+  .close-card h1 { font-size: clamp(26px, 2.6vw, 38px); }
+  .close-card .lead { margin-top: 12px; font-size: 17px; }
+  .close-actions { margin-top: 20px; }
+  .close-quote { margin-top: 18px; }
+  .how-head .lead { font-size: 17px; }
+  .how-parts { margin-top: 18px; }
+  .how-controls-title { margin-top: 20px; }
+  .how-note { margin-top: 16px; }
 }
 /* Compact chrome: the part stepper and the progress move into a strip under the header */
 @media (max-width: 1199.98px), (max-height: 619.98px) {
@@ -595,6 +620,8 @@ details.more summary .icon { color: var(--green-900); }
   .panel { border-left: 0; border-top: 1px solid var(--border); padding: 24px 20px 32px; overflow: visible; }
   .live-stage { padding: 14px 12px 12px; }
   .device-area { flex: none; }
+  .guide-toggle { display: none; }
+  .live-view.guide-collapsed .guide { display: block; }
   .welcome-hero { grid-template-columns: minmax(0, 1fr); }
   .hero-visual { max-width: 560px; width: 100%; margin: 0 auto; }
   .how-parts, .how-controls { grid-template-columns: 1fr 1fr; }
@@ -605,14 +632,7 @@ details.more summary .icon { color: var(--green-900); }
   .seg-device .seg-label { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .seg-device .seg-btn { padding: 6px 12px; }
 }
-@media (max-width: 699.98px) {
-  .topbar-inner { min-height: 56px; gap: 8px; padding-top: 6px; padding-bottom: 6px; }
-  .brand { gap: 10px; }
-  .brand-logo { width: 120px; }
-  .brand-for { padding-left: 10px; gap: 6px; }
-  .brand-bdc { width: 40px; }
-  .topbar-actions .btn-label { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-  .topbar-actions .btn { width: 40px; padding: 0; }
+@media (max-width: 759.98px) {
   .controls-inner { gap: 6px; min-height: 64px; padding-top: 10px; padding-bottom: 10px; }
   .btn-nav { min-width: 0; width: 44px; padding: 0; }
   #btn-back .btn-label { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
@@ -622,7 +642,16 @@ details.more summary .icon { color: var(--green-900); }
   .seg-mode .icon { display: none; }
   .seg-mode .seg-btn { padding: 6px 12px; }
   .seg-device .seg-btn { padding: 6px 9px; }
-  .brand-for-label { display: none; }
+}
+@media (max-width: 699.98px) {
+  .topbar-inner { min-height: 56px; gap: 8px; padding-top: 6px; padding-bottom: 6px; }
+  .brand { gap: 10px; }
+  .brand-logo { width: 120px; }
+  .brand-for { padding-left: 10px; }
+  .topbar-actions .btn-label { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .topbar-actions .btn { width: 40px; padding: 0; }
+  .brand-bdc { width: 40px; }
+  .hero-badge { display: none; }
   .page-inner { padding: 24px 16px 32px; }
   .page .btn-lg { white-space: normal; text-align: center; }
   .pillars { grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 28px; }
@@ -637,11 +666,17 @@ details.more summary .icon { color: var(--green-900); }
 }
 @media (max-width: 419.98px) {
   .pillars { grid-template-columns: 1fr; }
+  .toc-item { flex-wrap: wrap; }
+  .toc-state { margin-left: auto; }
+  .close-actions .btn { width: 100%; }
   .controls-inner { gap: 5px; padding-left: 8px; padding-right: 8px; }
   #btn-next { padding: 0 12px; }
 }
 @media (max-width: 359.98px) {
-  .brand-for { display: none; }
+  .topbar-inner { padding-left: 8px; padding-right: 8px; gap: 6px; }
+  .topbar-actions { gap: 0; }
+  .brand-for-label { display: none; }
+  .brand-bdc { width: 34px; }
   #btn-next .btn-label { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   #btn-next, #btn-back { width: 40px; min-width: 40px; padding: 0; }
   .seg-mode .seg-btn { padding: 6px 8px; font-size: 13px; }

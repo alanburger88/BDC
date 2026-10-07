@@ -31,7 +31,7 @@ const STEP_HASHES = [
   ...content.slides.map((s) => `#/slides/${s.n}`),
   ...content.live.stops.map((s) => `#/live/${s.id}`),
 ];
-const VIEWPORTS = [[320, 640], [375, 667], [390, 844], [768, 1024], [820, 1180], [1024, 768], [1180, 820], [1280, 800], [1366, 768], [1440, 900], [1920, 1080], [1280, 600]];
+const VIEWPORTS = [[320, 640], [375, 667], [390, 844], [700, 1000], [740, 900], [768, 1024], [820, 1180], [1024, 768], [1180, 820], [1280, 800], [1366, 657], [1366, 768], [1440, 900], [1536, 864], [1920, 1080], [1280, 600]];
 
 const srv = await serve(DIST);
 const browser = await launch();
@@ -158,6 +158,15 @@ try {
           }
         }
       }
+      // intro and wrap-up: in the one-screen layout, content either fits or fades to show there is more
+      if (w >= 1024 && hgt >= 620) {
+        for (const hash of ['#/welcome', '#/how-it-works', '#/live/close']) {
+          await open(page, hash);
+          await page.waitForTimeout(80);
+          const f = await page.evaluate(() => { const p = document.querySelector('.layer:not(.is-offstage) .page'); return { over: p.scrollHeight > p.clientHeight + 4, cue: p.classList.contains('is-clipped') }; });
+          if (f.over && !f.cue) issues.push(`${w}x${hgt} ${hash}: content is cut off without a scroll cue`);
+        }
+      }
       // persistent controls: visible, named, at least 40px tall
       const c = await page.evaluate(() => {
         const ids = ['btn-back', 'btn-next', 'btn-contents', 'btn-open', 'btn-restart'];
@@ -173,7 +182,7 @@ try {
       if (problems.length) issues.push(`${w}x${hgt} console: ${problems.join(' | ')}`);
       await page.context().close();
     }
-    check(`no horizontal scrolling on ${VIEWPORTS.length} screen sizes (8 steps each, live view in 3 devices)`, !issues.length, issues.join('\n'));
+    check(`no horizontal scrolling and no unannounced cut-off content on ${VIEWPORTS.length} screen sizes (8 steps each, live view in 3 devices)`, !issues.length, issues.join('\n'));
     check('the simulated device always fits its stage (desktop, tablet, mobile at every size)', !fit.length, fit.join('\n'));
     check('all persistent controls are on screen, named and at least 40px tall at every size', !controls.length, controls.join('\n'));
   }
@@ -193,7 +202,7 @@ try {
     await page.keyboard.press('ArrowLeft');
     check('the left arrow key goes back', await page.evaluate(() => location.hash === '#/slides/2'));
     const progress = await page.evaluate(() => ({ text: document.getElementById('progress-text').textContent, now: document.getElementById('progress-bar').getAttribute('aria-valuenow'), max: document.getElementById('progress-bar').getAttribute('aria-valuemax'), next: document.getElementById('progress-next').textContent, part: document.querySelector('.part-btn[aria-current="step"]').textContent }));
-    check('progress shows the part, the slide number and what is next', progress.text === '2. Presentation · Slide 2 of 18' && progress.now === '4' && progress.max === '33' && /^Up next: Slide 3/.test(progress.next) && /Presentation/.test(progress.part), JSON.stringify(progress));
+    check('progress shows the part, the slide number and what is next', progress.text === '2. Presentation · Slide 2 of 18' && progress.now === '4' && progress.max === '33' && progress.next === 'Up next: The “last mile” friction gap' && /Presentation/.test(progress.part), JSON.stringify(progress));
 
     // mode switch keeps the place in each part
     await open(page, '#/slides/7');
@@ -232,6 +241,16 @@ try {
     await page.keyboard.press('Escape');
     await page.waitForTimeout(100);
     const afterZoom = await page.evaluate(() => ({ open: document.getElementById('dlg-slide').open, focus: document.activeElement.className }));
+    for (const [w, hgt] of [[1920, 1080], [820, 1180], [390, 844]]) {
+      const z = await newPage({ width: w, height: hgt });
+      await open(z.page, '#/slides/7');
+      const inline = await z.page.evaluate(() => { const r = document.querySelector('.slide-frame img').getBoundingClientRect(); return r.width * r.height; });
+      await z.page.click('.slide-zoom-btn');
+      await z.page.waitForTimeout(150);
+      const big = await z.page.evaluate(() => { const r = document.querySelector('.slide-zoom img').getBoundingClientRect(); return { area: r.width * r.height, inView: r.left >= -1 && r.top >= -1 && r.right <= innerWidth + 1 && r.bottom <= innerHeight + 1, bar: document.querySelector('.slide-zoom-bar').scrollWidth <= innerWidth }; });
+      check(`Enlarge slide shows the slide larger and fully on screen at ${w}x${hgt}`, big.area > inline * 1.15 && big.inView && big.bar, JSON.stringify({ inline: Math.round(inline), ...big, area: Math.round(big.area) }));
+      await z.context.close();
+    }
     check('Enlarge slide opens a full view; arrow keys move through slides; Escape closes it', zoom.open && zoom.count === 'Slide 9 of 18' && zoom.hash === '#/slides/9' && !afterZoom.open && /slide-zoom-btn/.test(afterZoom.focus), JSON.stringify({ zoom, afterZoom }));
 
     // links between slides and stops

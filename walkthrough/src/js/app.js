@@ -284,7 +284,7 @@
     el.progressBar.setAttribute('aria-valuetext', `Step ${step.index + 1} of ${STEPS.length}: ${part.label}, ${stepLabel(step)}`);
     el.progressBar.setAttribute('aria-label', 'Walkthrough progress');
     const nxt = STEPS[step.index + 1];
-    el.progressNext.textContent = nxt ? `Up next: ${nxt.kind === 'slide' ? `Slide ${nxt.slide.n}, ` : ''}${nxt.title}` : 'End of the walkthrough';
+    el.progressNext.textContent = nxt ? `Up next: ${nxt.title}` : 'End of the walkthrough';
   }
 
   function renderNav(step) {
@@ -326,6 +326,16 @@
     else if (step.kind === 'how') renderHow(el.page);
     else if (step.kind === 'slide') renderSlide(el.page, step, prev);
     else if (step.kind === 'close') renderClose(el.page, step);
+    const page = el.page.querySelector('.page');
+    if (page) {
+      page.addEventListener('scroll', () => markClipped(page), { passive: true });
+      requestAnimationFrame(() => markClipped(page));
+    }
+  }
+
+  /** A page step taller than its frame fades at the bottom until it is scrolled to the end. */
+  function markClipped(page) {
+    page.classList.toggle('is-clipped', page.scrollTop + page.clientHeight < page.scrollHeight - 4);
   }
 
   /** A link to another step: works as a normal link (new tab, copy) but navigates in place. */
@@ -363,7 +373,7 @@
         h('img', { src: 'assets/previews/notice-desktop.webp', alt: '', width: 1920, height: 1200, decoding: 'async' })),
       h('div', { class: 'hero-phone' },
         h('div', { class: 'hero-phone-screen' }, h('img', { src: 'assets/previews/notice-mobile.webp', alt: '', width: 780, height: 1688, decoding: 'async' }))),
-      h('div', { class: 'hero-badge' }, h('span', { class: 'dot' }), 'The live notice is part 3 of this walkthrough'));
+      h('div', { class: 'hero-badge' }, h('span', { class: 'dot' }), 'Try it live in part 3'));
 
     root.appendChild(h('div', { class: 'page' },
       h('div', { class: 'page-inner' },
@@ -390,24 +400,25 @@
     const H = C.how;
     root.appendChild(h('div', { class: 'page' },
       h('div', { class: 'page-inner' },
-        h('div', { class: 'how-head' },
-          h('p', { class: 'eyebrow' }, H.eyebrow),
-          h('h1', { class: 'how-title', id: 'step-title', tabindex: '-1' }, H.title),
-          h('p', { class: 'lead' }, H.lead)),
+        h('div', { class: 'how-top' },
+          h('div', { class: 'how-head' },
+            h('p', { class: 'eyebrow' }, H.eyebrow),
+            h('h1', { class: 'how-title', id: 'step-title', tabindex: '-1' }, H.title),
+            h('p', { class: 'lead' }, H.lead)),
+          h('button', { type: 'button', class: 'btn btn-primary btn-lg how-start', on: { click: () => go(slideStep(1), { focus: 'heading' }) } },
+            h('span', null, H.start), icon('arrowRight'))),
         h('ol', { class: 'how-parts' },
           H.parts.map((p) => h('li', { class: 'how-part' },
-            h('span', { class: 'how-part-num', 'aria-hidden': 'true' }, String(PART[p.part].n)),
-            h('h2', null, h('span', { class: 'sr-only' }, `Part ${PART[p.part].n}: `), PART[p.part].label),
+            h('div', { class: 'how-part-head' },
+              h('span', { class: 'how-part-num', 'aria-hidden': 'true' }, String(PART[p.part].n)),
+              h('h2', null, h('span', { class: 'sr-only' }, `Part ${PART[p.part].n}: `), PART[p.part].label)),
             h('p', null, p.text)))),
         h('h2', { class: 'how-controls-title' }, H.controlsTitle),
         h('ul', { class: 'how-controls' },
           H.controls.map((c) => h('li', { class: 'how-control' },
             h('span', { class: 'how-control-icon' }, icon(c.icon)),
             h('div', null, h('strong', null, c.label), h('p', null, c.text))))),
-        h('p', { class: 'how-note' }, icon('info'), h('span', null, H.note)),
-        h('div', { class: 'how-actions' },
-          h('button', { type: 'button', class: 'btn btn-primary btn-lg', on: { click: () => go(slideStep(1), { focus: 'heading' }) } },
-            h('span', null, H.start), icon('arrowRight'))))));
+        h('p', { class: 'how-note' }, icon('info'), h('span', null, H.note)))));
   }
 
   /* ---------- slide ---------- */
@@ -554,14 +565,26 @@
     // The unavailable card and the loading pill stay at full size over the scaled device
     live.area = h('div', { class: 'device-area' }, live.holder, live.overlay, live.loading);
     live.caption = h('p', { class: 'device-caption' });
-    live.stage = h('div', { class: 'stage live-stage on-dark' }, live.area, live.caption);
-    live.guide = h('div', { class: 'panel guide' });
-    el.live.appendChild(h('section', { class: 'split live-view', 'aria-label': 'Live statement' }, live.stage, live.guide));
+    live.guide = h('div', { class: 'panel guide', id: 'live-guide' });
+    live.toggle = h('button', { type: 'button', class: 'btn btn-on-dark guide-toggle', 'aria-controls': 'live-guide', 'aria-expanded': 'true', on: { click: toggleGuide } },
+      icon('expand'), h('span', null, 'Hide guide'));
+    live.stage = h('div', { class: 'stage live-stage on-dark' }, live.toggle, live.area, live.caption);
+    live.view = h('section', { class: 'split live-view', 'aria-label': 'Live statement' }, live.stage, live.guide);
+    el.live.appendChild(live.view);
     live.built = true;
 
     N.onState(updateDeviceState);
     if (window.ResizeObserver) new ResizeObserver(() => layoutDevice()).observe(live.area);
     window.addEventListener('resize', () => layoutDevice());
+  }
+
+  /** Large screens: hide the guide panel to give the notice the whole stage. */
+  function toggleGuide() {
+    const collapsed = live.view.classList.toggle('guide-collapsed');
+    live.toggle.setAttribute('aria-expanded', String(!collapsed));
+    clear(live.toggle).append(icon(collapsed ? 'contents' : 'expand'), h('span', null, collapsed ? 'Show guide' : 'Hide guide'));
+    requestAnimationFrame(() => layoutDevice());
+    announce(collapsed ? 'Guide hidden. The notice uses the whole stage.' : 'Guide shown.');
   }
 
   function applyDevice() {
@@ -585,7 +608,10 @@
     const W = d.w + ch.x;
     const H = d.h + ch.y;
     const aw = live.area.clientWidth;
-    const ah = isFrame() ? live.area.clientHeight : Math.min(window.innerHeight * 0.62, 980);
+    // Small screens: the stop's text sits above, so the device can use most of the
+    // height left between the sticky header and the control bar.
+    const chromeH = $('topbar').offsetHeight + $('controls').offsetHeight + 40;
+    const ah = isFrame() ? live.area.clientHeight : Math.max(320, Math.min(window.innerHeight - chromeH, 980));
     if (!aw || !ah) return;
     const s = Math.max(0.1, Math.min(1, aw / W, ah / H));
     live.device.style.transform = `scale(${s})`;
@@ -701,6 +727,9 @@
     if (res && res.stale) return;
     setShowMeLabel();
     updateOpenHref();
+    // Opening Clair or the question form moves focus into the notice; keep it on Show me so
+    // the notice doesn't draw its keyboard focus ring. Tab reaches the open panel.
+    if (document.activeElement === N.frame() && showMeBtn && showMeBtn.isConnected) showMeBtn.focus({ preventScroll: true });
     if (res && res.ok) revealStage();
     if (res && res.ok) {
       if (spec.clair) status('Clair is open in the notice with an answer. Ask your own question there.');

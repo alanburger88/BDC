@@ -98,6 +98,11 @@ def main():
         SLIDES_DIR.mkdir(parents=True)
         for i, page in enumerate(pages, 1):
             im = Image.open(page).convert('RGB')
+            # pdftoppm rounds the page height up to a partial last row, which it leaves
+            # near-white: a light hairline under dark slides. Keep whole rows only.
+            whole = int(im.width / ratio)
+            if im.height > whole:
+                im = im.crop((0, 0, im.width, whole))
             for suffix, width in SIZES.items():
                 out = im if im.width == width else im.resize((width, round(width * im.height / im.width)), Image.LANCZOS)
                 out.save(SLIDES_DIR / f'slide-{i:02d}{suffix}.webp', 'WEBP', quality=86 if suffix != '-thumb' else 80, method=6)
