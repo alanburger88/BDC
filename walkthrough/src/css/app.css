@@ -438,6 +438,8 @@ details.more summary .icon { color: var(--green-900); }
   background: rgba(15, 23, 42, 0.55);
 }
 .device-overlay[hidden] { display: none; }
+.device-overlay.is-pill { background: transparent; place-items: end center; pointer-events: none; padding: 16px; }
+.device-overlay.is-pill .device-open-pill { pointer-events: auto; box-shadow: var(--shadow); }
 .device-card {
   max-width: 420px; padding: 26px; border-radius: var(--radius-lg);
   background: var(--white); color: var(--body); text-align: center; box-shadow: var(--shadow);

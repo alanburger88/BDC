@@ -76,17 +76,21 @@ window.WT_NOTICE = (() => {
   }
 
   let keyHandler = null;
-  /** Presentation clickers send Page Down / Page Up. While the notice has focus those keys
-   * would only scroll it, so forward them to the walkthrough (not from text fields). */
+  /** Presentation clickers send Page Down / Page Up, which would only scroll the notice
+   * while it has focus. Offer them (and Escape, when the notice has nothing of its own to
+   * close) to the walkthrough; the handler returns true when it used the key. */
   function onKey(fn) { keyHandler = fn; }
   function forwardKeys(w) {
     w.addEventListener('keydown', (e) => {
       if (!keyHandler || e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
-      if (e.key !== 'PageDown' && e.key !== 'PageUp') return;
+      if (e.key !== 'PageDown' && e.key !== 'PageUp' && e.key !== 'Escape') return;
       const t = e.target;
-      if (t && t.closest && t.closest('input, textarea, select, [contenteditable="true"]')) return;
-      e.preventDefault();
-      keyHandler(e.key === 'PageDown' ? 1 : -1);
+      if (e.key !== 'Escape' && t && t.closest && t.closest('input, textarea, select, [contenteditable="true"]')) return;
+      if (e.key === 'Escape') {
+        const a = access();
+        try { if (a && a.A && (a.A.overlay.isOpen() || a.A.popover.isOpen())) return; } catch (err) { return; }
+      }
+      if (keyHandler(e.key)) e.preventDefault();
     }, true);
   }
 
@@ -115,7 +119,13 @@ window.WT_NOTICE = (() => {
   }
 
   /** Show the frame even though it can't be scripted (the visitor chose "Show it here"). */
-  function force() { setState('forced'); }
+  function force() {
+    setState('forced');
+    if (pendingSpec && pendingSpec.route && frame) {
+      try { frame.contentWindow.location.replace(`${SRC}${pendingSpec.route}`); } catch (e) { /* ignore */ }
+    }
+    pendingSpec = null;
+  }
 
   /* ------------------------------------------------------------------ */
   /* Driving the notice                                                  */
@@ -262,13 +272,15 @@ window.WT_NOTICE = (() => {
     if (!a || !a.A) return;
     clearSpot();
     await closeTransient(a);
+    setLang(a, 'en-CA');
+    await routeTo(a, '#/overview');
+    a.w.scrollTo(0, 0);
     try {
       a.A.session.reset();
+      // As the notice does when a visitor clears their activity: opened, then the overview viewed
       a.A.events.log('notice_opened', { id: a.A.record.noticeId, section: 'overview' });
+      inNotice(a, a.A.router.go, '#/overview', { replace: true, focus: 'none' });
     } catch (e) { /* ignore */ }
-    setLang(a, 'en-CA');
-    inNotice(a, a.A.router.go, '#/overview', { replace: true, focus: 'none' });
-    a.w.scrollTo(0, 0);
   }
 
   /** Before the walkthrough adds a history entry: close any panel open in the notice and
@@ -282,6 +294,27 @@ window.WT_NOTICE = (() => {
   }
 
   function locale() { const a = access(); return a && a.A ? a.A.i18n.locale : null; }
+
+  /** Stop an apply() that is still running (the visitor left the live part). */
+  function cancel() { seq += 1; }
+
+  /** The notice's in-app "Back to …" steps back with history.go(-n), counting only its own
+   * history entries. Once the walkthrough adds an entry that count is wrong, so forget the
+   * notice's back path (and hide its Back control) whenever the walkthrough adds one. */
+  function forgetBack() {
+    const a = access();
+    if (!a || !a.A || state !== 'ready') return;
+    try {
+      const back = a.A.session.slice('backStack', () => []);
+      const fwd = a.A.session.slice('forwardStack', () => []);
+      if (!back.length && !fwd.length) return;
+      back.length = 0;
+      fwd.length = 0;
+      inNotice(a, a.A.router.rerender, { fid: null });
+    } catch (e) { /* ignore */ }
+  }
+
+  function route() { const a = access(); try { return a && a.A ? a.A.router.current().hash : null; } catch (e) { return null; } }
 
   /** Is a panel (Clair, the question form) open in the notice? */
   function panelOpen() { const a = access(); try { return !!(a && a.A && a.A.overlay.isOpen()); } catch (e) { return false; } }
@@ -300,6 +333,9 @@ window.WT_NOTICE = (() => {
     apply,
     settle,
     onKey,
+    cancel,
+    forgetBack,
+    route,
     reset,
     locale,
     panelOpen,

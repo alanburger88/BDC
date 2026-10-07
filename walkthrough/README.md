@@ -72,7 +72,7 @@ The build fails if:
 
 ## Deployment
 
-`dist/` is deployed as is to Netlify; `netlify.toml` lets a Git-linked site build it. `_headers` sets the following:
+Always build, then deploy `dist/`: run `node walkthrough/tools/build.mjs`, then for example `netlify deploy --prod --dir walkthrough/dist`. A Git-linked Netlify site builds it through `netlify.toml`. The build stamps a hash of the sources into `js/content.js`, and the test suite fails on a `dist/` built from older sources. `_headers` sets the following:
 
 - `noindex`, so the site is not listed by search engines;
 - a strict Content-Security-Policy for the walkthrough;

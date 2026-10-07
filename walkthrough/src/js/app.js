@@ -165,7 +165,7 @@
       if (mine !== histSeq) return; // a later move writes its own entry
       try {
         if (mode === 'replace' || location.hash === step.hash) history.replaceState({ wt: step.id }, '', step.hash);
-        else history.pushState({ wt: step.id }, '', step.hash);
+        else { N.forgetBack(); history.pushState({ wt: step.id }, '', step.hash); }
       } catch (e) { location.replace(step.hash); }
     };
     // A panel open in the notice owns a history entry and steps back over it when closed;
@@ -179,6 +179,7 @@
     const step = typeof target === 'number' ? STEPS[target] : (typeof target === 'string' ? byId[target] : target);
     if (!step) return;
     const prev = STEPS[st.index];
+    if (prev && prev.kind === 'stop' && step !== prev) N.cancel();
     st.index = step.index;
     st.visited.add(step.id);
     if (step.kind === 'slide') st.lastSlide = step.slide.n;
@@ -334,6 +335,12 @@
     if (page) {
       page.addEventListener('scroll', () => markClipped(page), { passive: true });
       requestAnimationFrame(() => markClipped(page));
+      if (window.ResizeObserver) {
+        const ro = new ResizeObserver(() => { if (page.isConnected) markClipped(page); else ro.disconnect(); });
+        ro.observe(page);
+        if (page.firstElementChild) ro.observe(page.firstElementChild);
+      }
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (page.isConnected) markClipped(page); });
     }
   }
 
@@ -598,6 +605,7 @@
   let fullsize = false;
   function setFullsize(on) {
     if (!live.built || on === fullsize) return;
+    if (on && !['ready', 'forced'].includes(N.state())) return;
     fullsize = on;
     live.view.classList.toggle('is-fullsize', on);
     document.documentElement.classList.toggle('wt-fullsize', on);
@@ -659,6 +667,11 @@
     if (!live.built) return;
     live.device.dataset.state = state;
     live.loading.hidden = state !== 'loading';
+    const usable = state === 'ready' || state === 'forced';
+    live.fullBtn.hidden = !usable;
+    if (!usable && fullsize) setFullsize(false);
+    // Keep keyboard focus when the card's button that has it goes away
+    const hadFocus = live.overlay.contains(document.activeElement);
     const ov = clear(live.overlay);
     if (state === 'blocked' || state === 'failed') {
       const blocked = state === 'blocked';
@@ -668,12 +681,25 @@
           ? 'Your browser or network may be blocking embedded pages. You can still open the live statement in its own tab.'
           : 'You can open the live statement in its own tab, or try loading it here again.'),
         h('a', { class: 'btn btn-primary', href: N.href(), target: '_blank', rel: 'noopener' }, icon('external'), h('span', null, 'Open live statement'), h('span', { class: 'sr-only' }, ' (opens in a new tab)')),
-        blocked
+        // A copy opened from disk renders the notice but can't script it: offer to show it anyway.
+        // Online, a blocked frame is an error page, so offer a retry instead.
+        blocked && location.protocol === 'file:'
           ? h('button', { type: 'button', class: 'btn btn-secondary', on: { click: () => N.force() } }, 'Show it here anyway')
           : h('button', { type: 'button', class: 'btn btn-secondary', on: { click: () => N.retry() } }, 'Try again')));
       ov.hidden = false;
+    } else if (state === 'forced') {
+      // Shown without the guided actions: keep a way to open it properly
+      ov.appendChild(h('a', { class: 'btn btn-primary device-open-pill', href: N.href(), target: '_blank', rel: 'noopener' },
+        icon('external'), h('span', null, 'Open live statement'), h('span', { class: 'sr-only' }, ' (opens in a new tab)')));
+      ov.hidden = false;
+      ov.classList.add('is-pill');
     } else {
       ov.hidden = true;
+    }
+    if (state !== 'forced') ov.classList.remove('is-pill');
+    if (hadFocus && !live.overlay.contains(document.activeElement)) {
+      const target = (showMeBtn && showMeBtn.isConnected) ? showMeBtn : $('guide-title');
+      if (target) target.focus({ preventScroll: true });
     }
     if (state === 'ready') {
       // A stop entered while the notice was loading gets its scene now (N queues it).
@@ -760,19 +786,17 @@
       return;
     }
     const res = await N.apply(spec);
-    if (res && res.stale) return;
+    if ((res && res.stale) || STEPS[st.index] !== step) return;
     setShowMeLabel();
     updateOpenHref();
-    // Opening Clair or the question form moves focus into the notice; keep it on Show me so
-    // the notice doesn't draw its keyboard focus ring. Tab reaches the open panel.
-    if (document.activeElement === N.frame() && showMeBtn && showMeBtn.isConnected) showMeBtn.focus({ preventScroll: true });
-    if (res && res.ok && (spec.clair || spec.click)) watchPanel(step);
-    if (res && res.ok) revealStage();
     if (res && res.ok) {
       if (spec.clair) status('Clair is open in the notice with an answer. Ask your own question there.');
       else if (spec.toggleLang) status(N.locale() === 'fr-CA' ? 'The notice is now in French.' : 'The notice is back in English.');
       else if (spec.click) status('Opened in the notice.');
       else status('Highlighted in the notice.');
+      revealStage();
+      // Clair and the question form are panels that take focus once open
+      if (spec.clair || /^ask-/.test(spec.click || '')) await keepFocusOnShowMe(step);
     } else {
       status('That part isn’t on screen in the notice right now. Follow the steps above.');
     }
@@ -783,13 +807,26 @@
   let panelWatch = null;
   function watchPanel(step) {
     clearInterval(panelWatch);
+    const routeAtOpen = N.route();
     panelWatch = setInterval(() => {
       if (STEPS[st.index] !== step || !showMeBtn || !showMeBtn.isConnected) { clearInterval(panelWatch); return; }
       if (!N.panelOpen()) {
         clearInterval(panelWatch);
-        if (document.activeElement === N.frame()) showMeBtn.focus({ preventScroll: true });
+        // Only a plain close returns to Show me; a link followed inside the panel keeps its focus
+        if (document.activeElement === N.frame() && N.route() === routeAtOpen) showMeBtn.focus({ preventScroll: true });
       }
     }, 300);
+  }
+
+  /** Opening Clair or the question form moves focus into the notice once the panel is open.
+   * Keep it on Show me instead (Tab reaches the open panel), so the walkthrough's keys keep
+   * working and the notice doesn't draw its keyboard focus ring. */
+  async function keepFocusOnShowMe(step) {
+    for (let i = 0; i < 30 && !N.panelOpen(); i += 1) await new Promise((r) => setTimeout(r, 50));
+    await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 0)));
+    if (STEPS[st.index] !== step) return;
+    if (document.activeElement === N.frame() && showMeBtn && showMeBtn.isConnected) showMeBtn.focus({ preventScroll: true });
+    if (N.panelOpen()) watchPanel(step);
   }
 
   /** On small screens the guide sits below the device: bring the device back into view
@@ -928,6 +965,11 @@
     e.preventDefault();
     go(a.dataset.step, { focus: 'heading' });
   });
+  document.querySelector('.skip-link').addEventListener('click', (e) => {
+    e.preventDefault();
+    const target = $(STEPS[st.index].kind === 'stop' ? 'guide-title' : 'step-title') || el.main;
+    target.focus();
+  });
   $('brand-home').addEventListener('click', (e) => {
     if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     e.preventDefault();
@@ -945,7 +987,7 @@
 
   document.addEventListener('keydown', (e) => {
     if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
-    if (document.querySelector('dialog[open]')) return;
+    if (fullsize || document.querySelector('dialog[open]')) return;
     const t = e.target;
     if (t && t.closest && t.closest('input, textarea, select, [contenteditable="true"]')) return;
     let dir = 0;
@@ -958,7 +1000,14 @@
     if (dir > 0) next({ keep }); else back({ keep });
   });
 
-  N.onKey((dir) => { if (!fullsize && !document.querySelector('dialog[open]')) { if (dir > 0) next(); else back(); } });
+  // Keys offered by the notice while it has focus (see WT_NOTICE.onKey)
+  N.onKey((key) => {
+    if (key === 'Escape') { if (fullsize) { setFullsize(false); return true; } return false; }
+    // Page keys are walkthrough navigation only in the one-screen layout; elsewhere they scroll
+    if (fullsize || !isFrame() || document.querySelector('dialog[open]')) return false;
+    if (key === 'PageDown') next(); else back();
+    return true;
+  });
 
   // Fetch the notice (about 3 MB, mostly its narration) in the background so part 3
   // opens quickly: on large screens once the page is idle, elsewhere from slide 10 on.
