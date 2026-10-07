@@ -1,6 +1,6 @@
 # QA report — BDC Important Financing Notice (concept demo)
 
-**Build under test:** `dist/index.html` (single file) · **Date:** 2026-10-06 · **Notice:** `DEMO-BDC-CHANGE-2026-001`, record version 1.0
+**Build under test:** `dist/index.html` (single file) · **Date:** 2026-10-06 · **Notice:** `BDC-CHG-2026-001`, record version 1.0
 **Status:** all automated gates pass. Five acceptance criteria still need manual follow-up (see §4).
 
 ## 0. Recipient view (product-owner decision, 2026-10-06)
@@ -65,7 +65,7 @@ The data remains fictional; a non-visible HTML comment in the file records this.
 | AC-08 No horizontal scrolling | **PASS** | All routes, detail views, Clair and query fit at 320 px in EN and FR |
 | AC-09 Zoom and input | **PARTIAL** | 400% zoom (320 px) is covered by AC-08. Keyboard-reduced viewports (390×420, 320×256) keep Clair send and the query controls reachable. **Real-device on-screen keyboard: manual.** |
 | AC-10 Greeting | **PASS** | Handshake animates once per session (not on revisit or language switch), is static under reduced motion, and is aria-hidden |
-| AC-11 Media quality | **PARTIAL** | Creation-time ElevenLabs audio is embedded for both languages: en-CA Sarah, 60.3 s; fr-CA Amélie (Quebec French, chosen by the product owner), 69.3 s. Loudness is matched (−17.7 / −18.5 LUFS). **Pronunciation audition: manual (§4.1).** |
+| AC-11 Media quality | **PARTIAL** | Creation-time ElevenLabs audio is embedded for both languages: en-CA Sarah, 59.4 s; fr-CA Amélie (Quebec French, chosen by the product owner), 68.4 s. Loudness is matched (−17.8 / −18.5 LUFS). **Pronunciation audition: manual (§4.1).** |
 | AC-12 Video-like behaviour | **PASS** | No autoplay; pause holds the clock; chapter and seek-bar seeks work; captions match cues at 1× and 1.5×; replay works; an EN chapter maps to the FR chapter start, paused |
 | AC-13 Right-side assistance | **PASS** | 420 px panel anchored right on desktop, full width at 390 px, context chip shows the selected item, and focus returns |
 | AC-14 Assistant integrity | **PARTIAL** | 20 seeded/paraphrased EN+FR probes route to the right intents, including limits and out-of-scope; the scope line reads "Answers are based on this notice." **Wording review: manual.** |

@@ -4,7 +4,7 @@ ElevenLabs is used **only during creation**. The delivered `dist/index.html` con
 
 ## Steps (PRD §8)
 
-1. **Freeze data and scripts.** `src/content/narration.json` holds the six-chapter scripts for `en-CA` and `fr-CA`, copied verbatim from the PRD drafts. One exception, at the product owner's request (2026-10-06): fr-CA chapter 2 reads « Dans cet exemple, vos remboursements de capital de novembre, décembre et janvier sont reportés. » instead of the draft's calque « …sont reportés pour novembre, décembre et janvier ». The amounts are spelled out in words and were checked against the fixture: $1,600 interest, $12,000 deferred, $11,920 lower payments, $4,800 additional interest, January 31 2032, February 28 2027, $5,600.
+1. **Freeze data and scripts.** `src/content/narration.json` holds the six-chapter scripts for `en-CA` and `fr-CA`, copied verbatim from the PRD drafts. Two changes were made at the product owner's request (2026-10-06). fr-CA chapter 2 reads « Vos remboursements de capital de novembre, décembre et janvier sont reportés. » instead of the draft's calque « …sont reportés pour novembre, décembre et janvier ». For the recipient view, both languages drop the opening "In this example" / « Dans cet exemple ». The amounts are spelled out in words and were checked against the fixture: $1,600 interest, $12,000 deferred, $11,920 lower payments, $4,800 additional interest, January 31 2032, February 28 2027, $5,600.
 2. **Review.** The scripts are drafts for review, not approved BDC communications. `docs/content/narration-scripts.md` is exported for reviewers.
 3. **Voices.** The API key can synthesise speech but cannot list, search or audition voices (`voices_read` is not granted). Both tracks use `eleven_multilingual_v2`:
    - **en-CA:** ElevenLabs premade voice **Sarah** (`EXAVITQu4vr4xnSDxMaL`), North American English. A Canadian accent is not verified.
@@ -25,8 +25,8 @@ ElevenLabs is used **only during creation**. The delivered `dist/index.html` con
 
 | Locale | Voice | Duration | Chapters | Captions | Loudness (embedded) |
 |---|---|---|---|---|---|
-| en-CA | Sarah (premade) | 60.3 s | 6 | 17 | −17.7 LUFS, peak −1.3 dBFS (source within tolerance, not processed) |
-| fr-CA | Amélie (Voice Library) | 69.3 s | 6 | 18 | −18.5 LUFS, peak −1.9 dBFS (source −27.5 LUFS, normalised) |
+| en-CA | Sarah (premade) | 59.4 s | 6 | 16 | −17.8 LUFS, peak −1.3 dBFS (source within tolerance, not processed) |
+| fr-CA | Amélie (Voice Library) | 68.4 s | 6 | 17 | −18.5 LUFS, peak −1.9 dBFS (source −27.5 LUFS, normalised) |
 
 ## Still open (human review, AC-11)
 

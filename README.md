@@ -1,7 +1,7 @@
 # BDC Important Financing Notice — interactive bilingual concept demo
 
 > **Concept demonstration • Fictional client and financing terms • Not connected to BDC.**
-> Camille Roy, Atelier Boréal Inc., loan `DEMO-4821` and every amount are synthetic. Nothing here is a BDC offer, agreement, policy or system.
+> Camille Roy, Atelier Boréal Inc., loan `LN-4821` and every amount are synthetic. Nothing here is a BDC offer, agreement, policy or system.
 
 A self-contained single-page application that turns an important financing notice (a three-month principal postponement) into a guided, interactive experience in English (Canada) and Canadian French. It answers four questions immediately: **What changed? What does it mean? What stays the same? What should I do next?**
 
