@@ -1,0 +1,8 @@
+# For a Netlify site linked to this repository with base directory "walkthrough".
+# The walkthrough build needs the notice (../dist/index.html), which is committed.
+[build]
+  command = "node tools/build.mjs"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"

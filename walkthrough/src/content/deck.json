@@ -1,0 +1,78 @@
+{
+  "source": "deck.pptx",
+  "ratio": 1.794,
+  "slides": [
+    {
+      "n": 1,
+      "notes": "BDC already has a strong digital relationship with Canadian entrepreneurs. InfoSlips can extend that experience into financing communications, helping clients understand important information and act with less effort. The opportunity is clearer communication within BDC's existing channels, with a protected issued record and measurable service outcomes."
+    },
+    {
+      "n": 2,
+      "notes": "Client Space provides a strong foundation for secure financing and loan management. The supplied assessment cites 98% satisfaction with online financing in BDC's fiscal 2026 reporting. InfoSlips would build on that success by making the communications delivered through Client Space easier to understand and use."
+    },
+    {
+      "n": 3,
+      "notes": "A secure delivery channel can still leave an entrepreneur with questions about a complex notice. Contextual explanations could reduce the effort needed to understand a financing change. This is an opportunity hypothesis: discovery with BDC should establish which communications actually generate confusion or avoidable service contacts."
+    },
+    {
+      "n": 4,
+      "notes": "This fictional example follows Camille, owner of Atelier Boréal Inc., through a three-month postponement of principal payments. The notice explains the immediate cash-flow benefit alongside the effect on future payments and total interest. The client, loan terms and amounts are illustrative. A BDC proof of value would use approved terms and validated source data."
+    },
+    {
+      "n": 5,
+      "notes": "The proposed notice opens with a clear, personalised explanation of the approved financing change. Entrepreneurs can review the impact, explore the formal detail and request help in the same communication. BDC would govern the content and approvals, while InfoSlips presents the issued information in a more useful digital format."
+    },
+    {
+      "n": 6,
+      "notes": "The opening summary brings the next payment and temporary cash-flow effect into view immediately. An optional narrated explanation could help clients understand the change in another format. These figures belong to the fictional demonstration. Any implementation would need consistent, BDC-approved values and accessible alternatives to video."
+    },
+    {
+      "n": 7,
+      "notes": "The comparison shows the trade-off between temporary cash-flow relief and additional interest over the loan's remaining life. The monthly view helps an entrepreneur see when payments resume and how they differ. BDC's source systems would supply the financial calculations. InfoSlips would present and explain those values, with all demonstration amounts subject to validation."
+    },
+    {
+      "n": 8,
+      "notes": "Definitions beside unfamiliar terms can answer routine questions before a client needs to contact BDC. The demonstration's Clair assistant illustrates document-scoped help through Acorn.Insight, grounded in the issued notice. It can explain the communication but cannot change its values or independently approve transactions. Clients should retain a clear route to a person."
+    },
+    {
+      "n": 9,
+      "notes": "The proposed support journey starts with an approved definition and offers contextual assistance when more explanation is needed. This could resolve some routine questions within the notice and give BDC staff better context for escalations. Contact reduction is a benefit to measure in a pilot. Complex or unresolved questions would still require human support."
+    },
+    {
+      "n": 10,
+      "notes": "Entrepreneurs can compare the original and revised schedules, then inspect individual months in more detail. Authorised accountants or finance managers could use the same information to reconcile the change. The charts illustrate the experience rather than validated loan mathematics. A working prototype would reconcile every displayed amount with BDC's authoritative schedule."
+    },
+    {
+      "n": 11,
+      "notes": "The proposed experience supports mobile use and governed English and French versions prepared and approved before issuance. Meaningful structure, keyboard access and alternatives to visual charts can improve accessibility in the primary communication. BDC would assess the implementation against its language and accessibility requirements before release. The concept alone does not establish legal conformance."
+    },
+    {
+      "n": 12,
+      "notes": "The interactive communication can serve as the governed issued record, with its identifier, version and effective date tied to the content. Formal clauses remain available, alongside PDF or data downloads where required. BDC would define the authoritative record, retention rules and required outputs, then verify that each representation remains accurate and aligned."
+    },
+    {
+      "n": 13,
+      "notes": "A financing notice can also connect an entrepreneur with relevant advisory services or educational resources. These suggestions should reflect an approved business context and remain clearly separate from the financing amendment. Their purpose is useful support. A link to another BDC product would not imply eligibility, approval or a particular outcome."
+    },
+    {
+      "n": 14,
+      "notes": "The comparison highlights capabilities to evaluate: clearer summaries, contextual self-service, accessible presentation and communication-level insight. It illustrates alternative solution patterns rather than confirmed shortcomings in BDC's current estate. Discovery should compare the proposed experience with BDC's actual communications and assess the value of each improvement using the same evidence standards."
+    },
+    {
+      "n": 15,
+      "notes": "BDC's development mandate makes entrepreneur understanding and inclusive access valuable alongside operational efficiency. A pilot should assess both dimensions: client comprehension and effort, together with servicing and production costs. Accessibility, language quality and record controls also need explicit acceptance criteria. Benefits should follow measured results rather than assumed savings or compliance guarantees."
+    },
+    {
+      "n": 16,
+      "notes": "Communication analytics could show whether a notice reached its destination, which sections clients accessed and which defined actions they took. These signals can help BDC improve content and service journeys. Access alone does not prove understanding. Analytics should pair with comprehension measures, and collection would follow BDC's privacy rules and agreed implementation controls."
+    },
+    {
+      "n": 17,
+      "notes": "The proposed architecture connects BDC's source data and approved events to InfoSlips, then delivers the governed communication through Client Space. BDC's core systems remain authoritative for financial values. Discovery would define authentication, integration, archival responsibilities and deployment controls. This diagram is a proposed integration pattern, not a description of BDC's current technical architecture."
+    },
+    {
+      "n": 18,
+      "notes": "The proposed next step is to choose one high-value financing communication and establish what a better experience should achieve. A BDC-specific proof of value can test the opportunity within the existing digital relationship. Measured results would guide whether to extend the approach to related statements, change notices or onboarding communications."
+    }
+  ]
+}
