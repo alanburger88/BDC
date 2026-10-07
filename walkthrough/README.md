@@ -34,6 +34,7 @@ The notice is served from the same site, at `notice/index.html`, so it normally 
 
 ```
 walkthrough/
+  DECK-NOTES.md           corrections needed in the supplied deck
   src/
     index.html            page shell, icon sprite, dialogs
     css/app.css           InfoSlips design system and responsive layouts
@@ -108,7 +109,7 @@ The latest results are in `tests/results/walkthrough.json`. An independent revie
 - content accuracy;
 - code.
 
-Its findings were fixed or are listed as deck issues.
+Its findings were fixed in the walkthrough. Errors in the supplied deck itself (wrong figures in slide screenshots, typos, claims that the speaker notes walk back) are listed in [DECK-NOTES.md](DECK-NOTES.md), to be corrected in the deck.
 
 Not yet done, and needs a person:
 
