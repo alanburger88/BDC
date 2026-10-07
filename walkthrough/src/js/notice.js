@@ -75,12 +75,28 @@ window.WT_NOTICE = (() => {
     }
   }
 
+  let keyHandler = null;
+  /** Presentation clickers send Page Down / Page Up. While the notice has focus those keys
+   * would only scroll it, so forward them to the walkthrough (not from text fields). */
+  function onKey(fn) { keyHandler = fn; }
+  function forwardKeys(w) {
+    w.addEventListener('keydown', (e) => {
+      if (!keyHandler || e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+      if (e.key !== 'PageDown' && e.key !== 'PageUp') return;
+      const t = e.target;
+      if (t && t.closest && t.closest('input, textarea, select, [contenteditable="true"]')) return;
+      e.preventDefault();
+      keyHandler(e.key === 'PageDown' ? 1 : -1);
+    }, true);
+  }
+
   function onLoad() {
     if (!access()) {
       clearTimeout(loadTimer);
       if (state !== 'forced') setState('blocked');
       return;
     }
+    forwardKeys(access().w);
     const t0 = Date.now();
     (function check() {
       const a = access();
@@ -207,6 +223,7 @@ window.WT_NOTICE = (() => {
     if (spec.toggleLang) setLang(a, a.A.i18n.locale === 'fr-CA' ? 'en-CA' : 'fr-CA');
     if (spec.route) await routeTo(a, spec.route);
     if (stale()) return { ok: false, stale: true };
+    if (spec.top) a.w.scrollTo(0, 0);
 
     let target = null;
     if (spec.click) {
@@ -254,6 +271,16 @@ window.WT_NOTICE = (() => {
     a.w.scrollTo(0, 0);
   }
 
+  /** Before the walkthrough adds a history entry: close any panel open in the notice and
+   * let its step back over the panel's history entry finish first. Otherwise that step
+   * back would land on the walkthrough's new entry and undo it. */
+  async function settle() {
+    const a = access();
+    if (!a || !a.A) return;
+    await closeTransient(a);
+    if (a.w.history.state && a.w.history.state.bdcOverlay) await waitFor(() => !(a.w.history.state && a.w.history.state.bdcOverlay), 1500);
+  }
+
   function locale() { const a = access(); return a && a.A ? a.A.i18n.locale : null; }
 
   /** URL for "Open live statement": the notice at the section currently shown. */
@@ -268,6 +295,8 @@ window.WT_NOTICE = (() => {
     retry,
     force,
     apply,
+    settle,
+    onKey,
     reset,
     locale,
     href,

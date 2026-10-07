@@ -11,6 +11,16 @@ A self-contained single-page application that turns an important financing notic
 
 The only automatic online request is the supplied accessibility widget (`accessibilityserver.org`). The notice, narration, assistant simulation, query form and survey work fully offline and when the widget is blocked. BDC resource links open only when the user chooses them.
 
+### Guided walkthrough for BDC stakeholders
+
+**[`walkthrough/`](walkthrough/)** is a separate, InfoSlips-branded static site. It takes a BDC stakeholder through the InfoSlips proposition in three parts:
+
+1. an introduction;
+2. the 18-slide deck, with each slide's speaker notes as the talk track;
+3. this notice running live in a Desktop / Tablet / Mobile frame, with guided stops.
+
+Build it with `node walkthrough/tools/build.mjs`; the output goes to `walkthrough/dist/`. See [walkthrough/README.md](walkthrough/README.md).
+
 ## What's inside
 
 | Section | Route | Highlights |

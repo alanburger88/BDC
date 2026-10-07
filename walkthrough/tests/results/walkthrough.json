@@ -1,0 +1,267 @@
+{
+  "ranAt": "2026-10-07T15:05:09.218Z",
+  "passed": 50,
+  "failed": 2,
+  "results": [
+    {
+      "name": "talk tracks are the speaker notes, verbatim, for all 18 slides",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "33 steps: 2 intro, 18 slides, 13 live (12 stops + wrap-up)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "each of the 33 steps opens from its URL and shows a heading",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "the browser tab title names the step",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "an unknown address typed during a visit keeps the current step",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "an unknown address on arrival opens the welcome step",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "all 18 slide images load and have alternative text",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "slide 6 shows What to notice, Why it matters and Keep in mind",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "“Read the slide text” reveals the slide transcript",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "no console errors or CSP violations while visiting every step",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "no horizontal scrolling on 12 screen sizes (8 steps each, live view in 3 devices)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "the simulated device always fits its stage (desktop, tablet, mobile at every size)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "all persistent controls are on screen, named and at least 40px tall at every size",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Back is disabled on the first step",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Next moves one step and keeps focus on Next",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "the right arrow key moves to the next step",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "presentation clickers (Page Down) advance slides",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "the left arrow key goes back",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "progress shows the part, the slide number and what is next",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Live statement switch opens the first live stop",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Presentation switch returns to the slide you left (slide 7)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "choosing a screen size from a slide opens the live statement in that size",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Contents lists all 33 steps, marks the current one and focuses it",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "choosing a step in Contents goes there and closes the list",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Escape closes Contents and returns focus to the Contents button",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Open live statement is a link to the notice that opens a new tab",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "the new tab shows the Financing Change Notice",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Enlarge slide opens a full view; arrow keys move through slides; Escape closes it",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "“See it in the live statement” on slide 7 opens the matching stop",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "“From the presentation: slide 7” returns to the slide",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Next is disabled on the last step",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "the wrap-up step offers Open live statement, Review the slides and Restart",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "no console errors or CSP violations while using the controls",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "returning without a step address offers to continue where you left off",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Continue returns to slide 7",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Restart asks for confirmation",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "after Restart: welcome step, heading focused, saved place cleared",
+      "ok": false,
+      "detail": "{\"hash\":\"#/welcome\",\"focus\":\"btn-restart\",\"saved\":{\"lastSlide\":1,\"lastStop\":\"meet\",\"device\":\"desktop\",\"visited\":[\"welcome\"],\"resumeId\":null},\"lang\":\"en-CA\",\"route\":\"#/overview\",\"reviewed\":0}"
+    },
+    {
+      "name": "after Restart the live notice is back to English, on the overview, with no activity",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "every live stop's “Show me” works (desktop view at 1440x900)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "no console errors or CSP violations in the live statement (desktop at 1440x900)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "the notice records the visit for Session insights (definitions, language, sections)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "every live stop's “Show me” works (tablet view at 1440x900)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "no console errors or CSP violations in the live statement (tablet at 1440x900)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "every live stop's “Show me” works (tablet view at 820x1180)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "no console errors or CSP violations in the live statement (tablet at 820x1180)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "every live stop's “Show me” works (mobile view at 390x844)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "no console errors or CSP violations in the live statement (mobile at 390x844)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "moving between stops keeps keyboard focus on Next (the notice never takes it)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "blocked embedding: a preview in the device frame and a prominent “Open live statement”",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "“Show me” explains what to do when the notice is unavailable",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "the fallback view has no horizontal scrolling",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "axe-core: no WCAG 2.2 A/AA violations (5 steps and 2 dialogs, desktop and phone)",
+      "ok": false,
+      "detail": "1440px #/welcome: color-contrast (serious): .welcome-meta\n1440px #/how-it-works: color-contrast (serious): .how-control:nth-child(1) > div > p | .how-control:nth-child(2) > div > p | .how-control:nth-child(3) > div > p\n390px #/welcome: color-contrast (serious): .welcome-meta\n390px #/how-it-works: color-contrast (serious): .how-control:nth-child(1) > div > p | .how-control:nth-child(2) > div > p | .how-control:nth-child(3) > div > p"
+    }
+  ]
+}

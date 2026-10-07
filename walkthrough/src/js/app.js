@@ -154,9 +154,23 @@
     return s ? s.index : -1;
   }
 
-  function setHash(step) {
-    if (location.hash === step.hash) return;
-    try { history.replaceState(history.state, '', step.hash); } catch (e) { location.replace(step.hash); }
+  /* Each step the visitor moves to gets its own history entry, so browser and phone Back
+   * return to the previous step. mode: 'push' (default), 'replace' or 'none' (the move
+   * came from history itself). */
+  let histSeq = 0;
+  function commitHistory(step, mode = 'push') {
+    if (mode === 'none') return;
+    const mine = ++histSeq;
+    const write = () => {
+      if (mine !== histSeq) return; // a later move writes its own entry
+      try {
+        if (mode === 'replace' || location.hash === step.hash) history.replaceState({ wt: step.id }, '', step.hash);
+        else history.pushState({ wt: step.id }, '', step.hash);
+      } catch (e) { location.replace(step.hash); }
+    };
+    // A panel open in the notice owns a history entry and steps back over it when closed;
+    // that has to finish before the new entry is added (see WT_NOTICE.settle).
+    N.settle().then(write, write);
   }
 
   /** Go to a step. opts.focus: 'heading' moves focus to the new step's heading;
@@ -170,9 +184,12 @@
     if (step.kind === 'slide') st.lastSlide = step.slide.n;
     if (step.kind === 'stop') st.lastStop = step.stop.id;
     if (step.id !== 'welcome') st.resumeId = step.id;
-    setHash(step);
+    // "Show it on a desktop" at the responsive stop is a demonstration: moving on restores
+    // the screen size the visitor had chosen.
+    if (prev && prev.id === 'live-responsive' && step !== prev && demoDevice) { st.device = demoDevice; demoDevice = null; }
     save();
     render(prev, opts);
+    commitHistory(step, opts.history);
   }
   const next = (opts) => { if (st.index < STEPS.length - 1) go(st.index + 1, opts); };
   const back = (opts) => { if (st.index > 0) go(st.index - 1, opts); };
@@ -210,6 +227,7 @@
     if (lastRendered && lastRendered !== step) announce(`${PART[step.part].label}. ${stepLabel(step)}: ${step.title}`);
     lastRendered = step;
     updateOpenHref();
+    if (step.index >= slideStep(10).index) prefetchNotice();
   }
 
   function pageTitle(step) {
@@ -228,7 +246,7 @@
     clear(el.parts);
     const current = PARTS.indexOf(step.part);
     PARTS.forEach((p, i) => {
-      const done = i < current;
+      const done = i !== current && partSteps[p].every((s) => st.visited.has(s.id));
       const btn = h('button', {
         type: 'button', class: 'part-btn', 'aria-current': i === current ? 'step' : null,
         on: { click: () => goPart(p, { focus: 'heading' }) },
@@ -278,12 +296,18 @@
     for (const b of el.mode.querySelectorAll('[data-mode]')) {
       b.setAttribute('aria-pressed', String(step.part === b.dataset.mode));
     }
+    const inLive = step.kind === 'stop';
     for (const b of el.device.querySelectorAll('[data-device]')) {
-      b.setAttribute('aria-pressed', String(b.dataset.device === st.device));
+      b.setAttribute('aria-pressed', String(inLive && b.dataset.device === st.device));
+      if (inLive) b.removeAttribute('title');
+      else b.title = `Show the live statement in ${DEV[b.dataset.device].label.toLowerCase()} view`;
     }
   }
 
-  function updateOpenHref() { el.open.href = N.href(); }
+  /** "Open live statement" opens the section on screen during a live stop, otherwise the overview. */
+  const OVERVIEW_HREF = 'notice/index.html#/overview';
+  function openHref() { return STEPS[st.index].kind === 'stop' ? N.href() : OVERVIEW_HREF; }
+  function updateOpenHref() { el.open.href = openHref(); }
 
   /* ------------------------------------------------------------------ */
   /* Layers                                                              */
@@ -466,7 +490,7 @@
     if (step.kind !== 'slide') return;
     const target = slideStep(step.slide.n + dir);
     if (!target) return;
-    go(target, { noScroll: true });
+    go(target, { noScroll: true, history: 'replace' });
     renderZoom();
     announce(`Slide ${target.slide.n} of ${C.slides.length}: ${target.title}`);
   }
@@ -488,7 +512,7 @@
   function renderClose(root, step) {
     const s = step.stop;
     const actions = h('div', { class: 'close-actions' },
-      h('a', { class: 'btn btn-primary btn-lg', href: N.href(), target: '_blank', rel: 'noopener', dataset: { openNotice: '' } },
+      h('a', { class: 'btn btn-primary btn-lg', href: OVERVIEW_HREF, target: '_blank', rel: 'noopener' },
         icon('external'), h('span', null, s.open), h('span', { class: 'sr-only' }, ' (opens in a new tab)')),
       stepLink(slideStep(1), { class: 'btn btn-on-dark btn-lg' }, icon('slides'), h('span', null, s.review)),
       h('button', { type: 'button', class: 'btn btn-on-dark btn-lg', 'aria-haspopup': 'dialog', on: { click: (e) => askRestart(e.currentTarget) } },
@@ -502,8 +526,10 @@
       h('p', { class: 'close-quote' }, s.quote));
     const recapItems = s.recap.map((r) => {
       const target = stopStep(r.stop);
-      return h('li', null, stepLink(target, null,
-        icon('check'), h('span', null, r.label), h('span', { class: 'sr-only' }, `: ${target.title}`), icon('arrowRight', 'go')));
+      const seen = st.visited.has(target.id);
+      return h('li', null, stepLink(target, { class: seen ? 'is-seen' : null },
+        seen ? icon('check') : h('span', { class: 'recap-dot', 'aria-hidden': 'true' }),
+        h('span', null, r.label), h('span', { class: 'sr-only' }, `: ${target.title}${seen ? ' (visited)' : ''}`), icon('arrowRight', 'go')));
     });
     const recap = h('div', { class: 'recap' }, h('h2', null, s.recapTitle), h('ul', null, recapItems));
     const card = h('section', { class: 'close-card on-dark', 'aria-labelledby': 'step-title' }, h('div', { class: 'close-grid' }, text, recap));
@@ -520,13 +546,13 @@
     if (live.built) return;
     live.poster = h('img', { class: 'device-poster', alt: '', decoding: 'async' });
     live.screen = h('div', { class: 'device-screen' }, live.poster);
-    live.bar = h('div', { class: 'device-bar', 'aria-hidden': 'true' }, h('i'), h('i'), h('i'), h('span', { class: 'device-bar-title' }, 'Important financing notice'));
+    live.bar = h('div', { class: 'device-bar', 'aria-hidden': 'true' }, h('i'), h('i'), h('i'), h('span', { class: 'device-bar-title' }, 'BDC Client Space › Documents › Important financing notice'));
     live.overlay = h('div', { class: 'device-overlay', hidden: true });
     live.loading = h('div', { class: 'device-loading', hidden: true, role: 'status' }, h('span', { class: 'spinner', 'aria-hidden': 'true' }), 'Loading the live notice…');
-    live.screen.append(live.overlay, live.loading);
     live.device = h('div', { class: 'device' }, live.bar, live.screen);
     live.holder = h('div', { class: 'device-holder' }, live.device);
-    live.area = h('div', { class: 'device-area' }, live.holder);
+    // The unavailable card and the loading pill stay at full size over the scaled device
+    live.area = h('div', { class: 'device-area' }, live.holder, live.overlay, live.loading);
     live.caption = h('p', { class: 'device-caption' });
     live.stage = h('div', { class: 'stage live-stage on-dark' }, live.area, live.caption);
     live.guide = h('div', { class: 'panel guide' });
@@ -559,13 +585,13 @@
     const W = d.w + ch.x;
     const H = d.h + ch.y;
     const aw = live.area.clientWidth;
-    const ah = isFrame() ? live.area.clientHeight : Math.min(window.innerHeight * 0.74, 980);
+    const ah = isFrame() ? live.area.clientHeight : Math.min(window.innerHeight * 0.62, 980);
     if (!aw || !ah) return;
     const s = Math.max(0.1, Math.min(1, aw / W, ah / H));
     live.device.style.transform = `scale(${s})`;
     live.holder.style.width = `${Math.floor(W * s)}px`;
     live.holder.style.height = `${Math.floor(H * s)}px`;
-    clear(live.caption).append(h('b', null, `${d.label} view`), ` · ${d.w} × ${d.h} · shown at ${Math.round(s * 100)}%`);
+    clear(live.caption).append(h('b', null, 'As opened from BDC Client Space'), ` · ${d.label} view · ${d.w} × ${d.h} · shown at ${Math.round(s * 100)}%`);
   }
 
   function updateDeviceState(state) {
@@ -605,7 +631,7 @@
     if (live.appliedStop !== step.stop.id) {
       live.appliedStop = step.stop.id;
       const enter = step.stop.enter || {};
-      if (Object.keys(enter).length) N.apply(enter).then(() => updateOpenHref());
+      if (Object.keys(enter).length) N.apply({ ...enter, top: true }).then(() => updateOpenHref());
     }
     requestAnimationFrame(() => layoutDevice());
   }
@@ -658,9 +684,11 @@
     const spec = s.show || {};
     if (spec.device === 'cycle') {
       const target = st.device === 'mobile' ? 'desktop' : 'mobile';
-      setDevice(target);
+      const restore = demoDevice || st.device;
+      setDevice(target, { demo: true });
+      demoDevice = restore;
       revealStage();
-      status(`Now showing the ${DEV[target].label.toLowerCase()} view. Try the other sizes in the controls.`);
+      status(`Now showing the ${DEV[target].label.toLowerCase()} view. Try the other sizes in the controls; your usual view returns when you move on.`);
       return;
     }
     if (!N.isReady()) {
@@ -692,8 +720,10 @@
     window.scrollTo({ top: Math.max(0, top), behavior: reducedMotion() ? 'auto' : 'smooth' });
   }
 
+  let demoDevice = null; // the visitor's own screen size while the responsive stop demonstrates another
   function setDevice(device, opts = {}) {
     if (!DEV[device]) return;
+    if (!opts.demo) demoDevice = null; // a choice made with the controls is kept
     const changed = device !== st.device;
     st.device = device;
     save();
@@ -754,14 +784,15 @@
   }
 
   let focusAfterRestart = false;
-  function doRestart() {
-    N.reset();
+  async function doRestart() {
+    await N.reset();
     live.appliedStop = null;
     st.lastSlide = 1;
     st.lastStop = 'meet';
     st.device = defaultDevice();
     st.visited = new Set();
     st.resumeId = null;
+    demoDevice = null;
     clearSaved();
     go('welcome', { focus: 'heading' });
     st.visited = new Set(['welcome']);
@@ -808,10 +839,6 @@
 
   // Keep "Open live statement" pointing at the notice section on screen
   for (const ev of ['pointerdown', 'focus', 'mouseenter']) el.open.addEventListener(ev, updateOpenHref);
-  document.addEventListener('pointerdown', (e) => {
-    const a = e.target.closest && e.target.closest('a[data-open-notice]');
-    if (a) a.href = N.href();
-  });
 
   // In-page step links navigate without adding history entries
   document.addEventListener('click', (e) => {
@@ -827,11 +854,14 @@
     go('welcome', { focus: 'heading' });
   });
 
-  window.addEventListener('hashchange', () => {
+  // Browser/phone Back and Forward, and addresses typed or edited by hand
+  function onHistory() {
     const i = indexFromHash(location.hash);
-    if (i < 0) setHash(STEPS[st.index]); // an unknown address keeps the current step
-    else if (i !== st.index) go(i, { focus: 'heading' });
-  });
+    if (i < 0) commitHistory(STEPS[st.index], 'replace'); // an unknown address keeps the current step
+    else if (i !== st.index) go(i, { focus: 'heading', history: 'none' });
+  }
+  window.addEventListener('popstate', onHistory);
+  window.addEventListener('hashchange', onHistory);
 
   document.addEventListener('keydown', (e) => {
     if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
@@ -848,11 +878,16 @@
     if (dir > 0) next({ keep }); else back({ keep });
   });
 
-  // Fetch the notice in the background once the page is idle, so part 3 opens quickly
+  N.onKey((dir) => { if (!document.querySelector('dialog[open]')) { if (dir > 0) next(); else back(); } });
+
+  // Fetch the notice (about 3 MB, mostly its narration) in the background so part 3
+  // opens quickly: on large screens once the page is idle, elsewhere from slide 10 on.
+  let prefetched = false;
   function prefetchNotice() {
-    if (N.frame()) return;
+    if (prefetched || N.frame()) return;
     const conn = navigator.connection;
     if (conn && (conn.saveData || /2g/.test(conn.effectiveType || ''))) return;
+    prefetched = true;
     document.head.appendChild(h('link', { rel: 'prefetch', href: 'notice/index.html' }));
   }
 
@@ -867,9 +902,9 @@
   if (first.kind === 'slide') st.lastSlide = first.slide.n;
   if (first.kind === 'stop') st.lastStop = first.stop.id;
   if (first.id !== 'welcome') st.resumeId = first.id;
-  setHash(first);
   save();
   render(null, {});
+  commitHistory(first, 'replace');
   document.documentElement.classList.add('wt-ready');
-  setTimeout(prefetchNotice, 2500);
+  if (window.innerWidth >= 1024) setTimeout(prefetchNotice, 4000);
 })();

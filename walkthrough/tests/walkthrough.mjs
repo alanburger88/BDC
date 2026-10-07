@@ -13,7 +13,7 @@ import { launch } from '../../tests/lib/browser.mjs';
 import { serve } from './server.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const DIST = join(here, '..', 'dist');
+const DIST = process.env.WT_DIST || join(here, '..', 'dist'); // WT_DIST: test another build folder
 const axeSrc = readFileSync(join(here, '..', '..', 'node_modules', 'axe-core', 'axe.min.js'), 'utf8');
 const content = JSON.parse(readFileSync(join(DIST, 'js', 'content.js'), 'utf8').replace(/^[\s\S]*?window\.WT_CONTENT = /, '').replace(/;\s*$/, ''));
 const deck = JSON.parse(readFileSync(join(here, '..', 'src', 'content', 'deck.json'), 'utf8'));
@@ -334,6 +334,88 @@ try {
     await page.context().close();
   }
 
+  /* ---------------- history, clicker keys, stop entry, demo device ---------------- */
+  {
+    const { page, problems } = await newPage({ width: 1440, height: 900 });
+    await open(page, '#/welcome');
+    await page.click('#btn-next');
+    await page.click('#btn-next');
+    await page.goBack();
+    await page.waitForTimeout(200);
+    check('browser Back returns to the previous step', await page.evaluate(() => location.hash === '#/how-it-works' && !!document.querySelector('.how-title')));
+    await page.goForward();
+    await page.waitForTimeout(200);
+    check('browser Forward returns to the next step', await page.evaluate(() => location.hash === '#/slides/1'));
+
+    // a panel open in the notice must not undo the walkthrough's history
+    await open(page, '#/live/clair');
+    await waitReady(page);
+    await page.click('#btn-showme');
+    await page.waitForTimeout(800);
+    await page.click('#btn-next');
+    await page.waitForTimeout(1200);
+    const afterClair = await page.evaluate(() => { const w = window.WT_NOTICE.frame().contentWindow; return { hash: location.hash, overlay: w.BDCNotice.overlay.current(), route: w.location.hash }; });
+    check('moving on with Clair open closes it and keeps the new step', afterClair.hash === '#/live/queries' && afterClair.overlay === null && afterClair.route === '#/payments', JSON.stringify(afterClair));
+    await page.goBack();
+    await page.waitForTimeout(600);
+    check('browser Back after that returns to the Clair stop', await page.evaluate(() => location.hash === '#/live/clair'));
+
+    // stop 7 starts clean after stop 6 opened the question form
+    await open(page, '#/live/queries');
+    await page.waitForTimeout(500);
+    await page.click('#btn-showme');
+    await page.waitForTimeout(900);
+    await page.click('#btn-next');
+    await page.waitForTimeout(1200);
+    const lang = await page.evaluate(() => { const w = window.WT_NOTICE.frame().contentWindow; return { hash: location.hash, overlay: w.BDCNotice.overlay.current(), route: w.location.hash, y: w.scrollY }; });
+    check('the language stop opens on a clean overview (no leftover form, scrolled to the top)', lang.hash === '#/live/languages' && lang.overlay === null && lang.route === '#/overview' && lang.y === 0, JSON.stringify(lang));
+
+    // presentation clicker while the notice has focus
+    const frame = page.frames().find((f) => f.url().includes('/notice/'));
+    await frame.click('[data-fid="tab-changes"]');
+    await page.keyboard.press('PageDown');
+    await page.waitForTimeout(300);
+    check('Page Down from a clicker advances the walkthrough even when the notice has focus', await page.evaluate(() => location.hash === '#/live/responsive'));
+    await page.keyboard.press('PageUp');
+    await page.waitForTimeout(300);
+    check('Page Up goes back from inside the notice too', await page.evaluate(() => location.hash === '#/live/languages'));
+
+    // open links: overview outside live stops; the wrap-up button too
+    await open(page, '#/live/insights');
+    await page.waitForTimeout(800);
+    await page.click('#btn-next');
+    const hrefs = await page.evaluate(() => ({ top: document.getElementById('btn-open').getAttribute('href'), close: document.querySelector('.close-actions a').getAttribute('href') }));
+    check('after Session insights, the wrap-up and header links open the notice overview', hrefs.top === 'notice/index.html#/overview' && hrefs.close === 'notice/index.html#/overview', JSON.stringify(hrefs));
+    check('no console errors in the history and clicker checks', !problems.length, problems.join('\n'));
+    await page.context().close();
+  }
+  {
+    const { page } = await newPage({ width: 390, height: 844 });
+    await open(page, '#/live/responsive');
+    await waitReady(page);
+    await page.click('#btn-showme');
+    const during = await page.evaluate(() => document.querySelector('.device').className);
+    await page.click('#btn-next');
+    await page.waitForTimeout(400);
+    const after = await page.evaluate(() => ({ device: document.querySelector('.device').className, pressed: document.querySelector('#device-switch [aria-pressed="true"]')?.dataset.device }));
+    check('the responsive stop demonstrates another size, then restores the visitor’s size on Next', /device--desktop/.test(during) && /device--mobile/.test(after.device) && after.pressed === 'mobile', JSON.stringify({ during, after }));
+    // phones: the stop heading comes before the device
+    const order = await page.evaluate(() => document.getElementById('guide-title').getBoundingClientRect().top < document.querySelector('.device-area').getBoundingClientRect().top);
+    check('on phones the stop’s heading is shown above the device', order);
+    await page.context().close();
+  }
+  {
+    const { page } = await newPage({ width: 1440, height: 900 });
+    await open(page, '#/welcome');
+    await page.click('text=Go straight to the live statement');
+    const parts = await page.evaluate(() => [...document.querySelectorAll('.parts-list li')].map((li) => li.className));
+    check('skipping ahead does not mark the skipped parts as completed', parts[0] !== 'is-done' && parts[1] !== 'is-done', JSON.stringify(parts));
+    await open(page, '#/slides/3');
+    const dev = await page.evaluate(() => [...document.querySelectorAll('#device-switch .seg-btn')].map((b) => [b.getAttribute('aria-pressed'), b.title]));
+    check('outside the live statement no screen size looks selected, and each explains it opens the live statement', dev.every(([p, t]) => p === 'false' && /Show the live statement/.test(t)), JSON.stringify(dev));
+    await page.context().close();
+  }
+
   /* ---------------- focus is not taken by the notice on Next ---------------- */
   {
     const { page } = await newPage({ width: 1440, height: 900 });
@@ -401,7 +483,8 @@ try {
   await srv.close();
 }
 
-mkdirSync(join(here, 'results'), { recursive: true });
-writeFileSync(join(here, 'results', 'walkthrough.json'), `${JSON.stringify({ ranAt: new Date().toISOString(), passed: results.filter((r) => r.ok).length, failed, results }, null, 2)}\n`);
+const RESULTS = process.env.WT_RESULTS || join(here, 'results');
+mkdirSync(RESULTS, { recursive: true });
+writeFileSync(join(RESULTS, 'walkthrough.json'), `${JSON.stringify({ ranAt: new Date().toISOString(), passed: results.filter((r) => r.ok).length, failed, results }, null, 2)}\n`);
 console.log(`\n${results.length - failed}/${results.length} checks passed`);
 process.exit(failed ? 1 : 0);

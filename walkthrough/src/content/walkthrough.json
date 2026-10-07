@@ -2,9 +2,21 @@
   "meta": {
     "title": "InfoSlips for BDC: guided walkthrough",
     "parts": {
-      "intro": { "n": 1, "label": "Introduction", "short": "Intro" },
-      "presentation": { "n": 2, "label": "Presentation", "short": "Slides" },
-      "live": { "n": 3, "label": "Live statement", "short": "Live" }
+      "intro": {
+        "n": 1,
+        "label": "Introduction",
+        "short": "Intro"
+      },
+      "presentation": {
+        "n": 2,
+        "label": "Presentation",
+        "short": "Slides"
+      },
+      "live": {
+        "n": 3,
+        "label": "Live statement",
+        "short": "Live"
+      }
     }
   },
   "welcome": {
@@ -16,11 +28,36 @@
       "body": "InfoSlips improves the communications BDC already sends, inside the channels BDC already owns. Entrepreneurs don't need to learn a new destination."
     },
     "pillars": [
-      { "id": "understandable", "label": "Understandable", "icon": "layers", "text": "Summary first, in plain language, with an explanation beside each term." },
-      { "id": "interactive", "label": "Interactive", "icon": "chart", "text": "Compare the schedules and drill into any month." },
-      { "id": "accessible", "label": "Accessible", "icon": "access", "text": "English and French, on any screen, with keyboard and screen-reader support." },
-      { "id": "actionable", "label": "Actionable", "icon": "flag", "text": "Ask about a specific item and take the right next step." },
-      { "id": "measurable", "label": "Measurable", "icon": "insights", "text": "See which sections were opened and which actions were taken." }
+      {
+        "id": "understandable",
+        "label": "Understandable",
+        "icon": "layers",
+        "text": "Summary first, in plain language, with an explanation beside each term."
+      },
+      {
+        "id": "interactive",
+        "label": "Interactive",
+        "icon": "chart",
+        "text": "Compare the schedules and drill into any month."
+      },
+      {
+        "id": "accessible",
+        "label": "Accessible",
+        "icon": "access",
+        "text": "English and French, on any screen, with keyboard and screen-reader support."
+      },
+      {
+        "id": "actionable",
+        "label": "Actionable",
+        "icon": "flag",
+        "text": "Ask about a specific item and take the right next step."
+      },
+      {
+        "id": "measurable",
+        "label": "Measurable",
+        "icon": "insights",
+        "text": "See which sections were opened and which actions were taken."
+      }
     ],
     "start": "Start the walkthrough",
     "skip": "Go straight to the live statement",
@@ -32,18 +69,51 @@
     "title": "How this walkthrough works",
     "lead": "Explore at your own pace, or use it to guide a conversation. Your place is saved on this device.",
     "parts": [
-      { "part": "intro", "text": "The opportunity for BDC, in a minute." },
-      { "part": "presentation", "text": "18 slides. Each has a short talk track: what to notice, why it matters and what to keep in mind." },
-      { "part": "live", "text": "The interactive Financing Change Notice itself, with guided stops for each capability. View it as a desktop, tablet or phone." }
+      {
+        "part": "intro",
+        "text": "The opportunity for BDC, in a minute."
+      },
+      {
+        "part": "presentation",
+        "text": "18 slides. Each has a short talk track: what to notice, why it matters and what to keep in mind."
+      },
+      {
+        "part": "live",
+        "text": "The interactive Financing Change Notice itself, with guided stops for each capability. View it as a desktop, tablet or phone."
+      }
     ],
     "controlsTitle": "Your controls",
     "controls": [
-      { "icon": "arrowRight", "label": "Back and Next", "text": "Move one step at a time. The arrow keys and presentation clickers work too." },
-      { "icon": "contents", "label": "Contents", "text": "See every step and jump straight to one." },
-      { "icon": "switch", "label": "Presentation and Live statement", "text": "Switch between the slides and the live notice. Your place in each is kept." },
-      { "icon": "devices", "label": "Desktop, Tablet and Mobile", "text": "See the same notice adapt to each screen size." },
-      { "icon": "external", "label": "Open live statement", "text": "Open the live notice in its own browser tab." },
-      { "icon": "restart", "label": "Restart", "text": "Start again from the beginning, with a fresh notice." }
+      {
+        "icon": "arrowRight",
+        "label": "Back and Next",
+        "text": "Move one step at a time. The arrow keys and presentation clickers work too."
+      },
+      {
+        "icon": "contents",
+        "label": "Contents",
+        "text": "See every step and jump straight to one."
+      },
+      {
+        "icon": "switch",
+        "label": "Presentation and Live statement",
+        "text": "Switch between the slides and the live notice. Your place in each is kept."
+      },
+      {
+        "icon": "devices",
+        "label": "Desktop, Tablet and Mobile",
+        "text": "See the same notice adapt to each screen size."
+      },
+      {
+        "icon": "external",
+        "label": "Open live statement",
+        "text": "Open the live notice in its own browser tab."
+      },
+      {
+        "icon": "restart",
+        "label": "Restart",
+        "text": "Start again from the beginning, with a fresh notice."
+      }
     ],
     "note": "The notice features a fictional entrepreneur, Camille Roy of Atelier Boréal Inc. All names, loan terms and amounts are illustrative.",
     "start": "Begin the presentation"
@@ -62,141 +132,432 @@
   },
   "slides": [
     {
-      "n": 1, "chapter": "opportunity",
+      "n": 1,
+      "chapter": "opportunity",
       "title": "Make every BDC communication work harder",
       "alt": "Title slide with the BDC logo and the headline “Make every BDC communication work harder.”",
-      "text": ["Make every BDC communication work harder.", "Transforming static financial correspondence into interactive, measurable entrepreneur experiences."],
-      "talk": { "notice": [0, 1], "why": [2] }
+      "text": [
+        "Make every BDC communication work harder.",
+        "Transforming static financial correspondence into interactive, measurable entrepreneur experiences."
+      ],
+      "talk": {
+        "notice": [
+          0,
+          1
+        ],
+        "why": [
+          2
+        ]
+      }
     },
     {
-      "n": 2, "chapter": "opportunity",
+      "n": 2,
+      "chapter": "opportunity",
       "title": "The digital destination is already built",
       "alt": "A large red “98%” beside an illustration of Client Space as a secure hub.",
-      "text": ["The digital destination is already built.", "98% satisfaction with online financing. Client Space successfully allows entrepreneurs to apply, manage and delegate securely.", "Illustration: the Client Space hub, connecting secure application, financial management, a delegation portal, and a documents and data repository.", "You have built a world-class digital ecosystem. The next frontier is transforming the vital correspondence that travels through that ecosystem."],
-      "talk": { "notice": [0, 1], "why": [2] }
+      "text": [
+        "The digital destination is already built.",
+        "98% satisfaction with online financing. Client Space successfully allows entrepreneurs to apply, manage and delegate securely.",
+        "Illustration: the Client Space hub, connecting secure application, financial management, a delegation portal, and a documents and data repository.",
+        "You have built a world-class digital ecosystem. The next frontier is transforming the vital correspondence that travels through that ecosystem."
+      ],
+      "talk": {
+        "notice": [
+          0,
+          1
+        ],
+        "why": [
+          2
+        ]
+      }
     },
     {
-      "n": 3, "chapter": "opportunity",
+      "n": 3,
+      "chapter": "opportunity",
       "title": "The “last mile” friction gap",
       "alt": "A flow from notice issued to delivery through Client Space, stopped at a static PDF that branches into interpretation burden, accountant consultation and support calls.",
-      "text": ["The “last mile” friction gap.", "Notice issued → Delivered via Client Space → The static PDF (the friction point).", "From the static PDF: interpretation burden, external accountant consultation and avoidable support calls.", "Currently, the digital experience stops when a client opens a static financing notice. Complex changes generate avoidable servicing effort."],
-      "talk": { "notice": [0], "why": [1], "keep": [2] }
+      "text": [
+        "The “last mile” friction gap.",
+        "Notice issued → Delivered via Client Space → The static PDF (the friction point).",
+        "From the static PDF: interpretation burden, external accountant consultation and avoidable support calls.",
+        "Currently, the digital experience stops when a client opens a static financing notice. Complex changes generate avoidable servicing effort."
+      ],
+      "talk": {
+        "notice": [
+          0
+        ],
+        "why": [
+          1
+        ],
+        "keep": [
+          2
+        ]
+      }
     },
     {
-      "n": 4, "chapter": "notice",
+      "n": 4,
+      "chapter": "notice",
       "title": "The hero spotlight: the Financing Change Notice",
       "alt": "A card setting out the scenario, the challenge and the goal of the Financing Change Notice example.",
-      "text": ["The hero spotlight: the Financing Change Notice.", "The scenario. Client: Camille, owner of Atelier Boréal Inc. Event: requested a three-month principal postponement to support a seasonal inventory build.", "The challenge. A principal postponement of $12,000 provides immediate cash-flow relief, but alters the final maturity date and increases the total lifetime interest of the loan. This trade-off is notoriously difficult to communicate on static paper.", "The goal. Communicate this trade-off with absolute clarity. Prevent a confused phone call to the BDC account manager while ensuring full legal compliance and plain-language understanding."],
-      "talk": { "notice": [0, 1], "keep": [2, 3] },
+      "text": [
+        "The hero spotlight: the Financing Change Notice.",
+        "The scenario. Client: Camille, owner of Atelier Boréal Inc. Event: requested a three-month principal postponement to support a seasonal inventory build.",
+        "The challenge. A principal postponement of $12,000 provides immediate cash-flow relief, but alters the final maturity date and increases the total lifetime interest of the loan. This trade-off is notoriously difficult to communicate on static paper.",
+        "The goal. Communicate this trade-off with absolute clarity. Prevent a confused phone call to the BDC account manager while ensuring full legal compliance and plain-language understanding."
+      ],
+      "talk": {
+        "notice": [
+          0,
+          1
+        ],
+        "keep": [
+          2,
+          3
+        ]
+      },
       "live": "meet"
     },
     {
-      "n": 5, "chapter": "notice",
+      "n": 5,
+      "chapter": "notice",
       "title": "The interactive Financing Change Notice",
       "alt": "A screenshot of the interactive notice's overview, with a callout on its personalised greeting.",
-      "text": ["The interactive Financing Change Notice.", "Not just a statement. A governed, interactive guide that helps the entrepreneur understand exactly where they stand.", "Screenshot: the notice's overview, headed “Your principal payments are postponed for three months.”", "Personalized context: “Hello Camille…” shifts the tone from a sterile bank output to a guided digital experience."],
-      "talk": { "notice": [0], "why": [1], "keep": [2] },
+      "text": [
+        "The interactive Financing Change Notice.",
+        "Not just a statement. A governed, interactive guide that helps the entrepreneur understand exactly where they stand.",
+        "Screenshot: the notice's overview, headed “Your principal payments are postponed for three months.”",
+        "Personalized context: “Hello Camille…” shifts the tone from a sterile bank output to a guided digital experience."
+      ],
+      "talk": {
+        "notice": [
+          0
+        ],
+        "why": [
+          1
+        ],
+        "keep": [
+          2
+        ]
+      },
       "live": "meet"
     },
     {
-      "n": 6, "chapter": "notice",
+      "n": 6,
+      "chapter": "notice",
       "title": "Immediate clarity",
       "alt": "The notice's opening summary, with callouts on the narrated video and the summary cards.",
-      "text": ["Immediate clarity: answering “What does this mean for me?” instantly.", "Personalized video walkthrough: a dynamic, narrated summary of the notice, replacing pages of preamble text.", "At-a-glance summary cards: extracting the exact figures the entrepreneur cares about most.", "Next payment: $1,600, due November 30, 2026. Interest only; no principal is due this month.", "Cash-flow effect (temporary): $11,920 less paid from November to January. Original payments $16,720; revised payments $4,800."],
-      "talk": { "notice": [0], "why": [1], "keep": [2, 3] },
+      "text": [
+        "Immediate clarity: answering “What does this mean for me?” instantly.",
+        "Personalized video walkthrough: a dynamic, narrated summary of the notice, replacing pages of preamble text.",
+        "At-a-glance summary cards: extracting the exact figures the entrepreneur cares about most.",
+        "Next payment: $1,600, due November 30, 2026. Interest only; no principal is due this month.",
+        "Cash-flow effect (temporary): $11,920 less paid from November to January. Original payments $16,720; revised payments $4,800."
+      ],
+      "talk": {
+        "notice": [
+          0
+        ],
+        "why": [
+          1
+        ],
+        "keep": [
+          2,
+          3
+        ]
+      },
       "live": "discovery"
     },
     {
-      "n": 7, "chapter": "notice",
+      "n": 7,
+      "chapter": "notice",
       "title": "Visualizing the trade-off",
       "alt": "A cash-flow comparison card beside a chart of monthly payments from November 2026 to April 2027.",
-      "text": ["Visualizing finance: the trade-off.", "Cash-flow effect: $11,920 less paid from November to January. Original payments $16,720; revised payments $4,800. Additional interest: +$4,800.", "Payments, November 2026 to April 2027: the original and revised monthly payments, with principal postponed from November to January. March 2027: original $5,493.33, revised $5,573.33, a difference of $80.00 higher.", "The direct comparison: isolating the exact temporary cashflow relief against the total lifetime cost.", "The monthly reality: transforming complex amortization schedules into intuitive, at-a-glance visual impacts."],
-      "talk": { "notice": [0], "why": [1], "keep": [2, 3] },
+      "text": [
+        "Visualizing finance: the trade-off.",
+        "Cash-flow effect: $11,920 less paid from November to January. Original payments $16,720; revised payments $4,800. Additional interest: +$4,800.",
+        "Payments, November 2026 to April 2027: the original and revised monthly payments, with principal postponed from November to January. March 2027: original $5,493.33, revised $5,573.33, a difference of $80.00 higher.",
+        "The direct comparison: isolating the exact temporary cashflow relief against the total lifetime cost.",
+        "The monthly reality: transforming complex amortization schedules into intuitive, at-a-glance visual impacts."
+      ],
+      "talk": {
+        "notice": [
+          0
+        ],
+        "why": [
+          1
+        ],
+        "keep": [
+          2,
+          3
+        ]
+      },
       "live": "financials"
     },
     {
-      "n": 8, "chapter": "notice",
+      "n": 8,
+      "chapter": "notice",
       "title": "Contextual clarity and instant support",
       "alt": "The notice's payment list with the Clair panel open, beside glossary definitions.",
-      "text": ["Contextual clarity and instant support.", "Screenshot: the notice's payment list, with Clair explaining the December 2026 payment and pointing to clause 3 of the notice.", "Anticipating questions before they become calls. Clair AI contextualizes the $1,600 payment specifically against the user's actual notice data.", "Glossary: Principal, the amount borrowed that remains to be repaid, excluding interest. Principal postponement, delaying principal payments for a set period; interest may still be payable during that time.", "In-line definitions. Complex terms are defined precisely where they appear, supporting BDC's Charter of Client Rights."],
-      "talk": { "notice": [0, 1], "keep": [2, 3] },
+      "text": [
+        "Contextual clarity and instant support.",
+        "Screenshot: the notice's payment list, with Clair explaining the December 2026 payment and pointing to clause 3 of the notice.",
+        "Anticipating questions before they become calls. Clair AI contextualizes the $1,600 payment specifically against the user's actual notice data.",
+        "Glossary: Principal, the amount borrowed that remains to be repaid, excluding interest. Principal postponement, delaying principal payments for a set period; interest may still be payable during that time.",
+        "In-line definitions. Complex terms are defined precisely where they appear, supporting BDC's Charter of Client Rights."
+      ],
+      "talk": {
+        "notice": [
+          0,
+          1
+        ],
+        "keep": [
+          2,
+          3
+        ]
+      },
       "live": "explanation"
     },
     {
-      "n": 9, "chapter": "notice",
+      "n": 9,
+      "chapter": "notice",
       "title": "In-context support: the deflection funnel",
       "alt": "Two paths compared: a traditional path ending in a phone call, and an InfoSlips path ending in instant resolution.",
-      "text": ["In-context support: the deflection funnel.", "The traditional path: notice received → terminology confusion → phone call to the BDC account manager.", "The InfoSlips path: notice received → unclear term clicked, inline definition opens → still unsure? Ask Clair a contextual question → instant resolution.", "Screenshot: glossary definitions beside the Clair panel.", "Key insight: support is moved inside the communication, eliminating the need to leave the document or call the bank."],
-      "talk": { "notice": [0], "why": [1], "keep": [2, 3] },
+      "text": [
+        "In-context support: the deflection funnel.",
+        "The traditional path: notice received → terminology confusion → phone call to the BDC account manager.",
+        "The InfoSlips path: notice received → unclear term clicked, inline definition opens → still unsure? Ask Clair a contextual question → instant resolution.",
+        "Screenshot: glossary definitions beside the Clair panel.",
+        "Key insight: support is moved inside the communication, eliminating the need to leave the document or call the bank."
+      ],
+      "talk": {
+        "notice": [
+          0
+        ],
+        "why": [
+          1
+        ],
+        "keep": [
+          2,
+          3
+        ]
+      },
       "live": "clair"
     },
     {
-      "n": 10, "chapter": "notice",
+      "n": 10,
+      "chapter": "notice",
       "title": "Interactive financial transparency",
       "alt": "A payment chart and month-by-month cards comparing the original and revised payments.",
-      "text": ["Interactive financial transparency.", "Chart: payments from November 2026 to April 2027, original beside revised, with an Explain with AI button.", "Month cards for November 2026, December 2026 and January 2027 show the original payment, the revised payment and the difference.", "Visual reconciliation: the user toggles to see exactly how the postponed principal shifts the schedule and alters total interest over the remaining term.", "Drill-down detail: from high-level summary down to month-by-month mathematical proof, accommodating both quick skimmers and detailed accountants."],
-      "talk": { "notice": [0], "why": [1], "keep": [2, 3] },
+      "text": [
+        "Interactive financial transparency.",
+        "Chart: payments from November 2026 to April 2027, original beside revised, with an Explain with AI button.",
+        "Month cards for November 2026, December 2026 and January 2027 show the original payment, the revised payment and the difference.",
+        "Visual reconciliation: the user toggles to see exactly how the postponed principal shifts the schedule and alters total interest over the remaining term.",
+        "Drill-down detail: from high-level summary down to month-by-month mathematical proof, accommodating both quick skimmers and detailed accountants."
+      ],
+      "talk": {
+        "notice": [
+          0
+        ],
+        "why": [
+          1
+        ],
+        "keep": [
+          2,
+          3
+        ]
+      },
       "live": "financials"
     },
     {
-      "n": 11, "chapter": "notice",
+      "n": 11,
+      "chapter": "notice",
       "title": "Inherently accessible, natively bilingual",
       "alt": "Two phones showing the notice in English and in French.",
-      "text": ["Inherently accessible, natively bilingual.", "Two phones: the notice in English, open at Payments & impact, and in French, open at the overview.", "InfoSlips supports BDC's Official Languages Act requirements with governed English/French variants authored and controlled before issuance.", "Supports modern entrepreneurs in the field. Meaningful semantic structure natively supports accessibility (screen readers, keyboard navigation) far beyond downstream PDF remediation."],
-      "talk": { "notice": [0], "why": [1], "keep": [2, 3] },
+      "text": [
+        "Inherently accessible, natively bilingual.",
+        "Two phones: the notice in English, open at Payments & impact, and in French, open at the overview.",
+        "InfoSlips supports BDC's Official Languages Act requirements with governed English/French variants authored and controlled before issuance.",
+        "Supports modern entrepreneurs in the field. Meaningful semantic structure natively supports accessibility (screen readers, keyboard navigation) far beyond downstream PDF remediation."
+      ],
+      "talk": {
+        "notice": [
+          0
+        ],
+        "why": [
+          1
+        ],
+        "keep": [
+          2,
+          3
+        ]
+      },
       "live": "languages"
     },
     {
-      "n": 12, "chapter": "notice",
+      "n": 12,
+      "chapter": "notice",
       "title": "The experience is the governed record",
       "alt": "Record details and a formal clause, with schedule downloads.",
-      "text": ["The experience is the governed record.", "Record details: notice identifier BDC-CHG-2026-001; record version 1.0; issue date October 6, 2026; effective date November 1, 2026.", "Clause 5, Resumption of principal payments, and a “Download the schedule” panel with CSV downloads.", "Auditability: notice identifiers, record versions and effective dates are permanently bound to the visual experience.", "Compliance and portability: full formal legal clauses remain accessible. Entrepreneurs can still download traditional CSV schedules and fixed-layout PDFs for their systems. The digital upgrade does not break traditional compliance."],
-      "talk": { "notice": [0], "why": [1], "keep": [2] },
+      "text": [
+        "The experience is the governed record.",
+        "Record details: notice identifier BDC-CHG-2026-001; record version 1.0; issue date October 6, 2026; effective date November 1, 2026.",
+        "Clause 5, Resumption of principal payments, and a “Download the schedule” panel with CSV downloads.",
+        "Auditability: notice identifiers, record versions and effective dates are permanently bound to the visual experience.",
+        "Compliance and portability: full formal legal clauses remain accessible. Entrepreneurs can still download traditional CSV schedules and fixed-layout PDFs for their systems. The digital upgrade does not break traditional compliance."
+      ],
+      "talk": {
+        "notice": [
+          0
+        ],
+        "why": [
+          1
+        ],
+        "keep": [
+          2
+        ]
+      },
       "live": "record"
     },
     {
-      "n": 13, "chapter": "notice",
+      "n": 13,
+      "chapter": "notice",
       "title": "Beyond the notice: advisory services",
       "alt": "The Support for you section, with arrows to three opportunities.",
-      "text": ["Beyond the notice: unlocking advisory services.", "Screenshot: the notice's “Support for you” section, with financial management consulting, a Working Capital Loan and BDC cash-flow learning resources.", "Strategic intelligence: a principal postponement signals a business in transition. The notice intelligently links this event to contextual BDC solutions.", "Cross-selling opportunity: seamlessly introducing Working Capital Loans precisely when the entrepreneur needs liquidity for seasonal inventory.", "Proactive business development: the communication transitions from a pure servicing artifact into a proactive engine for advisory support."],
-      "talk": { "notice": [0], "why": [1, 2], "keep": [3] },
+      "text": [
+        "Beyond the notice: unlocking advisory services.",
+        "Screenshot: the notice's “Support for you” section, with financial management consulting, a Working Capital Loan and BDC cash-flow learning resources.",
+        "Strategic intelligence: a principal postponement signals a business in transition. The notice intelligently links this event to contextual BDC solutions.",
+        "Cross-selling opportunity: seamlessly introducing Working Capital Loans precisely when the entrepreneur needs liquidity for seasonal inventory.",
+        "Proactive business development: the communication transitions from a pure servicing artifact into a proactive engine for advisory support."
+      ],
+      "talk": {
+        "notice": [
+          0
+        ],
+        "why": [
+          1,
+          2
+        ],
+        "keep": [
+          3
+        ]
+      },
       "live": "next-step"
     },
     {
-      "n": 14, "chapter": "value",
+      "n": 14,
+      "chapter": "value",
       "title": "The communication paradigm shift",
       "alt": "A table comparing a traditional static PDF with an InfoSlips interactive record.",
-      "text": ["The communication paradigm shift.", "Client effort. Traditional static PDF: high cognitive load, relies on external interpretation. InfoSlips interactive record: summary-first, contextual glossary, instant plain-language AI.", "Resolution. PDF: drives call center volume for basic clarifications. InfoSlips: in-document self-service and highly contextualized inquiries.", "Accessibility. PDF: requires costly downstream remediation. InfoSlips: natively responsive, semantic and structurally accessible.", "BDC insight. PDF: a black box after delivery. InfoSlips: deep telemetry on reading behavior and engagement."],
-      "talk": { "notice": [0], "keep": [1, 2] }
+      "text": [
+        "The communication paradigm shift.",
+        "Client effort. Traditional static PDF: high cognitive load, relies on external interpretation. InfoSlips interactive record: summary-first, contextual glossary, instant plain-language AI.",
+        "Resolution. PDF: drives call center volume for basic clarifications. InfoSlips: in-document self-service and highly contextualized inquiries.",
+        "Accessibility. PDF: requires costly downstream remediation. InfoSlips: natively responsive, semantic and structurally accessible.",
+        "BDC insight. PDF: a black box after delivery. InfoSlips: deep telemetry on reading behavior and engagement."
+      ],
+      "talk": {
+        "notice": [
+          0
+        ],
+        "keep": [
+          1,
+          2
+        ]
+      }
     },
     {
-      "n": 15, "chapter": "value",
+      "n": 15,
+      "chapter": "value",
       "title": "Uniquely suited to BDC's dual mandate",
       "alt": "Two speech bubbles: commercial and operational value, and public-service and entrepreneur value.",
-      "text": ["Uniquely suited for BDC's dual mandate.", "Commercial and operational value: contact center avoidance and self-service resolution; lower exception handling and operational effort; streamlined document production; uncompromising, auditable governance.", "Public-service and entrepreneur value: strict plain language compliance; unparalleled accessible design; Official Language control and seamless toggling; dramatically lower entrepreneur anxiety and faster comprehension.", "Delivering on the commercial mandate of efficiency while simultaneously elevating the public mandate of SME support."],
-      "talk": { "notice": [0], "why": [1, 2], "keep": [3] }
+      "text": [
+        "Uniquely suited for BDC's dual mandate.",
+        "Commercial and operational value: contact center avoidance and self-service resolution; lower exception handling and operational effort; streamlined document production; uncompromising, auditable governance.",
+        "Public-service and entrepreneur value: strict plain language compliance; unparalleled accessible design; Official Language control and seamless toggling; dramatically lower entrepreneur anxiety and faster comprehension.",
+        "Delivering on the commercial mandate of efficiency while simultaneously elevating the public mandate of SME support."
+      ],
+      "talk": {
+        "notice": [
+          0
+        ],
+        "why": [
+          1,
+          2
+        ],
+        "keep": [
+          3
+        ]
+      }
     },
     {
-      "n": 16, "chapter": "value",
+      "n": 16,
+      "chapter": "value",
       "title": "Actionable intelligence",
       "alt": "Four chevrons in sequence: delivered, accessed, interacted and action taken.",
-      "text": ["Actionable intelligence.", "Delivered: the API confirms a successful drop into Client Space.", "Accessed: time, device and language-toggle tracking.", "Interacted: which specific charts were toggled? Was Clair AI engaged?", "Action taken: did they download the CSV? Did they start a contextual question?", "Takeaway: move from relying on basic “read receipts” to understanding true communication effectiveness."],
-      "talk": { "notice": [0], "why": [1], "keep": [2, 3] },
+      "text": [
+        "Actionable intelligence.",
+        "Delivered: the API confirms a successful drop into Client Space.",
+        "Accessed: time, device and language-toggle tracking.",
+        "Interacted: which specific charts were toggled? Was Clair AI engaged?",
+        "Action taken: did they download the CSV? Did they start a contextual question?",
+        "Takeaway: move from relying on basic “read receipts” to understanding true communication effectiveness."
+      ],
+      "talk": {
+        "notice": [
+          0
+        ],
+        "why": [
+          1
+        ],
+        "keep": [
+          2,
+          3
+        ]
+      },
       "live": "insights"
     },
     {
-      "n": 17, "chapter": "fit",
+      "n": 17,
+      "chapter": "fit",
       "title": "Strategic architecture: augmenting Client Space",
       "alt": "A flow from core banking systems, through the InfoSlips processing engine, to BDC Client Space.",
-      "text": ["Strategic architecture: augmenting Client Space.", "Core banking systems (raw data and trigger events) → InfoSlips processing engine (the lending message bus), which transforms data into high-fidelity, interactive communications → BDC Client Space (secure delivery and display).", "InfoSlips does not replace the Client Space portal. It acts as a powerful transformation engine, serving “living communications” within BDC's existing, highly prized digital ecosystem."],
-      "talk": { "notice": [0, 1], "keep": [2, 3] }
+      "text": [
+        "Strategic architecture: augmenting Client Space.",
+        "Core banking systems (raw data and trigger events) → InfoSlips processing engine (the lending message bus), which transforms data into high-fidelity, interactive communications → BDC Client Space (secure delivery and display).",
+        "InfoSlips does not replace the Client Space portal. It acts as a powerful transformation engine, serving “living communications” within BDC's existing, highly prized digital ecosystem."
+      ],
+      "talk": {
+        "notice": [
+          0,
+          1
+        ],
+        "keep": [
+          2,
+          3
+        ]
+      }
     },
     {
-      "n": 18, "chapter": "next",
+      "n": 18,
+      "chapter": "next",
       "title": "Make every important communication work harder",
       "alt": "Closing slide with the BDC asterisk and the invitation to choose one communication.",
-      "text": ["Make every important communication work harder.", "BDC has built a world-class digital destination. Let's transform the communications traveling through it.", "Next step: select one high-value BDC financing communication. We will securely mask the data, apply this framework, and show you exactly what it could become."],
-      "talk": { "notice": [0], "why": [1, 2] }
+      "text": [
+        "Make every important communication work harder.",
+        "BDC has built a world-class digital destination. Let's transform the communications traveling through it.",
+        "Next step: select one high-value BDC financing communication. We will securely mask the data, apply this framework, and show you exactly what it could become."
+      ],
+      "talk": {
+        "notice": [
+          0
+        ],
+        "why": [
+          1,
+          2
+        ]
+      }
     }
   ],
   "live": {
@@ -208,146 +569,257 @@
     "seeLive": "See it in the live statement",
     "stops": [
       {
-        "id": "meet", "icon": "live",
+        "id": "meet",
+        "icon": "live",
         "title": "Your turn: the live Financing Change Notice",
-        "body": "This is the interactive notice from the presentation, running live. Everything works: the summary, the charts, the definitions, Clair, the question form and both languages.",
-        "try": "Scroll the overview. What changed, what it means and what to do next are all answered first.",
-        "enter": { "route": "#/overview", "lang": "en-CA" },
-        "show": { "route": "#/overview", "spotlightSelector": "#view h1" },
+        "body": "This is the interactive notice from the presentation, running live. It is designed to open inside Client Space, the channel BDC already runs: it is not another portal. Everything works, from the summary and charts to Clair and both languages.",
+        "try": "Scroll the overview: what changed, what it means and what to do next are all answered first. Show me points to the summary cards.",
+        "enter": {
+          "route": "#/overview",
+          "lang": "en-CA"
+        },
+        "show": {
+          "route": "#/overview",
+          "spotlightSelector": ".ov-summary"
+        },
         "why": "Entrepreneurs get the answers that matter before any detail, in the place where they already manage their financing.",
         "slide": 5
       },
       {
-        "id": "discovery", "icon": "layers", "pillar": "Understandable",
+        "id": "discovery",
+        "icon": "layers",
+        "pillar": "Understandable",
         "title": "Summary first, detail when it's wanted",
         "body": "The overview answers the essential questions in seconds. Each figure opens into more detail, and the full formal notice is never more than a step away.",
         "try": "Select See what changes, then open any change.",
-        "enter": { "route": "#/overview", "lang": "en-CA" },
-        "show": { "route": "#/overview", "spotlight": "overview-cta-changes" },
+        "enter": {
+          "route": "#/overview",
+          "lang": "en-CA"
+        },
+        "show": {
+          "route": "#/overview",
+          "spotlight": "overview-cta-changes"
+        },
         "why": "Quick readers get the answer at once. Entrepreneurs and accountants who need more can go deeper without searching through a PDF.",
         "slide": 6
       },
       {
-        "id": "explanation", "icon": "book", "pillar": "Understandable",
+        "id": "explanation",
+        "icon": "book",
+        "pillar": "Understandable",
         "title": "Explanations exactly where questions start",
-        "body": "Terms such as “principal postponement” open a plain-language definition in place, with Explain with AI and a link to the formal clause.",
+        "body": "Terms such as “principal postponement” open a plain-language definition in place, with Explain with AI and a link to the full glossary.",
         "try": "Select the dotted term “principal postponement” in the opening paragraph.",
-        "enter": { "route": "#/overview", "lang": "en-CA" },
-        "show": { "route": "#/overview", "click": "term-postponement-1" },
+        "enter": {
+          "route": "#/overview",
+          "lang": "en-CA"
+        },
+        "show": {
+          "route": "#/overview",
+          "click": "term-postponement-1"
+        },
         "why": "Routine questions can be answered inside the notice, in BDC-approved words, before they become a call.",
         "slide": 8
       },
       {
-        "id": "financials", "icon": "chart", "pillar": "Interactive",
+        "id": "financials",
+        "icon": "chart",
+        "pillar": "Interactive",
         "title": "Explore the trade-off, month by month",
         "body": "The chart sets the original payments beside the revised ones. Select any month to see its principal, its interest and why it differs.",
         "try": "Select March 2027: the revised payment is $80 higher. Then select See the breakdown to find out why.",
-        "enter": { "route": "#/payments", "lang": "en-CA" },
-        "show": { "route": "#/payments/2027-03", "spotlight": "pay-month-2027-03" },
+        "enter": {
+          "route": "#/payments",
+          "lang": "en-CA"
+        },
+        "show": {
+          "route": "#/payments/2027-03",
+          "spotlight": "pay-month-2027-03"
+        },
         "why": "The relief and its cost appear together, so the entrepreneur understands the trade-off before it can surprise them.",
         "keep": "In a BDC proof of value, every amount would come from BDC's authoritative systems.",
         "slide": 7
       },
       {
-        "id": "clair", "icon": "sparkle", "pillar": "Understandable",
+        "id": "clair",
+        "icon": "sparkle",
+        "pillar": "Understandable",
         "title": "Clair answers from this notice only",
         "body": "Clair, the notice's guide, explains the change in plain language, points to the clause behind each answer and offers a route to a person.",
         "try": "Ask Clair “Can you change my payment?” It explains that it can't change the notice or approve requests.",
-        "enter": { "route": "#/overview", "lang": "en-CA" },
-        "show": { "clair": "Why is my total interest higher?" },
+        "enter": {
+          "route": "#/overview",
+          "lang": "en-CA"
+        },
+        "show": {
+          "clair": "Why is my total interest higher?"
+        },
         "showLabel": "Ask Clair a question",
         "why": "Document-scoped help, the role of InfoSlips' Acorn.Insight, explains the issued record without changing it.",
         "keep": "In this demonstration, Clair's answers are prepared from the notice's content. No external AI service is used.",
         "slide": 9
       },
       {
-        "id": "queries", "icon": "chat", "pillar": "Actionable",
+        "id": "queries",
+        "icon": "chat",
+        "pillar": "Actionable",
         "title": "Questions that arrive with their context",
         "body": "Ask about this opens a short form that already knows which payment, change or clause the question concerns.",
         "try": "Select a month in the payment list, then select Ask about this.",
-        "enter": { "route": "#/payments", "lang": "en-CA" },
-        "show": { "route": "#/payments/2027-03", "click": "ask-month-2027-03" },
+        "enter": {
+          "route": "#/payments",
+          "lang": "en-CA"
+        },
+        "show": {
+          "route": "#/payments/2027-03",
+          "click": "ask-month-2027-03"
+        },
         "why": "BDC staff would start each conversation with the full context, so questions can be resolved faster.",
         "keep": "In this demonstration, requests stay in the browser. Nothing is sent to BDC.",
         "slide": 9
       },
       {
-        "id": "languages", "icon": "globe", "pillar": "Accessible",
+        "id": "languages",
+        "icon": "globe",
+        "pillar": "Accessible",
         "title": "Governed English and French",
         "body": "Both language versions are written and approved before the notice is issued. The entrepreneur can switch at any time without losing their place.",
         "try": "Use English | Français at the top of the notice.",
-        "enter": {},
-        "show": { "toggleLang": true, "spotlight": "lang-fr-CA" },
+        "enter": {
+          "route": "#/overview",
+          "lang": "en-CA"
+        },
+        "show": {
+          "toggleLang": true,
+          "top": true,
+          "spotlight": "lang-fr-CA"
+        },
         "showLabel": "Switch the language",
         "why": "It supports BDC's official-language commitments with controlled versions, not machine translation after the notice is issued.",
         "slide": 11
       },
       {
-        "id": "responsive", "icon": "devices", "pillar": "Accessible",
+        "id": "responsive",
+        "icon": "devices",
+        "pillar": "Accessible",
         "title": "One notice, every screen",
         "body": "The same notice adapts to a phone, a tablet or a desktop. Navigation, charts and tables reflow, so nothing is lost on a small screen.",
         "try": "Switch between Desktop, Tablet and Mobile in the controls.",
-        "enter": {},
-        "show": { "device": "cycle" },
+        "enter": {
+          "route": "#/overview",
+          "lang": "en-CA"
+        },
+        "show": {
+          "device": "cycle"
+        },
         "showLabel": "Change the screen size",
         "why": "Entrepreneurs often check their financing away from a desk. The communication works wherever they open it.",
         "slide": 11
       },
       {
-        "id": "accessibility", "icon": "access", "pillar": "Accessible",
+        "id": "accessibility",
+        "icon": "access",
+        "pillar": "Accessible",
         "title": "Accessible by design",
         "body": "Meaningful headings, full keyboard use, the numbers behind every chart, and captions and a transcript for the video are part of the notice itself.",
         "try": "Under the payments chart, select Show the numbers.",
-        "enter": { "route": "#/payments", "lang": "en-CA" },
-        "show": { "route": "#/payments", "spotlight": "pay-data-toggle-payments" },
+        "enter": {
+          "route": "#/payments",
+          "lang": "en-CA"
+        },
+        "show": {
+          "route": "#/payments",
+          "spotlight": "pay-data-toggle-payments"
+        },
         "why": "Accessibility is designed into the primary communication rather than added later through PDF remediation.",
         "keep": "Conformance would be assessed against BDC's accessibility requirements before release.",
         "slide": 11
       },
       {
-        "id": "record", "icon": "document", "pillar": "Governed",
+        "id": "record",
+        "icon": "document",
+        "pillar": "Governed",
         "title": "One governed record behind every format",
         "body": "Your notice holds the formal clauses with the notice identifier, record version and effective date. The print-ready PDF and the CSV schedules come from the same content.",
         "try": "Select Print / Save as PDF to see the fixed-layout version.",
-        "enter": { "route": "#/documents", "lang": "en-CA" },
-        "show": { "route": "#/documents", "spotlightSelector": ".ntc-meta" },
-        "why": "There is no gap between the digital view and the formal record: both come from the same governed content.",
+        "enter": {
+          "route": "#/documents",
+          "lang": "en-CA"
+        },
+        "show": {
+          "route": "#/documents",
+          "spotlightSelector": ".ntc-meta"
+        },
+        "why": "There is no gap between the digital view and the formal record: both come from the same governed content, delivered through Client Space rather than a separate system.",
         "slide": 12
       },
       {
-        "id": "next-step", "icon": "flag", "pillar": "Actionable",
+        "id": "next-step",
+        "icon": "flag",
+        "pillar": "Actionable",
         "title": "From understanding to the right next step",
         "body": "Every path ends with something useful to do: mark the notice as reviewed, prepare a question, or explore optional BDC resources kept clearly separate from the financing change.",
         "try": "On the overview, select Mark as reviewed. Then open Support for you.",
-        "enter": { "route": "#/overview", "lang": "en-CA" },
-        "show": { "route": "#/overview", "spotlight": "overview-mark-reviewed" },
-        "why": "The communication moves the entrepreneur from reading to acting, while BDC stays in control of what is offered.",
+        "enter": {
+          "route": "#/overview",
+          "lang": "en-CA"
+        },
+        "show": {
+          "route": "#/overview",
+          "spotlight": "overview-mark-reviewed"
+        },
+        "why": "The communication moves the entrepreneur from reading to acting, inside the channel BDC already runs, while BDC stays in control of what is offered.",
         "keep": "A suggested resource never implies eligibility, approval or a particular outcome.",
         "slide": 13
       },
       {
-        "id": "insights", "icon": "insights", "pillar": "Measurable",
+        "id": "insights",
+        "icon": "insights",
+        "pillar": "Measurable",
         "title": "See what the communication achieved",
         "body": "Session insights lists what happened during your visit: sections viewed, definitions opened, questions drafted and actions taken.",
         "try": "Look for the steps you took in the notice during this walkthrough.",
-        "enter": { "route": "#/insights", "lang": "en-CA" },
-        "show": { "route": "#/insights", "spotlightSelector": ".ins-counts" },
-        "why": "Communication-level evidence like this could help BDC improve its content and service journeys.",
+        "enter": {
+          "route": "#/insights",
+          "lang": "en-CA"
+        },
+        "show": {
+          "route": "#/insights",
+          "spotlightSelector": ".ins-counts"
+        },
+        "why": "Communication-level evidence like this could help BDC improve its content and service journeys, without asking entrepreneurs to use another portal.",
         "keep": "Here, events stay in this browser tab. In production, collection would follow BDC's privacy rules, and access alone doesn't prove understanding.",
         "slide": 16
       },
       {
-        "id": "close", "icon": "flag", "close": true,
+        "id": "close",
+        "icon": "flag",
+        "close": true,
         "title": "Choose one communication. We'll show you what it could become.",
         "eyebrow": "Next step",
         "body": "Select one high-value BDC financing communication. Using representative masked data and agreed success measures, InfoSlips will show what it could become inside BDC's existing digital relationship.",
         "recapTitle": "What you've seen",
         "recap": [
-          { "label": "Understandable", "stop": "discovery" },
-          { "label": "Interactive", "stop": "financials" },
-          { "label": "Accessible", "stop": "accessibility" },
-          { "label": "Actionable", "stop": "next-step" },
-          { "label": "Measurable", "stop": "insights" }
+          {
+            "label": "Understandable",
+            "stop": "discovery"
+          },
+          {
+            "label": "Interactive",
+            "stop": "financials"
+          },
+          {
+            "label": "Accessible",
+            "stop": "accessibility"
+          },
+          {
+            "label": "Actionable",
+            "stop": "next-step"
+          },
+          {
+            "label": "Measurable",
+            "stop": "insights"
+          }
         ],
         "quote": "Don't create another destination. Improve the communications travelling through the destinations BDC already owns.",
         "open": "Open live statement",
@@ -357,8 +829,20 @@
     ]
   },
   "devices": {
-    "desktop": { "label": "Desktop", "w": 1280, "h": 800 },
-    "tablet": { "label": "Tablet", "w": 768, "h": 1024 },
-    "mobile": { "label": "Mobile", "w": 390, "h": 844 }
+    "desktop": {
+      "label": "Desktop",
+      "w": 1280,
+      "h": 800
+    },
+    "tablet": {
+      "label": "Tablet",
+      "w": 768,
+      "h": 1024
+    },
+    "mobile": {
+      "label": "Mobile",
+      "w": 390,
+      "h": 844
+    }
   }
 }
