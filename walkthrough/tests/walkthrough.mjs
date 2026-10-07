@@ -616,6 +616,43 @@ try {
     await page.context().close();
   }
 
+  /* ---------------- follow-ups from the verification pass ---------------- */
+  {
+    // the language switch is highlighted in view even when the notice was scrolled first
+    const { page, problems } = await newPage({ width: 1440, height: 900, reducedMotion: 'no-preference' });
+    await open(page, '#/live/languages');
+    await waitReady(page);
+    await page.waitForTimeout(600);
+    const fr = page.frames().find((f) => f.url().includes('/notice/'));
+    await fr.evaluate(() => window.scrollTo(0, 1500));
+    await page.waitForTimeout(200);
+    await page.click('#btn-showme');
+    await page.waitForTimeout(1500);
+    const sw = await fr.evaluate(() => {
+      const b = document.querySelector('[data-fid="lang-fr-CA"]');
+      const r = b.getBoundingClientRect();
+      return { lang: document.documentElement.lang, top: Math.round(r.top), bottom: Math.round(r.bottom), vh: innerHeight, ring: b.style.outlineStyle };
+    });
+    check('Switch to French highlights the language switch in view even when the notice was scrolled down', sw.lang === 'fr-CA' && sw.top >= 0 && sw.bottom <= sw.vh && sw.ring === 'solid', JSON.stringify(sw));
+    check('no console errors in the language check', !problems.length, problems.join('\n'));
+    await page.context().close();
+  }
+  {
+    // narrow phones: the current Contents row keeps room for its title; wrap-up buttons stay on one line
+    const { page } = await newPage({ width: 320, height: 640 });
+    await open(page, '#/slides/7');
+    await page.click('#btn-contents');
+    const row = await page.evaluate(() => Math.round(document.querySelector('.toc-item[aria-current="step"] .toc-title').getBoundingClientRect().width));
+    check('at 320px the current Contents row keeps a readable title width', row >= 120, `${row}px`);
+    await page.keyboard.press('Escape');
+    await open(page, '#/live/close');
+    const heights = await page.evaluate(() => [...document.querySelectorAll('.close-actions .btn')].map((b) => Math.round(b.getBoundingClientRect().height)));
+    check('at 320px each wrap-up button fits on one line', heights.length === 3 && heights.every((x) => x <= 56), JSON.stringify(heights));
+    const tips = await page.evaluate(() => ['btn-contents', 'btn-restart'].map((id) => document.getElementById(id).title));
+    check('the icon-only header buttons have tooltips', tips[0] === 'Contents' && tips[1] === 'Restart', JSON.stringify(tips));
+    await page.context().close();
+  }
+
   /* ---------------- focus is not taken by the notice on Next ---------------- */
   {
     const { page } = await newPage({ width: 1440, height: 900 });

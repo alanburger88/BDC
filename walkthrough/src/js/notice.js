@@ -163,6 +163,24 @@ window.WT_NOTICE = (() => {
     else a.A.i18n.setLocale(loc);
   }
 
+  // Two animation frames in the notice, or a short wait where a hidden frame runs none
+  function frames(w) {
+    return new Promise((resolve) => {
+      const t = setTimeout(resolve, 200);
+      w.requestAnimationFrame(() => w.requestAnimationFrame(() => { clearTimeout(t); resolve(); }));
+    });
+  }
+
+  /* A language change re-renders the notice and, one frame later, puts back the scroll
+   * position it had when the language changed. Scroll first when the scene starts at the
+   * top, and let that frame pass before anything else scrolls or is highlighted. */
+  async function changeLang(a, loc, top) {
+    if (a.A.i18n.locale === loc) return;
+    if (top) a.w.scrollTo(0, 0);
+    setLang(a, loc);
+    await frames(a.w);
+  }
+
   /* Run one of the notice's own functions from the notice's event loop. The router uses
    * location.replace('#/…'), and a relative URL is resolved against the document whose
    * script started the call: called directly from this page it would resolve against
@@ -229,8 +247,9 @@ window.WT_NOTICE = (() => {
     clearSpot();
     await closeTransient(a);
     if (stale()) return { ok: false, stale: true };
-    if (spec.lang) setLang(a, spec.lang);
-    if (spec.toggleLang) setLang(a, a.A.i18n.locale === 'fr-CA' ? 'en-CA' : 'fr-CA');
+    if (spec.lang) await changeLang(a, spec.lang, spec.top);
+    if (spec.toggleLang) await changeLang(a, a.A.i18n.locale === 'fr-CA' ? 'en-CA' : 'fr-CA', spec.top);
+    if (stale()) return { ok: false, stale: true };
     if (spec.route) await routeTo(a, spec.route);
     if (stale()) return { ok: false, stale: true };
     if (spec.top) a.w.scrollTo(0, 0);
@@ -272,7 +291,7 @@ window.WT_NOTICE = (() => {
     if (!a || !a.A) return;
     clearSpot();
     await closeTransient(a);
-    setLang(a, 'en-CA');
+    await changeLang(a, 'en-CA', true);
     await routeTo(a, '#/overview');
     a.w.scrollTo(0, 0);
     try {

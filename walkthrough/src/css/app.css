@@ -696,12 +696,14 @@ html.wt-fullsize, html.wt-fullsize body { overflow: hidden; }
   .pillars { grid-template-columns: 1fr; }
   .toc-item { flex-wrap: wrap; }
   .toc-state { margin-left: auto; }
+  .toc-item[aria-current='step'] .toc-state { flex-basis: 100%; justify-content: flex-end; }
   .close-actions .btn { width: 100%; }
   .controls-inner { gap: 5px; padding-left: 8px; padding-right: 8px; }
   #btn-next { padding: 0 12px; }
 }
 @media (max-width: 359.98px) {
   .topbar-inner { padding-left: 8px; padding-right: 8px; gap: 6px; }
+  .close-actions .btn-lg { padding-left: 16px; padding-right: 16px; font-size: 15px; }
   .topbar-actions { gap: 0; }
   .brand-for-label { display: none; }
   .brand-bdc { width: 34px; }

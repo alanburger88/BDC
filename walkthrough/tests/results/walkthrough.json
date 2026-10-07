@@ -1,6 +1,6 @@
 {
-  "ranAt": "2026-10-07T16:55:38.248Z",
-  "passed": 93,
+  "ranAt": "2026-10-07T17:36:29.360Z",
+  "passed": 98,
   "failed": 0,
   "results": [
     {
@@ -435,6 +435,31 @@
     },
     {
       "name": "at tablet size, Page Down inside the notice scrolls the notice and keeps the stop",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Switch to French highlights the language switch in view even when the notice was scrolled down",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "no console errors in the language check",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "at 320px the current Contents row keeps a readable title width",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "at 320px each wrap-up button fits on one line",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "the icon-only header buttons have tooltips",
       "ok": true,
       "detail": ""
     },

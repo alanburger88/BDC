@@ -109,7 +109,7 @@ The latest results are in `tests/results/walkthrough.json`. An independent revie
 - content accuracy;
 - code.
 
-Its findings were fixed in the walkthrough. Errors in the supplied deck itself (wrong figures in slide screenshots, typos, claims that the speaker notes walk back) are listed in [DECK-NOTES.md](DECK-NOTES.md), to be corrected in the deck.
+A second, adversarial pass then reproduced every finding on the original build and re-checked it on the final one. The findings were fixed in the walkthrough. Errors in the supplied deck itself (wrong figures in slide screenshots, typos, claims that the speaker notes walk back) are listed in [DECK-NOTES.md](DECK-NOTES.md), to be corrected in the deck.
 
 Not yet done, and needs a person:
 
