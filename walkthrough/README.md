@@ -48,7 +48,7 @@ walkthrough/
     build.mjs             validates content, lints, writes dist/ (adds the notice and _headers)
   tests/
     server.mjs            static server that applies dist/_headers like Netlify
-    walkthrough.mjs       Playwright QA: layout at 12 screen sizes, controls, live stops, fallback, axe
+    walkthrough.mjs       Playwright QA: layout at 16 screen sizes, controls, history, live stops, fallback, axe
 ```
 
 ## Commands
@@ -83,3 +83,36 @@ The build fails if:
 - The talk track is the deck's speaker notes, verbatim. The live-stop and introduction copy was written for the walkthrough from the deck, its notes and the BDC × InfoSlips assessment. It claims only what the notice demonstrably does.
 - The notice uses a fictional entrepreneur and illustrative amounts. The walkthrough says so in "How it works", because the speaker notes say the same. The notice itself reads as the recipient would see it.
 - In the demonstration, Clair's answers are prepared from the notice's content and no external AI service is used. The walkthrough says so at the Clair stop.
+
+## QA status
+
+`tests/walkthrough.mjs` runs in Chromium. It covers:
+
+- all 33 steps, each opening from its own address;
+- no horizontal scrolling at 16 screen sizes from 320 × 640 to 1920 × 1080, with the live view in all three devices;
+- on one-screen layouts, intro and wrap-up content fits or fades at the bottom to show there is more;
+- the persistent controls: Back and Next, the keyboard and clicker keys (also while the notice has focus), Contents, Restart, Open live statement, the Presentation / Live switch, the screen sizes and the part stepper;
+- browser Back and Forward;
+- the saved place;
+- the enlarged slide;
+- every live stop's **Show me** at each simulated device;
+- the fallback when embedding is blocked;
+- no CSP violations;
+- an axe-core scan for WCAG 2.2 A/AA.
+
+The latest results are in `tests/results/walkthrough.json`. An independent review covered:
+
+- visual design and brand;
+- usability against the brief;
+- accessibility;
+- content accuracy;
+- code.
+
+Its findings were fixed or are listed as deck issues.
+
+Not yet done, and needs a person:
+
+- screen-reader passes (NVDA, JAWS, VoiceOver);
+- checks on real phones and tablets;
+- Safari and Firefox;
+- a live presentation rehearsal with the clicker that will be used.
