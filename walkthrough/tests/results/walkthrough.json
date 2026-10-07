@@ -1,6 +1,6 @@
 {
-  "ranAt": "2026-10-07T16:24:51.307Z",
-  "passed": 78,
+  "ranAt": "2026-10-07T16:55:38.248Z",
+  "passed": 93,
   "failed": 0,
   "results": [
     {
@@ -10,6 +10,16 @@
     },
     {
       "name": "33 steps: 2 intro, 18 slides, 13 live (12 stops + wrap-up)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "the build under test was made from the current sources (not a stale dist)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "the build refuses to replace a folder it did not create",
       "ok": true,
       "detail": ""
     },
@@ -369,12 +379,77 @@
       "detail": ""
     },
     {
+      "name": "after a round trip through the slides, the notice offers no stale “Back to …” that could move the walkthrough",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "browser Back still steps through the walkthrough after the round trip",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "leaving the live part during Show me cancels it (no form opens in the hidden notice)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "after “Ask Clair a question”, Clair is open and focus stays on Show me",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "the arrow keys keep working after Show me opened Clair",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "in full size the arrow keys do not change the stop",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "in full size Page Down scrolls the notice instead of changing the stop",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Escape pressed inside the notice leaves full size",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "after Restart the notice activity shows no language change the visitor did not make",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "“Skip to main content” moves focus without adding a history entry",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "no console errors in the code-review checks",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "at tablet size, Page Down inside the notice scrolls the notice and keeps the stop",
+      "ok": true,
+      "detail": ""
+    },
+    {
       "name": "moving between stops keeps keyboard focus on Next (the notice never takes it)",
       "ok": true,
       "detail": ""
     },
     {
       "name": "blocked embedding: a preview in the device frame and a prominent “Open live statement”",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "online, a blocked notice offers Try again (not a blank “show anyway”) and no full-size view",
       "ok": true,
       "detail": ""
     },

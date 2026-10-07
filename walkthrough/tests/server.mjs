@@ -3,7 +3,7 @@
  * Content-Security-Policy and framing headers are exercised locally. */
 import { createServer } from 'node:http';
 import { readFileSync, existsSync, statSync } from 'node:fs';
-import { join, extname, resolve, normalize } from 'node:path';
+import { join, extname, resolve, normalize, relative, isAbsolute } from 'node:path';
 
 const TYPES = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8',
@@ -31,7 +31,8 @@ export function serve(root, { port = 0, extraHeaders = null } = {}) {
     const url = new URL(req.url, 'http://localhost');
     let path = decodeURIComponent(url.pathname);
     let file = normalize(join(dir, path));
-    if (!file.startsWith(dir)) { res.writeHead(403); res.end(); return; }
+    const rel = relative(dir, file);
+    if (rel.startsWith('..') || isAbsolute(rel)) { res.writeHead(403); res.end(); return; }
     if (existsSync(file) && statSync(file).isDirectory()) file = join(file, 'index.html');
     if (!existsSync(file)) { res.writeHead(404, { 'content-type': 'text/plain' }); res.end('Not found'); return; }
     const headers = { 'content-type': TYPES[extname(file)] || 'application/octet-stream', 'cache-control': 'no-store' };

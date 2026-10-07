@@ -6,8 +6,11 @@
  *
  *   node walkthrough/tools/build.mjs && node walkthrough/tests/walkthrough.mjs
  */
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
-import { join, dirname } from 'node:path';
+import { readFileSync, writeFileSync, mkdirSync, mkdtempSync, readdirSync, statSync, rmSync } from 'node:fs';
+import { join, dirname, relative } from 'node:path';
+import { tmpdir } from 'node:os';
+import { createHash } from 'node:crypto';
+import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { launch } from '../../tests/lib/browser.mjs';
 import { serve } from './server.mjs';
@@ -82,6 +85,21 @@ try {
     check('talk tracks are the speaker notes, verbatim, for all 18 slides', notes.length === 18 && notes.every((n, i) => n === rebuilt[i]),
       notes.map((n, i) => (n === rebuilt[i] ? null : i + 1)).filter(Boolean).join(', '));
     check('33 steps: 2 intro, 18 slides, 13 live (12 stops + wrap-up)', STEP_HASHES.length === 33);
+  }
+
+  /* ---------------- the build under test matches the sources ---------------- */
+  {
+    const SRC = join(here, '..', 'src');
+    const walk = (d) => readdirSync(d).flatMap((n) => { const p = join(d, n); return statSync(p).isDirectory() ? walk(p) : [p]; });
+    const h = createHash('sha256');
+    for (const f of walk(SRC).sort()) h.update(relative(SRC, f)).update(readFileSync(f));
+    const want = h.digest('hex').slice(0, 16);
+    check('the build under test was made from the current sources (not a stale dist)', content.build && content.build.source === want, `build ${content.build && content.build.source} vs sources ${want}`);
+    const scratch = mkdtempSync(join(tmpdir(), 'wt-out-'));
+    writeFileSync(join(scratch, 'keep.txt'), 'not a build');
+    const r = spawnSync(process.execPath, [join(here, '..', 'tools', 'build.mjs'), '--out', scratch], { encoding: 'utf8' });
+    check('the build refuses to replace a folder it did not create', r.status === 1 && readdirSync(scratch).includes('keep.txt'), r.stderr);
+    rmSync(scratch, { recursive: true, force: true });
   }
 
   /* ---------------- every step renders ---------------- */
@@ -505,6 +523,99 @@ try {
     await page.context().close();
   }
 
+  /* ---------------- code-review regressions ---------------- */
+  {
+    const { page, problems } = await newPage({ width: 1440, height: 900, reducedMotion: 'no-preference' });
+    // the notice's own "Back to …" must not move the walkthrough
+    await open(page, '#/slides/7');
+    await page.click('#mode-switch [data-mode="live"]');
+    await waitReady(page);
+    let fr = page.frames().find((f) => f.url().includes('/notice/'));
+    await fr.click('[data-fid="overview-fact-maturity-notice"]');
+    await page.waitForTimeout(600);
+    await page.click('#mode-switch [data-mode="presentation"]');
+    await page.waitForTimeout(300);
+    await page.click('#mode-switch [data-mode="live"]');
+    await page.waitForTimeout(700);
+    fr = page.frames().find((f) => f.url().includes('/notice/'));
+    const backVisible = await fr.evaluate(() => { const b = document.querySelector('[data-fid="back-control"]'); return !!b && b.getClientRects().length > 0; });
+    check('after a round trip through the slides, the notice offers no stale “Back to …” that could move the walkthrough', !backVisible);
+    await page.goBack();
+    await page.waitForTimeout(500);
+    check('browser Back still steps through the walkthrough after the round trip', await page.evaluate(() => location.hash === '#/slides/7'));
+
+    // a Show me still running when the visitor leaves is cancelled
+    await open(page, '#/live/queries');
+    await page.waitForTimeout(600);
+    await page.click('#btn-showme');
+    await page.click('#mode-switch [data-mode="presentation"]');
+    await page.waitForTimeout(900);
+    const left = await page.evaluate(() => ({ hash: location.hash, overlay: window.WT_NOTICE.frame().contentWindow.BDCNotice.overlay.current(), active: document.activeElement === window.WT_NOTICE.frame() }));
+    check('leaving the live part during Show me cancels it (no form opens in the hidden notice)', left.overlay === null && !left.active && left.hash.startsWith('#/slides/'), JSON.stringify(left));
+
+    // Show me on Clair keeps focus on Show me, so the arrow keys still work
+    await open(page, '#/live/clair');
+    await page.waitForTimeout(600);
+    await page.click('#btn-showme');
+    await page.waitForTimeout(1200);
+    const foc = await page.evaluate(() => ({ active: document.activeElement.id, overlay: window.WT_NOTICE.frame().contentWindow.BDCNotice.overlay.current() }));
+    check('after “Ask Clair a question”, Clair is open and focus stays on Show me', foc.active === 'btn-showme' && foc.overlay === 'clair', JSON.stringify(foc));
+    await page.keyboard.press('ArrowRight');
+    await page.waitForTimeout(600);
+    check('the arrow keys keep working after Show me opened Clair', await page.evaluate(() => location.hash === '#/live/queries'));
+
+    // full size: walkthrough keys are off, the notice pages natively, Escape inside exits
+    await open(page, '#/live/explanation');
+    await page.waitForTimeout(700);
+    await page.click('.device-full-btn');
+    await page.keyboard.press('ArrowRight');
+    await page.waitForTimeout(300);
+    check('in full size the arrow keys do not change the stop', await page.evaluate(() => location.hash === '#/live/explanation' && document.documentElement.classList.contains('wt-fullsize')));
+    fr = page.frames().find((f) => f.url().includes('/notice/'));
+    await fr.focus('[data-fid="overview-cta-changes"]');
+    const y0 = await fr.evaluate(() => scrollY);
+    await page.keyboard.press('PageDown');
+    await page.waitForTimeout(400);
+    const y1 = await fr.evaluate(() => scrollY);
+    check('in full size Page Down scrolls the notice instead of changing the stop', y1 > y0 && await page.evaluate(() => location.hash === '#/live/explanation'), `${y0} -> ${y1}`);
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(200);
+    check('Escape pressed inside the notice leaves full size', await page.evaluate(() => !document.documentElement.classList.contains('wt-fullsize')));
+
+    // Restart does not log a language change of its own
+    await open(page, '#/live/languages');
+    await page.waitForTimeout(700);
+    await page.click('#btn-showme');
+    await page.waitForTimeout(500);
+    await page.click('#btn-restart');
+    await page.click('#btn-restart-confirm');
+    await page.waitForTimeout(900);
+    const ev = await page.evaluate(() => window.WT_NOTICE.frame().contentWindow.BDCNotice.events.counts());
+    check('after Restart the notice activity shows no language change the visitor did not make', ev.language_changed === 0 && ev.notice_opened === 1, JSON.stringify(ev));
+
+    // skip link adds no history entry
+    await open(page, '#/how-it-works');
+    const len0 = await page.evaluate(() => history.length);
+    await page.focus('.skip-link');
+    await page.keyboard.press('Enter');
+    check('“Skip to main content” moves focus without adding a history entry', await page.evaluate((l) => history.length === l && location.hash === '#/how-it-works' && document.activeElement.id === 'step-title', len0));
+    check('no console errors in the code-review checks', !problems.length, problems.join('\n'));
+    await page.context().close();
+  }
+  {
+    // Page Down inside the notice scrolls it on layouts where Page Down scrolls the page
+    const { page } = await newPage({ width: 820, height: 1180 });
+    await open(page, '#/live/meet');
+    await waitReady(page);
+    const fr = page.frames().find((f) => f.url().includes('/notice/'));
+    await fr.focus('[data-fid="overview-cta-changes"]');
+    await page.keyboard.press('PageDown');
+    await page.waitForTimeout(400);
+    const r = await page.evaluate(() => ({ hash: location.hash, y: window.WT_NOTICE.frame().contentWindow.scrollY }));
+    check('at tablet size, Page Down inside the notice scrolls the notice and keeps the stop', r.hash === '#/live/meet' && r.y > 0, JSON.stringify(r));
+    await page.context().close();
+  }
+
   /* ---------------- focus is not taken by the notice on Next ---------------- */
   {
     const { page } = await newPage({ width: 1440, height: 900 });
@@ -528,6 +639,8 @@ try {
       return { visible: !ov.hidden, heading: ov.querySelector('h2').textContent, link: a && a.textContent.trim(), href: a && a.getAttribute('href'), target: a && a.target, poster: poster.complete && poster.naturalWidth > 0 && getComputedStyle(poster).visibility === 'visible', alt: poster.alt };
     });
     check('blocked embedding: a preview in the device frame and a prominent “Open live statement”', fb.visible && /can't be shown/.test(fb.heading) && /Open live statement/.test(fb.link) && fb.target === '_blank' && /^notice\/index\.html/.test(fb.href) && fb.poster && /Preview/.test(fb.alt), JSON.stringify(fb));
+    const extra = await page.evaluate(() => ({ retry: !!document.querySelector('.device-card button') && /Try again/.test(document.querySelector('.device-card button').textContent), anyway: /Show it here anyway/.test(document.querySelector('.device-card').textContent), full: document.querySelector('.device-full-btn').hidden }));
+    check('online, a blocked notice offers Try again (not a blank “show anyway”) and no full-size view', extra.retry && !extra.anyway && extra.full, JSON.stringify(extra));
     await page.click('#btn-showme');
     await page.waitForTimeout(250);
     check('“Show me” explains what to do when the notice is unavailable', /isn’t available|still loading/.test(await page.textContent('.guide-status')));
